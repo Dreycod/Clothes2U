@@ -77,7 +77,7 @@ public class Annonce
     
     [ForeignKey(nameof(CategorieId))]
     [InverseProperty(nameof(Categorie.Annonces))]
-    public virtual SousCategorie Categorie { get; set; } = null!;
+    public virtual Categorie Categorie { get; set; } = null!;
     
     [ForeignKey(nameof(StatutAnnonceId))]
     [InverseProperty(nameof(StatutAnnonce.Annonces))]

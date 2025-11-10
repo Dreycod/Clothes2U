@@ -8,7 +8,11 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Abonnement> Abonnements { get; set; } 
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
-    
+    public DbSet<Categorie>  Categories { get; set; }
+    public DbSet<Couleur>  Couleurs { get; set; }
+    public DbSet<Illustre_Annonce> Illustre_Annonces { get; set; }
+    public DbSet<Marque> Marques { get; set; }
+    public DbSet<Photo> Photos { get; set; }
     
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     
@@ -20,7 +24,7 @@ public partial class Clothes2UDbContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("api");
+        modelBuilder.HasDefaultSchema("sae_clothes2u");
         
         
         modelBuilder.Entity<Abonnement>(entity =>
@@ -128,8 +132,86 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.CategorieId);
             entity.HasIndex(e => e.SousCategorieId);
         });
+
+        modelBuilder.Entity<Categorie>(entity =>
+        {
+            entity.HasKey(e => e.CategorieId);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(a => a.Categorie)
+                .HasForeignKey(e => e.CategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasMany(e => e.SousCategories)
+                .WithOne(s => s.Categorie)
+                .HasForeignKey(e => e.CategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasMany(e => e.Tailles)
+                .WithOne(t => t.Categorie)
+                .HasForeignKey(e => e.CategorieTailleId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<SousCategorie>(entity =>
+        {
+            entity.HasKey(e =>  e.SousCategorieId);
+            
+            entity.HasOne(e => e.Categorie)
+                .WithMany(a => a.SousCategories)
+                .HasForeignKey(e => e.SousCategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(a => a.SousCategorie)
+                .HasForeignKey(e => e.SousCategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
         
+        modelBuilder.Entity<Couleur>(entity =>
+        {
+            entity.HasKey(e => e.CouleurId);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(c => c.Couleur)
+                .HasForeignKey(e => e.CouleurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<Illustre_Annonce>(entity =>
+        {
+            entity.HasKey(e => e.IllustId);
+            
+            entity.HasOne(e => e.Annonce)
+                .WithMany(a => a.Photos)
+                .HasForeignKey(e => e.AnnonceId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasOne(e => e.Photo)
+                .WithMany(p => p.Annonces)
+                .HasForeignKey(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<Marque>(entity =>
+        {
+            entity.HasKey(e => e.MarqueId);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(a => a.Marque)
+                .HasForeignKey(e => e.MarqueId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
         
+        modelBuilder.Entity<Photo>(entity =>
+        {
+            entity.HasKey(e => e.PhotoId);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(a => a.Photo)
+                .HasForeignKey(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
         
         modelBuilder.Entity<Utilisateur>(entity =>
         {

@@ -9,7 +9,7 @@ public class Couleur
 {
     [Key]
     [Column("cou_id")]
-    public int CouId { get; set; }
+    public int CouleurId { get; set; }
     
     [Column("cou_nom")]
     public string Nom { get; set; } = null!;

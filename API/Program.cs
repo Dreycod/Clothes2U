@@ -1,4 +1,10 @@
+using API.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<Clothes2UDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Clothes2UDb")));
 
 // Add services to the container.
 
@@ -15,7 +21,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+    
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
