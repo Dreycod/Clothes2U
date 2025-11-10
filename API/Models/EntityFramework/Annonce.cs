@@ -86,6 +86,9 @@ public class Annonce
     [InverseProperty(nameof(Illustre_Annonce.Annonce))]
     public virtual ICollection<Illustre_Annonce> Photos { get; set; } = new List<Illustre_Annonce>();
     
+    [InverseProperty(nameof(Decision_suspension.AnnonceSuspendu))]
+    public virtual ICollection<Decision_suspension> Decisions { get; set; } = new List<Decision_suspension>();
+    
     [InverseProperty(nameof(Favoris.Annonce))]
     public virtual ICollection<Favoris> UtilisateursFavoris { get; set; } = new List<Favoris>();
 }
