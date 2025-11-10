@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace API.Models.EntityFramework;
 
-public class Notification
+[Table("t_e_notification_not")]
+public abstract class Notification
 {
     
 }
