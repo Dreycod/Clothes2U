@@ -75,4 +75,10 @@ public class Utilisateur
     [InverseProperty(nameof(Notification.Utilisateur))]
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+    [InverseProperty(nameof(Signalement.Utilisateur))]
+    public virtual ICollection<Signalement> Signalements { get; set; } = new List<Signalement>();
+    
+    [InverseProperty(nameof(SignalementUtilisateur.UtilisateurSignale))]
+    public virtual ICollection<SignalementUtilisateur> SignalementsUtilisateurs { get; set; } = new List<SignalementUtilisateur>();
+
 }
