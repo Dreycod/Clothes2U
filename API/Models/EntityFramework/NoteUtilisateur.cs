@@ -8,7 +8,7 @@ namespace API.Models.EntityFramework;
 public class NoteUtilisateur
 {
     [Key]
-    [Column("notuti")]
+    [Column("notuti_id")]
     public int NoteUtilisateurId { get; set; }
     
     [Column("notuti_note")]
