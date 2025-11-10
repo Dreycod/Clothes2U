@@ -236,6 +236,7 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.Property(e => e.Description)
                 .HasMaxLength(1000);
+            
 
             // Relation avec Adresse
             entity.HasOne(e => e.Adresse)
