@@ -68,6 +68,12 @@ public class Utilisateur
     [InverseProperty(nameof(Abonnement.UtilisateurSuivis))]
     public virtual ICollection<Utilisateur> Abonnes { get; set; } = new List<Utilisateur>();
     
+    [InverseProperty(nameof(Decision_suspension.UtilisateurSuspendu))]
+    public virtual ICollection<Decision_suspension> LesSuspensions { get; set; } = new List<Decision_suspension>();
+    
+    [InverseProperty(nameof(Decision_suspension.Decisionnaire))]
+    public virtual ICollection<Decision_suspension> LesDecisions { get; set; } = new List<Decision_suspension>();
+    
     [ForeignKey(nameof(StatutId))]
     [InverseProperty(nameof(StatutUtilisateur.Utilisateurs))]
     public virtual StatutUtilisateur Statut { get; set; } = null!;

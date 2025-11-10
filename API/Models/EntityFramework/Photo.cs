@@ -21,5 +21,5 @@ public class Photo
 
     [ForeignKey(nameof(MessageTexte.MessageId))]
     [InverseProperty(nameof(MessageTexte.Photos))]
-    public virtual MessageTexte MessageTexte { get; set; } = null!;
+    public virtual MessageTexte? MessageTexte { get; set; }
 }
