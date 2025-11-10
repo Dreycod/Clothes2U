@@ -63,10 +63,10 @@ public class Utilisateur
     public virtual ICollection<Favoris> AnnoncesFavorites { get; set; } = new List<Favoris>();
     
     [InverseProperty(nameof(Abonnement.UtilisateurSuiveur))]
-    public virtual ICollection<Utilisateur> Abonnements { get; set; } = new List<Utilisateur>();
+    public virtual ICollection<Abonnement> Abonnements { get; set; } = new List<Abonnement>();
     
     [InverseProperty(nameof(Abonnement.UtilisateurSuivis))]
-    public virtual ICollection<Utilisateur> Abonnes { get; set; } = new List<Utilisateur>();
+    public virtual ICollection<Abonnement> Abonnes { get; set; } = new List<Abonnement>();
     
     [InverseProperty(nameof(Decision_suspension.UtilisateurSuspendu))]
     public virtual ICollection<Decision_suspension> LesSuspensions { get; set; } = new List<Decision_suspension>();

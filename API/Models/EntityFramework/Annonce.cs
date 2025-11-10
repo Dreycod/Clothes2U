@@ -81,7 +81,7 @@ public class Annonce
     
     [ForeignKey(nameof(StatutAnnonceId))]
     [InverseProperty(nameof(StatutAnnonce.Annonces))]
-    public virtual StatutUtilisateur Statut { get; set; } = null!;
+    public virtual StatutAnnonce Statut { get; set; } = null!;
     
     [InverseProperty(nameof(Illustre_Annonce.Annonce))]
     public virtual ICollection<Illustre_Annonce> Photos { get; set; } = new List<Illustre_Annonce>();
