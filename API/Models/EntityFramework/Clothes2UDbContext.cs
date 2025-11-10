@@ -16,6 +16,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Marque> Marques { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
+    public DbSet<SousCategorie>  SousCategories { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Taille> Tailles { get; set; }
     public DbSet<Utilisateur> Utilisateurs { get; set; }
@@ -182,20 +183,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasKey(e => e.EtatArticleId);
         });
 
-        modelBuilder.Entity<SousCategorie>(entity =>
-        {
-            entity.HasKey(e =>  e.SousCategorieId);
-            
-            entity.HasOne(e => e.Categorie)
-                .WithMany(a => a.SousCategories)
-                .HasForeignKey(e => e.SousCategorieId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-            
-            entity.HasMany(e => e.Annonces)
-                .WithOne(a => a.SousCategorie)
-                .HasForeignKey(e => e.SousCategorieId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-        });
+       
         
         modelBuilder.Entity<Couleur>(entity =>
         {
@@ -256,7 +244,22 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.TagId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
-
+        
+        modelBuilder.Entity<SousCategorie>(entity =>
+        {
+            entity.HasKey(e =>  e.SousCategorieId);
+            
+            entity.HasOne(e => e.Categorie)
+                .WithMany(a => a.SousCategories)
+                .HasForeignKey(e => e.CategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(a => a.SousCategorie)
+                .HasForeignKey(e => e.SousCategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+        
         modelBuilder.Entity<Tag>(entity =>
         {
             entity.HasKey(e => e.TagId);

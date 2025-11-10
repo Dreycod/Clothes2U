@@ -8,6 +8,7 @@ namespace API.Models.EntityFramework;
 public class SousCategorie
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("sscat_id")]
     public int SousCategorieId { get; set; }
     

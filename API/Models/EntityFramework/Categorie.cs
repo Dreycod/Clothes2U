@@ -7,6 +7,7 @@ namespace API.Models.EntityFramework;
 public class Categorie
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("cat_id")]
     public int CategorieId { get; set; }
     
