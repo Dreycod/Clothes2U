@@ -100,4 +100,7 @@ public class Annonce
     
     [InverseProperty(nameof(SignalementAnnonce.Annonce))]
     public virtual ICollection<SignalementAnnonce> Signalements { get; set; } = new List<SignalementAnnonce>();
+    
+    [InverseProperty(nameof(Conversation.LAnnonce))]
+    public virtual ICollection<Conversation> LesConversations { get; set; } = new List<Conversation>();
 }

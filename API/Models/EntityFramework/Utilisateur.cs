@@ -86,5 +86,9 @@ public class Utilisateur
     
     [InverseProperty(nameof(SignalementUtilisateur.UtilisateurSignale))]
     public virtual ICollection<SignalementUtilisateur> SignalementsUtilisateurs { get; set; } = new List<SignalementUtilisateur>();
-
+    
+    [InverseProperty(nameof(Achete.UtilisateurAcheteur))]
+    public virtual ICollection<Achete> Achats { get; set; } = new List<Achete>();
+    [InverseProperty(nameof(Vend.UtilisateurVendeur))]
+    public virtual ICollection<Vend> Ventes { get; set; } = new List<Vend>();
 }
