@@ -88,4 +88,10 @@ public class Annonce
     
     [InverseProperty(nameof(Favoris.Annonce))]
     public virtual ICollection<Favoris> UtilisateursFavoris { get; set; } = new List<Favoris>();
+    
+    [InverseProperty(nameof(NotificationNouvelleAnnonce.Annonce))]
+    public virtual ICollection<NotificationNouvelleAnnonce> NotificationsNouvelleAnnonces { get; set; } = new List<NotificationNouvelleAnnonce>();
+    
+    [InverseProperty(nameof(NotificationModificationAnnonce.Annonce))]
+    public virtual ICollection<NotificationModificationAnnonce> NotificationsModificationAnnonces { get; set; } = new List<NotificationModificationAnnonce>();
 }

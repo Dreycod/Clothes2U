@@ -71,5 +71,8 @@ public class Utilisateur
     [ForeignKey(nameof(StatutId))]
     [InverseProperty(nameof(StatutUtilisateur.Utilisateurs))]
     public virtual StatutUtilisateur Statut { get; set; } = null!;
+    
+    [InverseProperty(nameof(Notification.Utilisateur))]
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
 }

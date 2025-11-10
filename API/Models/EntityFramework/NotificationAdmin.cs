@@ -1,0 +1,11 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace API.Models.EntityFramework;
+
+
+[Table("t_e_notification_not")]
+public class NotificationAdmin : Notification
+{
+    [Column("not_admin_text")]
+    public String AdminText { get; set; }
+}
