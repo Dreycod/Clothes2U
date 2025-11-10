@@ -13,7 +13,6 @@
     <ItemGroup>
       <Folder Include="Controllers\" />
       <Folder Include="DTO\" />
-      <Folder Include="Models\EntityFramework\" />
       <Folder Include="Models\Repository\Managers\" />
     </ItemGroup>
 
