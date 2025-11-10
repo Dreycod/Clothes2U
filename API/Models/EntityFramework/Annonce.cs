@@ -59,9 +59,8 @@ public class Annonce
     [InverseProperty(nameof(EtatArticle.Annonces))]
     public virtual EtatArticle Etat{ get; set; } = null!;
     
-    [ForeignKey(nameof(CouleurId))]
-    [InverseProperty(nameof(Couleur.Annonces))]
-    public virtual Couleur Couleur { get; set; } = null!;
+    [InverseProperty(nameof(Est_De_Couleur.Annonce))]
+    public virtual ICollection<Est_De_Couleur> Couleurs { get; set; } = new List<Est_De_Couleur>();
     
     [ForeignKey(nameof(MarqueId))]
     [InverseProperty(nameof(Marque.Annonces))]
@@ -103,4 +102,7 @@ public class Annonce
     
     [InverseProperty(nameof(Conversation.LAnnonce))]
     public virtual ICollection<Conversation> LesConversations { get; set; } = new List<Conversation>();
+    
+    [InverseProperty(nameof(Recense.Annonce))]
+    public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();
 }

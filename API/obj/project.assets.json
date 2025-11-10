@@ -3591,19 +3591,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/alexisstapleton/.nuget/packages/": {}
+    "/home/elioth/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj",
+      "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
       "projectName": "API",
-      "projectPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj",
-      "packagesPath": "/Users/alexisstapleton/.nuget/packages/",
-      "outputPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/obj/",
+      "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
+      "packagesPath": "/home/elioth/.nuget/packages/",
+      "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/alexisstapleton/.nuget/NuGet/NuGet.Config"
+        "/home/elioth/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -3682,7 +3682,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -14,8 +14,8 @@ public class Couleur
     [Column("cou_nom")]
     public string Nom { get; set; } = null!;
     
-    //relation avec la table annonce : 
+    //relation avec la table est_de_couleur : 
     
-    [InverseProperty(nameof(Annonce.Couleur))]
-    public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
+    [InverseProperty(nameof(Est_De_Couleur.Couleur))]
+    public virtual ICollection<Est_De_Couleur> Annonces { get; set; } = new List<Est_De_Couleur>();
 }

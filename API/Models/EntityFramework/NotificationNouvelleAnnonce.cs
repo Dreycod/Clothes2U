@@ -10,7 +10,7 @@ public class NotificationNouvelleAnnonce : Notification
     
     //relation avec les autres tables : 
     
-    [ForeignKey(nameof(Annonce))]
+    [ForeignKey(nameof(AnnonceId))]
     [InverseProperty(nameof(Annonce.NotificationsNouvelleAnnonces))]
     public virtual Annonce Annonce { get; set; } = null!;
 }

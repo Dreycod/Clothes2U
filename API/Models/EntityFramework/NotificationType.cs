@@ -15,6 +15,6 @@ public class NotificationType
     
     //relation avec les autres tables : 
     
-    [InverseProperty(nameof(Message.Utilisateur))]
+    [InverseProperty(nameof(Notification.NotificationType))]
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

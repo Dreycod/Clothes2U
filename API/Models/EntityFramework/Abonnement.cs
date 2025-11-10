@@ -24,7 +24,7 @@ public class Abonnement
     [InverseProperty(nameof(Utilisateur.Abonnements))]
     public virtual Utilisateur UtilisateurSuiveur { get; set; } = null!;
     
-    [ForeignKey(nameof(UtilisateurSuivis))]
+    [ForeignKey(nameof(UtilisateurSuivisId))]
     [InverseProperty(nameof(Utilisateur.Abonnes))]
     public virtual Utilisateur UtilisateurSuivis { get; set; } = null!;
 }
