@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj": {}
+    "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj": {}
   },
   "projects": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj": {
+    "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
+        "projectUniqueName": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj",
         "projectName": "API",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
-        "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/obj/",
+        "projectPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj",
+        "packagesPath": "/Users/alexisstapleton/.nuget/packages/",
+        "outputPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/elioth/.nuget/NuGet/NuGet.Config"
+          "/Users/alexisstapleton/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -93,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
