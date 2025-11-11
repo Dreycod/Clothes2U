@@ -24,7 +24,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IDataRepository<Categorie, int>, CategorieManager>();
+builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
+builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
+
 
 
 var app = builder.Build();

@@ -17,6 +17,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<SousCategorie>  SousCategories { get; set; }
+    public DbSet<StatutAnnonce> StatutAnnonces { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Taille> Tailles { get; set; }
     public DbSet<Utilisateur> Utilisateurs { get; set; }
@@ -257,6 +258,16 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasMany(e => e.Annonces)
                 .WithOne(a => a.SousCategorie)
                 .HasForeignKey(e => e.SousCategorieId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<StatutAnnonce>(entity =>
+        {
+            entity.HasKey(e => e.StatutAnnonceId);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(a => a.Statut)
+                .HasForeignKey(e => e.StatutAnnonceId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
         

@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using API.Attributes;
 
 namespace API.Models.EntityFramework;
 
 
 [Table("t_e_souscategorie_sscat")]
-public class SousCategorie
+public class SousCategorie : IEntityWithNavigation
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,8 +25,11 @@ public class SousCategorie
     
     [ForeignKey(nameof(CategorieId))]
     [InverseProperty(nameof(Categorie.SousCategories))]
+    [NavigationProperty]
     public virtual Categorie Categorie { get; set; } = null!;
     
     [InverseProperty(nameof(Annonce.SousCategorie))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
+    
+    public int GetId() => SousCategorieId;
 }
