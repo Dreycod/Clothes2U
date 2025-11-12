@@ -1,6 +1,7 @@
 using AutoMapper;
 using API.DTO;
 using API.DTO.Categorie;
+using API.DTO.Couleur;
 using API.DTO.SousCategorie;
 using API.DTO.StatutAnnonce;
 using API.Models;
@@ -20,5 +21,6 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.SousCategories, opt => opt.MapFrom(src => src.SousCategories));
 
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
+        CreateMap<Couleur, CouleurDTO>();
     }
 }

@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_photo_pho")]
-public class Photo
+public class Photo : IEntity
 {
     [Key]
     [Column("pho_photo_id")]
@@ -22,4 +22,6 @@ public class Photo
     [ForeignKey(nameof(MessageTexte.MessageId))]
     [InverseProperty(nameof(MessageTexte.Photos))]
     public virtual MessageTexte? MessageTexte { get; set; }
+    
+    public int GetId() => PhotoId;
 }

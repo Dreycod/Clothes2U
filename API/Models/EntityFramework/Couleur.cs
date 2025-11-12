@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_couleur_cou")]
-public class Couleur
+public class Couleur : IEntity
 {
     [Key]
     [Column("cou_id")]
@@ -18,4 +18,6 @@ public class Couleur
     
     [InverseProperty(nameof(Est_De_Couleur.Couleur))]
     public virtual ICollection<Est_De_Couleur> Annonces { get; set; } = new List<Est_De_Couleur>();
+    
+    public int GetId() => CouleurId;
 }
