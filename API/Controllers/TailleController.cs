@@ -32,7 +32,7 @@ public class TailleController : ControllerBase
         return Ok(taillesDTO);
     }
     
-    [HttpGet]
+    [HttpGet("byCategoryId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Taille>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<TailleDTO>>> GetAllTailleByCategorieId()
