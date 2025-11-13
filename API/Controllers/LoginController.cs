@@ -52,10 +52,14 @@ public class LoginController : ControllerBase
         Console.WriteLine("Login : " + request.Login + "Email : " + request.Email + " Password : " + request.Password);
         
         // Charger les utilisateurs
-        await GetUtilisateurs();
+        await LoadUtilisateursAsync();
         
         IActionResult response = Unauthorized();
-        Utilisateur utilisateur = AuthentificateUtilisateur(request.Email, request.Password);
+        var utilisateur = AuthentificateUtilisateur(
+            string.IsNullOrEmpty(request.Login) ? request.Email : request.Login,
+            request.Password
+        );
+        
         
         if (utilisateur != null)
         {
@@ -107,5 +111,10 @@ public class LoginController : ControllerBase
         );
         
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    private async Task LoadUtilisateursAsync()
+    {
+        var utilisateurs = await _dataRepository.GetAllAsync();
+        _utilisateurs = utilisateurs?.ToList();
     }
 }

@@ -306,6 +306,15 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.CategorieTailleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
+
+        modelBuilder.Entity<StatutUtilisateur>(entity =>
+        {
+            entity.HasKey(e => e.StatutUtilisateurId);
+
+            entity.HasMany(e => e.Utilisateurs)
+                .WithOne(u => u.Statut)
+                .HasForeignKey(u => u.StatutId);
+        });
         
         modelBuilder.Entity<Utilisateur>(entity =>
         {
