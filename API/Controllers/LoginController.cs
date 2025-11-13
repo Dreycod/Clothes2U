@@ -10,6 +10,7 @@ using API.Models.Repository;
 namespace API.Controllers;
 public class LoginRequest
 {
+    public string Login { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
 }
@@ -48,7 +49,7 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        Console.WriteLine("Email : " + request.Email + " Password : " + request.Password);
+        Console.WriteLine("Login : " + request.Login + "Email : " + request.Email + " Password : " + request.Password);
         
         // Charger les utilisateurs
         await GetUtilisateurs();
@@ -77,10 +78,10 @@ public class LoginController : ControllerBase
         return response;
     }
 
-    private Utilisateur AuthentificateUtilisateur(string email, string password)
+    private Utilisateur AuthentificateUtilisateur(string login, string password)
     {
         return _utilisateurs?.SingleOrDefault(x => 
-            x.Email.ToUpper() == email.ToUpper() && 
+            (x.Email.ToUpper() == login.ToUpper() || x.Login.ToUpper() == login.ToUpper()) && 
             x.Password == password);
     }
 

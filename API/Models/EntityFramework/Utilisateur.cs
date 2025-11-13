@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_utilisateur_uti")]
-public class Utilisateur
+public class Utilisateur : IEntity
 {
     [Key]
     [Column("uti_id")]
@@ -91,4 +91,6 @@ public class Utilisateur
     public virtual ICollection<Achete> Achats { get; set; } = new List<Achete>();
     [InverseProperty(nameof(Vend.UtilisateurVendeur))]
     public virtual ICollection<Vend> Ventes { get; set; } = new List<Vend>();
+    
+    public int GetId() => UtilisateurId;
 }

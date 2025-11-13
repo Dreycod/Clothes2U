@@ -5,6 +5,7 @@ using API.DTO.Couleur;
 using API.DTO.SousCategorie;
 using API.DTO.StatutAnnonce;
 using API.DTO.Taille;
+using API.DTO.Utilisateur;
 using API.Models;
 using API.Models.EntityFramework;
 
@@ -24,5 +25,6 @@ public class GenericProfile : Profile
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         CreateMap<Couleur, CouleurDTO>();
         CreateMap<Taille, TailleDTO>();
+        CreateMap<Utilisateur, UtilisateurDTO>().ReverseMap();
     }
 }
