@@ -10,8 +10,8 @@ using API.Models.Repository;
 namespace API.Controllers;
 public class LoginRequest
 {
-    public string Login { get; set; }
-    public string Email { get; set; }
+    public string? Login { get; set; }
+    public string? Email { get; set; }
     public string Password { get; set; }
 }
 [Route("api/[controller]")]

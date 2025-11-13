@@ -10,7 +10,7 @@ public class StatutUtilisateur
     [Column("stauti_id")]
     public int StatutUtilisateurId { get; set; }
     
-    [Column("stauti_libelle _statut")]
+    [Column("stauti_libelle_statut")]
     public string StatutLibelle { get; set; }
     
     //relation avec la table utilisateur
