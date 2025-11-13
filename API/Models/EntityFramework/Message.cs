@@ -32,4 +32,7 @@ public abstract class Message
     [ForeignKey(nameof(ConversationId))]
     [InverseProperty(nameof(Conversation.Messages))]
     public virtual Conversation Conversation { get; set; } = null!;
+    
+    [InverseProperty(nameof(NotificationMessage.Message))]
+    public virtual ICollection<NotificationMessage> NotificationsMessage { get; set; } = new List<NotificationMessage>();
 }

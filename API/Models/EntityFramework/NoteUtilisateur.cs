@@ -39,4 +39,8 @@ public class NoteUtilisateur
     [InverseProperty(nameof(Utilisateur.NotesCible))]
     public virtual Utilisateur Cible { get; set; } = null!;
     
+    [InverseProperty(nameof(SignalementAvis.Avis))]
+    public virtual ICollection<SignalementAvis> Signalements { get; set; } = new List<SignalementAvis>();
+
+    
 }

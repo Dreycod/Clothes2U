@@ -63,13 +63,32 @@ public class Utilisateur
     public virtual ICollection<Favoris> AnnoncesFavorites { get; set; } = new List<Favoris>();
     
     [InverseProperty(nameof(Abonnement.UtilisateurSuiveur))]
-    public virtual ICollection<Utilisateur> Abonnements { get; set; } = new List<Utilisateur>();
+    public virtual ICollection<Abonnement> Abonnements { get; set; } = new List<Abonnement>();
     
     [InverseProperty(nameof(Abonnement.UtilisateurSuivis))]
-    public virtual ICollection<Utilisateur> Abonnes { get; set; } = new List<Utilisateur>();
+    public virtual ICollection<Abonnement> Abonnes { get; set; } = new List<Abonnement>();
+    
+    [InverseProperty(nameof(Decision_suspension.UtilisateurSuspendu))]
+    public virtual ICollection<Decision_suspension> LesSuspensions { get; set; } = new List<Decision_suspension>();
+    
+    [InverseProperty(nameof(Decision_suspension.Decisionnaire))]
+    public virtual ICollection<Decision_suspension> LesDecisions { get; set; } = new List<Decision_suspension>();
     
     [ForeignKey(nameof(StatutId))]
     [InverseProperty(nameof(StatutUtilisateur.Utilisateurs))]
     public virtual StatutUtilisateur Statut { get; set; } = null!;
+    
+    [InverseProperty(nameof(Notification.Utilisateur))]
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+    [InverseProperty(nameof(Signalement.Utilisateur))]
+    public virtual ICollection<Signalement> Signalements { get; set; } = new List<Signalement>();
+    
+    [InverseProperty(nameof(SignalementUtilisateur.UtilisateurSignale))]
+    public virtual ICollection<SignalementUtilisateur> SignalementsUtilisateurs { get; set; } = new List<SignalementUtilisateur>();
+    
+    [InverseProperty(nameof(Achete.UtilisateurAcheteur))]
+    public virtual ICollection<Achete> Achats { get; set; } = new List<Achete>();
+    [InverseProperty(nameof(Vend.UtilisateurVendeur))]
+    public virtual ICollection<Vend> Ventes { get; set; } = new List<Vend>();
 }

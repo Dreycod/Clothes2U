@@ -59,9 +59,8 @@ public class Annonce
     [InverseProperty(nameof(EtatArticle.Annonces))]
     public virtual EtatArticle Etat{ get; set; } = null!;
     
-    [ForeignKey(nameof(CouleurId))]
-    [InverseProperty(nameof(Couleur.Annonces))]
-    public virtual Couleur Couleur { get; set; } = null!;
+    [InverseProperty(nameof(Est_De_Couleur.Annonce))]
+    public virtual ICollection<Est_De_Couleur> Couleurs { get; set; } = new List<Est_De_Couleur>();
     
     [ForeignKey(nameof(MarqueId))]
     [InverseProperty(nameof(Marque.Annonces))]
@@ -77,15 +76,33 @@ public class Annonce
     
     [ForeignKey(nameof(CategorieId))]
     [InverseProperty(nameof(Categorie.Annonces))]
-    public virtual SousCategorie Categorie { get; set; } = null!;
+    public virtual Categorie Categorie { get; set; } = null!;
     
     [ForeignKey(nameof(StatutAnnonceId))]
     [InverseProperty(nameof(StatutAnnonce.Annonces))]
-    public virtual StatutUtilisateur Statut { get; set; } = null!;
+    public virtual StatutAnnonce Statut { get; set; } = null!;
     
     [InverseProperty(nameof(Illustre_Annonce.Annonce))]
     public virtual ICollection<Illustre_Annonce> Photos { get; set; } = new List<Illustre_Annonce>();
     
+    [InverseProperty(nameof(Decision_suspension.AnnonceSuspendu))]
+    public virtual ICollection<Decision_suspension> Decisions { get; set; } = new List<Decision_suspension>();
+    
     [InverseProperty(nameof(Favoris.Annonce))]
     public virtual ICollection<Favoris> UtilisateursFavoris { get; set; } = new List<Favoris>();
+    
+    [InverseProperty(nameof(NotificationNouvelleAnnonce.Annonce))]
+    public virtual ICollection<NotificationNouvelleAnnonce> NotificationsNouvelleAnnonces { get; set; } = new List<NotificationNouvelleAnnonce>();
+    
+    [InverseProperty(nameof(NotificationModificationAnnonce.Annonce))]
+    public virtual ICollection<NotificationModificationAnnonce> NotificationsModificationAnnonces { get; set; } = new List<NotificationModificationAnnonce>();
+    
+    [InverseProperty(nameof(SignalementAnnonce.Annonce))]
+    public virtual ICollection<SignalementAnnonce> Signalements { get; set; } = new List<SignalementAnnonce>();
+    
+    [InverseProperty(nameof(Conversation.LAnnonce))]
+    public virtual ICollection<Conversation> LesConversations { get; set; } = new List<Conversation>();
+    
+    [InverseProperty(nameof(Recense.Annonce))]
+    public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();
 }

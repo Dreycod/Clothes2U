@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj": {}
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj": {}
   },
   "projects": {
-    "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj": {
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj",
+        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
         "projectName": "API",
-        "projectPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/API.csproj",
-        "packagesPath": "/Users/alexisstapleton/.nuget/packages/",
-        "outputPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/API/obj/",
+        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
+        "packagesPath": "/home/elioth/.nuget/packages/",
+        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/alexisstapleton/.nuget/NuGet/NuGet.Config"
+          "/home/elioth/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -43,6 +43,40 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[8.14.0, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL.Design": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
@@ -67,7 +101,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
