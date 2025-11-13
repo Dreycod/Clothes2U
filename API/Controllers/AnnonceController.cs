@@ -1,0 +1,63 @@
+using API.DTO.Annonce;
+using API.Models.EntityFramework;
+using API.Models.Repository;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+
+namespace API.Controllers;
+
+[Microsoft.AspNetCore.Components.Route("api/[controller]")]
+[ApiController]
+[Route("api/[controller]")]
+public class AnnonceController : ControllerBase
+{
+    private readonly IDataRepository<Annonce, int> _annonceManager;
+    private readonly IMapper _mapper;
+
+    public AnnonceController(IDataRepository<Annonce, int> manager, IMapper mapper)
+    {
+        _annonceManager = manager;
+        _mapper = mapper;
+    }
+    
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<Categorie>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllCategorieWithNavigation()
+    {
+        IEnumerable<Annonce> annonces =  await _annonceManager.GetAllAsync();
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return Ok(annoncesDTO);
+    }
+    
+    [HttpGet("id/{id}")]
+    [ProducesResponseType(typeof(AnnonceDetailDTO),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AnnonceDetailDTO>> GetById(int id)
+    {
+        var annonce = await _annonceManager.GetByIdAsync(id);
+        if (annonce == null)
+            return NotFound();
+        
+        AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
+        return annonceDTO;
+    }
+    
+    [HttpPost]
+    [ProducesResponseType(typeof(Annonce), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(AnnonceDetailDTO annonceDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var annonce =  _mapper.Map<Annonce>(annonceDto);
+        await _annonceManager.AddAsync(annonce);
+        AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
+        return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
+    }
+}

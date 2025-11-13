@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_annonce_ann")]
-public class Annonce
+public class Annonce : IEntity
 {
     [Key]
     [Column("ann_id")]
@@ -30,9 +30,6 @@ public class Annonce
     
     [Column("ann_etat_id")]
     public int EtatId { get; set; }
-    
-    [Column("ann_couleur_id")]
-    public int CouleurId { get; set; }
     
     [Column("ann_marque_id")]
     public int MarqueId { get; set; }
@@ -105,4 +102,6 @@ public class Annonce
     
     [InverseProperty(nameof(Recense.Annonce))]
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();
+    
+    public int GetId() => AnnonceId;
 }
