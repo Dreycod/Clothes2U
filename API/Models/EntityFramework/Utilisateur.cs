@@ -29,7 +29,7 @@ public class Utilisateur
     //id de relation
     
     [Column("uti_adresse_id")]
-    public int AdresseId { get; set; }
+    public int? AdresseId { get; set; }
     
     [Column("uti_statut_id")]
     public int StatutId { get; set; }
@@ -51,7 +51,7 @@ public class Utilisateur
     
     [ForeignKey(nameof(AdresseId))]
     [InverseProperty(nameof(Adresse.Utilisateurs))]
-    public virtual Adresse Adresse { get; set; } = null!;
+    public virtual Adresse Adresse { get; set; } 
     
     [InverseProperty(nameof(NoteUtilisateur.Auteur))]
     public virtual ICollection<NoteUtilisateur> NotesAuteur { get; set; } = new List<NoteUtilisateur>();
