@@ -30,6 +30,7 @@ builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieMan
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
+builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 
 
 

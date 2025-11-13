@@ -13,8 +13,8 @@ public abstract class GenericCRUDManager<T> : IDataRepository<T, int> where T : 
     {
         _context = context;
     }
-    
-    
+
+
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _context.Set<T>().IncludeNavigationPropertiesIfNeeded().ToListAsync();
@@ -23,21 +23,26 @@ public abstract class GenericCRUDManager<T> : IDataRepository<T, int> where T : 
 
     public virtual async Task<T?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        T entity = _context.Set<T>().AsEnumerable().FirstOrDefault(e => e.GetId() == id);
+        return entity;
     }
 
     public virtual async Task AddAsync(T entity)
     {
-        throw new NotImplementedException();
+        await _context.Set<T>().AddAsync(entity);
+        await _context.SaveChangesAsync();
     }
 
-    public virtual async  Task UpdateAsync(T entityToUpdate, T entity)
+    public virtual async Task UpdateAsync(T entityToUpdate, T entity)
     {
-        throw new NotImplementedException();
+        _context.Set<T>().Attach(entityToUpdate);
+        _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
+        await _context.SaveChangesAsync();
     }
 
     public virtual async Task DeleteAsync(T entity)
     {
-        throw new NotImplementedException();
+        _context.Set<T>().Remove(entity);
+        await _context.SaveChangesAsync();
     }
 }
