@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using API.Attributes;
 
 namespace API.Models.EntityFramework;
 
@@ -50,29 +51,36 @@ public class Annonce : IEntity
     
     [ForeignKey(nameof(UtilisateurId))]
     [InverseProperty(nameof(Utilisateur.Annonces))]
+    [NavigationProperty]
     public virtual Utilisateur Utilisateur { get; set; } = null!;
     
     [ForeignKey(nameof(EtatId))]
     [InverseProperty(nameof(EtatArticle.Annonces))]
+    [NavigationProperty]
     public virtual EtatArticle Etat{ get; set; } = null!;
     
     [InverseProperty(nameof(Est_De_Couleur.Annonce))]
+    [NavigationProperty]
     public virtual ICollection<Est_De_Couleur> Couleurs { get; set; } = new List<Est_De_Couleur>();
     
     [ForeignKey(nameof(MarqueId))]
     [InverseProperty(nameof(Marque.Annonces))]
+    [NavigationProperty]
     public virtual Marque Marque { get; set; } = null!;
     
     [ForeignKey(nameof(TailleId))]
     [InverseProperty(nameof(Taille.Annonces))]
+    [NavigationProperty]
     public virtual Taille Taille { get; set; } = null!;
     
     [ForeignKey(nameof(SousCategorieId))]
     [InverseProperty(nameof(SousCategorie.Annonces))]
+    [NavigationProperty]
     public virtual SousCategorie SousCategorie { get; set; } = null!;
     
     [ForeignKey(nameof(CategorieId))]
     [InverseProperty(nameof(Categorie.Annonces))]
+    [NavigationProperty]
     public virtual Categorie Categorie { get; set; } = null!;
     
     [ForeignKey(nameof(StatutAnnonceId))]
@@ -80,12 +88,14 @@ public class Annonce : IEntity
     public virtual StatutAnnonce Statut { get; set; } = null!;
     
     [InverseProperty(nameof(Illustre_Annonce.Annonce))]
+    [NavigationProperty]
     public virtual ICollection<Illustre_Annonce> Photos { get; set; } = new List<Illustre_Annonce>();
     
     [InverseProperty(nameof(Decision_suspension.AnnonceSuspendu))]
     public virtual ICollection<Decision_suspension> Decisions { get; set; } = new List<Decision_suspension>();
     
     [InverseProperty(nameof(Favoris.Annonce))]
+    [NavigationProperty]
     public virtual ICollection<Favoris> UtilisateursFavoris { get; set; } = new List<Favoris>();
     
     [InverseProperty(nameof(NotificationNouvelleAnnonce.Annonce))]
@@ -101,6 +111,7 @@ public class Annonce : IEntity
     public virtual ICollection<Conversation> LesConversations { get; set; } = new List<Conversation>();
     
     [InverseProperty(nameof(Recense.Annonce))]
+    [NavigationProperty]
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();
     
     public int GetId() => AnnonceId;

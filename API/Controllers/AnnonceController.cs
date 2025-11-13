@@ -11,21 +11,21 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class AnnonceController : ControllerBase
 {
-    private readonly IDataRepository<Annonce, int> _annonceManager;
+    private readonly IAnnonceRepository<Annonce, int> _annonceManager;
     private readonly IMapper _mapper;
 
-    public AnnonceController(IDataRepository<Annonce, int> manager, IMapper mapper)
+    public AnnonceController(IAnnonceRepository<Annonce, int> manager, IMapper mapper)
     {
         _annonceManager = manager;
         _mapper = mapper;
     }
     
-    [HttpGet]
+    [HttpGet("ByCategorieId/{categorieId}")]
     [ProducesResponseType(typeof(IEnumerable<Categorie>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllCategorieWithNavigation()
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByCategorieId(int  categorieId)
     {
-        IEnumerable<Annonce> annonces =  await _annonceManager.GetAllAsync();
+        IEnumerable<Annonce> annonces =  await _annonceManager.GetByCategorieId(categorieId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return Ok(annoncesDTO);
     }

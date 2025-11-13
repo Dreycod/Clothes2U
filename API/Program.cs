@@ -51,6 +51,8 @@ builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 
+builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
+
 
 
 var app = builder.Build();
