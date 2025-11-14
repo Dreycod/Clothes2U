@@ -29,7 +29,6 @@ public class AnnonceController : ControllerBase
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return Ok(annoncesDTO);
     }
-
     
     [HttpGet("ByCategorieId/{categorieId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
