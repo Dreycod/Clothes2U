@@ -20,8 +20,19 @@ public class AnnonceController : ControllerBase
         _mapper = mapper;
     }
     
+    [HttpGet("GetAllAnnonces")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllAnnonces()
+    {
+        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return Ok(annoncesDTO);
+    }
+
+    
     [HttpGet("ByCategorieId/{categorieId}")]
-    [ProducesResponseType(typeof(IEnumerable<Categorie>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByCategorieId(int  categorieId)
     {
