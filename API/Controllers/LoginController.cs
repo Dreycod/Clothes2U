@@ -86,7 +86,7 @@ public class LoginController : ControllerBase
     {
         return _utilisateurs?.SingleOrDefault(x => 
             (x.Email.ToUpper() == login.ToUpper() || x.Login.ToUpper() == login.ToUpper()) && 
-            x.Password == password);
+            BCrypt.Net.BCrypt.Verify(password, x.Password));
     }
 
     private string GenerateJwtToken(Utilisateur utilisateur)
