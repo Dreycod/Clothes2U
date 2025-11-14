@@ -13,8 +13,9 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     {
         return _context.Annonces
             .Include(a => a.Marque)
-            .Include(a => a.Etat)
+            .Include(a => a.Statut)
             .Include(a => a.Taille)
+            .Include(a => a.Etat)
             .Include(a => a.Photos)
             .ThenInclude(pa => pa.Photo)
             .Include(a => a.UtilisateursFavoris);
@@ -43,7 +44,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     public async Task<IEnumerable<Annonce>> GetActiveAnnonces()
     {
         return await BaseAnnonceQuery()
-            .Where(a => a.Etat.NomEtat == "En Ligne") 
+            .Where(a => a.Statut.StatutLibelle == "En Ligne") 
             .ToListAsync();
     }
 
