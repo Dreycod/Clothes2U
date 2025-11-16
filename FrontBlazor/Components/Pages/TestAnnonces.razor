@@ -1,0 +1,32 @@
+﻿@page "/test-annonces"
+
+@inject AnnoncesViewModel VM
+
+<h3>Liste des annonces (test)</h3>
+
+@if (VM.Annonces.Count == 0)
+{
+    <p>Chargement...</p>
+}
+else
+{
+    <ul>
+        @foreach (var a in VM.Annonces)
+        {
+            <li>
+                <strong>@a.Title</strong> — @a.Prix €
+                <br />
+                @a.NomMarque • @a.Taille • @a.EtatArticle
+                <br />
+                Likes: @a.NombreLikes
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await VM.LoadAsync();
+    }
+}

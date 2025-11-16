@@ -1,0 +1,200 @@
+﻿@page "/search"
+
+<PageTitle>Rechercher - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="search-page">
+    <!-- Hero Banner -->
+    <div class="search-hero"></div>
+
+    <div class="search-container">
+        <!-- Page Header -->
+        <div class="search-header">
+            <div>
+                <h1 class="search-title">Rechercher des articles</h1>
+                <p class="search-subtitle">
+                    Paramétrez le filtre pour trouver ce qui vous intéresse le plus
+                </p>
+            </div>
+        </div>
+
+        <div class="search-content">
+            <!-- Filters Sidebar -->
+            <aside class="filters-sidebar">
+                <div class="filters-header">
+                    <h3>Filtres</h3>
+                    <button class="reset-btn">Réinitialiser</button>
+                </div>
+
+                <!-- Type de vêtement -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Type de vêtement</h4>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="filterShirts" />
+                            <span>Shirts & T-Shirts</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="filterPants" />
+                            <span>Pantalons</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="filterDresses" />
+                            <span>Robes</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="filterCoats" />
+                            <span>Vestes & Manteaux</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="filterShoes" />
+                            <span>Chaussures</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Marque -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Marque</h4>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="brandAdidas" />
+                            <span>Adidas</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="brandNike" />
+                            <span>Nike</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="brandZara" />
+                            <span>Zara</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="brandLevis" />
+                            <span>Levi's</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="brandOther" />
+                            <span>Je connais pas d'autre</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Taille -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Taille</h4>
+                    <div class="size-buttons">
+                        <button class="size-btn @(sizeXL ? "active" : "")" @onclick="() => sizeXL = !sizeXL">XL</button>
+                        <button class="size-btn @(sizeS ? "active" : "")" @onclick="() => sizeS = !sizeS">S</button>
+                        <button class="size-btn @(sizeM ? "active" : "")" @onclick="() => sizeM = !sizeM">M</button>
+                        <button class="size-btn @(sizeL ? "active" : "")" @onclick="() => sizeL = !sizeL">L</button>
+                        <button class="size-btn @(sizeXS ? "active" : "")" @onclick="() => sizeXS = !sizeXS">XS</button>
+                        <button class="size-btn @(sizeXXL ? "active" : "")" @onclick="() => sizeXXL = !sizeXXL">XXL</button>
+                    </div>
+                </div>
+
+                <!-- Prix -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Prix</h4>
+                    <div class="price-range">
+                        <div class="price-inputs">
+                            <span>0€</span>
+                            <span>100€</span>
+                        </div>
+                        <input type="range" min="0" max="100" @bind="priceMax" class="price-slider" />
+                    </div>
+                </div>
+
+                <!-- État -->
+                <div class="filter-section">
+                    <h4 class="filter-title">État</h4>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="conditionNew" />
+                            <span>Comme neuf</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="conditionVeryGood" />
+                            <span>Très bon état</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="conditionGood" />
+                            <span>Bon état</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Apply Button -->
+                <button class="apply-filters-btn" @onclick="ApplyFilters">
+                    Appliquer les filtres
+                </button>
+            </aside>
+
+            <!-- Products Grid -->
+            <div class="products-section">
+                <div class="product-grid">
+                    @for (int i = 0; i < 9; i++)
+                    {
+                        <div class="product-card">
+                            <div class="product-image-container">
+                                <div class="product-image"></div>
+                                <button class="wishlist-btn">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                            </div>
+
+                            <div class="product-info">
+                                <h3 class="product-title">T-Shirt Adidas</h3>
+
+                                <div class="product-meta">
+                                    <span class="product-size">Taille XL</span>
+                                    <span class="product-condition">Très bon état</span>
+                                </div>
+
+                                <div class="product-footer">
+                                    <span class="product-price">20.99€</span>
+                                    <span class="product-seller">par Daniel</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Filter states
+    private bool filterShirts = false;
+    private bool filterPants = false;
+    private bool filterDresses = false;
+    private bool filterCoats = false;
+    private bool filterShoes = false;
+
+    private bool brandAdidas = false;
+    private bool brandNike = false;
+    private bool brandZara = false;
+    private bool brandLevis = false;
+    private bool brandOther = false;
+
+    private bool sizeXL = false;
+    private bool sizeS = false;
+    private bool sizeM = false;
+    private bool sizeL = false;
+    private bool sizeXS = false;
+    private bool sizeXXL = false;
+
+    private int priceMax = 100;
+
+    private bool conditionNew = false;
+    private bool conditionVeryGood = false;
+    private bool conditionGood = false;
+
+    private void ApplyFilters()
+    {
+        // TODO: Implement filter logic
+    }
+}
