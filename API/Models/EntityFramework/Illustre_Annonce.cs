@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_j_illustre_annonce_illann")]
-public class Illustre_Annonce
+public class Illustre_Annonce : IEntity
 {
     [Key]
     [Column("illann_id")]
@@ -27,4 +27,6 @@ public class Illustre_Annonce
     [ForeignKey(nameof(PhotoId))]
     [InverseProperty(nameof(Photo.Annonces))]
     public virtual Photo Photo { get; set; } = null!;
+    
+    public int GetId() => IllustId;
 }

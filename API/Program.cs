@@ -5,6 +5,7 @@ using API.Models.Repository;
 using Microsoft.EntityFrameworkCore;
 using API.Models.Repository.Managers;
 using System.Text.Json.Serialization;
+using API.Services;
 using Microsoft.IdentityModel.Tokens;
 
 
@@ -50,9 +51,10 @@ builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceMan
 builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
-
+builder.Services.AddScoped<IDataRepository<Photo, int>, PhotoManager>();
+builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
-
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 
 var app = builder.Build();
