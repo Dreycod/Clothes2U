@@ -30,12 +30,19 @@ public class Utilisateur : IEntity
     
     [Column("uti_adresse_id")]
     public int? AdresseId { get; set; }
-    
-    [Column("uti_statut_id")]
-    public int StatutId { get; set; }
+
+    [Column("uti_statut_id")] public int StatutId { get; set; }
+
+    [Column("uti_id_photo")] public int PhotoId { get; set; }
     
     
     //relation avec les autres tables : 
+    
+    [ForeignKey(nameof(PhotoId))]
+    [InverseProperty(nameof(Photo.UtilisateurPhotoProfil))]
+    public virtual Photo PhotoProfil { get; set; } 
+    
+    
     
     [InverseProperty(nameof(Annonce.Utilisateur))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();

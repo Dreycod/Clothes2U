@@ -9,6 +9,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
     public DbSet<Categorie>  Categories { get; set; }
+    public DbSet<Conversation> Conversations { get; set; }
     public DbSet<Couleur>  Couleurs { get; set; }
     public DbSet<Est_De_Couleur> Est_De_Couleurs { get; set; }
     public DbSet<EtatArticle> EtatArticles { get; set; }
@@ -164,6 +165,27 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.CategorieTailleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
+
+        modelBuilder.Entity<Conversation>(entity =>
+        {
+            entity.HasKey(e => e.ConversationId);
+            
+            entity.HasOne(e => e.LAnnonce)
+                .WithMany(a => a.LesConversations)
+                .HasForeignKey(e => e.AnnonceId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+        
+        modelBuilder.Entity<Couleur>(entity =>
+        {
+            entity.HasKey(e => e.CouleurId);
+            
+            entity.HasMany(e => e.Annonces)
+                .WithOne(edc => edc.Couleur)
+                .HasForeignKey(edc => edc.CouleurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
         
         modelBuilder.Entity<Est_De_Couleur>(entity =>
         {
@@ -187,16 +209,7 @@ public partial class Clothes2UDbContext : DbContext
 
        
         
-        modelBuilder.Entity<Couleur>(entity =>
-        {
-            entity.HasKey(e => e.CouleurId);
-            
-            entity.HasMany(e => e.Annonces)
-                .WithOne(edc => edc.Couleur)
-                .HasForeignKey(edc => edc.CouleurId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-        });
-
+        
         modelBuilder.Entity<Illustre_Annonce>(entity =>
         {
             entity.HasKey(e => e.IllustId);
@@ -229,6 +242,10 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasMany(e => e.Annonces)
                 .WithOne(a => a.Photo)
                 .HasForeignKey(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.UtilisateurPhotoProfil)
+                .WithOne(a => a.PhotoProfil)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -352,6 +369,10 @@ public partial class Clothes2UDbContext : DbContext
                 .WithMany(s => s.Utilisateurs)
                 .HasForeignKey(e => e.StatutId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(e => e.PhotoProfil)
+                .WithOne(p => p.UtilisateurPhotoProfil)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Index pour améliorer les performances
             entity.HasIndex(e => e.Email)
