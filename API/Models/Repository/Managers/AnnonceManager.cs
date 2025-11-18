@@ -41,6 +41,13 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Where(a => a.SousCategorieId == id)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int id)
+    {
+        return await BaseAnnonceQuery()
+            .Where(a => a.UtilisateurId == id)
+            .ToListAsync();
+    }
     public async Task<IEnumerable<Annonce>> GetActiveAnnonces()
     {
         return await BaseAnnonceQuery()

@@ -6,5 +6,6 @@ public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEnt
     Task<IEnumerable<TEntity>> GetByCategorieId(TIdentifier id);
     Task<IEnumerable<TEntity>> GetBySousCategorieId(TIdentifier id);
     Task<IEnumerable<TEntity>> GetActiveAnnonces();
+    Task<IEnumerable<TEntity>> GetByUtilisateurId(TIdentifier id);
     
 }
