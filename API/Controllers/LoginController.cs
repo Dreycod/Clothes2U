@@ -6,8 +6,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
+using API.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using AutoMapper;
 
 namespace API.Controllers;
 public class LoginRequest
@@ -24,9 +26,11 @@ public class LoginController : ControllerBase
     private readonly IConfiguration _config;
     private readonly IDataRepository<Utilisateur, int> _dataRepository;
     private List<Utilisateur>? _utilisateurs;
+    private readonly IMapper _mapper;
 
-    public LoginController(IConfiguration config, IDataRepository<Utilisateur, int> dataRepo)
+    public LoginController(IConfiguration config,IMapper mapper ,IDataRepository<Utilisateur, int> dataRepo)
     {
+        _mapper = mapper;
         _config = config;
         _dataRepository = dataRepo;
     }
@@ -180,5 +184,51 @@ public class LoginController : ControllerBase
     {
         var utilisateurs = await _dataRepository.GetAllAsync();
         _utilisateurs = utilisateurs?.ToList();
+    }
+
+    // DELETE: api/Login/5
+    /// <summary>
+    /// Supprime un utilisateur existant par son identifiant.
+    /// </summary>
+    /// <param name="id">L'identifiant de l'utilisateur a supprimer.</param>
+    /// <returns>Une reponse HTTP indiquant le resultat de l'operation.</returns>
+    /// <response code="204">Le produit a ete supprime avec succes.</response>
+    /// <response code="404">Aucun produit n'a ete trouve avec l'identifiant specifie.</response>
+    [HttpDelete("{id}")]
+    
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteUtilisateur(int id)
+    {
+        ActionResult<Utilisateur?> utilisateurToDelete = await _dataRepository.GetByIdAsync(id);
+        if (utilisateurToDelete.Value == null)
+        {
+            return NotFound();
+        }
+
+        await _dataRepository.DeleteAsync(utilisateurToDelete.Value);
+        return NoContent();
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateUtilisateur(int id, [FromBody] UtilisateurDTO utilisateur)
+    {
+        if (id != utilisateur.UtilisateurId)
+        {
+            return BadRequest();
+        }
+
+        ActionResult<Utilisateur?> utilisateurToUpdate = await _dataRepository.GetByIdAsync(id);
+
+        if (utilisateurToUpdate.Value == null)
+        {
+            return NotFound();
+        }
+        await _dataRepository.UpdateAsync(utilisateurToUpdate.Value, _mapper.Map<Utilisateur>(utilisateur));
+        return NoContent();
     }
 }
