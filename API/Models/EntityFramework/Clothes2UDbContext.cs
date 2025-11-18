@@ -8,13 +8,16 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Abonnement> Abonnements { get; set; } 
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
+    public DbSet<Bloque> Bloques { get; set; }
     public DbSet<Categorie>  Categories { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<Couleur>  Couleurs { get; set; }
     public DbSet<Est_De_Couleur> Est_De_Couleurs { get; set; }
     public DbSet<EtatArticle> EtatArticles { get; set; }
+    public DbSet<Favoris> Favorises { get; set; }
     public DbSet<Illustre_Annonce> Illustre_Annonces { get; set; }
     public DbSet<Marque> Marques { get; set; }
+    public DbSet<Message> Messages { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<SousCategorie>  SousCategories { get; set; }
@@ -146,6 +149,21 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.SousCategorieId);
         });
 
+        modelBuilder.Entity<Bloque>(entity =>
+        {
+            entity.HasKey(e => e.BloqueId);
+            
+            entity.HasOne(e => e.UtilisateurBloque)
+                .WithMany(u => u.BloqueParUtilisateurs)
+                .HasForeignKey(e => e.UtilisateurBloqueId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(e => e.UtilisateurBloqueur)
+                .WithMany(u => u.UtilisateursBloques)
+                .HasForeignKey(e => e.UtilisateurBloqueurId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Categorie>(entity =>
         {
             entity.HasKey(e => e.CategorieId);
@@ -207,6 +225,20 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasKey(e => e.EtatArticleId);
         });
 
+        modelBuilder.Entity<Favoris>(entity =>
+        {
+            entity.HasKey(e => e.FavorisId);
+            
+            entity.HasOne(e => e.Annonce)
+                .WithMany(a => a.UtilisateursFavoris)
+                .HasForeignKey(e => e.AnnonceId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasOne(e => e.Utilisateur)
+                .WithMany(u => u.AnnoncesFavorites)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
        
         
         
@@ -233,6 +265,78 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(a => a.Marque)
                 .HasForeignKey(e => e.MarqueId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.MessageId);
+            
+            entity.HasOne(e => e.Utilisateur)
+                .WithMany(u => u.Messages)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasOne(e => e.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(e => e.ConversationId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.MessageTexte)
+                .WithOne(m => m.Message)
+                .HasForeignKey<MessageTexte>(m => m.MessageId);
+
+            entity.HasOne(e => e.MessageDemande)
+                .WithOne(m => m.Message)
+                .HasForeignKey<MessageDemande>(m => m.MessageId);
+
+            entity.HasOne(e => e.MessageValidation)
+                .WithOne(m => m.Message)
+                .HasForeignKey<MessageValidation>(m => m.MessageId);
+        });
+        modelBuilder.Entity<MessageTexte>(entity =>
+        {
+            entity.ToTable("t_e_message_texte_mestex");
+
+            entity.HasKey(e => e.MessageTexteId);
+
+            entity.HasOne(e => e.Message)
+                .WithOne(m => m.MessageTexte)
+                .HasForeignKey<MessageTexte>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Photos)
+                .WithOne(p => p.MessageTexte)
+                .HasForeignKey(p => p.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        modelBuilder.Entity<MessageDemande>(entity =>
+        {
+            entity.ToTable("t_e_message_demande_mesdem");
+
+            entity.HasKey(e => e.MessageDemandeId);
+
+            entity.HasOne(e => e.Message)
+                .WithOne(m => m.MessageDemande)
+                .HasForeignKey<MessageDemande>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Offre)
+                .WithMany(e => e.ContreOffres)
+                .HasForeignKey(e => e.DemandeId)
+                .OnDelete(DeleteBehavior.NoAction); 
+        });
+
+        modelBuilder.Entity<MessageValidation>(entity =>
+        {
+            entity.ToTable("t_e_message_validation_mesval");
+
+            entity.HasKey(e => e.MessageValidationId);
+
+            entity.HasOne(e => e.Message)
+                .WithOne(m => m.MessageValidation)
+                .HasForeignKey<MessageValidation>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         modelBuilder.Entity<Photo>(entity =>

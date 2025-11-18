@@ -35,4 +35,15 @@ public abstract class Message
     
     [InverseProperty(nameof(NotificationMessage.Message))]
     public virtual ICollection<NotificationMessage> NotificationsMessage { get; set; } = new List<NotificationMessage>();
+    
+    //relation avec les class child : 
+    
+    [InverseProperty(nameof(MessageDemande.Message))]
+    public virtual MessageDemande? MessageDemande { get; set; }
+
+    [InverseProperty(nameof(MessageTexte.Message))]
+    public virtual MessageTexte? MessageTexte { get; set; }
+
+    [InverseProperty(nameof(MessageValidation.Message))]
+    public virtual MessageValidation? MessageValidation { get; set; }
 }
