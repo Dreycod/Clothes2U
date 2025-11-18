@@ -4,7 +4,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_notification_not")]
-public class NotificationAdmin : Notification
+public class NotificationAdmin 
 {
     [Column("not_admin_text")]
     public String AdminText { get; set; }
