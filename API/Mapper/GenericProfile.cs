@@ -2,8 +2,10 @@ using AutoMapper;
 using API.DTO;
 using API.DTO.Annonce;
 using API.DTO.Categorie;
+using API.DTO.Conversation;
 using API.DTO.Couleur;
 using API.DTO.Favoris;
+using API.DTO.Message;
 using API.DTO.SousCategorie;
 using API.DTO.StatutAnnonce;
 using API.DTO.Taille;
@@ -49,5 +51,27 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix));
 
         CreateMap<FavorisDTO, Favoris>();
+        
+        CreateMap<Conversation, ConversationDTO>()
+            .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+            .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src => src.Messages.OrderByDescending(m => m.MessageTexte).FirstOrDefault()))
+            .ForMember(dest => dest.LastMessageDate, opt=> opt.MapFrom(src => src.Messages.OrderByDescending(m => m.MessageDate).FirstOrDefault()))
+            .ForMember(dest => dest.Acheteur, opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
+            .ForMember(dest => dest.Vendeur, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
+            .ForMember(dest => dest.Annonce, opt => opt.MapFrom(src => src.LAnnonce.Title));
+        
+        CreateMap<Conversation, ConversationDetailDTO>()
+            .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+            .ForMember(dest => dest.ListMessages, opt => opt.MapFrom(src => src.Messages))
+            .ForMember(dest => dest.Vendeur, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
+            .ForMember(dest => dest.Acheteur, opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
+            .ForMember(dest => dest.Annonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix));
+        CreateMap<Message, MessageDTO>()
+            .ForMember(dest=> dest.MessageId, opt=> opt.MapFrom(src=>src.MessageId))
+            .ForMember(dest=> dest.Date, opt=> opt.MapFrom(src=>src.MessageDate))
+            .ForMember(dest=>dest.Lu, opt=>opt.MapFrom(src=> src.MessageLu))
+            .ForMember(dest=> dest.Contenu, opt=> opt.MapFrom(src=>src.MessageTexte))
+            .ForMember(dest=> dest.Utilisateur,opt=> opt.MapFrom(src=>src.Utilisateur.Login));
     }
 }
