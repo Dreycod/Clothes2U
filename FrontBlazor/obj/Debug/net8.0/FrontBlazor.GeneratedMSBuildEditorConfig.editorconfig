@@ -1,0 +1,75 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = FrontBlazor
+build_property.RootNamespace = FrontBlazor
+build_property.ProjectDir = /home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor
+build_property._RazorSourceGeneratorDebug = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BcHAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Db3VudGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/TestAnnonces.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9UZXN0QW5ub25jZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Weather.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9XZWF0aGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Sb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9fSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-jqxqbzw8kz
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-ikagerqh23
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Mb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-05nz9fil03
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Messages.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9NZXNzYWdlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-z475nk9uzp
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/NavBar.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9OYXZCYXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-cmz89fia6t
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9kdWN0RGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-wx9adei2xg
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9maWxlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-ba1051roq8
+
+[/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/Components/Pages/Search.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9TZWFyY2gucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-3gtt2ctpx7
