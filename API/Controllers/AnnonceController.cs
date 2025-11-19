@@ -80,7 +80,7 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(int id)
     {
-        var annonces = await _annonceManager.GetByUtilisateurFavoris(id);
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris(id);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return Ok(annoncesDTO);
     }
