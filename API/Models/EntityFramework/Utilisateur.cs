@@ -33,7 +33,7 @@ public class Utilisateur : IEntity
 
     [Column("uti_statut_id")] public int StatutId { get; set; }
 
-    [Column("uti_id_photo")] public int PhotoId { get; set; }
+    [Column("uti_id_photo")] public int? PhotoId { get; set; }
     
     
     //relation avec les autres tables : 

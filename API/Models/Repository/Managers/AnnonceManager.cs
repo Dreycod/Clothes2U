@@ -9,6 +9,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     public AnnonceManager(Clothes2UDbContext context) : base(context)
     {
     }
+    
     private IQueryable<Annonce> BaseAnnonceQuery()
     {
         return _context.Annonces
@@ -18,8 +19,13 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Include(a => a.Etat)
             .Include(a => a.Photos)
             .ThenInclude(pa => pa.Photo)
-            .Include(a => a.UtilisateursFavoris);
+            .Include(a => a.UtilisateursFavoris)
+            .Include(a => a.Utilisateur)
+            .ThenInclude(u => u.PhotoProfil)
+            .AsSplitQuery(); 
     }
+
+
 
     public override async Task<Annonce?> GetByIdAsync(int id)
     {

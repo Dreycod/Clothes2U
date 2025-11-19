@@ -10,5 +10,7 @@ public class AnnonceDTO
     public List<string> Photos { get; set; } = new();
     public int NombreLikes { get; set; }
     public decimal Prix { get; set; }
+    public string NomAuteur { get; set; } = null!;
+    public string? UriPhotoProfilAuteur { get; set; } = null!;
     
 }
