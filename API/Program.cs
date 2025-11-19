@@ -49,6 +49,7 @@ builder.Services.AddScoped<IDataRepository<Categorie, int>, CategorieManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
+builder.Services.AddScoped<IFavorisRepository, FavorisRepository>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 builder.Services.AddScoped<IDataRepository<Photo, int>, PhotoManager>();
