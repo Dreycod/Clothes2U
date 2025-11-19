@@ -9,69 +9,67 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = FrontBlazor
 build_property.RootNamespace = FrontBlazor
-build_property.ProjectDir = C:\Users\Faher\OneDrive\Bureau\Cours\S5\SAE5.01_Vrai\FrontBlazor\
+build_property.ProjectDir = /Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\Faher\OneDrive\Bureau\Cours\S5\SAE5.01_Vrai\FrontBlazor
+build_property.MSBuildProjectDirectory = /Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor
 build_property._RazorSourceGeneratorDebug = 
-build_property.EffectiveAnalysisLevelStyle = 8.0
-build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/App.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Db3VudGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/TestAnnonces.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUZXN0QW5ub25jZXMucmF6b3I=
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/TestAnnonces.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9UZXN0QW5ub25jZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Weather.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Weather.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9XZWF0aGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Routes.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Sb3V0ZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/_Imports.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9fSW1wb3J0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Layout/MainLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-8v01u79yjl
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-jqxqbzw8kz
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Home.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-pd6wfwl7w3
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-ikagerqh23
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Login.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xMb2dpbi5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-or9sbbbv6p
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Mb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-05nz9fil03
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Messages.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNZXNzYWdlcy5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-9uiwn2cdgr
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Messages.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9NZXNzYWdlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-z475nk9uzp
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/NavBar.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOYXZCYXIucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-hu8gh3mypz
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/NavBar.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9OYXZCYXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-cmz89fia6t
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/ProductDetail.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9kdWN0RGV0YWlsLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-oqes892olj
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9kdWN0RGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-wx9adei2xg
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Profile.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9maWxlLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-mvnqymi2ad
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9maWxlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-ba1051roq8
 
-[C:/Users/Faher/OneDrive/Bureau/Cours/S5/SAE5.01_Vrai/FrontBlazor/Components/Pages/Search.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTZWFyY2gucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-1v175usb6u
+[/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/Components/Pages/Search.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9TZWFyY2gucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-3gtt2ctpx7
