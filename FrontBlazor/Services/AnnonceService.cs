@@ -12,5 +12,11 @@ namespace FrontBlazor.Services
                 "Annonce/GetActiveAnnonces"
             );
         }
+        public async Task<List<AnnonceDTO>?> GetAnnoncesByUserIdAsync(int userId)
+        {
+            return await _httpClient.GetFromJsonAsync<List<AnnonceDTO>>(
+                $"Annonce/GetAnnoncesByUserId/{userId}"
+            );
+        }
     }
 }

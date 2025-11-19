@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5.01_Vrai\\API\\API.csproj": {}
+    "C:\\Users\\dasilvda\\Source\\Repos\\Clothes2U\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5.01_Vrai\\API\\API.csproj": {
+    "C:\\Users\\dasilvda\\Source\\Repos\\Clothes2U\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5.01_Vrai\\API\\API.csproj",
+        "projectUniqueName": "C:\\Users\\dasilvda\\Source\\Repos\\Clothes2U\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5.01_Vrai\\API\\API.csproj",
-        "packagesPath": "C:\\Users\\Faher\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5.01_Vrai\\API\\obj\\",
+        "projectPath": "C:\\Users\\dasilvda\\Source\\Repos\\Clothes2U\\API\\API.csproj",
+        "packagesPath": "C:\\Users\\dasilvda\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\dasilvda\\Source\\Repos\\Clothes2U\\API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Faher\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\dasilvda\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,7 +45,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -112,7 +113,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -20,6 +20,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AnnonceService>();
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
+builder.Services.AddScoped<HomeViewModel>();
 
 var app = builder.Build();
 
