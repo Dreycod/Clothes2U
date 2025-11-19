@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_message_mes")]
-public abstract class Message
+public class Message
 {
     [Key]
     [Column("mes_id")]

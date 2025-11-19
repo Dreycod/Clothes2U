@@ -64,7 +64,7 @@ public class AnnonceController : ControllerBase
     }
     
     [HttpPost]
-    [ProducesResponseType(typeof(Annonce), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(AnnonceDetailDTO annonceDto)

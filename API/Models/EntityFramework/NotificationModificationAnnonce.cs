@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_notification_modifiaction_notmod")]
-public class NotificationModificationAnnonce : Notification
+public class NotificationModificationAnnonce 
 {
     [Key]
     [Column("notmod_id")]
