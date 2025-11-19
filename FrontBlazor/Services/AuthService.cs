@@ -23,7 +23,7 @@ namespace FrontBlazor.Services
             return await response.Content.ReadFromJsonAsync<SignUpResponse>();
         }
 
-        public async Task<AuthResponse?> LoginAsync(LoginRequest request)
+        public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
             var response = await _httpClient.PostAsJsonAsync("login", request);
 
@@ -34,7 +34,7 @@ namespace FrontBlazor.Services
                 return null;
             }
 
-            return await response.Content.ReadFromJsonAsync<AuthResponse>();
+            return await response.Content.ReadFromJsonAsync<LoginResponse>();
         }
     }
 }

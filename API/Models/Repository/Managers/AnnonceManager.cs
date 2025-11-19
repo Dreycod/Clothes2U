@@ -57,8 +57,8 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
     {
         return await BaseAnnonceQuery()
-            .Where(a => a.UtilisateursFavoris == a.UtilisateursFavoris
-                .Where(f => f.UtilisateurId == id))
+            .Where(a => a.UtilisateursFavoris
+                .Any(f => f.UtilisateurId == id))
             .ToListAsync();
     }
 

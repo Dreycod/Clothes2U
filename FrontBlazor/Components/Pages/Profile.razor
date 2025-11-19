@@ -1,5 +1,6 @@
 ﻿@page "/profile/{username}"
 @rendermode InteractiveServer
+@inject AnnoncesViewModel VM
 
 <PageTitle>@Username - Clothes2U</PageTitle>
 
@@ -159,11 +160,12 @@
 </div>
 
 @code {
+
     [Parameter]
     public string Username { get; set; } = string.Empty;
 
     private string activeTab = "articles";
-    private bool hasArticles = true; // Change to false to show empty state
+    private bool hasArticles = true;
 
     private void SetActiveTab(string tab)
     {
@@ -174,4 +176,15 @@
     {
         // TODO: Navigate to add article page
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //await GetUser()
+        await VM.RecupererAnnoncesUtilisateur();
+        if (VM.Annonces.Count == 0)
+        {
+            hasArticles = false;
+        }
+    }
+
 }

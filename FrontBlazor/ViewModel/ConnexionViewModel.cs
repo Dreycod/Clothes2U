@@ -28,8 +28,8 @@ public class ConnexionViewModel
     public void ToggleLoginPassword() => ShowLoginPassword = !ShowLoginPassword;
     public void ToggleRegisterPassword() => ShowRegisterPassword = !ShowRegisterPassword;
     public void ToggleConfirmPassword() => ShowConfirmPassword = !ShowConfirmPassword;
-    
-   // private readonly WritableService<LoginRequest> _utilisateurService;
+
+    // private readonly WritableService<LoginRequest> _utilisateurService;
     private readonly AuthService _authService;
 
     public ConnexionViewModel(AuthService authService)
@@ -51,7 +51,7 @@ public class ConnexionViewModel
             PasswordConfirm = RegisterConfirmPassword
         };
 
-        var result = await _authService.SignUpAsync(request);
+        SignUpResponse result = await _authService.SignUpAsync(request);
 
         IsLoading = false;
 
@@ -62,8 +62,6 @@ public class ConnexionViewModel
             Console.WriteLine("Token: " + result.Token);
             Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
 
-            // TODO: Store token (localStorage, session, etc.)
-            // TODO: Navigate to home page
         }
         else
         {
@@ -82,7 +80,7 @@ public class ConnexionViewModel
             Password = LoginPassword
         };
 
-        var result = await _authService.LoginAsync(request);
+        LoginResponse result = await _authService.LoginAsync(request);
 
         IsLoading = false;
 
@@ -106,6 +104,4 @@ public class ConnexionViewModel
     {
         // Implement Google login logic here
     }
-
-
 }

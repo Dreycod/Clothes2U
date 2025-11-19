@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/FrontBlazor.csproj": {}
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj": {}
   },
   "projects": {
-    "/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/FrontBlazor.csproj": {
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/FrontBlazor.csproj",
+        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj",
         "projectName": "FrontBlazor",
-        "projectPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/FrontBlazor.csproj",
-        "packagesPath": "/Users/alexisstapleton/.nuget/packages/",
-        "outputPath": "/Users/alexisstapleton/RiderProjects/Clothes2U/FrontBlazor/obj/",
+        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj",
+        "packagesPath": "/home/elioth/.nuget/packages/",
+        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/alexisstapleton/.nuget/NuGet/NuGet.Config"
+          "/home/elioth/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -46,6 +46,10 @@
             "Blazor.Bootstrap": {
               "target": "Package",
               "version": "[3.4.0, )"
+            },
+            "Microsoft.AspNetCore.Components.Analyzers": {
+              "target": "Package",
+              "version": "[8.0.11, )"
             }
           },
           "imports": [
@@ -67,7 +71,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

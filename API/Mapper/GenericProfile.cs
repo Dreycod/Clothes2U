@@ -3,6 +3,7 @@ using API.DTO;
 using API.DTO.Annonce;
 using API.DTO.Categorie;
 using API.DTO.Couleur;
+using API.DTO.Favoris;
 using API.DTO.SousCategorie;
 using API.DTO.StatutAnnonce;
 using API.DTO.Taille;
@@ -44,5 +45,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoUri)))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix));
+
+        CreateMap<FavorisDTO, Favoris>();
     }
 }

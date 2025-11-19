@@ -1,4 +1,5 @@
 ﻿@page "/search"
+@inject AnnoncesViewModel VM
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
@@ -135,27 +136,27 @@
             <!-- Products Grid -->
             <div class="products-section">
                 <div class="product-grid">
-                    @for (int i = 0; i < 9; i++)
+                    @foreach (AnnonceDTO annonce in VM.Annonces)
                     {
                         <div class="product-card">
                             <div class="product-image-container">
                                 <div class="product-image"></div>
-                                <button class="wishlist-btn">
+                                <button class="wishlist-btn" @onclick="ToggleFavorite">
                                     <i class="bi bi-heart"></i>
                                 </button>
                             </div>
 
                             <div class="product-info">
-                                <h3 class="product-title">T-Shirt Adidas</h3>
+                                <h3 class="product-title">@annonce.Title</h3>
 
                                 <div class="product-meta">
-                                    <span class="product-size">Taille XL</span>
-                                    <span class="product-condition">Très bon état</span>
+                                    <span class="product-size">Taille @annonce.Taille</span>
+                                    <span class="product-condition">@annonce.EtatArticle</span>
                                 </div>
 
                                 <div class="product-footer">
-                                    <span class="product-price">20.99€</span>
-                                    <span class="product-seller">par Daniel</span>
+                                    <span class="product-price">@annonce.Prix€</span>
+                                    <span class="product-seller">pas encore</span>
                                 </div>
                             </div>
                         </div>
@@ -167,6 +168,7 @@
 </div>
 
 @code {
+
     // Filter states
     private bool filterShirts = false;
     private bool filterPants = false;
@@ -193,8 +195,20 @@
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
 
+
+    public void ToggleFavorite()
+    {
+        // isFavorite = !isFavorite;
+    }
+
     private void ApplyFilters()
     {
-        // TODO: Implement filter logic
+
+        // VM.ApplyFilters(...); // Implement filter application logic
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await VM.LoadAsync();
     }
 }

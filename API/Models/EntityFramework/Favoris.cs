@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_j_favoris_fav")]
-public class Favoris
+public class Favoris : IEntity
 {
     [Key]
     [Column("fav_id")]
@@ -28,4 +28,6 @@ public class Favoris
     [ForeignKey(nameof(UtilisateurId))]
     [InverseProperty(nameof(Utilisateur.AnnoncesFavorites))]
     public virtual Utilisateur Utilisateur { get; set; } = null!;
+    
+    public int GetId() => FavorisId;
 }

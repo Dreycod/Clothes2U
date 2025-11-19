@@ -80,13 +80,13 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(int id)
     {
-        var annonces = await _annonceManager.GetByUtilisateurFavoris(id);
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris(id);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return Ok(annoncesDTO);
     }
     
     [HttpPost]
-    [ProducesResponseType(typeof(Annonce), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(AnnonceDetailDTO annonceDto)
