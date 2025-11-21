@@ -43,7 +43,8 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
-            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoUri));
+            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoUri))
+            .ReverseMap();
         CreateMap<Annonce, AnnonceDetailDTO>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
 
