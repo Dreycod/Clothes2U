@@ -1,0 +1,30 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace API.Models.EntityFramework;
+
+
+[Table("t_j_message_contient_image_messconima")]
+public class MessageContientImage
+{
+    [Key]
+    [Column("messconima_id")]
+    public int  MessageContientImageId { get; set; }
+    
+    //id des autres tables : 
+    [Column("messconima_message_id")]
+    public int MessageId { get; set; }
+    
+    [Column("messconima_image_id")]
+    public int PhotoId { get; set; }
+    
+    //relation avec les autres tables : 
+    
+    [ForeignKey(nameof(MessageId))]
+    [InverseProperty(nameof(MessageTexte.Photos))]
+    public virtual MessageTexte Message{ set; get; }
+    
+    [ForeignKey(nameof(PhotoId))]
+    [InverseProperty(nameof(Photo.Messages))]
+    public virtual Photo Photo { set; get; }
+}

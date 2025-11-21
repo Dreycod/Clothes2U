@@ -23,6 +23,6 @@ public class MessageTexte
     [InverseProperty(nameof(Message.MessageTexte))]
     public virtual Message Message{ set; get; }
     
-    [InverseProperty(nameof(Photo.MessageTexte))]
-    public virtual ICollection<Photo>? Photos { get; set; } = new List<Photo>();
+    [InverseProperty(nameof(MessageContientImage.Message))]
+    public virtual ICollection<MessageContientImage>? Photos { get; set; } = new List<MessageContientImage>();
 }

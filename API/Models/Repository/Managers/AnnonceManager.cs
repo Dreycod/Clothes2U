@@ -16,6 +16,8 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         return _context.Annonces
             .Include(a => a.Marque)
             .Include(a => a.Statut)
+            .Include(a => a.Categorie)
+            .Include(a => a.SousCategorie)
             .Include(a => a.Taille)
             .Include(a => a.Etat)
             .Include(a => a.Photos)

@@ -19,13 +19,9 @@ public class Photo : IEntity
     [InverseProperty(nameof(Illustre_Annonce.Photo))]
     public virtual ICollection<Illustre_Annonce> Annonces { get; set; } = new List<Illustre_Annonce>();
     
-    [InverseProperty(nameof(MessageTexte.Photos))]
-    public virtual MessageTexte? MessageTexte { get; set; }
     
-    [InverseProperty(nameof(Utilisateur.PhotoProfil))]
-    public virtual Utilisateur? UtilisateurPhotoProfil { get; set; }
-    
-    
+    [InverseProperty(nameof(MessageContientImage.Photo))]
+    public virtual ICollection<MessageContientImage>? Messages { get; set; } = new List<MessageContientImage>();
     
     public int GetId() => PhotoId;
 }

@@ -35,11 +35,16 @@ public class Utilisateur : IEntity
 
     [Column("uti_id_photo")] public int? PhotoId { get; set; }
     
+    [Column("uti_role_id")] public int RoleId { get; set; }
+    
     
     //relation avec les autres tables : 
+    [ForeignKey(nameof(RoleId))]
+    [InverseProperty(nameof(RoleUtilisateur.Utilisateurs))]
+    public virtual RoleUtilisateur Role { get; set; } 
+    
     
     [ForeignKey(nameof(PhotoId))]
-    [InverseProperty(nameof(Photo.UtilisateurPhotoProfil))]
     public virtual Photo PhotoProfil { get; set; } 
     
     

@@ -52,7 +52,7 @@ builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IFavorisRepository, FavorisRepository>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
-builder.Services.AddScoped<IDataRepository<Photo, int>, PhotoManager>();
+builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
