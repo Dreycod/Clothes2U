@@ -108,6 +108,14 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Annonce>> GetPlusLikeAsync()
+    {
+        return await BaseAnnonceQuery()
+            .OrderByDescending(a => a.UtilisateursFavoris.Count)
+            .ToListAsync();
+    }
+
+
 
 
 }

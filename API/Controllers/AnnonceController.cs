@@ -122,5 +122,16 @@ public class AnnonceController : ControllerBase
         return Ok(annoncesDTO);
     }
 
+    [HttpGet("PlusLike")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetMostLiked()
+    {
+        var annonces = await _annonceManager.GetPlusLikeAsync();
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return Ok(annoncesDTO);
+    }
+
+
 
 }
