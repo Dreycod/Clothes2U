@@ -74,7 +74,7 @@ public class LoginController : ControllerBase
             response = Ok(new
             {
                 token = tokenString,
-                userDetails = new
+                userDetails = new 
                 {
                     utilisateur.UtilisateurId,
                     utilisateur.Email,
@@ -129,7 +129,8 @@ public class LoginController : ControllerBase
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Description = "",
             StatutId = 1,
-            Dateinscription = DateTime.UtcNow
+            Dateinscription = DateTime.UtcNow,
+            RoleId = 1
         };
 
         await _dataRepository.AddAsync(newUser);
