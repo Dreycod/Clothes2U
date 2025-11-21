@@ -1,25 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj": {}
+    "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\FrontBlazor\\FrontBlazor.csproj": {}
   },
   "projects": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj": {
+    "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\FrontBlazor\\FrontBlazor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj",
+        "projectUniqueName": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\FrontBlazor\\FrontBlazor.csproj",
         "projectName": "FrontBlazor",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/FrontBlazor.csproj",
-        "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/FrontBlazor/obj/",
+        "projectPath": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\FrontBlazor\\FrontBlazor.csproj",
+        "packagesPath": "C:\\Users\\Faher\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\FrontBlazor\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/elioth/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Faher\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -37,7 +43,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -71,7 +78,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,3 +1,4 @@
+using API.DTO.Annonce;
 using API.Extensions;
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
@@ -67,5 +68,38 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
                 .Any(f => f.UtilisateurId == id))
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Annonce>> SearchAsync(AnnonceSearchRequestDTO request)
+    {
+        IQueryable<Annonce> query = BaseAnnonceQuery();
+
+        if (request.CategorieId.HasValue)
+            query = query.Where(a => a.CategorieId == request.CategorieId.Value);
+
+        if (request.SousCategorieId.HasValue)
+            query = query.Where(a => a.SousCategorieId == request.SousCategorieId.Value);
+
+        if (request.TailleId.HasValue)
+            query = query.Where(a => a.TailleId == request.TailleId.Value);
+
+        if (request.EtatId.HasValue)
+            query = query.Where(a => a.EtatId == request.EtatId.Value);
+
+        if (request.MarqueId.HasValue)
+            query = query.Where(a => a.MarqueId == request.MarqueId.Value);
+
+        if (request.PrixMin.HasValue)
+            query = query.Where(a => a.Prix >= request.PrixMin.Value);
+
+        if (request.PrixMax.HasValue)
+            query = query.Where(a => a.Prix <= request.PrixMax.Value);
+
+        if (!string.IsNullOrWhiteSpace(request.MotCle))
+            query = query.Where(a =>
+                a.Title.Contains(request.MotCle));
+
+        return await query.ToListAsync();
+    }
+
 
 }

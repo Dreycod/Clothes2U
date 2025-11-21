@@ -1,3 +1,5 @@
+using API.DTO.Annonce;
+
 namespace API.Models.Repository;
 
 public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEntity, TIdentifier>
@@ -9,4 +11,6 @@ public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEnt
     Task<IEnumerable<TEntity>> GetByUtilisateurId(TIdentifier id);
     
     Task<IEnumerable<TEntity>> GetByUtilisateurFavoris(TIdentifier id);
+    Task<IEnumerable<TEntity>> SearchAsync(AnnonceSearchRequestDTO request);
+
 }

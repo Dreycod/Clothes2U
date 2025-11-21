@@ -101,4 +101,15 @@ public class AnnonceController : ControllerBase
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
         return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
+
+    [HttpPost("Search")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> Search([FromBody] AnnonceSearchRequestDTO request)
+    {
+        var annonces = await _annonceManager.SearchAsync(request);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return Ok(annoncesDTO);
+    }
+
 }

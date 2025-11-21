@@ -7,6 +7,14 @@
       "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\annoncesviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\dasilvda\\source\\repos\\clothes2u\\frontblazor\\viewmodel\\connexionviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\connexionviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\dasilvda\\source\\repos\\clothes2u\\frontblazor\\viewmodel\\homeviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\homeviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\dasilvda\\source\\repos\\clothes2u\\frontblazor\\components\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\components\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -25,10 +33,6 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\FrontBlazor\\ViewModel\\AnnoncesViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\dasilvda\\source\\repos\\clothes2u\\frontblazor\\viewmodel\\connexionviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\connexionviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\dasilvda\\source\\repos\\clothes2u\\frontblazor\\services\\annonceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\services\\annonceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -40,11 +44,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "HomeViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "ToolTip": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "RelativeToolTip": "FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-19T08:12:15.37Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "AuthService.cs",
               "DocumentMoniker": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "FrontBlazor\\Services\\AuthService.cs",
@@ -57,7 +74,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\Program.cs",
               "RelativeDocumentMoniker": "FrontBlazor\\Program.cs",
@@ -70,7 +87,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "Home.razor",
               "DocumentMoniker": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\Components\\Pages\\Home.razor",
               "RelativeDocumentMoniker": "FrontBlazor\\Components\\Pages\\Home.razor",
@@ -83,20 +100,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 1,
               "Title": "ConnexionViewModel.cs",
               "DocumentMoniker": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
               "RelativeDocumentMoniker": "FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
               "ToolTip": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
               "RelativeToolTip": "FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAIAwwBAAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAMwE4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-19T07:18:09.978Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "ConnexionViewModel.cs",
               "DocumentMoniker": "E:\\FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
               "ToolTip": "E:\\FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
@@ -107,7 +124,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "AnnoncesViewModel.cs",
               "DocumentMoniker": "E:\\FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
               "ToolTip": "E:\\FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
@@ -124,14 +141,14 @@
               "RelativeDocumentMoniker": "FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
               "ToolTip": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
               "RelativeToolTip": "FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAxwBIAAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwBcAAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-19T07:16:37.484Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "AnnonceService.cs",
               "DocumentMoniker": "C:\\Users\\dasilvda\\source\\repos\\Clothes2U\\FrontBlazor\\Services\\AnnonceService.cs",
               "RelativeDocumentMoniker": "FrontBlazor\\Services\\AnnonceService.cs",
