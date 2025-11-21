@@ -1,4 +1,4 @@
-namespace FrontBlazor.Services;
+namespace FrontBlazor.Services.GenericIServices;
 
 public interface IAnnonceService<TEntity>  : IReadableService<TEntity>, IWritableService<TEntity> where TEntity : class
 {

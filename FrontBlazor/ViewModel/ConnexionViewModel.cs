@@ -1,5 +1,6 @@
-using FrontBlazor.Models;
+using FrontBlazor.Models.LoginRegister;
 using FrontBlazor.Services;
+using Microsoft.JSInterop;
 
 namespace FrontBlazor.ViewModel;
 
@@ -22,6 +23,16 @@ public class ConnexionViewModel
     public string? ErrorMessage { get; set; } = null;
     public string? SuccessMessage { get; set; } = null;
 
+    private readonly IJSRuntime _jsRuntime; // Add a private field for IJSRuntime
+    private readonly AuthService _authService;
+    private readonly CurrentUserService _currentUserService;
+
+    public ConnexionViewModel(AuthService authService, CurrentUserService currentUserService, IJSRuntime jsRuntime) // Inject IJSRuntime
+    {
+        _authService = authService;
+        _currentUserService = currentUserService;
+        _jsRuntime = jsRuntime;
+    }
 
     public void ShowLogin() => IsLoginMode = true;
     public void ShowRegister() => IsLoginMode = false;
@@ -29,27 +40,12 @@ public class ConnexionViewModel
     public void ToggleRegisterPassword() => ShowRegisterPassword = !ShowRegisterPassword;
     public void ToggleConfirmPassword() => ShowConfirmPassword = !ShowConfirmPassword;
 
-    // private readonly WritableService<LoginRequest> _utilisateurService;
-    private readonly AuthService _authService;
-
-    public ConnexionViewModel(AuthService authService)
-    {
-        //_utilisateurService = utilisateurService;
-        _authService = authService;
-    }
-
     public async Task HandleRegister()
     {
         ErrorMessage = null;
         IsLoading = true;
 
-        var request = new LoginRequest
-        {
-            Login = RegisterUsername,
-            Email = RegisterEmail,
-            Password = RegisterPassword,
-            PasswordConfirm = RegisterConfirmPassword
-        };
+        LoginRequest request = RequestFactory.CreateRegisterRequest(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword);
 
         SignUpResponse result = await _authService.SignUpAsync(request);
 
@@ -57,11 +53,8 @@ public class ConnexionViewModel
 
         if (result != null)
         {
-            // Success! Store token and redirect
-            Console.WriteLine("Inscription réussie: " + result.Message);
             Console.WriteLine("Token: " + result.Token);
             Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
-
         }
         else
         {
@@ -74,11 +67,7 @@ public class ConnexionViewModel
         ErrorMessage = null;
         IsLoading = true;
 
-        var request = new LoginRequest
-        {
-            Login = LoginEmail,
-            Password = LoginPassword
-        };
+        LoginRequest request = RequestFactory.CreateLoginRequest(LoginEmail, LoginPassword);
 
         LoginResponse result = await _authService.LoginAsync(request);
 
@@ -86,13 +75,14 @@ public class ConnexionViewModel
 
         if (result != null)
         {
-            // Success! Store token and redirect
             Console.WriteLine("Connexion réussie!");
             Console.WriteLine("Token: " + result.Token);
             Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
+            // store id globally for all requests now
+            _currentUserService.SetUserId(result.UserDetails.UtilisateurId);
 
-            // TODO: Store token
-            // TODO: Navigate to home page
+            // store the token for later in the storage
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
         }
         else
         {

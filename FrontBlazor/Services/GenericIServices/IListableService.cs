@@ -1,4 +1,4 @@
-namespace FrontBlazor.Services;
+namespace FrontBlazor.Services.GenericIServices;
 
 public interface IListableService<TEntity> where TEntity : class
 {

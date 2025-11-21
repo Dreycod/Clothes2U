@@ -1,337 +1,212 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\",
+  "WorkspaceRootPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\managers\\conversationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\managers\\conversationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\viewmodel\\connexionviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\connexionviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\managers\\categoriemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\managers\\categoriemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\viewmodel\\homeviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\homeviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\managers\\annoncemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\managers\\annoncemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\services\\genericiservices\\listableservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\services\\genericiservices\\listableservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\iannoncerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\iannoncerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\models\\user\\userdetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\models\\user\\userdetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\noteutilisateur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\noteutilisateur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\services\\annonceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\services\\annonceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\annonce\\annoncesearchrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\annonce\\annoncesearchrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\viewmodel\\annoncesviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\viewmodel\\annoncesviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\conversation\\conversationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\conversation\\conversationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\services\\currentuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\services\\currentuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\controllers\\annoncecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\controllers\\annoncecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\annonce\\annoncedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\annonce\\annoncedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\services\\genericiservices\\readableservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\services\\genericiservices\\readableservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\mapper\\genericprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\mapper\\genericprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\annonce.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\annonce.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\annonce\\annoncedetaildto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\annonce\\annoncedetaildto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\controllers\\conversationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\controllers\\conversationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\iconversationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\iconversationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\clothes2udbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\clothes2udbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\souscategorie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\souscategorie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\typesignalement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\typesignalement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|c:\\users\\narcissu\\source\\repos\\dreycod\\clothes2u\\frontblazor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{798227E8-DFA2-4061-A841-F80989C04E6E}|FrontBlazor\\FrontBlazor.csproj|solutionrelative:frontblazor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
     {
-      "Orientation": 0,
+      "Orientation": 1,
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "DockedHeight": 200,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "CategorieManager.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\CategorieManager.cs",
-              "RelativeDocumentMoniker": "API\\Models\\Repository\\Managers\\CategorieManager.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\CategorieManager.cs",
-              "RelativeToolTip": "API\\Models\\Repository\\Managers\\CategorieManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T12:30:40.077Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "NoteUtilisateur.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\NoteUtilisateur.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\NoteUtilisateur.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\NoteUtilisateur.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\NoteUtilisateur.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T09:34:08.704Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ConversationDTO.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Conversation\\ConversationDTO.cs",
-              "RelativeDocumentMoniker": "API\\DTO\\Conversation\\ConversationDTO.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Conversation\\ConversationDTO.cs",
-              "RelativeToolTip": "API\\DTO\\Conversation\\ConversationDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T09:33:26.105Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AnnonceSearchRequestDTO.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
-              "RelativeDocumentMoniker": "API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
-              "RelativeToolTip": "API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAArAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:56:09.492Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "IAnnonceRepository.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IAnnonceRepository.cs",
-              "RelativeDocumentMoniker": "API\\Models\\Repository\\IAnnonceRepository.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IAnnonceRepository.cs",
-              "RelativeToolTip": "API\\Models\\Repository\\IAnnonceRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Title": "UserDetails.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Models\\User\\UserDetails.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Models\\User\\UserDetails.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Models\\User\\UserDetails.cs",
+              "RelativeToolTip": "FrontBlazor\\Models\\User\\UserDetails.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:48:26.969Z",
+              "WhenOpened": "2025-11-21T15:38:51.197Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ConversationManager.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\ConversationManager.cs",
-              "RelativeDocumentMoniker": "API\\Models\\Repository\\Managers\\ConversationManager.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\ConversationManager.cs",
-              "RelativeToolTip": "API\\Models\\Repository\\Managers\\ConversationManager.cs",
+              "DocumentIndex": 1,
+              "Title": "HomeViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\ViewModel\\HomeViewModel.cs",
+              "RelativeToolTip": "FrontBlazor\\ViewModel\\HomeViewModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:19:17.592Z",
+              "WhenOpened": "2025-11-21T15:29:03.177Z",
               "EditorCaption": ""
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "AnnonceController.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\AnnonceController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\AnnonceController.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\AnnonceController.cs",
-              "RelativeToolTip": "API\\Controllers\\AnnonceController.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAuwIUAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "ListableService.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\GenericIServices\\ListableService.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Services\\GenericIServices\\ListableService.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\GenericIServices\\ListableService.cs",
+              "RelativeToolTip": "FrontBlazor\\Services\\GenericIServices\\ListableService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:45:40.829Z",
+              "WhenOpened": "2025-11-21T15:29:20.425Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
-              "Title": "AnnonceDTO.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDTO.cs",
-              "RelativeDocumentMoniker": "API\\DTO\\Annonce\\AnnonceDTO.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDTO.cs",
-              "RelativeToolTip": "API\\DTO\\Annonce\\AnnonceDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
+              "Title": "ReadableService.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\GenericIServices\\ReadableService.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Services\\GenericIServices\\ReadableService.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\GenericIServices\\ReadableService.cs",
+              "RelativeToolTip": "FrontBlazor\\Services\\GenericIServices\\ReadableService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:49:38.859Z",
+              "WhenOpened": "2025-11-21T15:29:19.828Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "AnnonceManager.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\AnnonceManager.cs",
-              "RelativeDocumentMoniker": "API\\Models\\Repository\\Managers\\AnnonceManager.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\AnnonceManager.cs",
-              "RelativeToolTip": "API\\Models\\Repository\\Managers\\AnnonceManager.cs",
-              "ViewState": "AgIAABsAAAAAAAAAAAAwwHAAAAA3AAAAAAAAAA==",
+              "DocumentIndex": 6,
+              "Title": "CurrentUserService.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\CurrentUserService.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Services\\CurrentUserService.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\CurrentUserService.cs",
+              "RelativeToolTip": "FrontBlazor\\Services\\CurrentUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:45:14.548Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Annonce.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Annonce.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Annonce.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Annonce.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\Annonce.cs",
-              "ViewState": "AgIAAFwAAAAAAAAAAAAIwG4AAABnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:49:12.338Z",
+              "WhenOpened": "2025-11-21T15:28:49.606Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
-              "Title": "GenericProfile.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Mapper\\GenericProfile.cs",
-              "RelativeDocumentMoniker": "API\\Mapper\\GenericProfile.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Mapper\\GenericProfile.cs",
-              "RelativeToolTip": "API\\Mapper\\GenericProfile.cs",
-              "ViewState": "AgIAACwAAAAAAAAAAAAAwFcAAABcAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Program.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Program.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Program.cs",
+              "RelativeToolTip": "FrontBlazor\\Program.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:13:26.224Z",
+              "WhenOpened": "2025-11-21T15:22:22.777Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "AnnonceDetailDTO.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
-              "RelativeDocumentMoniker": "API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
-              "RelativeToolTip": "API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "ConnexionViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
+              "RelativeToolTip": "FrontBlazor\\ViewModel\\ConnexionViewModel.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAuwF4AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:49:42.751Z",
+              "WhenOpened": "2025-11-21T15:20:22.248Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "Message.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Message.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Message.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Message.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\Message.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAUAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "AnnoncesViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
+              "RelativeToolTip": "FrontBlazor\\ViewModel\\AnnoncesViewModel.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBcAAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:33:26.778Z",
+              "WhenOpened": "2025-11-21T15:20:15.869Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "ConversationController.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\ConversationController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\ConversationController.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\ConversationController.cs",
-              "RelativeToolTip": "API\\Controllers\\ConversationController.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAQwA4AAAAlAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "AnnonceService.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\AnnonceService.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Services\\AnnonceService.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\AnnonceService.cs",
+              "RelativeToolTip": "FrontBlazor\\Services\\AnnonceService.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAYwCAAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:32:13.789Z",
+              "WhenOpened": "2025-11-21T15:19:15.702Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "Conversation.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Conversation.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Conversation.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Conversation.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\Conversation.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAzwAAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 7,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "FrontBlazor\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\FrontBlazor\\Services\\AuthService.cs",
+              "RelativeToolTip": "FrontBlazor\\Services\\AuthService.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAYwA8AAABHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:26:31.228Z",
+              "WhenOpened": "2025-11-21T15:19:08.822Z",
               "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e506b91c-c606-466a-90a9-123d1d1e12b3}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "IConversationRepository.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IConversationRepository.cs",
-              "RelativeDocumentMoniker": "API\\Models\\Repository\\IConversationRepository.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IConversationRepository.cs",
-              "RelativeToolTip": "API\\Models\\Repository\\IConversationRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:19:05.738Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "Clothes2UDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAA7wAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:15:00.599Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "SousCategorie.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\SousCategorie.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\SousCategorie.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\SousCategorie.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\SousCategorie.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:14:38.66Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "TypeSignalement.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\TypeSignalement.cs",
-              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\TypeSignalement.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\TypeSignalement.cs",
-              "RelativeToolTip": "API\\Models\\EntityFramework\\TypeSignalement.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:14:34.209Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             }
           ]
         }

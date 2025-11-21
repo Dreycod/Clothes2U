@@ -97,12 +97,12 @@ public class LoginController : ControllerBase
         {
             return BadRequest("Données invalides.");
         }
-        
+
         if (!new EmailAddressAttribute().IsValid(request.Email))
         {
             return BadRequest("Email invalide.");
         }
-        
+
         string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
         if (!Regex.IsMatch(request.Password, pattern))
         {
@@ -129,7 +129,8 @@ public class LoginController : ControllerBase
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Description = "",
             StatutId = 1,
-            Dateinscription = DateTime.UtcNow
+            Dateinscription = DateTime.UtcNow,
+            RoleId = 1
         };
 
         await _dataRepository.AddAsync(newUser);

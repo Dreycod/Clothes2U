@@ -2,6 +2,7 @@ using FrontBlazor.Components;
 using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.ViewModel;
+using Microsoft.JSInterop;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,16 +12,20 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddBlazorBootstrap();
 
-builder.Services.AddScoped(sp => new HttpClient
-{
-    BaseAddress = new Uri("http://localhost:5096/api/")
-});
+builder.Services.AddScoped(sp =>
+    new HttpClient
+    {
+        BaseAddress = new Uri("http://localhost:5096/api/")
+    }
+);
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AnnonceService>();
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
+builder.Services.AddSingleton<CurrentUserService>();
+
 
 var app = builder.Build();
 

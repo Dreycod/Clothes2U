@@ -272,6 +272,52 @@
         }
       }
     },
+    "/api/Annonce/ByFavorisUtilisateur/{id}": {
+      "get": {
+        "tags": [
+          "Annonce"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/Annonce": {
       "post": {
         "tags": [
@@ -302,17 +348,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/Annonce"
+                  "$ref": "#/components/schemas/AnnonceDetailDTO"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Annonce"
+                  "$ref": "#/components/schemas/AnnonceDetailDTO"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Annonce"
+                  "$ref": "#/components/schemas/AnnonceDetailDTO"
                 }
               }
             }
@@ -333,6 +379,148 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Annonce/Search": {
+      "post": {
+        "tags": [
+          "Annonce"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnonceSearchRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnonceSearchRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnonceSearchRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Annonce/MostRecent": {
+      "get": {
+        "tags": [
+          "Annonce"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Annonce/PlusLike": {
+      "get": {
+        "tags": [
+          "Annonce"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnonceDTO"
+                  }
                 }
               }
             }
@@ -384,6 +572,133 @@
         }
       }
     },
+    "/api/Conversation": {
+      "get": {
+        "tags": [
+          "Conversation"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Conversation"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Conversation"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Conversation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Conversation/conversation/{id}": {
+      "get": {
+        "tags": [
+          "Conversation"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Conversation/utilisateur/{id}": {
+      "get": {
+        "tags": [
+          "Conversation"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Couleur": {
       "get": {
         "tags": [
@@ -415,6 +730,195 @@
                   "items": {
                     "$ref": "#/components/schemas/Couleur"
                   }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Favoris/id/{id}": {
+      "get": {
+        "tags": [
+          "Favoris"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favoris"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favoris"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Favoris"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Favoris": {
+      "post": {
+        "tags": [
+          "Favoris"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavorisDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavorisDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavorisDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavorisDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavorisDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavorisDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Favoris/id/{annonceId}/{utilisateurId}": {
+      "delete": {
+        "tags": [
+          "Favoris"
+        ],
+        "parameters": [
+          {
+            "name": "annonceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "utilisateurId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -673,6 +1177,230 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Medias/Photos/{id}": {
+      "delete": {
+        "tags": [
+          "Medias"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NoteUtilisateur/User/{userId}": {
+      "get": {
+        "tags": [
+          "NoteUtilisateur"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NoteUtilisateur/User/{userId}/Average": {
+      "get": {
+        "tags": [
+          "NoteUtilisateur"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NoteUtilisateur/{id}": {
+      "get": {
+        "tags": [
+          "NoteUtilisateur"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteUtilisateurDetailDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteUtilisateurDetailDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteUtilisateurDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "NoteUtilisateur"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NoteUtilisateur": {
+      "post": {
+        "tags": [
+          "NoteUtilisateur"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteUtilisateurCreateDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteUtilisateurCreateDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteUtilisateurCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                }
+              }
+            }
           }
         }
       }
@@ -1108,6 +1836,14 @@
           "prix": {
             "type": "number",
             "format": "double"
+          },
+          "nomAuteur": {
+            "type": "string",
+            "nullable": true
+          },
+          "uriPhotoProfilAuteur": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1115,17 +1851,29 @@
       "AnnonceDetailDTO": {
         "type": "object",
         "properties": {
-          "id": {
+          "annonceId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "title": {
             "type": "string",
             "nullable": true
           },
+          "negociable": {
+            "type": "boolean"
+          },
+          "utilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "nomMarque": {
             "type": "string",
             "nullable": true
+          },
+          "dateAnnonce": {
+            "type": "string",
+            "format": "date-time"
           },
           "etatArticle": {
             "type": "string",
@@ -1149,6 +1897,83 @@
           "prix": {
             "type": "number",
             "format": "double"
+          },
+          "sousCategorie": {
+            "type": "string",
+            "nullable": true
+          },
+          "categorie": {
+            "type": "string",
+            "nullable": true
+          },
+          "etatId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "marqueId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tailleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sousCategorieId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categorieId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "statutAnnonceId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AnnonceSearchRequestDTO": {
+        "type": "object",
+        "properties": {
+          "categorieId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "sousCategorieId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "tailleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "etatId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "marqueId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "prixMin": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "prixMax": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "motCle": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1252,6 +2077,72 @@
           },
           "lAnnonce": {
             "$ref": "#/components/schemas/Annonce"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDTO": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastMessageDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "vendeur": {
+            "type": "string",
+            "nullable": true
+          },
+          "acheteur": {
+            "type": "string",
+            "nullable": true
+          },
+          "annonce": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDetailDTO": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "listMessages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageDTO"
+            },
+            "nullable": true
+          },
+          "vendeur": {
+            "type": "string",
+            "nullable": true
+          },
+          "acheteur": {
+            "type": "string",
+            "nullable": true
+          },
+          "annonce": {
+            "type": "string",
+            "nullable": true
+          },
+          "prix": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1399,6 +2290,20 @@
         },
         "additionalProperties": false
       },
+      "FavorisDTO": {
+        "type": "object",
+        "properties": {
+          "annonceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "utilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "Illustre_Annonce": {
         "type": "object",
         "properties": {
@@ -1513,6 +2418,57 @@
         },
         "additionalProperties": false
       },
+      "MessageContientImage": {
+        "type": "object",
+        "properties": {
+          "messageContientImageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "messageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "$ref": "#/components/schemas/MessageTexte"
+          },
+          "photo": {
+            "$ref": "#/components/schemas/Photo"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MessageDTO": {
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lu": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "contenu": {
+            "type": "string",
+            "nullable": true
+          },
+          "utilisateur": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "MessageDemande": {
         "type": "object",
         "properties": {
@@ -1566,7 +2522,7 @@
           "photos": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Photo"
+              "$ref": "#/components/schemas/MessageContientImage"
             },
             "nullable": true
           }
@@ -1631,6 +2587,96 @@
             "items": {
               "$ref": "#/components/schemas/SignalementAvis"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NoteUtilisateurCreateDTO": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentaire": {
+            "type": "string",
+            "nullable": true
+          },
+          "noteurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "noteId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NoteUtilisateurDTO": {
+        "type": "object",
+        "properties": {
+          "noteUtilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentaire": {
+            "type": "string",
+            "nullable": true
+          },
+          "datePublication": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "noteurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "noteId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NoteUtilisateurDetailDTO": {
+        "type": "object",
+        "properties": {
+          "noteUtilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentaire": {
+            "type": "string",
+            "nullable": true
+          },
+          "datePublication": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "noteurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loginAuteur": {
+            "type": "string",
+            "nullable": true
+          },
+          "noteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loginCible": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -1744,35 +2790,6 @@
       "NotificationModificationAnnonce": {
         "type": "object",
         "properties": {
-          "notificationTypeId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "utilisateurId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notificationType": {
-            "$ref": "#/components/schemas/NotificationType"
-          },
-          "utilisateur": {
-            "$ref": "#/components/schemas/Utilisateur"
-          },
-          "notificationAdmins": {
-            "$ref": "#/components/schemas/NotificationAdmin"
-          },
-          "notificationAvertissements": {
-            "$ref": "#/components/schemas/NotificationAvertissement"
-          },
-          "notificationMessages": {
-            "$ref": "#/components/schemas/NotificationMessage"
-          },
-          "notificationModifications": {
-            "$ref": "#/components/schemas/NotificationModificationAnnonce"
-          },
-          "notificationNouvellesAnnonces": {
-            "$ref": "#/components/schemas/NotificationNouvelleAnnonce"
-          },
           "notificationModificationId": {
             "type": "integer",
             "format": "int32"
@@ -1857,11 +2874,12 @@
             },
             "nullable": true
           },
-          "messageTexte": {
-            "$ref": "#/components/schemas/MessageTexte"
-          },
-          "utilisateurPhotoProfil": {
-            "$ref": "#/components/schemas/Utilisateur"
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageContientImage"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1913,6 +2931,27 @@
           },
           "tag": {
             "$ref": "#/components/schemas/Tag"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoleUtilisateur": {
+        "type": "object",
+        "properties": {
+          "roleUtilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roleUtilisateurLibelle": {
+            "type": "string",
+            "nullable": true
+          },
+          "utilisateurs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Utilisateur"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2291,7 +3330,15 @@
           },
           "photoId": {
             "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "roleId": {
+            "type": "integer",
             "format": "int32"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleUtilisateur"
           },
           "photoProfil": {
             "$ref": "#/components/schemas/Photo"

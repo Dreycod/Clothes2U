@@ -1,4 +1,4 @@
-namespace FrontBlazor.Services;
+namespace FrontBlazor.Services.GenericIServices;
 
 public abstract class ReadableService<T> : BaseGenericService, IReadableService<T> where T : class
 {

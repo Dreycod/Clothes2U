@@ -1,17 +1,15 @@
-﻿using FrontBlazor.Models;
+﻿using FrontBlazor.Models.LoginRegister;
 
 namespace FrontBlazor.Services
 {
     public class AuthService : BaseGenericService
     {
-        private readonly HttpClient _httpClient;
-
-        public AuthService(HttpClient httpClient) : base(httpClient)
-        {}
+        public AuthService(HttpClient httpClient) : base(httpClient) {}
 
         public async Task<SignUpResponse?> SignUpAsync(LoginRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync("signup", request);
+            // works, waiting for role id bug fix
+            var response = await _httpClient.PostAsJsonAsync("Login/signup", request);
 
             if (!response.IsSuccessStatusCode)
             {
