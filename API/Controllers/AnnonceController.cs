@@ -112,4 +112,15 @@ public class AnnonceController : ControllerBase
         return Ok(annoncesDTO);
     }
 
+    [HttpGet("MostRecent")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetMostRecent()
+    {
+        var annonces = await _annonceManager.GetMostRecentAsync();
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return Ok(annoncesDTO);
+    }
+
+
 }

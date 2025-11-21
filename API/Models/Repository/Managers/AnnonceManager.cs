@@ -101,5 +101,13 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         return await query.ToListAsync();
     }
 
+    public async Task<IEnumerable<Annonce>> GetMostRecentAsync()
+    {
+        return await BaseAnnonceQuery()
+            .OrderByDescending(a => a.DateAnnonce)
+            .ToListAsync();
+    }
+
+
 
 }

@@ -13,4 +13,6 @@ public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEnt
     Task<IEnumerable<TEntity>> GetByUtilisateurFavoris(TIdentifier id);
     Task<IEnumerable<TEntity>> SearchAsync(AnnonceSearchRequestDTO request);
 
+    Task<IEnumerable<TEntity>> GetMostRecentAsync();
+
 }
