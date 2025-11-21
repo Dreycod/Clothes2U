@@ -3,6 +3,70 @@
   "WorkspaceRootPath": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\managers\\conversationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\managers\\conversationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\managers\\categoriemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\managers\\categoriemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\managers\\annoncemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\managers\\annoncemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\iannoncerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\iannoncerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\noteutilisateur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\noteutilisateur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\annonce\\annoncesearchrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\annonce\\annoncesearchrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\conversation\\conversationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\conversation\\conversationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\controllers\\annoncecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\controllers\\annoncecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\annonce\\annoncedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\annonce\\annoncedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\mapper\\genericprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\mapper\\genericprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\annonce.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\annonce.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\dto\\annonce\\annoncedetaildto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\dto\\annonce\\annoncedetaildto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\controllers\\conversationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\controllers\\conversationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\repository\\iconversationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\repository\\iconversationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\clothes2udbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\clothes2udbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,10 +77,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\models\\entityframework\\typesignalement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\models\\entityframework\\typesignalement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|c:\\users\\faher\\onedrive\\bureau\\cours\\s5\\sae5forreal\\api\\mapper\\genericprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5266B959-A735-42DD-B724-5180F451F79A}|API\\API.csproj|solutionrelative:api\\mapper\\genericprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,24 +86,232 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CategorieManager.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\CategorieManager.cs",
+              "RelativeDocumentMoniker": "API\\Models\\Repository\\Managers\\CategorieManager.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\CategorieManager.cs",
+              "RelativeToolTip": "API\\Models\\Repository\\Managers\\CategorieManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:30:40.077Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NoteUtilisateur.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\NoteUtilisateur.cs",
+              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\NoteUtilisateur.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\NoteUtilisateur.cs",
+              "RelativeToolTip": "API\\Models\\EntityFramework\\NoteUtilisateur.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T09:34:08.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ConversationDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Conversation\\ConversationDTO.cs",
+              "RelativeDocumentMoniker": "API\\DTO\\Conversation\\ConversationDTO.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Conversation\\ConversationDTO.cs",
+              "RelativeToolTip": "API\\DTO\\Conversation\\ConversationDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T09:33:26.105Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AnnonceSearchRequestDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
+              "RelativeDocumentMoniker": "API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
+              "RelativeToolTip": "API\\DTO\\Annonce\\AnnonceSearchRequestDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:56:09.492Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IAnnonceRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IAnnonceRepository.cs",
+              "RelativeDocumentMoniker": "API\\Models\\Repository\\IAnnonceRepository.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IAnnonceRepository.cs",
+              "RelativeToolTip": "API\\Models\\Repository\\IAnnonceRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:48:26.969Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "ConversationManager.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\ConversationManager.cs",
+              "RelativeDocumentMoniker": "API\\Models\\Repository\\Managers\\ConversationManager.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\ConversationManager.cs",
+              "RelativeToolTip": "API\\Models\\Repository\\Managers\\ConversationManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:19:17.592Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AnnonceController.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\AnnonceController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\AnnonceController.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\AnnonceController.cs",
+              "RelativeToolTip": "API\\Controllers\\AnnonceController.cs",
+              "ViewState": "AgIAAGoAAAAAAAAAAAAuwIUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:45:40.829Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AnnonceDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDTO.cs",
+              "RelativeDocumentMoniker": "API\\DTO\\Annonce\\AnnonceDTO.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDTO.cs",
+              "RelativeToolTip": "API\\DTO\\Annonce\\AnnonceDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:49:38.859Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AnnonceManager.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\AnnonceManager.cs",
+              "RelativeDocumentMoniker": "API\\Models\\Repository\\Managers\\AnnonceManager.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\Managers\\AnnonceManager.cs",
+              "RelativeToolTip": "API\\Models\\Repository\\Managers\\AnnonceManager.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAwwHAAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:45:14.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Annonce.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Annonce.cs",
+              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Annonce.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Annonce.cs",
+              "RelativeToolTip": "API\\Models\\EntityFramework\\Annonce.cs",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAIwG4AAABnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:49:12.338Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "GenericProfile.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Mapper\\GenericProfile.cs",
+              "RelativeDocumentMoniker": "API\\Mapper\\GenericProfile.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Mapper\\GenericProfile.cs",
+              "RelativeToolTip": "API\\Mapper\\GenericProfile.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAAwFcAAABcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:13:26.224Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AnnonceDetailDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
+              "RelativeDocumentMoniker": "API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
+              "RelativeToolTip": "API\\DTO\\Annonce\\AnnonceDetailDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:49:42.751Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Message.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Message.cs",
+              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Message.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Message.cs",
+              "RelativeToolTip": "API\\Models\\EntityFramework\\Message.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:33:26.778Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ConversationController.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\ConversationController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\ConversationController.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Controllers\\ConversationController.cs",
+              "RelativeToolTip": "API\\Controllers\\ConversationController.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwA4AAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:32:13.789Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Conversation.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Conversation.cs",
+              "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Conversation.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Conversation.cs",
+              "RelativeToolTip": "API\\Models\\EntityFramework\\Conversation.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAzwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:26:31.228Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IConversationRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IConversationRepository.cs",
+              "RelativeDocumentMoniker": "API\\Models\\Repository\\IConversationRepository.cs",
+              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\Repository\\IConversationRepository.cs",
+              "RelativeToolTip": "API\\Models\\Repository\\IConversationRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T07:19:05.738Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
               "Title": "Clothes2UDbContext.cs",
               "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
               "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
               "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
               "RelativeToolTip": "API\\Models\\EntityFramework\\Clothes2UDbContext.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAA7wAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-21T07:15:00.599Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 17,
               "Title": "SousCategorie.cs",
               "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\SousCategorie.cs",
               "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\SousCategorie.cs",
@@ -51,12 +319,11 @@
               "RelativeToolTip": "API\\Models\\EntityFramework\\SousCategorie.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:14:38.66Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-21T07:14:38.66Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 18,
               "Title": "TypeSignalement.cs",
               "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Models\\EntityFramework\\TypeSignalement.cs",
               "RelativeDocumentMoniker": "API\\Models\\EntityFramework\\TypeSignalement.cs",
@@ -64,21 +331,7 @@
               "RelativeToolTip": "API\\Models\\EntityFramework\\TypeSignalement.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:14:34.209Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "GenericProfile.cs",
-              "DocumentMoniker": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Mapper\\GenericProfile.cs",
-              "RelativeDocumentMoniker": "API\\Mapper\\GenericProfile.cs",
-              "ToolTip": "C:\\Users\\Faher\\OneDrive\\Bureau\\Cours\\S5\\SAE5ForReal\\API\\Mapper\\GenericProfile.cs",
-              "RelativeToolTip": "API\\Mapper\\GenericProfile.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-21T07:13:26.224Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-21T07:14:34.209Z"
             }
           ]
         }

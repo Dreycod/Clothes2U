@@ -12,6 +12,8 @@ using API.DTO.Taille;
 using API.DTO.Utilisateur;
 using API.Models;
 using API.Models.EntityFramework;
+using API.DTO.NoteUtilisateur;
+
 
 namespace API.Mapper;
 
@@ -100,5 +102,17 @@ public class GenericProfile : Profile
             .ForMember(dest=>dest.Lu, opt=>opt.MapFrom(src=> src.MessageLu))
             .ForMember(dest=> dest.Contenu, opt=> opt.MapFrom(src=>src.MessageTexte))
             .ForMember(dest=> dest.Utilisateur,opt=> opt.MapFrom(src=>src.Utilisateur.Login));
+
+ 
+
+        CreateMap<NoteUtilisateur, NoteUtilisateurDTO>();
+
+        CreateMap<NoteUtilisateur, NoteUtilisateurDetailDTO>()
+            .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
+            .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
+
+        CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
+            .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
     }
 }
