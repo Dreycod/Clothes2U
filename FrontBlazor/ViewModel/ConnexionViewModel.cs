@@ -55,6 +55,8 @@ public class ConnexionViewModel
         {
             Console.WriteLine("Token: " + result.Token);
             Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
+
+            // go to home page
         }
         else
         {
@@ -83,6 +85,8 @@ public class ConnexionViewModel
 
             // store the token for later in the storage
             await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+
+            // go to home page
         }
         else
         {

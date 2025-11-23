@@ -26,14 +26,14 @@ namespace FrontBlazor.Services
             };
         }
 
-        public static AnnonceSearchRequestDTO CreateFilterRequest(int? categoryId, string keyword)
-        {
-            return new AnnonceSearchRequestDTO
-            {
-                CategoryId = categoryId,
-                Keyword = keyword
-            };
-        }
+        //public static AnnonceSearchRequestDTO CreateFilterRequest(int? categoryId, string keyword)
+        //{
+        //    //return new AnnonceSearchRequestDTO
+        //    //{
+        //    //    CategoryId = categoryId,
+        //    //    Keyword = keyword
+        //    //};
+        //}
     }
 
 }

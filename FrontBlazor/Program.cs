@@ -21,10 +21,12 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AnnonceService>();
+builder.Services.AddSingleton<CurrentUserService>();
+
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
-builder.Services.AddSingleton<CurrentUserService>();
+builder.Services.AddScoped<ProfilViewModel>;
 
 
 var app = builder.Build();
