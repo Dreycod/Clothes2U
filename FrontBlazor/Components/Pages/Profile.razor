@@ -1,9 +1,5 @@
 ﻿@page "/profile/{username}"
 @rendermode InteractiveServer
-@inject AnnoncesViewModel VM_Annonces
-@inject ProfilViewModel VM_Profil
-@inject CurrentUserService currentUserService
-@inject NavigationManager navigationManager
 
 <PageTitle>Clothes2U</PageTitle>
 
@@ -169,7 +165,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await VM_Profil.InitializeAsync();
+        //await VM_Profil.InitializeAsync();
         // show user's data
         // show user's articles
         // show user's favoris IF logged in user is the same as profile user (don't GET if not)
