@@ -20,12 +20,6 @@ public class ConversationController : ControllerBase
         _mapper = mapper;
     }
     
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Conversation>>> GetAll()
-    {
-        return Ok(await _conversationManager.GetAllAsync());
-    }
-    
     [HttpGet("conversation/{id}")]
     public async Task<ActionResult<ConversationDetailDTO>> GetById(int id)
     {
