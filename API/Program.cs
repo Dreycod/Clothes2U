@@ -57,7 +57,11 @@ builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnon
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>,  ConversationManager>(); 
-
+builder.Services.AddScoped<INotificationRepository<Notification>, NotificationManager>();
+builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
+builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
+builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
+builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

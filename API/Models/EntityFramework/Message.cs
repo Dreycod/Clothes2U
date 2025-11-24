@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_message_mes")]
-public class Message
+public class Message : IEntity
 {
     [Key]
     [Column("mes_id")]
@@ -46,4 +46,7 @@ public class Message
 
     [InverseProperty(nameof(MessageValidation.Message))]
     public virtual MessageValidation? MessageValidation { get; set; }
+
+    public int GetId() =>  MessageId;
+    
 }

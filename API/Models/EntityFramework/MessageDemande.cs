@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_message_demande_mesdem")]
-public class MessageDemande 
+public class MessageDemande: IEntity
 {
     [Key]
     [Column("mesdem_id")]
@@ -29,4 +29,6 @@ public class MessageDemande
     
     [InverseProperty(nameof(MessageDemande.Offre))]
     public virtual ICollection<MessageDemande>? ContreOffres { get; set; } = new List<MessageDemande>();
+    
+    public int GetId() =>  MessageDemandeId;
 }

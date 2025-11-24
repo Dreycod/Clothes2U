@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_message_texte_mestex")]
-public class MessageTexte 
+public class MessageTexte : IEntity
 {
     [Key]
     [Column("mestex_id")]
@@ -25,4 +25,6 @@ public class MessageTexte
     
     [InverseProperty(nameof(MessageContientImage.Message))]
     public virtual ICollection<MessageContientImage>? Photos { get; set; } = new List<MessageContientImage>();
+    
+    public int GetId() => MessageTexteId;
 }

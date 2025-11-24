@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_message_validation_mesval")]
-public class MessageValidation 
+public class MessageValidation : IEntity
 {
     [Key]
     [Column("mesval_id")]
@@ -18,4 +18,6 @@ public class MessageValidation
     [ForeignKey(nameof(MessageId))]
     [InverseProperty(nameof(Message.MessageValidation))]
     public virtual Message Message{ set; get; }
+    
+    public int GetId() => MessageValidationId;
 }

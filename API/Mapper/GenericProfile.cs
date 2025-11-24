@@ -14,6 +14,7 @@ using API.DTO.Utilisateur;
 using API.Models;
 using API.Models.EntityFramework;
 using API.DTO.NoteUtilisateur;
+using API.DTO.Notification;
 
 
 namespace API.Mapper;
@@ -161,6 +162,46 @@ public class GenericProfile : Profile
         CreateMap<SignalementUtilisateur, SignalementUtilisateurDTO>()
             .ForMember(dest => dest.UtilisateurSignaleId, opt => opt.MapFrom(src => src.UtilisateurSignaleId))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.UtilisateurSignale.Login));
+
+        
+        CreateMap<Notification, NotificationDTO>()
+            // Type de notification
+            .ForMember(dest => dest.NotificationTypeId,
+                opt => opt.MapFrom(src => src.NotificationTypeId))
+
+            // Texte administrateur
+            .ForMember(dest => dest.AdminText,
+                opt => opt.MapFrom(src => src.NotificationAdmins != null 
+                    ? src.NotificationAdmins.AdminText 
+                    : null))
+
+            // Message d’avertissement
+            .ForMember(dest => dest.MessageAvertissement,
+                opt => opt.MapFrom(src => src.NotificationAvertissements != null
+                    ? src.NotificationAvertissements.MessageAvertissement
+                    : null))
+
+            // Nouveau message
+            .ForMember(dest => dest.MessageId,
+                opt => opt.MapFrom(src => src.NotificationMessages != null
+                    ? src.NotificationMessages.MessageId
+                    : (int?)null))
+
+            // Modification annonce
+            .ForMember(dest => dest.ModificationAnnonceId,
+                opt => opt.MapFrom(src => src.NotificationModifications != null
+                    ? src.NotificationModifications.AnnonceId
+                    : (int?)null))
+
+            // Nouvelle annonce
+            .ForMember(dest => dest.NouvelleAnnonceId,
+                opt => opt.MapFrom(src => src.NotificationNouvellesAnnonces != null
+                    ? src.NotificationNouvellesAnnonces.AnnonceId
+                    : (int?)null))
+
+            // Type d’annonce (libellé du type)
+            .ForMember(dest => dest.TypeAnnonce,
+                opt => opt.MapFrom(src => src.NotificationType.LibelleType));
 
     }
 }
