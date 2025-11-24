@@ -7,7 +7,7 @@ namespace FrontBlazor.ViewModel
     {
         private readonly AnnonceService _service;
 
-        public List<AnnonceDTO> Annonces { get; set; } = new List<AnnonceDTO>();
+        public List<Annonce> Annonces { get; set; } = new List<Annonce>();
 
         public AnnoncesViewModel(AnnonceService service)
         {
@@ -19,16 +19,16 @@ namespace FrontBlazor.ViewModel
             Annonces = await _service.GetActiveAnnoncesAsync();
         }
 
-        public async Task<List<AnnonceDTO>> RecupererAnnoncesUtilisateur()
+        public async Task<List<Annonce>> RecupererAnnoncesUtilisateur()
         {
             //Annonces = await _service.GetAnnoncesByIdUser
-            Annonces.Add(new AnnonceDTO());
+            Annonces.Add(new Annonce());
             return Annonces;
         }
 
 
         // Exclusive to search page, nouveautés et tendances
-        public async Task<List<AnnonceDTO>> GetAnnoncesByFilters()
+        public async Task<List<Annonce>> GetAnnoncesByFilters()
         {
             Annonces = await _service.GetActiveAnnoncesAsync();
             //Annonces = await _service.GetAnnoncesById

@@ -1,6 +1,6 @@
 ﻿namespace FrontBlazor.Models.Annonces
 {
-    public class AnnonceDetailDTO
+    public class AnnonceDetail
     {
         public int? AnnonceId { get; set; }
         public string Title { get; set; }

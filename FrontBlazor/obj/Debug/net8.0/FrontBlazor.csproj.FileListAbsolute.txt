@@ -101,3 +101,14 @@ C:\Users\Narcissu\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\re
 C:\Users\Narcissu\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.pdb
 C:\Users\Narcissu\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.genruntimeconfig.cache
 C:\Users\Narcissu\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\ref\FrontBlazor.dll
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.csproj.AssemblyReference.cache
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.AssemblyInfoInputs.cache
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.AssemblyInfo.cs
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.csproj.CoreCompileInputs.cache
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.sourcelink.json
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.dll
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\refint\FrontBlazor.dll
+C:\Users\suzukisa\source\repos\Dreycod\Clothes2U\FrontBlazor\obj\Debug\net8.0\FrontBlazor.pdb

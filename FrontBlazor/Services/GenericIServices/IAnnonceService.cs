@@ -5,4 +5,5 @@ public interface IAnnonceService<TEntity>  : IReadableService<TEntity>, IWritabl
     Task<List<TEntity>?> GetActiveAnnonces();
     Task<List<TEntity>?> GetAnnoncesByCategorieId(int id);
     Task<List<TEntity>?> GetAnnoncesBySousCategoryId(int id);
+    Task<List<TEntity>?> GetAnnonceDetailById(int id);
 }
