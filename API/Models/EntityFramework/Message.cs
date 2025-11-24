@@ -46,7 +46,6 @@ public class Message : IEntity
 
     [InverseProperty(nameof(MessageValidation.Message))]
     public virtual MessageValidation? MessageValidation { get; set; }
-
-    public int GetId() =>  MessageId;
     
+    public int GetId() => MessageId;
 }

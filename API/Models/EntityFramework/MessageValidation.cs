@@ -18,6 +18,7 @@ public class MessageValidation : IEntity
     [ForeignKey(nameof(MessageId))]
     [InverseProperty(nameof(Message.MessageValidation))]
     public virtual Message Message{ set; get; }
-    
+
+
     public int GetId() => MessageValidationId;
 }

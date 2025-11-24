@@ -13,7 +13,6 @@ public class NotificationModificationAnnonce
     [Column("notmod_annonce_id")]
     public int AnnonceId { get; set; }
     
-    //id de relation
     [Column("notmod_notification_id")]
     public int NotificationId { get; set; }
     

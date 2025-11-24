@@ -20,13 +20,6 @@ public class ConversationController : ControllerBase
         _mapper = mapper;
     }
     
-  
-
-
-
-
-
-
     [HttpGet("conversation/{id}")]
     public async Task<ActionResult<ConversationDetailDTO>> GetById(int id)
     {

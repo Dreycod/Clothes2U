@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_j_message_contient_image_messconima")]
-public class MessageContientImage : IEntity
+public class MessageContientImage
 {
     [Key]
     [Column("messconima_id")]
@@ -27,6 +27,4 @@ public class MessageContientImage : IEntity
     [ForeignKey(nameof(PhotoId))]
     [InverseProperty(nameof(Photo.Messages))]
     public virtual Photo Photo { set; get; }
-    
-    public int GetId() =>  MessageContientImageId;
 }
