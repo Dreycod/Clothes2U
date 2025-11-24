@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models.Annonces
+﻿namespace FrontBlazor.Models
 {
     public class Annonce: IEntity
     {

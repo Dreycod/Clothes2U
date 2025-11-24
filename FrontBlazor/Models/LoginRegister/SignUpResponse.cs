@@ -1,10 +1,9 @@
-﻿using FrontBlazor.Models.User;
+﻿using FrontBlazor.Models;
 
-namespace FrontBlazor.Models.LoginRegister
+namespace FrontBlazor.Models;
+
+public class SignUpResponse
 {
-    public class SignUpResponse
-    {
-        public string Token { get; set; }
-        public UserDetails UserDetails { get; set; }
-    }
+    public string Token { get; set; }
+    public UserDetails UserDetails { get; set; }
 }

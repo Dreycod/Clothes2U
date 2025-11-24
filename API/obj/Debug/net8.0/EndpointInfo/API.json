@@ -270,6 +270,50 @@
             "description": "Internal Server Error"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Annonce"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/api/Annonce/ByFavorisUtilisateur/{id}": {
@@ -568,44 +612,6 @@
           },
           "500": {
             "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/Conversation": {
-      "get": {
-        "tags": [
-          "Conversation"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Conversation"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Conversation"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Conversation"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -1398,6 +1404,213 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NoteUtilisateurDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Signalement/{id}": {
+      "get": {
+        "tags": [
+          "Signalement"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalementDetailDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalementDetailDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalementDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Signalement"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Signalement/Utilisateur/{id}": {
+      "get": {
+        "tags": [
+          "Signalement"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignalementDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignalementDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignalementDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Signalement/Type/{typeId}": {
+      "get": {
+        "tags": [
+          "Signalement"
+        ],
+        "parameters": [
+          {
+            "name": "typeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignalementDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignalementDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignalementDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Signalement": {
+      "post": {
+        "tags": [
+          "Signalement"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignalementCreateDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignalementCreateDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignalementCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalementDetailDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalementDetailDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalementDetailDTO"
                 }
               }
             }
@@ -3021,6 +3234,28 @@
         },
         "additionalProperties": false
       },
+      "SignalementAnnonceDTO": {
+        "type": "object",
+        "properties": {
+          "signalementAnnonceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "annonceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "titre": {
+            "type": "string",
+            "nullable": true
+          },
+          "prix": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "SignalementAvis": {
         "type": "object",
         "properties": {
@@ -3045,6 +3280,138 @@
         },
         "additionalProperties": false
       },
+      "SignalementAvisDTO": {
+        "type": "object",
+        "properties": {
+          "signalementAvisId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "avisId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentaire": {
+            "type": "string",
+            "nullable": true
+          },
+          "auteur": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignalementCreateDTO": {
+        "type": "object",
+        "properties": {
+          "signalementMotif": {
+            "type": "string",
+            "nullable": true
+          },
+          "signalementTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "utilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "annonceId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "avisId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "utilisateurSignaleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignalementDTO": {
+        "type": "object",
+        "properties": {
+          "signalementId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "signalementDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signalementMotif": {
+            "type": "string",
+            "nullable": true
+          },
+          "signalementTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "utilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loginAuteur": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignalementDetailDTO": {
+        "type": "object",
+        "properties": {
+          "signalementId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "signalementDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signalementMotif": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "utilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loginAuteur": {
+            "type": "string",
+            "nullable": true
+          },
+          "annonce": {
+            "$ref": "#/components/schemas/SignalementAnnonceDTO"
+          },
+          "avis": {
+            "$ref": "#/components/schemas/SignalementAvisDTO"
+          },
+          "utilisateur": {
+            "$ref": "#/components/schemas/SignalementUtilisateurDTO"
+          }
+        },
+        "additionalProperties": false
+      },
       "SignalementUtilisateur": {
         "type": "object",
         "properties": {
@@ -3065,6 +3432,24 @@
           },
           "signalement": {
             "$ref": "#/components/schemas/Signalement"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignalementUtilisateurDTO": {
+        "type": "object",
+        "properties": {
+          "signalementUtilisateurId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "utilisateurSignaleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "login": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

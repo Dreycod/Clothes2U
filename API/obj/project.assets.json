@@ -3949,24 +3949,32 @@
     ]
   },
   "packageFolders": {
-    "/home/elioth/.nuget/packages/": {}
+    "C:\\Users\\suzukisa\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
+      "projectUniqueName": "C:\\Users\\suzukisa\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/API.csproj",
-      "packagesPath": "/home/elioth/.nuget/packages/",
-      "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Clothes2U/API/obj/",
+      "projectPath": "C:\\Users\\suzukisa\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj",
+      "packagesPath": "C:\\Users\\suzukisa\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\suzukisa\\source\\repos\\Dreycod\\Clothes2U\\API\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/elioth/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\suzukisa\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3984,7 +3992,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -4052,7 +4061,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

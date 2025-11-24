@@ -11,10 +11,16 @@ public class ConversationService: WritableService<Conversation>
 
     }
 
-    public async Task<List<Conversation?>> GetConversationsByUserId(int id)
+    public async Task<List<Conversation?>> GetConversationDetailById(int id)
     {
         return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
        $"Conversation/conversation/{id}"
+   );
+    }
+    public async Task<List<Conversation?>> GetConversationsByUserId(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
+       $"Conversation/utilisateur/{id}"
    );
     }
 }

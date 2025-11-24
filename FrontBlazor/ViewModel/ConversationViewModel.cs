@@ -16,9 +16,14 @@ public class ConversationViewModel
         _service = service;
     }
 
-    public async Task<List<Conversation>> RecupererConversationsUtilisateurParId(int Id)
+    public async Task<List<Conversation>> GetConversationsByUserId(int Id)
     {
         Conversations = await _service.GetConversationsByUserId(Id);
+        return Conversations;
+    }
+    public async Task<List<Conversation>> GetConversationDetailById(int Id)
+    {
+        Conversations = await _service.GetConversationDetailById(Id);
         return Conversations;
     }
 
