@@ -557,6 +557,9 @@ public class AnnonceControllerTest
     public async Task ShouldCreateAnnonce()
     {
         //Arrange
-        AnnonceDetailDTO annonceToAdd = _mapper
+        AnnonceDetailDTO annonceToAdd = _mapper.Map<AnnonceDetailDTO>(_default1);
+        
+        //Act
+        
     }
 }
