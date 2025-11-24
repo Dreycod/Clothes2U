@@ -552,6 +552,11 @@ public class AnnonceControllerTest
         Assert.IsNotNull(annonces);
         Assert.AreEqual(0, annonces.Count());
     }
-    
-    
+
+    [TestMethod]
+    public async Task ShouldCreateAnnonce()
+    {
+        //Arrange
+        AnnonceDetailDTO annonceToAdd = _mapper
+    }
 }
