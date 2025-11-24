@@ -1,6 +1,6 @@
-﻿namespace FrontBlazor.Models.Annonces
+﻿namespace FrontBlazor.Models
 {
-    public class AnnonceDTO
+    public class Annonce: IEntity
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -10,5 +10,9 @@
         public List<string> Photos { get; set; } = new();
         public int NombreLikes { get; set; }
         public decimal Prix { get; set; }
+        public int GetId()
+        {
+            return Id;
+        }
     }
 }

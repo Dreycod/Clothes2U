@@ -1,6 +1,7 @@
 using FrontBlazor.Components;
 using FrontBlazor.Models;
 using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.ViewModel;
 using Microsoft.JSInterop;
 
@@ -24,7 +25,8 @@ builder.Services.AddScoped<AnnonceService>();
 builder.Services.AddSingleton<CurrentUserService>();
 
 builder.Services.AddScoped<ConnexionViewModel>();
-builder.Services.AddScoped<AnnoncesViewModel>();
+builder.Services.AddScoped<IAnnonceService<Annonce>, AnnoncesViewModel>();
+
 builder.Services.AddScoped<HomeViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 

@@ -138,7 +138,7 @@
             <!-- Products Grid -->
             <div class="products-section">
                 <div class="product-grid">
-                    @foreach (AnnonceDTO annonce in VM.Annonces)
+                    @foreach (Annonce annonce in VM.Annonces)
                     {
                     <div @onclick="() => NavigateToProductDetail(annonce.Id)" style="cursor: pointer;">
                         <div class="product-card">
