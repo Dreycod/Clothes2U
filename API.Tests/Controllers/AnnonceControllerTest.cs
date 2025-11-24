@@ -560,6 +560,310 @@ public class AnnonceControllerTest
         AnnonceDetailDTO annonceToAdd = _mapper.Map<AnnonceDetailDTO>(_default1);
         
         //Act
+        ActionResult<AnnonceDetailDTO> action = await _controller.AddAnnonce(annonceToAdd);
+        var createdResult = action.Result as CreatedAtActionResult;
+        var annonce = createdResult.Value as AnnonceDetailDTO;
         
+        //Assert
+        Annonce annonceInDb = _context.Annonces.Find(annonce.AnnonceId);
+        
+        Assert.IsNotNull(annonceInDb);
+        Assert.IsNotNull(annonce);
+        Assert.IsInstanceOfType(action.Result, typeof(CreatedAtActionResult));
+    }
+
+    [TestMethod]
+    public async Task ShouldNotCreateAnnonce()
+    {
+        //Arrange
+        AnnonceDetailDTO annonceToAdd = new AnnonceDetailDTO();
+        _controller.ModelState.AddModelError("Title", "Required");
+
+        //Act
+        ActionResult<AnnonceDetailDTO> action = await _controller.AddAnnonce(annonceToAdd);
+        
+        //Assert
+        Assert.IsInstanceOfType(action.Result, typeof(BadRequestObjectResult));
+        Assert.IsNull(action.Value);
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldReturnAllAnnonces_WhenNoFilterProvided()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+
+        var searchRequest = new AnnonceSearchRequestDTO();
+
+        // Act
+        var result = await _controller.Search(searchRequest);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(2, annonces.Count());
+    }
+
+    [TestMethod]
+    public async Task Search_ShouldFilterByCategorie()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            CategorieId = 1 
+        };
+
+        // Act
+        var result = await _controller.Search(searchRequest);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(2, annonces.Count());
+    }
+
+    [TestMethod]
+    public async Task Search_ShouldFilterBySousCategorie()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            SousCategorieId = 1 // T-shirts
+        };
+
+        // Act
+        var result = await _controller.Search(searchRequest);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+    }
+
+    [TestMethod]
+    public async Task Search_ShouldFilterByMarque()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            MarqueId = 2 // Nike
+        };
+
+        // Act
+        var result = await _controller.Search(searchRequest);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.NomMarque == "Nike"));
+    }
+
+    [TestMethod]
+    public async Task Search_ShouldFilterByEtat()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            EtatId = 1 // Neuf
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.EtatArticle == "Neuf"));
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldFilterByTaille()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            TailleId = 1 // M
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.Taille == "M"));
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldFilterByPrixMin()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            PrixMin = 50.00m
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.Prix >= 50.00m));
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldFilterByPrixMax()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            PrixMax = 50.00m
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.Prix <= 50.00m));
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldFilterByPrixRange()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            PrixMin = 30.00m,
+            PrixMax = 70.00m
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.Prix >= 30.00m && a.Prix <= 70.00m));
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldFilterByMotCle()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            MotCle = "Nike"
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
+        Assert.IsTrue(annonces.All(a => a.Title.Contains("Nike")));
+    }
+    
+    [TestMethod]
+    public async Task Search_ShouldBeCaseInsensitive_ForMotCle()
+    {
+        // Arrange
+        SeedDatabase();
+        _context.Annonces.AddRange(_default1, _default2);
+        _context.SaveChanges();
+    
+        var searchRequest = new AnnonceSearchRequestDTO
+        {
+            MotCle = "nike" // lowercase
+        };
+    
+        // Act
+        var result = await _controller.Search(searchRequest);
+    
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(1, annonces.Count());
     }
 }

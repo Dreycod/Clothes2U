@@ -103,7 +103,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
 
         if (!string.IsNullOrWhiteSpace(request.MotCle))
             query = query.Where(a =>
-                a.Title.Contains(request.MotCle));
+                a.Title.ToLower().Contains(request.MotCle.ToLower()));
 
         return await query.ToListAsync();
     }
