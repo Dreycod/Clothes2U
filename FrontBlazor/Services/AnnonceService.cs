@@ -15,15 +15,19 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
     }
     public async Task<List<AnnonceDetail?>?> GetAnnoncesByCategorieId(int Id)
     {
-        return new List<AnnonceDetail?>();
+        return await _httpClient.GetFromJsonAsync<List<AnnonceDetail>>(
+            $"Annonce/ByCategorieId/{Id}"
+        );
     }
     public async Task<List<AnnonceDetail?>?> GetAnnoncesBySousCategoryId(int Id)
     {
-       throw new NotImplementedException();
-    }
-    public async Task<List<AnnonceDetail?>?> GetAnnonceDetailById(int Id)
-    {
         return await _httpClient.GetFromJsonAsync<List<AnnonceDetail>>(
+             $"Annonce/BySousCategorieId/{Id}"
+         );
+    }
+    public async Task<AnnonceDetail> GetAnnonceDetailById(int Id)
+    {
+        return await _httpClient.GetFromJsonAsync<AnnonceDetail>(
            $"Annonce/id/{Id}"
        );
     }
@@ -32,5 +36,28 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
         return await _httpClient.GetFromJsonAsync<List<Annonce>>(
             $"Annonce/GetAnnoncesByUserId/{userId}"
         );
+    }
+
+    // le problème c'est que annonceService doit utiliser des annonce detail, et pas annonce simple pour certaines méthodes
+    // mais on doit faire pour les deux, donc rip
+
+    Task<List<Annonce>?> IAnnonceService<Annonce>.GetAnnoncesByCategorieId(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<List<Annonce>?> IAnnonceService<Annonce>.GetAnnoncesBySousCategoryId(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<List<Annonce>?> IAnnonceService<Annonce>.GetAnnonceDetailById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Annonce> GetByIdAsync(int id)
+    {
+        throw new NotImplementedException();
     }
 }

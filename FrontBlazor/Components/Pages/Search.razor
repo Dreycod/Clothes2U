@@ -1,7 +1,5 @@
 ﻿@page "/search"
-@using FrontBlazor.Models.Annonces
-@inject AnnoncesViewModel VM
-@inject NavigationManager navigationManager
+@using FrontBlazor.Models
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
@@ -138,7 +136,7 @@
             <!-- Products Grid -->
             <div class="products-section">
                 <div class="product-grid">
-                    @foreach (Annonce annonce in VM.Annonces)
+                    @foreach (Annonce annonce in VM_Annonces.Annonces)
                     {
                     <div @onclick="() => NavigateToProductDetail(annonce.Id)" style="cursor: pointer;">
                         <div class="product-card">
@@ -217,6 +215,6 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        await VM.LoadAsync();
+        await VM_Annonces.LoadAsync();
     }
 }

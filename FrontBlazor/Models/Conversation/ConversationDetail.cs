@@ -1,4 +1,3 @@
-using FrontBlazor.Models.Message;
 namespace FrontBlazor.Models;
 public class ConversationDetail
 {

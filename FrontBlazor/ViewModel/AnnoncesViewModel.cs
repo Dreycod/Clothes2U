@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Models.Annonces;
+﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
 
 namespace FrontBlazor.ViewModel
@@ -17,7 +17,7 @@ namespace FrontBlazor.ViewModel
         public async Task LoadAsync()
         {
             Annonces = new List<Annonce>();
-            Annonces = await _service.GetActiveAnnoncesAsync();
+            Annonces = await _service.GetActiveAnnonces();
         }
 
         public async Task<List<Annonce>> RecupererAnnoncesUtilisateur()
@@ -31,7 +31,7 @@ namespace FrontBlazor.ViewModel
         // Exclusive to search page, nouveautés et tendances
         public async Task<List<Annonce>> GetAnnoncesByFilters()
         {
-            Annonces = await _service.GetActiveAnnoncesAsync();
+            Annonces = await _service.GetActiveAnnonces();
             //Annonces = await _service.GetAnnoncesById
             return Annonces;
         }
@@ -44,14 +44,19 @@ namespace FrontBlazor.ViewModel
 
 
         ////// Annonce Detail
-        public AnnonceDetailDTO annonceDetailDTO { get; set; } = new AnnonceDetailDTO();
+        public AnnonceDetail annonceDetail { get; set; } = new AnnonceDetail();
         private AnnonceService _annonceService;
 
-        public void LoadAnnonceDetail(int id) // the page overrided to async Task this
+        public async void LoadAnnonceDetail(int id) // the page overrided to async Task this
         {
-            //AnnonceDetailDTO annonce = await _annonceService.GetAnnonceDetailById(id).Result;
+            AnnonceDetail annonceResult = await _annonceService.GetAnnonceDetailById(id);
+            if (annonceResult != null)
+            {
+                annonceDetail = annonceResult;
+                return;
+            }
             //simulate annonce detail loading
-            annonceDetailDTO = new AnnonceDetailDTO
+            annonceDetail = new AnnonceDetail
             {
                 AnnonceId = id,
                 Title = "Veste en cuir vintage",

@@ -1,5 +1,5 @@
 ﻿using FrontBlazor.Services.GenericIServices;
-using FrontBlazor.Models.Conversation;
+using FrontBlazor.Models;
 namespace FrontBlazor.Services;
 
 public class ConversationService: WritableService<Conversation>

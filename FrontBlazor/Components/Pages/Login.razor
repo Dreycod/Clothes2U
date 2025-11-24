@@ -207,12 +207,14 @@
         IsLoading = true;
         ReturnMessage = await VM_Connexion.HandleLogin(LoginEmail, LoginPassword);
         IsLoading = false;
+        navigationManager.NavigateTo("/");
     }
     public async Task HandleRegister()
     {
         IsLoading = true;
         ReturnMessage = await VM_Connexion.HandleRegister(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword, AcceptTerms);
         IsLoading = false;
+        navigationManager.NavigateTo("/");
         // Implement registration logic here
     }
     public async Task HandleGoogleLogin()

@@ -1,9 +1,5 @@
 ﻿@page "/product/{Id:int}"
 @rendermode InteractiveServer
-@inject NavigationManager navigationManager
-@inject AnnoncesViewModel VM_Annonces
-@inject ProfilViewModel VM_Profil
-@inject AnnonceDetailViewModel VM_AnnonceDetail
 
 <PageTitle>@productTitle - Clothes2U</PageTitle>
 
@@ -13,7 +9,7 @@
 <div class="product-detail-page">
     <div class="product-container">
         <!-- Left Side - Product Image -->
-        @if (VM_AnnonceDetail.annonceDetailDTO != null)
+        @if (VM_Annonces.annonceDetail != null)
         {
             <div class="product-image-section">
             <div class="main-image"></div>
@@ -28,7 +24,7 @@
             <div class="category-badge">Shirts & T-Shirts</div>
 
             <!-- Title -->
-            <h1 class="product-title">@VM_AnnonceDetail.annonceDetailDTO.Title</h1>
+            <h1 class="product-title">@VM_Annonces.annonceDetail.Title</h1>
 
             <!-- Brand & Price -->
             <div class="brand-price-row">
@@ -153,7 +149,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        VM_AnnonceDetail.LoadAnnonceDetail(Id);
+        VM_Annonces.LoadAnnonceDetail(Id);
     }
 
     private string productTitle = "T-Shirt Adidas à revendre! Très bon état!";

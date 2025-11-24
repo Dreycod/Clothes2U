@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Models.Conversation;
+﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
 using System.ComponentModel;
 using System.Diagnostics;

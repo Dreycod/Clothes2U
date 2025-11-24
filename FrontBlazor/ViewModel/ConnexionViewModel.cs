@@ -1,4 +1,4 @@
-using FrontBlazor.Models.LoginRegister;
+using FrontBlazor.Models;
 using FrontBlazor.Services;
 using Microsoft.JSInterop;
 
@@ -17,7 +17,7 @@ public class ConnexionViewModel
         _jsRuntime = jsRuntime;
     }
 
-    public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword)
+    public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword, bool AcceptTerms)
     {
         LoginRequest request = RequestFactory.CreateRegisterRequest(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword);
 
