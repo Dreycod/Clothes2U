@@ -65,9 +65,14 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     }
     public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
     {
+        var annonceIds = await _context.Favorises
+            .Where(f => f.UtilisateurId == id)
+            .Select(f => f.AnnonceId)
+            .ToListAsync();
+
+        // Puis récupérer les annonces complètes avec toutes leurs relations
         return await BaseAnnonceQuery()
-            .Where(a => a.UtilisateursFavoris
-                .Any(f => f.UtilisateurId == id))
+            .Where(a => annonceIds.Contains(a.AnnonceId))
             .ToListAsync();
     }
 
