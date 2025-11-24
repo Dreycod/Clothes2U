@@ -1,6 +1,7 @@
 ﻿@page "/search"
 @using FrontBlazor.Models.Annonces
 @inject AnnoncesViewModel VM
+@inject NavigationManager navigationManager
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
@@ -139,6 +140,7 @@
                 <div class="product-grid">
                     @foreach (AnnonceDTO annonce in VM.Annonces)
                     {
+                    <div @onclick="() => NavigateToProductDetail(annonce.Id)" style="cursor: pointer;">
                         <div class="product-card">
                             <div class="product-image-container">
                                 <div class="product-image"></div>
@@ -161,6 +163,7 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
                     }
                 </div>
             </div>
@@ -196,6 +199,10 @@
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
 
+    private void NavigateToProductDetail(int productId)
+    {
+        navigationManager.NavigateTo($"/product/{productId}");
+    }
 
     public void ToggleFavorite()
     {

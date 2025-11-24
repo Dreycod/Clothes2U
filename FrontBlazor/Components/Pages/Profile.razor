@@ -2,8 +2,10 @@
 @rendermode InteractiveServer
 @inject AnnoncesViewModel VM_Annonces
 @inject ProfilViewModel VM_Profil
+@inject CurrentUserService currentUserService
+@inject NavigationManager navigationManager
 
-<PageTitle>@VM_Profil.Username - Clothes2U</PageTitle>
+<PageTitle>Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
 <NavBar />
@@ -46,10 +48,14 @@
                 <i class="bi bi-bag"></i>
                 <span>Articles</span>
             </button>
-            <button class="tab-btn @(VM_Profil.activeTab == "favoris" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("favoris")'>
-                <i class="bi bi-heart"></i>
-                <span>Favoris</span>
-            </button>
+            @if (currentUserService.UserId == VM_Profil.ViewingUser_UserId)
+            {
+                <button class="tab-btn @(VM_Profil.activeTab == "favoris" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("favoris")'>
+                    <i class="bi bi-heart"></i>
+                    <span>Favoris</span>
+                </button>
+            }
+
             <button class="tab-btn @(VM_Profil.activeTab == "avis" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("avis")'>
                 <i class="bi bi-star"></i>
                 <span>Avis</span>
@@ -98,7 +104,7 @@
                 {
                     <div class="empty-state">
                         <p>Vous n'avez pas encore mis en vente des articles</p>
-                        <button class="btn-add-article" @onclick="VM_Profil.AddArticle">
+                        <button class="btn-add-article" @onclick="AddArticle">
                             Ajouter un article
                         </button>
                     </div>
@@ -171,4 +177,8 @@
 
     }
 
+    public void AddArticle()
+    {
+        navigationManager.NavigateTo("/ajouter-article");
+    }
 }

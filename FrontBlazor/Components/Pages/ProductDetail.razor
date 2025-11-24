@@ -1,5 +1,8 @@
-﻿@page "/product/{id:int}"
+﻿@page "/product/{Id:int}"
 @rendermode InteractiveServer
+@inject NavigationManager navigationManager
+@inject AnnoncesViewModel VM_Annonces
+@inject ProfilViewModel VM_Profil
 
 <PageTitle>@productTitle - Clothes2U</PageTitle>
 
@@ -141,6 +144,11 @@
 @code {
     [Parameter]
     public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM_Profil.LoadUserProfile(Id);
+    }
 
     private string productTitle = "T-Shirt Adidas à revendre! Très bon état!";
     private bool isFavorite = false;
