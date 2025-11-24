@@ -12,6 +12,7 @@ public class NotificationMessage
     [Column("notmes_message_id")]
     public int MessageId { get; set; }
     
+    //id des relations
     [Column("notmes_notification_id")]
     public int NotificationId { get; set; }
     //relation avec les autres tables :
