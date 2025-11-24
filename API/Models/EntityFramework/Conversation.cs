@@ -7,7 +7,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_conversation_con")]
-public class Conversation
+public class Conversation : IEntity
 {
     [Key]
     [Column("con_id")]
@@ -45,4 +45,6 @@ public class Conversation
     [ForeignKey(nameof(AnnonceId))]
     [InverseProperty(nameof(Annonce.LesConversations))]
     public virtual Annonce LAnnonce {get; set;}
+
+    public int GetId() => ConversationId;
 }

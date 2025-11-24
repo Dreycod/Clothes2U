@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_note_utilisateur_notuti")]
-public class NoteUtilisateur
+public class NoteUtilisateur : IEntity
 {
     [Key]
     [Column("notuti_id")]
@@ -42,5 +42,6 @@ public class NoteUtilisateur
     [InverseProperty(nameof(SignalementAvis.Avis))]
     public virtual ICollection<SignalementAvis> Signalements { get; set; } = new List<SignalementAvis>();
 
-    
+    public int GetId() => NoteUtilisateurId;
+
 }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_message_mes")]
-public abstract class Message
+public class Message : IEntity
 {
     [Key]
     [Column("mes_id")]
@@ -35,4 +35,17 @@ public abstract class Message
     
     [InverseProperty(nameof(NotificationMessage.Message))]
     public virtual ICollection<NotificationMessage> NotificationsMessage { get; set; } = new List<NotificationMessage>();
+    
+    //relation avec les class child : 
+    
+    [InverseProperty(nameof(MessageDemande.Message))]
+    public virtual MessageDemande? MessageDemande { get; set; }
+
+    [InverseProperty(nameof(MessageTexte.Message))]
+    public virtual MessageTexte? MessageTexte { get; set; }
+
+    [InverseProperty(nameof(MessageValidation.Message))]
+    public virtual MessageValidation? MessageValidation { get; set; }
+    
+    public int GetId() => MessageId;
 }

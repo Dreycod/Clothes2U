@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_notification_not")]
-public abstract class Notification
+public class Notification : IEntity
 {
     [Key]
     [Column("not_id")]
@@ -27,4 +27,20 @@ public abstract class Notification
     [ForeignKey(nameof(UtilisateurId))]
     [InverseProperty(nameof(Utilisateur.Notifications))]
     public virtual Utilisateur Utilisateur { get; set; } = null!;
+    
+    [InverseProperty(nameof(NotificationAdmin.LaNotification))]
+    public virtual NotificationAdmin? NotificationAdmins { get; set; } 
+    
+    [InverseProperty(nameof(NotificationAvertissement.LaNotification))]
+    public virtual NotificationAvertissement? NotificationAvertissements { get; set; }
+    [InverseProperty(nameof(NotificationMessage.LaNotification))]
+    public virtual NotificationMessage? NotificationMessages { get; set; } 
+    
+    [InverseProperty(nameof(NotificationModificationAnnonce.LaNotification))]
+    public virtual NotificationModificationAnnonce? NotificationModifications { get; set; } 
+
+    [InverseProperty(nameof(NotificationNouvelleAnnonce.LaNotification))]
+    public virtual NotificationNouvelleAnnonce? NotificationNouvellesAnnonces { get; set; }
+    
+    public int GetId() => NotificationId;
 }

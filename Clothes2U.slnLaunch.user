@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Nouveau profil",
+    "Projects": [
+      {
+        "Path": "API\\API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "FrontBlazor\\FrontBlazor.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

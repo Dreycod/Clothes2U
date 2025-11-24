@@ -1,0 +1,51 @@
+﻿<nav class="main-navbar">
+    <div class="navbar-container">
+        <!-- Logo and Menu -->
+        <div class="navbar-left">
+            <a href="/" class="navbar-logo">
+                Clothes<span class="logo-accent">2</span>U
+            </a>
+            <button class="menu-toggle">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="navbar-search">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Un nouveau t-shirt?" @bind="searchQuery" />
+        </div>
+
+        <!-- Right Navigation -->
+        <div class="navbar-right">
+            <a href="#" class="nav-link">NOUVEAUTÉS</a>
+            <a href="#" class="nav-link">TENDANCES</a>
+
+            <button class="icon-btn" title="Notifications">
+                <i class="bi bi-bell"></i>
+            </button>
+
+            <button class="icon-btn" title="Langue">
+                <i class="bi bi-globe"></i>
+            </button>
+
+            <button class="icon-btn" title="Messages">
+                <i class="bi bi-chat-dots"></i>
+            </button>
+
+            <button class="icon-btn" title="Profil">
+                <i class="bi bi-person-circle"></i>
+            </button>
+
+            <button class="icon-btn" title="Panier">
+                <i class="bi bi-bag"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+@code
+{
+    private string searchQuery = string.Empty;
+
+}

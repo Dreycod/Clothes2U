@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_utilisateur_uti")]
-public class Utilisateur
+public class Utilisateur : IEntity
 {
     [Key]
     [Column("uti_id")]
@@ -29,13 +29,25 @@ public class Utilisateur
     //id de relation
     
     [Column("uti_adresse_id")]
-    public int AdresseId { get; set; }
+    public int? AdresseId { get; set; }
+
+    [Column("uti_statut_id")] public int StatutId { get; set; }
+
+    [Column("uti_id_photo")] public int? PhotoId { get; set; }
     
-    [Column("uti_statut_id")]
-    public int StatutId { get; set; }
+    [Column("uti_role_id")] public int RoleId { get; set; }
     
     
     //relation avec les autres tables : 
+    [ForeignKey(nameof(RoleId))]
+    [InverseProperty(nameof(RoleUtilisateur.Utilisateurs))]
+    public virtual RoleUtilisateur Role { get; set; } 
+    
+    
+    [ForeignKey(nameof(PhotoId))]
+    public virtual Photo PhotoProfil { get; set; } 
+    
+    
     
     [InverseProperty(nameof(Annonce.Utilisateur))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
@@ -51,7 +63,7 @@ public class Utilisateur
     
     [ForeignKey(nameof(AdresseId))]
     [InverseProperty(nameof(Adresse.Utilisateurs))]
-    public virtual Adresse Adresse { get; set; } = null!;
+    public virtual Adresse Adresse { get; set; } 
     
     [InverseProperty(nameof(NoteUtilisateur.Auteur))]
     public virtual ICollection<NoteUtilisateur> NotesAuteur { get; set; } = new List<NoteUtilisateur>();
@@ -91,4 +103,6 @@ public class Utilisateur
     public virtual ICollection<Achete> Achats { get; set; } = new List<Achete>();
     [InverseProperty(nameof(Vend.UtilisateurVendeur))]
     public virtual ICollection<Vend> Ventes { get; set; } = new List<Vend>();
+    
+    public int GetId() => UtilisateurId;
 }
