@@ -5,3 +5,10 @@
 /.vs
 /API/obj
 /FrontBlazor/obj
+/API/obj/Debug/net8.0/API.AssemblyInfo.cs
+/API/obj/Debug/net8.0/API.AssemblyInfoInputs.cache
+/API/obj/Debug/net8.0/API.assets.cache
+/API/obj/Debug/net8.0/API.csproj.AssemblyReference.cache
+/API/obj/Debug/net8.0/API.GeneratedMSBuildEditorConfig.editorconfig
+/API/obj/Debug/net8.0/API.GlobalUsings.g.cs
+/API/obj/Debug/net8.0/rpswa.dswa.cache.json
