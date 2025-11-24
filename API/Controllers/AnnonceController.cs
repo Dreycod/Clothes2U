@@ -132,6 +132,20 @@ public class AnnonceController : ControllerBase
         return Ok(annoncesDTO);
     }
 
-
+    [HttpDelete("id/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteAnnonce(int id) 
+    {
+        Annonce? annonceToDelete = await _annonceManager.GetByIdAsync(id);
+        if (annonceToDelete == null)
+        {
+            return NotFound();
+        }
+        await _annonceManager.DeleteAsync(annonceToDelete);
+        return NoContent();
+    }
+    
 
 }
