@@ -2,19 +2,4 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/Clothes2U/CopilotIndices/17.14.670.39694/CodeChunks.db
-/.vs/Clothes2U/CopilotIndices/17.14.670.39694/CodeChunks.db-shm
-/.vs/Clothes2U/CopilotIndices/17.14.670.39694/CodeChunks.db-wal
-/.vs/Clothes2U/CopilotIndices/17.14.670.39694/SemanticSymbols.db
-/.vs/Clothes2U/CopilotIndices/17.14.670.39694/SemanticSymbols.db-shm
-/.vs/Clothes2U/CopilotIndices/17.14.670.39694/SemanticSymbols.db-wal
-/.vs/Clothes2U/config/applicationhost.config
-/.vs/Clothes2U/copilot-chat/c40068e0/sessions/0c7eba5a-514d-4968-904a-d2e34a7dd4b2
-/.vs/Clothes2U/FileContentIndex/1566db28-4fa5-49f2-ae83-f24facd6fc64.vsidx
-/.vs/Clothes2U/FileContentIndex/44397170-d603-48a7-849b-45d90f96c9e1.vsidx
-/.vs/Clothes2U/FileContentIndex/76ae8aa3-ef4f-4acb-8d15-6064298a9669.vsidx
-/.vs/Clothes2U/FileContentIndex/a67ba3cd-6a6c-4cd3-a28c-9d6f2f791851.vsidx
-/.vs/Clothes2U/FileContentIndex/c9b6c68e-8e00-41f1-a706-8b680e2d0a4e.vsidx
-/.vs/Clothes2U/CopilotIndices/17.12.53.23981
-/.vs/Clothes2U/FileContentIndex
-/.vs/Clothes2U/CopilotIndices/17.14.786.1071
+/.vs
