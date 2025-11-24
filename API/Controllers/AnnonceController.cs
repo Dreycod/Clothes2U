@@ -71,7 +71,7 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
-        return annonceDTO;
+        return Ok(annonceDTO);
     }
     
     [HttpGet("ByFavorisUtilisateur/{id}")]

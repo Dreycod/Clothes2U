@@ -74,7 +74,7 @@ public class LoginController : ControllerBase
             response = Ok(new
             {
                 token = tokenString,
-                userDetails = new
+                userDetails = new 
                 {
                     utilisateur.UtilisateurId,
                     utilisateur.Email,

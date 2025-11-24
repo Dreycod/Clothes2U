@@ -6,6 +6,7 @@ using API.DTO.Conversation;
 using API.DTO.Couleur;
 using API.DTO.Favoris;
 using API.DTO.Message;
+using API.DTO.Signalement;
 using API.DTO.SousCategorie;
 using API.DTO.StatutAnnonce;
 using API.DTO.Taille;
@@ -42,7 +43,8 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
-            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoUri));
+            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoUri))
+            .ReverseMap();
         CreateMap<Annonce, AnnonceDetailDTO>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
 
@@ -113,6 +115,35 @@ public class GenericProfile : Profile
 
         CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
             .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        CreateMap<Signalement, SignalementDTO>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
+            .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login));
+
+        CreateMap<Signalement, SignalementDetailDTO>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
+            .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.Annonce, opt => opt.MapFrom(src => src.SignalementsAnnonce))
+            .ForMember(dest => dest.Avis, opt => opt.MapFrom(src => src.SignalementsAvis))
+            .ForMember(dest => dest.Utilisateur, opt => opt.MapFrom(src => src.SignalementsUtilisateur));
+
+        CreateMap<SignalementCreateDTO, Signalement>()
+            .ForMember(dest => dest.SignalementDate, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        CreateMap<SignalementAnnonce, SignalementAnnonceDTO>()
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceSignaleeId))
+            .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Annonce.Title))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Annonce.Prix));
+
+        CreateMap<SignalementAvis, SignalementAvisDTO>()
+            .ForMember(dest => dest.AvisId, opt => opt.MapFrom(src => src.AvisId))
+            .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Avis.Note))
+            .ForMember(dest => dest.Commentaire, opt => opt.MapFrom(src => src.Avis.Commentaire))
+            .ForMember(dest => dest.Auteur, opt => opt.MapFrom(src => src.Avis.Auteur.Login));
+
+        CreateMap<SignalementUtilisateur, SignalementUtilisateurDTO>()
+            .ForMember(dest => dest.UtilisateurSignaleId, opt => opt.MapFrom(src => src.UtilisateurSignaleId))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.UtilisateurSignale.Login));
 
     }
 }

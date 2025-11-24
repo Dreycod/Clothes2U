@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_signalement_utilisateur_siguti")]
-public class SignalementUtilisateur
+public class SignalementUtilisateur : IEntity
 {
     [Key]
     [Column("siguti_id")]
@@ -25,4 +25,7 @@ public class SignalementUtilisateur
     [ForeignKey(nameof(SignalementId))]
     [InverseProperty(nameof(Signalement.SignalementsUtilisateur))]
     public virtual Signalement Signalement { get; set; } = null!;
+
+    public int GetId() => SignalementUtilisateurId;
+
 }
