@@ -110,7 +110,7 @@ public class GenericProfile : Profile
 
         CreateMap<Conversation, ConversationDetailDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
-            .ForMember(dest => dest.ListMessages, opt => opt.MapFrom(src => src.Messages))
+            .ForMember(dest => dest.ListMessages, opt => opt.MapFrom(src => src.Messages.OrderBy(m => m.MessageDate)))
             .ForMember(dest => dest.Vendeur, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
             .ForMember(dest => dest.Acheteur, opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
             .ForMember(dest => dest.Annonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
@@ -119,7 +119,7 @@ public class GenericProfile : Profile
             .ForMember(dest=> dest.MessageId, opt=> opt.MapFrom(src=>src.MessageId))
             .ForMember(dest=> dest.Date, opt=> opt.MapFrom(src=>src.MessageDate))
             .ForMember(dest=>dest.Lu, opt=>opt.MapFrom(src=> src.MessageLu))
-            .ForMember(dest=> dest.Contenu, opt=> opt.MapFrom(src=>src.MessageTexte))
+            .ForMember(dest=> dest.Contenu, opt=> opt.MapFrom(src=>src.MessageTexte.ContenuMessage.ToString()))
             .ForMember(dest=> dest.Utilisateur,opt=> opt.MapFrom(src=>src.Utilisateur.Login));
 
  

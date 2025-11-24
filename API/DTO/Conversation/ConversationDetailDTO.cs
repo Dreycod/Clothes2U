@@ -10,5 +10,5 @@ public class ConversationDetailDTO
     public string? Vendeur { get; set; }
     public string? Acheteur { get; set; }
     public string? Annonce { get; set; }
-    public int? Prix { get; set; }
+    public double? Prix { get; set; }
 }
