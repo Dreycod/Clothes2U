@@ -3,6 +3,7 @@
 @inject NavigationManager navigationManager
 @inject AnnoncesViewModel VM_Annonces
 @inject ProfilViewModel VM_Profil
+@inject AnnonceDetailViewModel VM_AnnonceDetail
 
 <PageTitle>@productTitle - Clothes2U</PageTitle>
 
@@ -12,7 +13,9 @@
 <div class="product-detail-page">
     <div class="product-container">
         <!-- Left Side - Product Image -->
-        <div class="product-image-section">
+        @if (VM_AnnonceDetail.annonceDetailDTO != null)
+        {
+            <div class="product-image-section">
             <div class="main-image"></div>
             <button class="close-btn" @onclick="GoBack">
                 <i class="bi bi-x"></i>
@@ -25,7 +28,7 @@
             <div class="category-badge">Shirts & T-Shirts</div>
 
             <!-- Title -->
-            <h1 class="product-title">@productTitle</h1>
+            <h1 class="product-title">@VM_AnnonceDetail.annonceDetailDTO.Title</h1>
 
             <!-- Brand & Price -->
             <div class="brand-price-row">
@@ -93,6 +96,7 @@
                     T-Shirt Adidas en excellent état. Porté seulement quelques fois. Matière comfortable, couleur vert.
                 </p>
             </div>
+                }
 
             <!-- Action Buttons -->
             <div class="action-buttons">
@@ -108,7 +112,9 @@
                 Acheter l'article
             </button>
         </div>
+        }
     </div>
+    
 
     <!-- Similar Products Section -->
     <div class="similar-section">
@@ -141,13 +147,13 @@
     </div>
 </div>
 
-@code { 
+@code {
     [Parameter]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        VM_Profil.LoadUserProfile(Id);
+        VM_AnnonceDetail.LoadAnnonceDetail(Id);
     }
 
     private string productTitle = "T-Shirt Adidas à revendre! Très bon état!";

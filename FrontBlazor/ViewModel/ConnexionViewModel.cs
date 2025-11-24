@@ -6,23 +6,6 @@ namespace FrontBlazor.ViewModel;
 
 public class ConnexionViewModel
 {
-    public string? LoginEmail { get; set; } = null;
-    public string? LoginPassword { get; set; } = null;
-    public bool ShowLoginPassword { get; set; } = false;
-
-    public string RegisterUsername { get; set; } = string.Empty;
-    public string RegisterEmail { get; set; } = string.Empty;
-    public string RegisterPassword { get; set; } = string.Empty;
-    public string RegisterConfirmPassword { get; set; } = string.Empty;
-    public bool ShowRegisterPassword { get; set; } = false;
-    public bool ShowConfirmPassword { get; set; } = false;
-
-    public bool AcceptTerms { get; set; } = false;
-    public bool IsLoginMode { get; set; } = true;
-    public bool IsLoading { get; set; } = false;
-    public string? ErrorMessage { get; set; } = null;
-    public string? SuccessMessage { get; set; } = null;
-
     private readonly IJSRuntime _jsRuntime; // Add a private field for IJSRuntime
     private readonly AuthService _authService;
     private readonly CurrentUserService _currentUserService;
@@ -34,22 +17,12 @@ public class ConnexionViewModel
         _jsRuntime = jsRuntime;
     }
 
-    public void ShowLogin() => IsLoginMode = true;
-    public void ShowRegister() => IsLoginMode = false;
-    public void ToggleLoginPassword() => ShowLoginPassword = !ShowLoginPassword;
-    public void ToggleRegisterPassword() => ShowRegisterPassword = !ShowRegisterPassword;
-    public void ToggleConfirmPassword() => ShowConfirmPassword = !ShowConfirmPassword;
-
-    public async Task HandleRegister()
+    public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword)
     {
-        ErrorMessage = null;
-        IsLoading = true;
-
         LoginRequest request = RequestFactory.CreateRegisterRequest(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword);
 
+        // gotta get the badrequests' text when it fails, and not exactly null
         SignUpResponse result = await _authService.SignUpAsync(request);
-
-        IsLoading = false;
 
         if (result != null)
         {
@@ -57,23 +30,19 @@ public class ConnexionViewModel
             Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
 
             // go to home page
+            return "Success" ;
         }
         else
         {
-            ErrorMessage = "Erreur lors de l'inscription. Veuillez réessayer.";
+            return "Erreur lors de l'inscription. Veuillez réessayer.";
         }
     }
 
-    public async Task HandleLogin()
+    public async Task<string> HandleLogin(string LoginEmail, string LoginPassword)
     {
-        ErrorMessage = null;
-        IsLoading = true;
-
         LoginRequest request = RequestFactory.CreateLoginRequest(LoginEmail, LoginPassword);
 
         LoginResponse result = await _authService.LoginAsync(request);
-
-        IsLoading = false;
 
         if (result != null)
         {
@@ -87,10 +56,12 @@ public class ConnexionViewModel
             await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
 
             // go to home page
+            return "Success";
         }
         else
         {
-            ErrorMessage = "Email/Login ou mot de passe incorrect.";
+
+            return "Email/Login ou mot de passe incorrect.";
         }
     }
 
