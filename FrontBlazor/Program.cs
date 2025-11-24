@@ -26,7 +26,7 @@ builder.Services.AddSingleton<CurrentUserService>();
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
-builder.Services.AddScoped<ProfilViewModel>;
+builder.Services.AddScoped<ProfilViewModel>();
 
 
 var app = builder.Build();

@@ -84,13 +84,30 @@ public class GenericProfile : Profile
         CreateMap<FavorisDTO, Favoris>();
         
         CreateMap<Conversation, ConversationDTO>()
-            .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
-            .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src => src.Messages.OrderByDescending(m => m.MessageTexte).FirstOrDefault()))
-            .ForMember(dest => dest.LastMessageDate, opt=> opt.MapFrom(src => src.Messages.OrderByDescending(m => m.MessageDate).FirstOrDefault()))
-            .ForMember(dest => dest.Acheteur, opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
-            .ForMember(dest => dest.Vendeur, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
-            .ForMember(dest => dest.Annonce, opt => opt.MapFrom(src => src.LAnnonce.Title));
-        
+            .ForMember(dest => dest.ConversationId,
+                opt => opt.MapFrom(src => src.ConversationId))
+
+            .ForMember(dest => dest.LastMessage,
+                opt => opt.MapFrom(src => src.Messages
+                    .OrderByDescending(m => m.MessageDate)
+                    .Select(m => m.MessageTexte)
+                    .FirstOrDefault()))
+
+            .ForMember(dest => dest.LastMessageDate,
+                opt => opt.MapFrom(src => src.Messages
+                    .OrderByDescending(m => m.MessageDate)
+                    .Select(m => m.MessageDate)
+                    .FirstOrDefault()))
+
+            .ForMember(dest => dest.Acheteur,
+                opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
+
+            .ForMember(dest => dest.Vendeur,
+                opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
+
+            .ForMember(dest => dest.Annonce,
+                opt => opt.MapFrom(src => src.LAnnonce.Title));
+
         CreateMap<Conversation, ConversationDetailDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.ListMessages, opt => opt.MapFrom(src => src.Messages))

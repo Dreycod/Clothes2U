@@ -16,6 +16,7 @@ namespace FrontBlazor.ViewModel
 
         public async Task LoadAsync()
         {
+            Annonces = new List<AnnonceDTO>();
             Annonces = await _service.GetActiveAnnoncesAsync();
         }
 

@@ -13,7 +13,7 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Include(a => a.Vendeur)
             .Include(a => a.Acheteur)
             .Include(a => a.LAnnonce)
-            .Include(a => a.Messages.Last());
+            .Include(a => a.Messages);
     }
 
 

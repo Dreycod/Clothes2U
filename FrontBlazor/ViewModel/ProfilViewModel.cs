@@ -1,8 +1,11 @@
-﻿namespace FrontBlazor.ViewModel
+﻿using FrontBlazor.Models.User;
+using Microsoft.AspNetCore.Components;
+
+namespace FrontBlazor.ViewModel
 {
     public class ProfilViewModel
     {
-        public string Username { get; set; } = string.Empty;
+        public int? ViewingUser_UserId { get; set; } = null;
 
         public string activeTab = "articles";
         public bool hasArticles = true;
@@ -11,11 +14,17 @@
         {
             activeTab = tab;
         }
-
-        public async Task InitializeAsync()
+        public async Task LoadUserProfil(int id)
         {
+            ViewingUser_UserId = id;
+
             //await GetUser()
-           
+
+        }
+
+        public async Task AddArticle()
+        {
+            throw  new NotImplementedException();
         }
     }
 }
