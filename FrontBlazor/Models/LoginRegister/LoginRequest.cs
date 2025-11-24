@@ -1,12 +1,9 @@
-﻿namespace FrontBlazor.Models.LoginRegister
-{
-    public class LoginRequest : IEntity
-    {
-        public string? Login { get; set; }
-        public string? Email { get; set; }
-        public string Password { get; set; }
-        public string? PasswordConfirm { get; set; }
+﻿namespace FrontBlazor.Models;
 
-        public int? GetId() => null;
-    }
+public class LoginRequest
+{
+    public string? Login { get; set; }
+    public string? Email { get; set; }
+    public string Password { get; set; }
+    public string? PasswordConfirm { get; set; }
 }

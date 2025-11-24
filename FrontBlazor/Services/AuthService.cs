@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Models.LoginRegister;
+﻿using FrontBlazor.Models;
 
 namespace FrontBlazor.Services
 {

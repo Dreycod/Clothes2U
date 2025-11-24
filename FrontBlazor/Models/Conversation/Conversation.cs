@@ -1,5 +1,5 @@
 using FrontBlazor.Models.Message;
-namespace FrontBlazor.Models.Conversation;
+namespace FrontBlazor.Models;
 public class Conversation : IEntity
 {
     public int ConversationId { get; set; }
