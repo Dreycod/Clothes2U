@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models
+﻿namespace FrontBlazor.Models.Annonces
 {
     public class AnnonceDTO
     {

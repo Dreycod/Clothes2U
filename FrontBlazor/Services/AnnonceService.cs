@@ -1,4 +1,5 @@
-﻿using FrontBlazor.Models;
+﻿using FrontBlazor.Models.Annonces;
+using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
@@ -17,6 +18,18 @@ namespace FrontBlazor.Services
             return await _httpClient.GetFromJsonAsync<List<AnnonceDTO>>(
                 $"Annonce/GetAnnoncesByUserId/{userId}"
             );
+        }
+        public async Task<List<AnnonceDTO>?> GetAnnoncesByFiltersAsync(AnnonceSearchRequestDTO filterRequest)
+        {
+            var response = await _httpClient.PostAsJsonAsync("Annonce/Search", filterRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("SignUp Error: " + error);
+                return null;
+            }
+            return await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
         }
     }
 }

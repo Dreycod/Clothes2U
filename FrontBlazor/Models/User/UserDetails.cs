@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models
+﻿namespace FrontBlazor.Models.User
 {
     public class UserDetails
     {

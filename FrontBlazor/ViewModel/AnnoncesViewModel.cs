@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Models;
+﻿using FrontBlazor.Models.Annonces;
 using FrontBlazor.Services;
 
 namespace FrontBlazor.ViewModel

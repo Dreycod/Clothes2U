@@ -97,12 +97,12 @@ public class LoginController : ControllerBase
         {
             return BadRequest("Données invalides.");
         }
-        
+
         if (!new EmailAddressAttribute().IsValid(request.Email))
         {
             return BadRequest("Email invalide.");
         }
-        
+
         string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
         if (!Regex.IsMatch(request.Password, pattern))
         {

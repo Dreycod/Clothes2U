@@ -1,8 +1,9 @@
 ﻿@page "/profile/{username}"
 @rendermode InteractiveServer
-@inject AnnoncesViewModel VM
+@inject AnnoncesViewModel VM_Annonces
+@inject ProfilViewModel VM_Profil
 
-<PageTitle>@Username - Clothes2U</PageTitle>
+<PageTitle>@VM_Profil.Username - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
 <NavBar />
@@ -41,15 +42,15 @@
 
         <!-- Tabs Navigation -->
         <div class="profile-tabs">
-            <button class="tab-btn @(activeTab == "articles" ? "active" : "")" @onclick='() => SetActiveTab("articles")'>
+            <button class="tab-btn @(VM_Profil.activeTab == "articles" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("articles")'>
                 <i class="bi bi-bag"></i>
                 <span>Articles</span>
             </button>
-            <button class="tab-btn @(activeTab == "favoris" ? "active" : "")" @onclick='() => SetActiveTab("favoris")'>
+            <button class="tab-btn @(VM_Profil.activeTab == "favoris" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("favoris")'>
                 <i class="bi bi-heart"></i>
                 <span>Favoris</span>
             </button>
-            <button class="tab-btn @(activeTab == "avis" ? "active" : "")" @onclick='() => SetActiveTab("avis")'>
+            <button class="tab-btn @(VM_Profil.activeTab == "avis" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("avis")'>
                 <i class="bi bi-star"></i>
                 <span>Avis</span>
             </button>
@@ -57,9 +58,9 @@
 
         <!-- Tab Content -->
         <div class="tab-content">
-            @if (activeTab == "articles")
+            @if (VM_Profil.activeTab == "articles")
             {
-                @if (hasArticles)
+                @if (VM_Profil.hasArticles)
                 {
                     <div class="products-grid">
                         @for (int i = 0; i < 8; i++)
@@ -97,13 +98,13 @@
                 {
                     <div class="empty-state">
                         <p>Vous n'avez pas encore mis en vente des articles</p>
-                        <button class="btn-add-article" @onclick="AddArticle">
+                        <button class="btn-add-article" @onclick="VM_Profil.AddArticle">
                             Ajouter un article
                         </button>
                     </div>
                 }
             }
-            else if (activeTab == "favoris")
+            else if (VM_Profil.activeTab == "favoris")
             {
                 <div class="products-grid">
                     @for (int i = 0; i < 8; i++)
@@ -131,7 +132,7 @@
                     }
                 </div>
             }
-            else if (activeTab == "avis")
+            else if (VM_Profil.activeTab == "avis")
             {
                 <div class="reviews-list">
                     @for (int i = 0; i < 3; i++)
@@ -160,31 +161,14 @@
 </div>
 
 @code {
-
-    [Parameter]
-    public string Username { get; set; } = string.Empty;
-
-    private string activeTab = "articles";
-    private bool hasArticles = true;
-
-    private void SetActiveTab(string tab)
-    {
-        activeTab = tab;
-    }
-
-    private void AddArticle()
-    {
-        // TODO: Navigate to add article page
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        //await GetUser()
-        await VM.RecupererAnnoncesUtilisateur();
-        if (VM.Annonces.Count == 0)
-        {
-            hasArticles = false;
-        }
+        await VM_Profil.InitializeAsync();
+        // show user's data
+        // show user's articles
+        // show user's favoris IF logged in user is the same as profile user (don't GET if not)
+        // show user's reviews
+
     }
 
 }

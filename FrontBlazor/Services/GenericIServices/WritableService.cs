@@ -1,6 +1,6 @@
 using FrontBlazor.Models;
 
-namespace FrontBlazor.Services;
+namespace FrontBlazor.Services.GenericIServices;
 
 public abstract class WritableService<T> : BaseGenericService, IWritableService<T>  where T : class, IEntity
 {
@@ -20,7 +20,7 @@ public abstract class WritableService<T> : BaseGenericService, IWritableService<
 
     public virtual async Task UpdateAsync( T updatedEntity)
     {
-        await _httpClient.PutAsJsonAsync<T>($"{typeof(T).Name}/id/{updatedEntity.GetId()}", updatedEntity);
+        await _httpClient.PutAsJsonAsync($"{typeof(T).Name}/id/{updatedEntity.GetId()}", updatedEntity);
     }
 
     public virtual async Task DeleteAsync(int id)
