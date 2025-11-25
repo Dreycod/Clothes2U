@@ -4,6 +4,7 @@ using API.DTO.Annonce;
 using API.DTO.Categorie;
 using API.DTO.Conversation;
 using API.DTO.Couleur;
+using API.DTO.Decision_suspension;
 using API.DTO.Favoris;
 using API.DTO.Message;
 using API.DTO.Signalement;
@@ -221,6 +222,39 @@ public class GenericProfile : Profile
 
 
         CreateMap<DemandeRestaurationCreateDTO, DemandeRestauration>();
+
+        CreateMap<Decision_suspension, DecisionSuspensionDTO>()
+            .ForMember(dest => dest.DecisionSuspensionId, opt => opt.MapFrom(src => src.Decision_suspensionId))
+            .ForMember(dest => dest.DateDebut, opt => opt.MapFrom(src => src.DateDebutSuspension))
+            .ForMember(dest => dest.DateFin, opt => opt.MapFrom(src => src.DateFinSuspension))
+            .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId));
+
+        CreateMap<Decision_suspension, DecisionSuspensionDetailDTO>()
+            .ForMember(dest => dest.DecisionSuspensionId, opt => opt.MapFrom(src => src.Decision_suspensionId))
+            .ForMember(dest => dest.DateDebut, opt => opt.MapFrom(src => src.DateDebutSuspension))
+            .ForMember(dest => dest.DateFin, opt => opt.MapFrom(src => src.DateFinSuspension))
+            .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
+
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.UtilisateurNom, opt => opt.MapFrom(src => src.UtilisateurSuspendu != null ? src.UtilisateurSuspendu.Login : null))
+
+            .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))
+            .ForMember(dest => dest.AdminNom, opt => opt.MapFrom(src => src.Decisionnaire != null ? src.Decisionnaire.Login : null))
+
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.AnnonceTitre, opt => opt.MapFrom(src => src.AnnonceSuspendu != null ? src.AnnonceSuspendu.Title : null));
+
+        CreateMap<DecisionSuspensionCreateDTO, Decision_suspension>()
+            .ForMember(dest => dest.Decision_suspensionId, opt => opt.Ignore()) // la DB gère l'ID
+            .ForMember(dest => dest.DateDebutSuspension, opt => opt.MapFrom(src => src.DateDebut))
+            .ForMember(dest => dest.DateFinSuspension, opt => opt.MapFrom(src => src.DateFin))
+            .ForMember(dest => dest.MotifSuspension, opt => opt.MapFrom(src => src.Raison))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId));
 
 
     }
