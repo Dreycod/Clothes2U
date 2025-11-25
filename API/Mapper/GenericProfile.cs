@@ -15,6 +15,7 @@ using API.Models;
 using API.Models.EntityFramework;
 using API.DTO.NoteUtilisateur;
 using API.DTO.Notification;
+using API.DTO.DemandeRestauration;
 
 
 namespace API.Mapper;
@@ -202,6 +203,25 @@ public class GenericProfile : Profile
             // Type d’annonce (libellé du type)
             .ForMember(dest => dest.TypeAnnonce,
                 opt => opt.MapFrom(src => src.NotificationType.LibelleType));
+
+        CreateMap<DemandeRestauration, DemandeRestaurationDTO>()
+            .ForMember(dest => dest.DemandeRestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId));
+
+        CreateMap<DemandeRestauration, DemandeRestaurationDetailDTO>()
+            .ForMember(dest => dest.DemandeRestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId))
+            .ForMember(dest => dest.DemandeRestaurationText, opt => opt.MapFrom(src => src.DemandeRestaurationText))
+
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.NomPlaignant, opt => opt.MapFrom(src => src.Plaignant.Login))
+
+            .ForMember(dest => dest.SuspensionId, opt => opt.MapFrom(src => src.SuspensionId))
+            .ForMember(dest => dest.MotifSuspension, opt => opt.MapFrom(src => src.Suspension.MotifSuspension))
+            .ForMember(dest => dest.DateDebutSuspension, opt => opt.MapFrom(src => src.Suspension.DateDebutSuspension))
+            .ForMember(dest => dest.DateFinSuspension, opt => opt.MapFrom(src => src.Suspension.DateFinSuspension));
+
+
+        CreateMap<DemandeRestaurationCreateDTO, DemandeRestauration>();
+
 
     }
 }
