@@ -14,6 +14,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<Couleur>  Couleurs { get; set; }
     public DbSet<Decision_suspension> DecisionSuspensions { get; set; }
+    public DbSet<DemandeRestauration> DemandesRestauration { get; set; }
     public DbSet<Est_De_Couleur> Est_De_Couleurs { get; set; }
     public DbSet<EtatArticle> EtatArticles { get; set; }
     public DbSet<Favoris> Favorises { get; set; }
@@ -349,7 +350,25 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => new { e.DateDebutSuspension, e.DateFinSuspension })
                 .HasDatabaseName("idx_decision_suspension_dates");
         });
-        
+
+        modelBuilder.Entity<DemandeRestauration>(entity =>
+        {
+            entity.HasKey(e => e.DemandeRestaurationId);
+
+            entity.HasOne(e => e.Plaignant)
+                .WithMany(u => u.DemandesRestauration)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Suspension)
+                .WithMany(s => s.DemandesRes)
+                .HasForeignKey(e => e.SuspensionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.UtilisateurId);
+            entity.HasIndex(e => e.SuspensionId);
+        });
+
         modelBuilder.Entity<Est_De_Couleur>(entity =>
         {
             entity.HasKey(e => e.EstDeCouleurId);

@@ -46,4 +46,7 @@ public class Decision_suspension
     [ForeignKey(nameof(TypeSuspensionId))]
     [InverseProperty(nameof(TypeSuspension.Decision_suspensions))]
     public virtual TypeSuspension TypeSuspension { get; set; }
+
+    [InverseProperty(nameof(DemandeRestauration.Suspension))]
+    public virtual ICollection<DemandeRestauration> DemandesRes { get; set; } = new List<DemandeRestauration>();
 }
