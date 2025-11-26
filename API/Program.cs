@@ -62,7 +62,17 @@ builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorDev", policy =>
+        policy.WithOrigins("http://localhost:5094")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 var app = builder.Build();
+app.UseCors("AllowBlazorDev");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

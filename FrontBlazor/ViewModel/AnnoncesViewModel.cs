@@ -5,19 +5,19 @@ namespace FrontBlazor.ViewModel
 {
     public class AnnoncesViewModel
     {
-        private readonly AnnonceService _service;
+        private readonly AnnonceService _annonceService;
 
         public List<Annonce> Annonces { get; set; } = new List<Annonce>();
 
-        public AnnoncesViewModel(AnnonceService service)
+        public AnnoncesViewModel(AnnonceService annonceService)
         {
-            _service = service;
+            _annonceService = annonceService;
         }
 
         public async Task LoadAsync()
         {
             Annonces = new List<Annonce>();
-            Annonces = await _service.GetActiveAnnonces();
+            Annonces = await _annonceService.GetActiveAnnonces();
         }
 
         public async Task<List<Annonce>> RecupererAnnoncesUtilisateur()
@@ -31,7 +31,7 @@ namespace FrontBlazor.ViewModel
         // Exclusive to search page, nouveautés et tendances
         public async Task<List<Annonce>> GetAnnoncesByFilters()
         {
-            Annonces = await _service.GetActiveAnnonces();
+            Annonces = await _annonceService.GetActiveAnnonces();
             //Annonces = await _service.GetAnnoncesById
             return Annonces;
         }
@@ -45,37 +45,41 @@ namespace FrontBlazor.ViewModel
 
         ////// Annonce Detail
         public AnnonceDetail annonceDetail { get; set; } = new AnnonceDetail();
-        private AnnonceService _annonceService;
 
-        public async void LoadAnnonceDetail(int id) // the page overrided to async Task this
+        public async Task LoadAnnonceDetail(int id) // the page overrided to async Task this
         {
-            AnnonceDetail annonceResult = await _annonceService.GetAnnonceDetailById(id);
-            if (annonceResult != null)
+            try
             {
-                annonceDetail = annonceResult;
-                return;
+                AnnonceDetail annonceResult = await _annonceService.GetAnnonceDetailById(id);
+                if (annonceResult != null)
+                {
+                    annonceDetail = annonceResult;
+                }
             }
-            //simulate annonce detail loading
-            annonceDetail = new AnnonceDetail
+            catch (Exception ex)
             {
-                AnnonceId = id,
-                Title = "Veste en cuir vintage",
-                Negociable = true,
-                UtilisateurId = 3,
-                NomMarque = "VintageCo",
-                DateAnnonce = DateTime.Now.AddDays(-5),
-                EtatArticle = "Bon état",
-                Taille = "M",
-                Photos = new List<string>
+                //simulate annonce detail loading
+                annonceDetail = new AnnonceDetail
+                {
+                    AnnonceId = id,
+                    Title = "Veste en cuir vintage",
+                    Negociable = true,
+                    UtilisateurId = 3,
+                    NomMarque = "VintageCo",
+                    DateAnnonce = DateTime.Now.AddDays(-5),
+                    EtatArticle = "Bon état",
+                    Taille = "M",
+                    Photos = new List<string>
                 {
                     "https://example.com/photos/veste1.jpg",
                     "https://example.com/photos/veste2.jpg"
                 },
-                NombreLikes = 27,
-                Prix = 120.00m,
-                SousCategorie = "Vestes",
-                Categorie = "Vêtements",
-            };
+                    NombreLikes = 27,
+                    Prix = 120.00m,
+                    SousCategorie = "Vestes",
+                    Categorie = "Vêtements",
+                };
+            }
         }
     }
 }

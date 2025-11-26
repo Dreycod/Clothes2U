@@ -149,7 +149,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        VM_Annonces.LoadAnnonceDetail(Id);
+        await VM_Annonces.LoadAnnonceDetail(Id);
     }
 
     private string productTitle = "T-Shirt Adidas à revendre! Très bon état!";
