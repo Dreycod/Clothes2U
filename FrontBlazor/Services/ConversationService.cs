@@ -2,13 +2,18 @@
 using FrontBlazor.Models;
 namespace FrontBlazor.Services;
 
-public class ConversationService: WritableService<Conversation>
+public class ConversationService: WritableService<Conversation>, IConversationService<Conversation>
 {
     protected readonly HttpClient _httpClient;
     public ConversationService(HttpClient httpClient) : base(httpClient)
     {
         _httpClient = httpClient;
 
+    }
+
+    public Task<Conversation> GetByIdAsync(int id)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<List<Conversation?>> GetConversationDetailById(int id)
