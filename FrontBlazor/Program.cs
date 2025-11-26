@@ -22,11 +22,9 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
-builder.Services.AddScoped<AnnonceService>();
+builder.Services.AddScoped<IMessageService<Message>, MessageService>();
+builder.Services.AddScoped<IConversationService<Conversation>, ConversationService>();
 builder.Services.AddSingleton<CurrentUserService>();
-
-
-
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
