@@ -13,21 +13,21 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
             "Annonce/GetActiveAnnonces"
         );
     }
-    public async Task<List<AnnonceDetail?>?> GetAnnoncesByCategorieId(int Id)
+    public async Task<List<Annonce?>?> GetAnnoncesByCategorieId(int Id)
     {
-        return await _httpClient.GetFromJsonAsync<List<AnnonceDetail>>(
+        return await _httpClient.GetFromJsonAsync<List<Annonce>>(
             $"Annonce/ByCategorieId/{Id}"
         );
     }
-    public async Task<List<AnnonceDetail?>?> GetAnnoncesBySousCategoryId(int Id)
+    public async Task<List<Annonce?>?> GetAnnoncesBySousCategoryId(int Id)
     {
-        return await _httpClient.GetFromJsonAsync<List<AnnonceDetail>>(
+        return await _httpClient.GetFromJsonAsync<List<Annonce>>(
              $"Annonce/BySousCategorieId/{Id}"
          );
     }
-    public async Task<AnnonceDetail> GetAnnonceDetailById(int Id)
+    public async Task<Annonce> GetAnnonceDetailById(int Id)
     {
-        return await _httpClient.GetFromJsonAsync<AnnonceDetail>(
+        return await _httpClient.GetFromJsonAsync<Annonce>(
            $"Annonce/id/{Id}"
        );
     }
@@ -36,24 +36,6 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
         return await _httpClient.GetFromJsonAsync<List<Annonce>>(
             $"Annonce/GetAnnoncesByUserId/{userId}"
         );
-    }
-
-    // le problème c'est que annonceService doit utiliser des annonce detail, et pas annonce simple pour certaines méthodes
-    // mais on doit faire pour les deux, donc rip
-
-    Task<List<Annonce>?> IAnnonceService<Annonce>.GetAnnoncesByCategorieId(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<List<Annonce>?> IAnnonceService<Annonce>.GetAnnoncesBySousCategoryId(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<List<Annonce>?> IAnnonceService<Annonce>.GetAnnonceDetailById(int id)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<Annonce> GetByIdAsync(int id)

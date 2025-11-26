@@ -1,15 +1,16 @@
 ﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel
 {
     public class AnnoncesViewModel
     {
-        private readonly AnnonceService _annonceService;
+        private readonly IAnnonceService<Annonce> _annonceService;
 
         public List<Annonce> Annonces { get; set; } = new List<Annonce>();
 
-        public AnnoncesViewModel(AnnonceService annonceService)
+        public AnnoncesViewModel(IAnnonceService<Annonce> annonceService)
         {
             _annonceService = annonceService;
         }
@@ -44,13 +45,13 @@ namespace FrontBlazor.ViewModel
 
 
         ////// Annonce Detail
-        public AnnonceDetail annonceDetail { get; set; } = new AnnonceDetail();
+        public Annonce annonceDetail { get; set; } = new Annonce();
 
         public async Task LoadAnnonceDetail(int id) // the page overrided to async Task this
         {
             try
             {
-                AnnonceDetail annonceResult = await _annonceService.GetAnnonceDetailById(id);
+                Annonce annonceResult = await _annonceService.GetAnnonceDetailById(id);
                 if (annonceResult != null)
                 {
                     annonceDetail = annonceResult;
@@ -59,7 +60,7 @@ namespace FrontBlazor.ViewModel
             catch (Exception ex)
             {
                 //simulate annonce detail loading
-                annonceDetail = new AnnonceDetail
+                annonceDetail = new Annonce
                 {
                     AnnonceId = id,
                     Title = "Veste en cuir vintage",
