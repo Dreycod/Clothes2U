@@ -3,8 +3,10 @@ using System.Net.Http;
 
 namespace FrontBlazor.Services.GenericIServices;
 
-public interface IAuthService<TEntity> : IReadableService<TEntity>, IWritableService<TEntity> where TEntity : class
+public interface IAuthService
 {
-    Task<List<TEntity>?> SignUpAsync(LoginRequest request);
-    Task<List<TEntity>?> LoginAsync(LoginRequest request);
+    public Task<AuthResult> LoginAsync(string loginOrEmail, string password);
+    public Task<AuthResult> SignUpAsync(string email, string login, string password, string  passwordConfirmation);
+    public Task LogoutAsync();
+    public Task<Utilisateur?> GetCurrentUserAsync();
 }

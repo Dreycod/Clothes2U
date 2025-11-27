@@ -1,67 +1,100 @@
 using FrontBlazor.Models;
+using FrontBlazor.Models.LoginRegister;
+using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
-using Microsoft.JSInterop;
+using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel;
 
 public class ConnexionViewModel
 {
-    private readonly IJSRuntime _jsRuntime; // Add a private field for IJSRuntime
-    private readonly AuthService _authService;
-    private readonly CurrentUserService _currentUserService;
+    private readonly IAuthService _authService;
+    private readonly IStateService<Utilisateur> _userStateService;
 
-    public ConnexionViewModel(AuthService authService, CurrentUserService currentUserService, IJSRuntime jsRuntime) // Inject IJSRuntime
+    public ConnexionViewModel(IAuthService authService, IStateService<Utilisateur> userStateService)
     {
         _authService = authService;
-        _currentUserService = currentUserService;
-        _jsRuntime = jsRuntime;
+        _userStateService = userStateService;
     }
 
     public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword, bool AcceptTerms)
     {
-        LoginRequest request = RequestFactory.CreateRegisterRequest(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword);
-
-        // gotta get the badrequests' text when it fails, and not exactly null
-        SignUpResponse result = await _authService.SignUpAsync(request);
-
-        if (result != null)
+        if (!AcceptTerms)
         {
-            Console.WriteLine("Token: " + result.Token);
-            Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
-
-            // go to home page
-            return "Success" ;
+            return "Vous devez accepter les conditions d'utilisation.";
         }
-        else
+
+        try
         {
-            return "Erreur lors de l'inscription. Veuillez r�essayer.";
+            var result = await _authService.SignUpAsync(RegisterEmail, RegisterUsername, RegisterPassword, RegisterConfirmPassword);
+
+            if (result.Success)
+            {
+                Console.WriteLine("Inscription réussie!");
+
+                _userStateService.CurrentEntity = result.Utilisateur;
+
+                Console.WriteLine("L'utilisateur est : " + _userStateService.CurrentEntity.Login);
+                return "Success";
+            }
+            else
+            {
+                return result.ErrorMessage ?? "Erreur lors de l'inscription. Veuillez réessayer.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+            return "Une erreur est survenue lors de l'inscription.";
         }
     }
 
     public async Task<string> HandleLogin(string LoginEmail, string LoginPassword)
     {
-        LoginRequest request = RequestFactory.CreateLoginRequest(LoginEmail, LoginPassword);
-
-        LoginResponse result = await _authService.LoginAsync(request);
-
-        if (result != null)
+        if (string.IsNullOrWhiteSpace(LoginEmail) || string.IsNullOrWhiteSpace(LoginPassword))
         {
-            Console.WriteLine("Connexion r�ussie!");
-            Console.WriteLine("Token: " + result.Token);
-            Console.WriteLine("Utilisateur: " + result.UserDetails.Login);
-            // store id globally for all requests now
-            _currentUserService.SetUserId(result.UserDetails.UtilisateurId);
-
-            // store the token for later in the storage
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
-
-            // go to home page
-            return "Success";
+            return "Veuillez remplir tous les champs.";
         }
-        else
-        {
 
-            return "Email/Login ou mot de passe incorrect.";
+        try
+        {
+            var result = await _authService.LoginAsync(LoginEmail, LoginPassword);
+
+            if (result.Success)
+            {
+                Console.WriteLine("Connexion réussie!");
+                Console.WriteLine("Utilisateur: " + result.Utilisateur.Login);
+
+                _userStateService.CurrentEntity = result.Utilisateur;
+
+                return "Success";
+            }
+            else
+            {
+                return result.ErrorMessage ?? "Email/Login ou mot de passe incorrect.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+            return $"Erreur réelle: {ex.Message}";
+        }
+    }
+
+    public async Task<bool> HandleLogout()
+    {
+        try
+        {
+            await _authService.LogoutAsync();
+            
+            _userStateService.CurrentEntity = null;
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la déconnexion: {ex.Message}");
+            return false;
         }
     }
 

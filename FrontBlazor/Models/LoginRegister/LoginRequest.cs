@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models;
+﻿namespace FrontBlazor.Models.LoginRegister;
 
 public class LoginRequest
 {
@@ -7,3 +7,4 @@ public class LoginRequest
     public string Password { get; set; }
     public string? PasswordConfirm { get; set; }
 }
+

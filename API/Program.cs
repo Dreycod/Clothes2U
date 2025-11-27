@@ -44,6 +44,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorPolicy", builder =>
+    {
+        builder.WithOrigins("https://localhost:7xxx") 
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials(); 
+    });
+});
+
+
+
+
+
+
+
+
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IDataRepository<Categorie, int>, CategorieManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
@@ -80,6 +100,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("BlazorPolicy");
     
 app.UseHttpsRedirection();
 

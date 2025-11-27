@@ -1,9 +1,6 @@
-﻿using FrontBlazor.Models;
+﻿namespace FrontBlazor.Models.LoginRegister;
 
-namespace FrontBlazor.Models;
 public class LoginResponse
 {
-    public string Token { get; set; }
-    public UserDetails UserDetails { get; set; }
+    public Utilisateur Utilisateur { get; set; }
 }
-

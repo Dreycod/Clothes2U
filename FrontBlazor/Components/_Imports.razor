@@ -8,14 +8,13 @@
 @using Microsoft.JSInterop
 @using FrontBlazor
 @using FrontBlazor.Components
-@using BlazorBootstrap;
 @using FrontBlazor.ViewModel;
 @using FrontBlazor.Services;
 @using FrontBlazor.Components;
 @using FrontBlazor.Models;
-
+@using FrontBlazor.Models.StateServices
+@inject IStateService<Utilisateur> userStateService
 @inject NavigationManager navigationManager
-@inject CurrentUserService currentUserService
 @inject ConnexionViewModel VM_Connexion
 @inject AnnoncesViewModel VM_Annonces
 @inject ProfilViewModel VM_Profil

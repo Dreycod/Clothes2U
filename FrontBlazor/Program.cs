@@ -1,9 +1,9 @@
 using FrontBlazor.Components;
 using FrontBlazor.Models;
+using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.ViewModel;
-using Microsoft.JSInterop;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,25 +11,39 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddBlazorBootstrap();
-
-builder.Services.AddScoped(sp =>
-    new HttpClient
+// Configuration HttpClient avec cookies pour Blazor Server
+builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
     {
-        BaseAddress = new Uri("http://localhost:5096/api/")
-    }
-);
+        client.BaseAddress = new Uri("http://localhost:5096"); // ou https si tu utilises https
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseCookies = true,
+        CookieContainer = new System.Net.CookieContainer()
+    });
 
-builder.Services.AddScoped<AuthService>();
+// HttpClient pour les autres services
+builder.Services.AddHttpClient<AnnonceService>(client =>
+    {
+        client.BaseAddress = new Uri("http://localhost:5096");
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseCookies = true,
+        CookieContainer = new System.Net.CookieContainer()
+    });
+
+// State Services
+builder.Services.AddScoped<IStateService<Utilisateur>, UserStateService>();
+
+// Services
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
-builder.Services.AddScoped<IMessageService<Message>, MessageService>();
-builder.Services.AddScoped<IConversationService<Conversation>, ConversationService>();
-builder.Services.AddSingleton<CurrentUserService>();
+
+// ViewModels
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
-
 
 var app = builder.Build();
 
@@ -37,14 +51,10 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-
-
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 

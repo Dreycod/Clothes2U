@@ -1,20 +1,19 @@
 ﻿@page "/login"
 @rendermode InteractiveServer
-@inject NavigationManager navigationManager
+
+@inject NavigationManager Navigation
+@inject ConnexionViewModel VM_Connexion
 
 <PageTitle>Connexion - Clothes2U</PageTitle>
 
 <div class="auth-container">
     <div class="auth-content">
-        <!-- Logo and Tagline -->
         <div class="auth-header">
             <h1 class="auth-logo">Clothes<span class="logo-accent">2</span>U</h1>
             <p class="auth-tagline">Achetez et vendez des vêtements d'occasion</p>
         </div>
 
-        <!-- Auth Card -->
         <div class="auth-card">
-            <!-- Error/Success Messages -->
             @if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 <div class="alert alert-error">
@@ -31,30 +30,24 @@
                 </div>
             }
 
-            <!-- Tab Navigation -->
             <div class="auth-tabs">
-                <button class="auth-tab @(IsLoginMode ? "auth-tab-active" : "")" @onclick="ShowLogin">
-                    Connexion
-                </button>
-                <button class="auth-tab @(!IsLoginMode ? "auth-tab-active" : "")" @onclick="ShowRegister">
-                    Inscription
-                </button>
+                <button class="auth-tab @(IsLoginMode ? "auth-tab-active" : "")" @onclick="ShowLogin">Connexion</button>
+                <button class="auth-tab @(!IsLoginMode ? "auth-tab-active" : "")" @onclick="ShowRegister">Inscription</button>
             </div>
 
-            <!-- Login Form -->
             @if (IsLoginMode)
             {
+                <!-- LOGIN FORM -->
                 <div class="auth-form">
-                    <!-- Email Field -->
                     <div class="form-group">
                         <label class="form-label">Email</label>
                         <div class="input-with-icon">
                             <i class="bi bi-envelope input-icon"></i>
-                            <input type="email" class="form-control" placeholder="votremail@example.com" @bind="LoginEmail" />
+                            <input type="email" class="form-control" placeholder="votremail@example.com"
+                                   @bind="LoginEmail" />
                         </div>
                     </div>
 
-                    <!-- Password Field -->
                     <div class="form-group">
                         <div class="form-label-row">
                             <label class="form-label">Mot de passe</label>
@@ -62,61 +55,42 @@
                         </div>
                         <div class="input-with-icon">
                             <i class="bi bi-lock input-icon"></i>
-                            <input type="@(ShowLoginPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="LoginPassword" />
+                            <input type="@(ShowLoginPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••"
+                                   @bind="LoginPassword" />
                             <button type="button" class="password-toggle" @onclick="ToggleLoginPassword">
                                 <i class="bi bi-eye@(ShowLoginPassword ? "-slash" : "")"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button type="button" class="btn-submit" @onclick="HandleLogin" disabled="@IsLoading">
+                    <button type="button" class="btn-submit" @onclick="OnLoginClicked" disabled="@IsLoading">
                         @if (IsLoading)
                         {
                             <span class="spinner"></span>
                             <span>Connexion en cours...</span>
                         }
-                        else
-                        {
-                            <span>Se connecter</span>
-                        }
+                        else { <span>Se connecter</span> }
                     </button>
 
-                    <!-- Divider -->
-                    <div class="divider">
-                        <span>OU</span>
-                    </div>
+                    <div class="divider"><span>OU</span></div>
 
-                    <!-- Google Button -->
-                    <button type="button" class="btn-google" @onclick="HandleGoogleLogin">
-                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4" />
-                            <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#34A853" />
-                            <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
-                            <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335" />
-                        </svg>
-                        Connectez-vous avec Google
-                    </button>
+                    <button type="button" class="btn-google" @onclick="OnGoogleClicked">Connectez-vous avec Google</button>
 
-                    <!-- Register Link -->
                     <div class="auth-footer">
                         <span>Pas encore de compte?</span>
                         <button type="button" class="auth-link-btn" @onclick="ShowRegister">S'inscrire</button>
                     </div>
                 </div>
             }
-
-            <!-- Register Form -->
-            @if (!IsLoginMode)
+            else
             {
+                <!-- REGISTER FORM -->
                 <div class="auth-form">
-                    <!-- Pseudo Field -->
                     <div class="form-group">
                         <label class="form-label">Pseudo</label>
-                        <input type="text" class="form-control" placeholder="Un pseudo de votre choix" @bind="RegisterUsername"/>
+                        <input type="text" class="form-control" placeholder="Un pseudo de votre choix" @bind="RegisterUsername" />
                     </div>
 
-                    <!-- Email Field -->
                     <div class="form-group">
                         <label class="form-label">Email</label>
                         <div class="input-with-icon">
@@ -125,7 +99,6 @@
                         </div>
                     </div>
 
-                    <!-- Password Field -->
                     <div class="form-group">
                         <label class="form-label">Mot de passe</label>
                         <div class="input-with-icon">
@@ -137,7 +110,6 @@
                         </div>
                     </div>
 
-                    <!-- Confirm Password Field -->
                     <div class="form-group">
                         <label class="form-label">Confirmer le mot de passe</label>
                         <div class="input-with-icon">
@@ -149,7 +121,6 @@
                         </div>
                     </div>
 
-                    <!-- Terms Checkbox -->
                     <div class="form-check-group">
                         <input type="checkbox" class="form-check-input" id="terms" @bind="AcceptTerms" />
                         <label class="form-check-label" for="terms">
@@ -157,17 +128,13 @@
                         </label>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button type="button" class="btn-submit" @onclick="HandleRegister" disabled="@IsLoading">
+                    <button type="button" class="btn-submit" @onclick="OnRegisterClicked" disabled="@IsLoading">
                         @if (IsLoading)
                         {
                             <span class="spinner"></span>
                             <span>Inscription en cours...</span>
                         }
-                        else
-                        {
-                            <span>S'inscrire</span>
-                        }
+                        else { <span>S'inscrire</span> }
                     </button>
                 </div>
             }
@@ -176,49 +143,97 @@
 </div>
 
 @code {
+    // Propriétés UI locales (ne doivent pas être nommées VM_Connexion)
     public string LoginEmail { get; set; } = string.Empty;
     public string LoginPassword { get; set; } = string.Empty;
-    public bool ShowLoginPassword { get; set; } = false;
 
     public string RegisterUsername { get; set; } = string.Empty;
     public string RegisterEmail { get; set; } = string.Empty;
     public string RegisterPassword { get; set; } = string.Empty;
     public string RegisterConfirmPassword { get; set; } = string.Empty;
+    public bool AcceptTerms { get; set; } = false;
+
+    public bool IsLoginMode { get; set; } = true;
+    public bool IsLoading { get; set; } = false;
+
+    public bool ShowLoginPassword { get; set; } = false;
     public bool ShowRegisterPassword { get; set; } = false;
     public bool ShowConfirmPassword { get; set; } = false;
 
-    public bool AcceptTerms { get; set; } = false;
-    public bool IsLoginMode { get; set; } = true;
-
-    public bool IsLoading { get; set; } = false;
-
     public string ErrorMessage { get; set; } = string.Empty;
     public string SuccessMessage { get; set; } = string.Empty;
-    public string ReturnMessage { get; set; } = string.Empty;
 
+    // UI helpers
     public void ShowLogin() => IsLoginMode = true;
     public void ShowRegister() => IsLoginMode = false;
     public void ToggleLoginPassword() => ShowLoginPassword = !ShowLoginPassword;
     public void ToggleRegisterPassword() => ShowRegisterPassword = !ShowRegisterPassword;
     public void ToggleConfirmPassword() => ShowConfirmPassword = !ShowConfirmPassword;
 
-    public async Task HandleLogin()
+    private async Task OnLoginClicked()
     {
+        ErrorMessage = SuccessMessage = string.Empty;
         IsLoading = true;
-        ReturnMessage = await VM_Connexion.HandleLogin(LoginEmail, LoginPassword);
-        IsLoading = false;
-        navigationManager.NavigateTo("/");
+
+        try
+        {
+            // Appel de ton ViewModel (signature existante)
+            var result = await VM_Connexion.HandleLogin(LoginEmail, LoginPassword);
+            if (result == "Success")
+            {
+                SuccessMessage = "Connexion réussie.";
+                // Le ViewModel met à jour le _userStateService; on navigue
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                ErrorMessage = result ?? "Erreur lors de la connexion.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
     }
-    public async Task HandleRegister()
+
+    private async Task OnRegisterClicked()
     {
+        ErrorMessage = SuccessMessage = string.Empty;
         IsLoading = true;
-        ReturnMessage = await VM_Connexion.HandleRegister(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword, AcceptTerms);
-        IsLoading = false;
-        navigationManager.NavigateTo("/");
-        // Implement registration logic here
+
+        try
+        {
+            var result = await VM_Connexion.HandleRegister(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword, AcceptTerms);
+            if (result == "Success")
+            {
+                SuccessMessage = "Inscription réussie.";
+                // Option : basculer en mode connexion automatiquement
+                IsLoginMode = true;
+            }
+            else
+            {
+                ErrorMessage = result ?? "Erreur lors de l'inscription.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
     }
-    public async Task HandleGoogleLogin()
+
+    private void OnGoogleClicked()
     {
-        // Implement Google login logic here
+        // Ton VM a HandleGoogleLogin sans async; appelle-le si tu veux
+        VM_Connexion.HandleGoogleLogin();
     }
 }
