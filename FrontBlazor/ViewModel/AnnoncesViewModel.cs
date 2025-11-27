@@ -6,7 +6,7 @@ namespace FrontBlazor.ViewModel
 {
     public class AnnoncesViewModel
     {
-        private readonly IAnnonceService<Annonce> _annonceService;
+        private readonly IAnnonceService<Annonce> _service;
 
         public List<Annonce> Annonces { get; set; } = new();
         public Annonce? AnnonceDetail { get; set; }
@@ -15,7 +15,7 @@ namespace FrontBlazor.ViewModel
 
         public AnnoncesViewModel(IAnnonceService<Annonce> annonceService)
         {
-            _annonceService = annonceService;
+            _service = annonceService;
         }
 
         public async Task LoadActiveAnnoncesAsync()
@@ -25,7 +25,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                Annonces = await _annonceService.GetActiveAnnonces() ?? new();
+                Annonces = await _service.GetActiveAnnonces() ?? new();
             }
             catch (Exception ex)
             {
@@ -45,7 +45,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
+                AnnonceDetail = await _service.GetAnnonceDetailById(id);
                 if (AnnonceDetail == null)
                 {
                     ErrorMessage = "Annonce introuvable";
@@ -54,6 +54,28 @@ namespace FrontBlazor.ViewModel
             catch (Exception ex)
             {
                 ErrorMessage = "Erreur lors du chargement de l'annonce";
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+        public async Task CreateAnnonceAsync(Annonce newAnnonce)
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+            try
+            {
+                var createdAnnonce = await _service.AddAsync(newAnnonce);
+                if (createdAnnonce != null)
+                {
+                    Annonces.Add(createdAnnonce);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Erreur lors de la création de l'annonce";
                 Console.WriteLine($"Error: {ex.Message}");
             }
             finally

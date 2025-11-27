@@ -5,7 +5,8 @@ namespace FrontBlazor.Services;
 
 public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
 {
-    public AnnonceService(HttpClient httpClient) : base(httpClient) { }
+    protected readonly HttpClient _httpClient;
+    public AnnonceService(HttpClient httpClient) : base(httpClient) {}
 
     public async Task<List<Annonce>?> GetActiveAnnonces()
     {
@@ -60,4 +61,5 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
     {
         throw new NotImplementedException();
     }
+
 }

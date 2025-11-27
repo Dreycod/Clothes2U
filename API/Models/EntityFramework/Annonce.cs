@@ -15,6 +15,9 @@ public class Annonce : IEntity
     [Column("ann_titre")]
     public string Title { get; set; }
     
+    [Column("ann_description")]
+    public string Description { get; set; }
+    
     [Column("ann_dateannonce")]
     public DateTime DateAnnonce { get; set; }
     

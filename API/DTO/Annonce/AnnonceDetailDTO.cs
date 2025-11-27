@@ -13,9 +13,6 @@ public class AnnonceDetailDTO
     public List<string>? Photos { get; set; } = new();
     public int NombreLikes { get; set; } = 0;
     public decimal Prix { get; set; }
-    
-    
-    
     public string? SousCategorie { get; set; } 
     public string? Categorie { get; set; } 
     

@@ -7,6 +7,8 @@ public class Annonce: IEntity
     public bool Negociable { get; set; }
     public int? UtilisateurId { get; set; }
     public string? NomMarque { get; set; } = null!;
+    public string? Description { get; set; } = null!;
+
     public DateTime DateAnnonce { get; set; }
     public string? EtatArticle { get; set; } = null!;
     public string? Taille { get; set; } = null!;
