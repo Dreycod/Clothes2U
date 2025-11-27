@@ -1,7 +1,7 @@
 ﻿@page "/add-article"
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
-
+@inject AnnoncesViewModel VM_Annonces
 <PageTitle>Ajouter un article - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -171,7 +171,7 @@
     {
         // TODO: Handle actual file upload
         // Simulate adding photos
-        uploadedPhotos.Add("https://via.placeholder.com/200");
+        //uploadedPhotos.Add("https://via.placeholder.com/200");
     }
 
     private void RemovePhoto(string photo)
@@ -179,7 +179,7 @@
         uploadedPhotos.Remove(photo);
     }
 
-    private void PublishArticle()
+    private async void PublishArticle()
     {
         // TODO: Validate and submit article
         Console.WriteLine("Publishing article...");
@@ -190,9 +190,25 @@
         Console.WriteLine($"Size: {selectedSize}");
         Console.WriteLine($"Category: {selectedCategory}");
         Console.WriteLine($"State: {selectedState}");
-
+        
         // Navigate back after publishing
-        // NavigationManager.NavigateTo("/profile");
+        Annonce _annonce = new Annonce
+        {
+            Title = articleName,
+            Prix = price ?? 0,
+            Negociable = isNegotiable,
+            NomMarque = brand,
+            //Description = description,
+            Taille = selectedSize,
+            //Couleur = color,
+            Categorie = selectedCategory,
+            EtatArticle = selectedState,
+            Photos = uploadedPhotos
+        };
+
+        await VM_Annonces.CreateAnnonceAsync(_annonce);
+
+        NavigationManager.NavigateTo("/profile");
     }
 
     private void Cancel()
