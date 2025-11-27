@@ -1,0 +1,202 @@
+﻿@page "/add-article"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+
+<PageTitle>Ajouter un article - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="add-article-page">
+    <div class="add-article-container">
+        <!-- Photos Section -->
+        <div class="photos-section">
+            <h2 class="section-title">Photos de l'article</h2>
+            <p class="section-subtitle">Ajoutez des photos montrer votre article</p>
+
+            <div class="photo-upload-area">
+                @if (uploadedPhotos.Any())
+                {
+                    <div class="uploaded-photos-grid">
+                        @foreach (var photo in uploadedPhotos)
+                        {
+                            <div class="uploaded-photo">
+                                <img src="@photo" alt="Photo" />
+                                <button class="remove-photo-btn" @onclick="() => RemovePhoto(photo)">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        }
+                        @if (uploadedPhotos.Count < 5)
+                        {
+                            <label class="add-more-btn">
+                                <i class="bi bi-plus"></i>
+                                <input type="file" accept="image/*" @onchange="HandlePhotoUpload" style="display: none;" />
+                            </label>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <label class="upload-placeholder">
+                        <i class="bi bi-upload"></i>
+                        <input type="file" accept="image/*" multiple @onchange="HandlePhotoUpload" style="display: none;" />
+                    </label>
+                }
+            </div>
+        </div>
+
+        <!-- Article Information Section -->
+        <div class="info-section">
+            <h2 class="section-title">Informations sur l'article</h2>
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">Nom de l'article</label>
+                    <input type="text" class="form-input" placeholder="Ex: T-Shirt Adidas Vert" @bind="articleName" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Prix (€)</label>
+                    <input type="number" class="form-input" placeholder="0" @bind="price" step="0.01" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Offre négotiable?</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked="@isNegotiable" @onchange="() => SetNegotiable(true)" />
+                            <span>Oui</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked="@(!isNegotiable)" @onchange="() => SetNegotiable(false)" />
+                            <span>Non</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Marque</label>
+                    <input type="text" class="form-input" placeholder="Ex: Adidas" @bind="brand" />
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" placeholder="Décrivez l'article, son état, usage, les détails, etc." @bind="description" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Size & Color Section -->
+        <div class="size-color-section">
+            <h2 class="section-title">Taille & Couleur</h2>
+
+            <div class="size-color-grid">
+                <div class="size-group">
+                    <label class="form-label">Taille</label>
+                    <div class="size-buttons">
+                        <button type="button" class="size-btn @(selectedSize == "XS" ? "active" : "")" @onclick='() => selectedSize = "XS"'>XS</button>
+                        <button type="button" class="size-btn @(selectedSize == "S" ? "active" : "")" @onclick='() => selectedSize = "S"'>S</button>
+                        <button type="button" class="size-btn @(selectedSize == "M" ? "active" : "")" @onclick='() => selectedSize = "M"'>M</button>
+                        <button type="button" class="size-btn @(selectedSize == "L" ? "active" : "")" @onclick='() => selectedSize = "L"'>L</button>
+                        <button type="button" class="size-btn @(selectedSize == "XL" ? "active" : "")" @onclick='() => selectedSize = "XL"'>XL</button>
+                        <button type="button" class="size-btn @(selectedSize == "XXL" ? "active" : "")" @onclick='() => selectedSize = "XXL"'>XXL</button>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <label class="form-label">Couleur</label>
+                    <input type="text" class="form-input" placeholder="Ex: Bleu" @bind="color" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Category & Condition Section -->
+        <div class="category-section">
+            <h2 class="section-title">Catégorie & État</h2>
+
+            <div class="category-state-grid">
+                <div class="category-group">
+                    <label class="form-label">Catégorie</label>
+                    <div class="button-grid">
+                        <button type="button" class="category-btn @(selectedCategory == "T-shirts" ? "active" : "")" @onclick='() => selectedCategory = "T-shirts"'>T-shirts</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Chemises" ? "active" : "")" @onclick='() => selectedCategory = "Chemises"'>Chemises</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Pantalons" ? "active" : "")" @onclick='() => selectedCategory = "Pantalons"'>Pantalons</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Jeans" ? "active" : "")" @onclick='() => selectedCategory = "Jeans"'>Jeans</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Robes" ? "active" : "")" @onclick='() => selectedCategory = "Robes"'>Robes</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Vestes" ? "active" : "")" @onclick='() => selectedCategory = "Vestes"'>Vestes</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Chaussures" ? "active" : "")" @onclick='() => selectedCategory = "Chaussures"'>Chaussures</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Accessoires" ? "active" : "")" @onclick='() => selectedCategory = "Accessoires"'>Accessoires</button>
+                        <button type="button" class="category-btn @(selectedCategory == "Autres" ? "active" : "")" @onclick='() => selectedCategory = "Autres"'>Autres</button>
+                    </div>
+                </div>
+
+                <div class="state-group">
+                    <label class="form-label">État de l'article</label>
+                    <div class="button-grid-2col">
+                        <button type="button" class="state-btn @(selectedState == "Neuf" ? "active" : "")" @onclick='() => selectedState = "Neuf"'>Neuf</button>
+                        <button type="button" class="state-btn @(selectedState == "Très bon état" ? "active" : "")" @onclick='() => selectedState = "Très bon état"'>Très bon état</button>
+                        <button type="button" class="state-btn @(selectedState == "Bon état" ? "active" : "")" @onclick='() => selectedState = "Bon état"'>Bon état</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-cancel" @onclick="Cancel">Annuler</button>
+            <button class="btn-submit" @onclick="PublishArticle">Publier l'article</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<string> uploadedPhotos = new();
+    private string articleName = string.Empty;
+    private decimal? price;
+    private bool isNegotiable = false;
+    private string brand = string.Empty;
+    private string description = string.Empty;
+    private string selectedSize = string.Empty;
+    private string color = string.Empty;
+    private string selectedCategory = string.Empty;
+    private string selectedState = string.Empty;
+
+    private void SetNegotiable(bool value)
+    {
+        isNegotiable = value;
+    }
+
+    private async Task HandlePhotoUpload(ChangeEventArgs e)
+    {
+        // TODO: Handle actual file upload
+        // Simulate adding photos
+        uploadedPhotos.Add("https://via.placeholder.com/200");
+    }
+
+    private void RemovePhoto(string photo)
+    {
+        uploadedPhotos.Remove(photo);
+    }
+
+    private void PublishArticle()
+    {
+        // TODO: Validate and submit article
+        Console.WriteLine("Publishing article...");
+        Console.WriteLine($"Name: {articleName}");
+        Console.WriteLine($"Price: {price}");
+        Console.WriteLine($"Negotiable: {isNegotiable}");
+        Console.WriteLine($"Brand: {brand}");
+        Console.WriteLine($"Size: {selectedSize}");
+        Console.WriteLine($"Category: {selectedCategory}");
+        Console.WriteLine($"State: {selectedState}");
+
+        // Navigate back after publishing
+        // NavigationManager.NavigateTo("/profile");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

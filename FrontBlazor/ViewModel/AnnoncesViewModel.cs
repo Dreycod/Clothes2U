@@ -4,82 +4,64 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel
 {
+    // ViewModel - UI logic only
     public class AnnoncesViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
 
-        public List<Annonce> Annonces { get; set; } = new List<Annonce>();
+        // Observable properties
+        public List<Annonce> Annonces { get; set; } = new();
+        public Annonce? AnnonceDetail { get; set; }
+        public bool IsLoading { get; set; }
+        public string? ErrorMessage { get; set; }
 
         public AnnoncesViewModel(IAnnonceService<Annonce> annonceService)
         {
             _annonceService = annonceService;
         }
 
-        public async Task LoadAsync()
+        // UI-focused methods
+        public async Task LoadActiveAnnoncesAsync()
         {
-            Annonces = new List<Annonce>();
-            Annonces = await _annonceService.GetActiveAnnonces();
-        }
+            IsLoading = true;
+            ErrorMessage = null;
 
-        public async Task<List<Annonce>> RecupererAnnoncesUtilisateur()
-        {
-            //Annonces = await _service.GetAnnoncesByIdUser
-            Annonces.Add(new Annonce());
-            return Annonces;
-        }
-
-
-        // Exclusive to search page, nouveautés et tendances
-        public async Task<List<Annonce>> GetAnnoncesByFilters()
-        {
-            Annonces = await _annonceService.GetActiveAnnonces();
-            //Annonces = await _service.GetAnnoncesById
-            return Annonces;
-        }
-
-
-
-
-
-
-
-
-        ////// Annonce Detail
-        public Annonce annonceDetail { get; set; } = new Annonce();
-
-        public async Task LoadAnnonceDetail(int id) // the page overrided to async Task this
-        {
             try
             {
-                Annonce annonceResult = await _annonceService.GetAnnonceDetailById(id);
-                if (annonceResult != null)
+                Annonces = await _annonceService.GetActiveAnnonces() ?? new();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Erreur lors du chargement des annonces";
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task LoadAnnonceDetailAsync(int id)
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+
+            try
+            {
+                AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
+                if (AnnonceDetail == null)
                 {
-                    annonceDetail = annonceResult;
+                    ErrorMessage = "Annonce introuvable";
                 }
             }
             catch (Exception ex)
             {
-                //simulate annonce detail loading
-                annonceDetail = new Annonce
-                {
-                    AnnonceId = id,
-                    Title = "Veste en cuir vintage",
-                    Negociable = true,
-                    UtilisateurId = 3,
-                    NomMarque = "VintageCo",
-                    DateAnnonce = DateTime.Now.AddDays(-5),
-                    EtatArticle = "Bon état",
-                    Taille = "M",
-                    Photos = new List<string>
-                {
-                    "https://example.com/photos/veste1.jpg",
-                    "https://example.com/photos/veste2.jpg"
-                },
-                    NombreLikes = 27,
-                    Prix = 120.00m,
-                    SousCategorie = "Vestes",
-                    Categorie = "Vêtements",
-                };
+                ErrorMessage = "Erreur lors du chargement de l'annonce";
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿@page "/search"
-@using FrontBlazor.Models
+@rendermode InteractiveServer
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
@@ -26,7 +26,7 @@
             <aside class="filters-sidebar">
                 <div class="filters-header">
                     <h3>Filtres</h3>
-                    <button class="reset-btn">Réinitialiser</button>
+                    <button class="reset-btn" @onclick="ResetFilters">Réinitialiser</button>
                 </div>
 
                 <!-- Type de vêtement -->
@@ -87,12 +87,12 @@
                 <div class="filter-section">
                     <h4 class="filter-title">Taille</h4>
                     <div class="size-buttons">
-                        <button class="size-btn @(sizeXL ? "active" : "")" @onclick="() => sizeXL = !sizeXL">XL</button>
-                        <button class="size-btn @(sizeS ? "active" : "")" @onclick="() => sizeS = !sizeS">S</button>
-                        <button class="size-btn @(sizeM ? "active" : "")" @onclick="() => sizeM = !sizeM">M</button>
-                        <button class="size-btn @(sizeL ? "active" : "")" @onclick="() => sizeL = !sizeL">L</button>
-                        <button class="size-btn @(sizeXS ? "active" : "")" @onclick="() => sizeXS = !sizeXS">XS</button>
-                        <button class="size-btn @(sizeXXL ? "active" : "")" @onclick="() => sizeXXL = !sizeXXL">XXL</button>
+                        <button type="button" class="size-btn @(sizeXL ? "active" : "")" @onclick="() => sizeXL = !sizeXL">XL</button>
+                        <button type="button" class="size-btn @(sizeS ? "active" : "")" @onclick="() => sizeS = !sizeS">S</button>
+                        <button type="button" class="size-btn @(sizeM ? "active" : "")" @onclick="() => sizeM = !sizeM">M</button>
+                        <button type="button" class="size-btn @(sizeL ? "active" : "")" @onclick="() => sizeL = !sizeL">L</button>
+                        <button type="button" class="size-btn @(sizeXS ? "active" : "")" @onclick="() => sizeXS = !sizeXS">XS</button>
+                        <button type="button" class="size-btn @(sizeXXL ? "active" : "")" @onclick="() => sizeXXL = !sizeXXL">XXL</button>
                     </div>
                 </div>
 
@@ -102,9 +102,9 @@
                     <div class="price-range">
                         <div class="price-inputs">
                             <span>0€</span>
-                            <span>100€</span>
+                            <span>@priceMax€</span>
                         </div>
-                        <input type="range" min="0" max="100" @bind="priceMax" class="price-slider" />
+                        <input type="range" min="0" max="500" @bind="priceMax" class="price-slider" />
                     </div>
                 </div>
 
@@ -135,42 +135,64 @@
 
             <!-- Products Grid -->
             <div class="products-section">
-                <div class="product-grid">
-                    @foreach (Annonce annonce in VM_Annonces.Annonces)
-                    {
-                    <div @onclick="() => NavigateToProductDetail(annonce.AnnonceId)" style="cursor: pointer;">
-                        <div class="product-card">
-                            <div class="product-image-container">
-                                <div class="product-image"></div>
-                                <button class="wishlist-btn" @onclick="ToggleFavorite">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-
-                            <div class="product-info">
-                                <h3 class="product-title">@annonce.Title</h3>
-
-                                <div class="product-meta">
-                                    <span class="product-size">Taille @annonce.Taille</span>
-                                    <span class="product-condition">@annonce.EtatArticle</span>
-                                </div>
-
-                                <div class="product-footer">
-                                    <span class="product-price">@annonce.Prix€</span>
-                                    <span class="product-seller">pas encore</span>
-                                </div>
-                            </div>
-                        </div>
+                @if (VM_Annonces.IsLoading)
+                {
+                    <div class="loading-state">
+                        <div class="spinner-large"></div>
+                        <p>Chargement des annonces...</p>
                     </div>
-                    }
-                </div>
+                }
+                else if (!string.IsNullOrEmpty(VM_Annonces.ErrorMessage))
+                {
+                    <div class="error-state">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <p>@VM_Annonces.ErrorMessage</p>
+                        <button class="btn-retry" @onclick="LoadAnnonces">Réessayer</button>
+                    </div>
+                }
+                else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-search"></i>
+                        <p>Aucune annonce trouvée</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="product-grid">
+                        @foreach (var annonce in VM_Annonces.Annonces)
+                        {
+                            <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
+                                <div class="product-image-container">
+                                    <div class="product-image"></div>
+                                    <button class="wishlist-btn" @onclick:stopPropagation="true" @onclick="() => ToggleFavorite(annonce.AnnonceId)">
+                                        <i class="bi bi-heart@(IsFavorite(annonce.AnnonceId) ? "-fill" : "")"></i>
+                                    </button>
+                                </div>
+
+                                <div class="product-info">
+                                    <h3 class="product-title">@annonce.Title</h3>
+
+                                    <div class="product-meta">
+                                        <span class="product-size">Taille @annonce.Taille</span>
+                                        <span class="product-condition">@annonce.EtatArticle</span>
+                                    </div>
+
+                                    <div class="product-footer">
+                                        <span class="product-price">@annonce.Prix€</span>
+                                        <span class="product-seller">par @(@*annonce.NomVendeur ?? BESOIN DU NOM*@"Vendeur")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
 
 @code {
-
     // Filter states
     private bool filterShirts = false;
     private bool filterPants = false;
@@ -191,30 +213,65 @@
     private bool sizeXS = false;
     private bool sizeXXL = false;
 
-    private int priceMax = 100;
+    private int priceMax = 500;
 
     private bool conditionNew = false;
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
 
-    private void NavigateToProductDetail(int productId)
-    {
-        navigationManager.NavigateTo($"/product/{productId}");
-    }
+    private HashSet<int> favoriteIds = new();
 
-    public void ToggleFavorite()
-    {
-        // isFavorite = !isFavorite;
-    }
-
-    private void ApplyFilters()
-    {
-
-        // VM.ApplyFilters(...); // Implement filter application logic
-
-    }
     protected override async Task OnInitializedAsync()
     {
-        await VM_Annonces.LoadAsync();
+        await LoadAnnonces();
+    }
+
+    private async Task LoadAnnonces()
+    {
+        await VM_Annonces.LoadActiveAnnoncesAsync();
+    }
+
+    private void NavigateToProductDetail(int? productId)
+    {
+        if (productId.HasValue)
+        {
+            navigationManager.NavigateTo($"/product/{productId}");
+        }
+    }
+
+    private void ToggleFavorite(int? annonceId)
+    {
+        if (annonceId.HasValue)
+        {
+            if (favoriteIds.Contains(annonceId.Value))
+            {
+                favoriteIds.Remove(annonceId.Value);
+            }
+            else
+            {
+                favoriteIds.Add(annonceId.Value);
+            }
+            // TODO: Call API to save favorite
+        }
+    }
+
+    private bool IsFavorite(int? annonceId)
+    {
+        return annonceId.HasValue && favoriteIds.Contains(annonceId.Value);
+    }
+
+    private void ResetFilters()
+    {
+        filterShirts = filterPants = filterDresses = filterCoats = filterShoes = false;
+        brandAdidas = brandNike = brandZara = brandLevis = brandOther = false;
+        sizeXL = sizeS = sizeM = sizeL = sizeXS = sizeXXL = false;
+        priceMax = 500;
+        conditionNew = conditionVeryGood = conditionGood = false;
+    }
+
+    private async Task ApplyFilters()
+    {
+        // TODO: Implement filter logic in VM_Annonces
+        // await VM_Annonces.ApplyFiltersAsync(/* filter parameters */);
     }
 }
