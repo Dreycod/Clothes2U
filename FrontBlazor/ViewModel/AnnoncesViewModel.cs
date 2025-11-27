@@ -4,12 +4,10 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel
 {
-    // ViewModel - UI logic only
     public class AnnoncesViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
 
-        // Observable properties
         public List<Annonce> Annonces { get; set; } = new();
         public Annonce? AnnonceDetail { get; set; }
         public bool IsLoading { get; set; }
@@ -20,7 +18,6 @@ namespace FrontBlazor.ViewModel
             _annonceService = annonceService;
         }
 
-        // UI-focused methods
         public async Task LoadActiveAnnoncesAsync()
         {
             IsLoading = true;

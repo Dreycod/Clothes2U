@@ -1,4 +1,6 @@
-﻿<nav class="main-navbar">
+﻿@rendermode InteractiveServer
+
+<nav class="main-navbar">
     <div class="navbar-container">
         <!-- Logo and Menu -->
         <div class="navbar-left">
@@ -25,29 +27,78 @@
                 <i class="bi bi-bell"></i>
             </button>
 
-            <button class="icon-btn" title="Langue">
-                <i class="bi bi-globe"></i>
-            </button>
-
             <a href="/messages">
                 <button class="icon-btn" title="Messages">
                     <i class="bi bi-chat-dots"></i>
                 </button>
             </a>
-            <a href="/login">
-                <button class="icon-btn" title="Profil">
-                    <i class="bi bi-person-circle"></i>
-                </button>
-            </a>
-            <button class="icon-btn" title="Panier">
-                <i class="bi bi-bag"></i>
-            </button>
+
+            @if (isLoggedIn)
+            {
+                <!-- Profile Icon with Dropdown -->
+                <div class="profile-dropdown-container">
+                    <button class="icon-btn" title="Profil" @onclick="ToggleDropdown">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+
+                    @if (showDropdown)
+                    {
+                        <div class="profile-dropdown">
+                            <a href="/profile/@username" class="dropdown-item" @onclick="CloseDropdown">
+                                <i class="bi bi-person"></i>
+                                <span>Profil du compte</span>
+                            </a>
+                            <a href="/settings" class="dropdown-item" @onclick="CloseDropdown">
+                                <i class="bi bi-gear"></i>
+                                <span>Paramètres</span>
+                            </a>
+                            <button class="dropdown-item logout" @onclick="HandleLogout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Se déconnecter</span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <!-- Login Button -->
+                <a href="/login" class="btn-login">
+                    Login
+                </a>
+            }
         </div>
     </div>
 </nav>
 
-@code
-{
+@code {
     private string searchQuery = string.Empty;
+    private string username = "";
+    private bool isLoggedIn = false;
+    private bool showDropdown = false;
 
+    private void ToggleDropdown()
+    {
+        showDropdown = !showDropdown;
+    }
+
+    private void CloseDropdown()
+    {
+        showDropdown = false;
+    }
+
+    private async Task HandleLogout()
+    {
+        isLoggedIn = false;
+        showDropdown = false;
+        await VM_Connexion.HandleLogout();
+        navigationManager.NavigateTo("/login");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+// IF logged in logic here
+        //username = userStateService.CurrentEntity.
+
+    }
 }

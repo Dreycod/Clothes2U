@@ -38,12 +38,14 @@ builder.Services.AddScoped<IStateService<Utilisateur>, UserStateService>();
 
 // Services
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
+builder.Services.AddScoped<ICategorieService<Categorie>, CategorieService>();
 
 // ViewModels
 builder.Services.AddScoped<ConnexionViewModel>();
 builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
+builder.Services.AddScoped<CategorieViewModel>();
 
 var app = builder.Build();
 

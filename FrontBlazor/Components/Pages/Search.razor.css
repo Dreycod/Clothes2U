@@ -107,6 +107,31 @@
     gap: 0.5rem;
 }
 
+.category-filter-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    transition: background 0.2s;
+    border-radius: 4px;
+}
+
+    .category-header:hover {
+        background: #f8f8f8;
+    }
+
+.expand-icon {
+    font-size: 0.85rem;
+    color: #999;
+    transition: transform 0.2s;
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -114,6 +139,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     color: #333;
+    flex: 1;
 }
 
     .checkbox-label input[type="checkbox"] {
@@ -125,6 +151,46 @@
     .checkbox-label:hover span {
         color: #1a1a1a;
     }
+
+.subcategory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid #e0e0e0;
+}
+
+.subcategory-item {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.filter-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e0e0e0;
+    border-top-color: #7a9d8e;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.filter-empty {
+    color: #999;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+    margin: 0;
+}
 
 /* Size Buttons */
 .size-buttons {
