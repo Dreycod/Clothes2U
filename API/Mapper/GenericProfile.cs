@@ -227,6 +227,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.DecisionSuspensionId, opt => opt.MapFrom(src => src.Decision_suspensionId))
             .ForMember(dest => dest.DateDebut, opt => opt.MapFrom(src => src.DateDebutSuspension))
             .ForMember(dest => dest.DateFin, opt => opt.MapFrom(src => src.DateFinSuspension))
+            .ForMember(dest => dest.EstTraitee, opt => opt.MapFrom(src => src.EstTraitee))
             .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))
@@ -236,6 +237,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.DecisionSuspensionId, opt => opt.MapFrom(src => src.Decision_suspensionId))
             .ForMember(dest => dest.DateDebut, opt => opt.MapFrom(src => src.DateDebutSuspension))
             .ForMember(dest => dest.DateFin, opt => opt.MapFrom(src => src.DateFinSuspension))
+            .ForMember(dest => dest.EstTraitee, opt => opt.MapFrom(src => src.EstTraitee))
             .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
 
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))

@@ -5,6 +5,8 @@
         public int DecisionSuspensionId { get; set; }
         public DateTime DateDebut { get; set; }
         public DateTime DateFin { get; set; }
+        public bool EstTraitee { get; set; }
+
 
         public int UtilisateurId { get; set; }
         public int UtilisateurAdminId { get; set; }

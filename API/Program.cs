@@ -7,6 +7,8 @@ using API.Models.Repository.Managers;
 using System.Text.Json.Serialization;
 using API.Services;
 using Microsoft.IdentityModel.Tokens;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +41,14 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("Clothes2UDb")));
+
+builder.Services.AddHangfireServer();
+
+
+builder.Services.AddScoped<DecisionSuspensionJobService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -64,6 +74,7 @@ builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeM
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 builder.Services.AddScoped<IDecisionSuspensionRepository<Decision_suspension, int>, DecisionSuspensionManager>();
 builder.Services.AddScoped<IDemandeRestaurationRepository<DemandeRestauration, int>, DemandeRestaurationManager>();
+builder.Services.AddScoped<DecisionSuspensionJobService>();
 
 var app = builder.Build();
 
@@ -79,6 +90,13 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<DecisionSuspensionJobService>(
+    "verifier-suspensions-expirees",
+    job => job.VérifierSuspensionsExpirées(),
+    Cron.Daily(2, 00)
+);
 
 app.MapControllers();
 

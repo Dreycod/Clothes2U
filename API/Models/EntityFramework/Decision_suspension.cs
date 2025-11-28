@@ -18,6 +18,9 @@ public class Decision_suspension : IEntity
     
     [Column("sus_motif_suspension")]
     public string MotifSuspension { get; set; }
+
+    [Column("sus_traitee")]
+    public bool EstTraitee { get; set; } = false;
     
     [Column("sus_utilisateur_id")]
     public int? UtilisateurId { get; set; }

@@ -57,6 +57,9 @@ namespace API.Models.Repository.Managers
             if (request.UtilisateurAdminId.HasValue)
                 query = query.Where(d => d.UtilisateurAdminId == request.UtilisateurAdminId.Value);
 
+            if (request.EstTraitee.HasValue)
+                query = query.Where(d => d.EstTraitee == request.EstTraitee.Value);
+
             if (request.AnnonceId.HasValue)
                 query = query.Where(d => d.AnnonceId == request.AnnonceId.Value);
 
