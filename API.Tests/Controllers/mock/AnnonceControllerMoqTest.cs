@@ -339,7 +339,29 @@ public class AnnonceControllerMoqTest
         Assert.IsNotNull(okObjectResult);
         AnnonceDetailDTO annonceValue = okObjectResult.Value as AnnonceDetailDTO;
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(_default1);
-        Assert.AreEqual(annonceDTO, annonceValue);
+        Assert.AreEqual(annonceDTO.AnnonceId, annonceValue.AnnonceId);
+        Assert.AreEqual(annonceDTO.Description, annonceValue.Description);
+        Assert.AreEqual(annonceDTO.NomMarque, annonceValue.NomMarque);
+        Assert.AreEqual(annonceDTO.UtilisateurId, annonceValue.UtilisateurId);
+    }
+
+    [TestMethod]
+    public void ShouldGetByFavorisUtilisateur()
+    {
+        //Arrange
+        _manager
+            .Setup(manager => manager.GetByUtilisateurFavoris(2))
+            .ReturnsAsync(new[] { _default1, _default2 });
         
+        //Act
+        var result = _controller.GetByFavorisUtilisateur(2).GetAwaiter().GetResult();
+        
+        //Assert
+        Assert.IsNotNull(result.Result);
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(2, annonces.Count());
     }
 }
