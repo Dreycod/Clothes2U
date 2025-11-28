@@ -118,4 +118,15 @@ public class Annonce : IEntity
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();
     
     public int GetId() => AnnonceId;
+    
+    protected bool Equals(Annonce other) => AnnonceId == other.AnnonceId;
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((Annonce) obj);
+    }
+    public override int GetHashCode() => AnnonceId;
 }
