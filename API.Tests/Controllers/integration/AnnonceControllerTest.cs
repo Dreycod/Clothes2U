@@ -168,6 +168,7 @@ public class AnnonceControllerTest
         {
             AnnonceId = 1,
             Title = "Veste en jean",
+            Description = "Veste en jean de neuf en couleur blanche.",
             DateAnnonce = DateTime.Now,
             Negociable = true,
             Prix = 29.99m,
@@ -183,6 +184,7 @@ public class AnnonceControllerTest
         {
             AnnonceId = 2,
             Title = "Chaussures Nike",
+            Description = "Chaussures Nike en couleur blanche.",
             DateAnnonce = DateTime.Now.AddMinutes(-30),
             Negociable = false,
             Prix = 59.90m,
@@ -493,7 +495,7 @@ public class AnnonceControllerTest
         var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
         Assert.IsNotNull(annonces);
         Assert.AreEqual(2, annonces.Count());
-        Assert.AreEqual(1, annonces.First().Id);
+        Assert.AreEqual(1, annonces.First().AnnonceId);
     }
     
     [TestMethod]
@@ -532,7 +534,7 @@ public class AnnonceControllerTest
         var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
         Assert.IsNotNull(annonces);
         Assert.AreEqual(2, annonces.Count());
-        Assert.AreEqual(1, annonces.First().Id);
+        Assert.AreEqual(1, annonces.First().AnnonceId);
     }
 
     [TestMethod]
@@ -560,7 +562,7 @@ public class AnnonceControllerTest
         AnnonceDetailDTO annonceToAdd = _mapper.Map<AnnonceDetailDTO>(_default1);
         
         //Act
-        ActionResult<AnnonceDetailDTO> action = await _controller.AddAnnonce(annonceToAdd);
+        ActionResult<AnnonceDetailDTO> action =  _controller.AddAnnonce(annonceToAdd).GetAwaiter().GetResult();
         var createdResult = action.Result as CreatedAtActionResult;
         var annonce = createdResult.Value as AnnonceDetailDTO;
         
