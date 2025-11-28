@@ -75,7 +75,6 @@ builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>,  ConversationManager>(); 
 builder.Services.AddScoped<INotificationRepository<Notification>, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();

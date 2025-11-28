@@ -13,66 +13,39 @@ namespace API.Controllers;
 [ApiController]
 public class MediasController : ControllerBase
 {
-    private readonly IPhotoService _photoManager;
+    private readonly IDataRepository<Photo, int> _photoManager;
+    private readonly IAnnonceRepository<Annonce, int> _annonceManager;
+    private readonly IDataRepository<Illustre_Annonce, int> _illustreAnnonceManager;
 
-    public MediasController(Clothes2UDbContext context, IPhotoService manager, IWebHostEnvironment env)
+    public MediasController(Clothes2UDbContext context, IDataRepository<Photo, int> photoManager,IAnnonceRepository<Annonce, int> annonceManager, IDataRepository<Illustre_Annonce, int> illustreAnnonceManager, IWebHostEnvironment env)
     {
-        _photoManager = manager;
+        _photoManager = photoManager;
+        _annonceManager = annonceManager;
+        _illustreAnnonceManager = illustreAnnonceManager;
     }
     [HttpGet("Photos/{fileName}")]
     public async Task<IActionResult> GetPhotos(string fileName)
     {
-        try
-        {
-            var path = await _photoManager.GetMediaPath("Images", fileName);
-            return PhysicalFile(path, "image/jpeg");
-        }
-        catch (PhotoNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur serveur", details = ex.Message });
-        }
+        throw new NotImplementedException();
     }
 
     
     [HttpPost("uploadPhotoAnnonce")]
     public async Task<IActionResult> UploadPhotoAnnonce([FromForm] MediaUploadDto dto, int annonceId)
     {
-        if (dto.File == null || dto.File.Length == 0)
-            return BadRequest("Aucun fichier envoyé.");
+        throw new NotImplementedException();
+    }
 
-        try
-        {
-            var fileName = await _photoManager.AddPhotoToAnnonceAsync(annonceId, dto.File);
-            var url = $"{Request.Scheme}://{Request.Host}/api/medias/images/{fileName}";
-        
-            return Ok(new { FileName = fileName, Url = url });
-        }
-        catch (AnnonceNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur lors de l'upload", details = ex.Message });
-        }
+    [HttpPost("uploadComptePhoto")]
+    public async Task<IActionResult> UploadComptePhoto([FromForm] MediaUploadDto dto, int compteId)
+    {
+        throw new NotImplementedException();
     }
 
     [HttpDelete("Photos/{id}")]
     public async Task<IActionResult> DeletePhoto(int id)
     {
-        try
-        {
-            await _photoManager.DeleteMediaById(id);
-            return NoContent();
-        }
-        catch (PhotoNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        throw new NotImplementedException();
     }
 
 }
