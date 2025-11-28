@@ -4,6 +4,7 @@ public class AnnonceDetailDTO
 {
     public int? AnnonceId { get; set; }
     public string Title { get; set; }
+    public string? Description { get; set; }
     public bool Negociable { get; set; }
     public int UtilisateurId { get; set; }
     public string? NomMarque { get; set; } = null!;
