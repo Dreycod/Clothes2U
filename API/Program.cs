@@ -62,6 +62,9 @@ builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
+builder.Services.AddScoped<IDecisionSuspensionRepository<Decision_suspension, int>, DecisionSuspensionManager>();
+builder.Services.AddScoped<IDemandeRestaurationRepository<DemandeRestauration, int>, DemandeRestaurationManager>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
