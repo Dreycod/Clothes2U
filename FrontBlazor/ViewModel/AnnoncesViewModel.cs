@@ -6,7 +6,7 @@ namespace FrontBlazor.ViewModel
 {
     public class AnnoncesViewModel
     {
-        private readonly IAnnonceService<Annonce> _service;
+        private readonly IAnnonceService<Annonce> _annonceService;
 
         public List<Annonce> Annonces { get; set; } = new();
         public Annonce? AnnonceDetail { get; set; }
@@ -15,7 +15,7 @@ namespace FrontBlazor.ViewModel
 
         public AnnoncesViewModel(IAnnonceService<Annonce> annonceService)
         {
-            _service = annonceService;
+            _annonceService = annonceService;
         }
 
         public async Task LoadActiveAnnoncesAsync()
@@ -25,7 +25,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                Annonces = await _service.GetActiveAnnonces() ?? new();
+                Annonces = await _annonceService.GetActiveAnnonces() ?? new();
             }
             catch (Exception ex)
             {
@@ -45,7 +45,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                AnnonceDetail = await _service.GetAnnonceDetailById(id);
+                AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
                 if (AnnonceDetail == null)
                 {
                     ErrorMessage = "Annonce introuvable";
@@ -67,7 +67,7 @@ namespace FrontBlazor.ViewModel
             ErrorMessage = null;
             try
             {
-                var createdAnnonce = await _service.AddAsync(newAnnonce);
+                var createdAnnonce = await _annonceService.AddAsync(newAnnonce);
                 if (createdAnnonce != null)
                 {
                     Annonces.Add(createdAnnonce);

@@ -1,5 +1,6 @@
 ﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -7,11 +8,11 @@ namespace FrontBlazor.ViewModel;
 
 public class ConversationViewModel
 {
-    private readonly ConversationService _service;
+    private readonly IConversationService<Conversation> _service;
 
     public List<Conversation> Conversations { get; set; } = new List<Conversation>();
 
-    public ConversationViewModel(ConversationService service)
+    public ConversationViewModel(IConversationService<Conversation> service)
     {
         _service = service;
     }

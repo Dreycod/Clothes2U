@@ -1,6 +1,7 @@
 ﻿using FrontBlazor.Components.Pages;
 using FrontBlazor.Models;
 using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -8,11 +9,11 @@ namespace FrontBlazor.ViewModel;
 
 public class MessageViewModel
 {
-    private readonly MessageService _service;
+    private readonly IMessageService<Message> _service;
 
     public List<Message> Messages { get; set; } = new List<Message>();
 
-    public MessageViewModel(MessageService service)
+    public MessageViewModel(IMessageService<Message> service)
     {
         _service = service;
     }

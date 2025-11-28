@@ -39,6 +39,8 @@ builder.Services.AddScoped<IStateService<Utilisateur>, UserStateService>();
 // Services
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
 builder.Services.AddScoped<ICategorieService<Categorie>, CategorieService>();
+builder.Services.AddScoped<IConversationService<Conversation>, ConversationService>();
+builder.Services.AddScoped<IMessageService<Message>, MessageService>();
 
 // ViewModels
 builder.Services.AddScoped<ConnexionViewModel>();
@@ -46,6 +48,8 @@ builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
 builder.Services.AddScoped<CategorieViewModel>();
+builder.Services.AddScoped<ConversationViewModel>();
+builder.Services.AddScoped<MessageViewModel>();
 
 var app = builder.Build();
 

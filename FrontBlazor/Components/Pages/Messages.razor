@@ -13,13 +13,13 @@
             <h2 class="sidebar-title">Messages</h2>
             
             <div class="conversations-list">
-                @foreach (var conversation in conversations)
+                @foreach (var conversation in VM_Conversation.Conversations)
                 {
-                    <div class="conversation-item @(selectedConversationId == conversation.Id ? "active" : "")" 
-                         @onclick="() => SelectConversation(conversation.Id)">
+                    <div class="conversation-item @(selectedConversationId == conversation.ConversationId ? "active" : "")" 
+                         @onclick="() => SelectConversation(conversation.ConversationId)">
                         <div class="conversation-avatar"></div>
                         <div class="conversation-info">
-                            <h3 class="conversation-name">@conversation.Name</h3>
+                            <h3 class="conversation-name">@conversation.Acheteur</h3>
                             <p class="conversation-preview">@conversation.LastMessage</p>
                         </div>
                     </div>
@@ -80,15 +80,17 @@
 </div>
 
 @code {
+
+
+
+
+
+
+
     private int? selectedConversationId = 1;
     private string newMessage = string.Empty;
 
-    private List<Conversation> conversations = new()
-    {
-        new Conversation { Id = 1, Name = "Marie-Antoinette", LastMessage = "Bonjour, j'aime trop le..." },
-        new Conversation { Id = 2, Name = "Autre Marie", LastMessage = "D'accord, ça marche pour..." },
-        new Conversation { Id = 3, Name = "Une autre Marie", LastMessage = "Si vous pouviez bien de..." }
-    };
+
 
     private void SelectConversation(int conversationId)
     {
@@ -112,10 +114,8 @@
         }
     }
 
-    public class Conversation
+    protected override async Task OnInitializedAsync()
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string LastMessage { get; set; } = string.Empty;
+        await VM_Conversation.GetConversationsByUserId(2);
     }
 }

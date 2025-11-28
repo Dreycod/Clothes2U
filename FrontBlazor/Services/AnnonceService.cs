@@ -6,7 +6,10 @@ namespace FrontBlazor.Services;
 public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
 {
     protected readonly HttpClient _httpClient;
-    public AnnonceService(HttpClient httpClient) : base(httpClient) {}
+
+    public AnnonceService(HttpClient httpClient) : base(httpClient)
+    {
+    }
 
     public async Task<List<Annonce>?> GetActiveAnnonces()
     {
