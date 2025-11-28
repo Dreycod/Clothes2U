@@ -97,6 +97,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        isLoggedIn = await VM_Connexion.CheckLoginStatus();
 // IF logged in logic here
         //username = userStateService.CurrentEntity.
 

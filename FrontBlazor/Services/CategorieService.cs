@@ -5,8 +5,10 @@ namespace FrontBlazor.Services
 {
     public class CategorieService : BaseGenericService, ICategorieService<Categorie>
     {
+        private readonly HttpClient _httpClient;
         public CategorieService(HttpClient httpClient) : base(httpClient)
         {
+            _httpClient = httpClient;
         }
 
         public async Task<List<Categorie>?> GetAllCategories()

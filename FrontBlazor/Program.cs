@@ -13,7 +13,7 @@ builder.Services.AddRazorComponents()
 // HttpClient global (comme WASM)
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("http://localhost:5096")
+    BaseAddress = new Uri("http://localhost:5096/api/")
 });
 
 // State Services

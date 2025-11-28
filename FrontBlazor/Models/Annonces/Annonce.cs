@@ -15,7 +15,8 @@ public class Annonce: IEntity
     public List<string>? Photos { get; set; } = new();
     public int NombreLikes { get; set; } = 0;
     public decimal Prix { get; set; }
-
+    public string NomAuteur { get; set; } = null!;
+    public string? UriPhotoProfilAuteur { get; set; } = null!;
 
 
     public string? SousCategorie { get; set; }

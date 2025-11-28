@@ -25,7 +25,7 @@ public class AuthService : IAuthService
                 Password = password
             };
 
-            var response = await _httpClient.PostAsJsonAsync("api/Login", request);
+            var response = await _httpClient.PostAsJsonAsync("Login", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -76,7 +76,7 @@ public class AuthService : IAuthService
                 PasswordConfirm = passwordConfirm
             };
 
-            var response = await _httpClient.PostAsJsonAsync("api/Login/signup", request);
+            var response = await _httpClient.PostAsJsonAsync("Login/signup", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -112,7 +112,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            await _httpClient.PostAsync("api/Login/logout", null);
+            await _httpClient.PostAsync("Login/logout", null);
         }
         catch (Exception ex)
         {
@@ -124,7 +124,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            var response = await _httpClient.GetAsync("api/Login/me");
+            var response = await _httpClient.GetAsync("Login/me");
 
             if (response.IsSuccessStatusCode)
             {

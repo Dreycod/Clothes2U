@@ -4,12 +4,7 @@ namespace FrontBlazor.Services;
 
 public class ConversationService: WritableService<Conversation>, IConversationService<Conversation>
 {
-    protected readonly HttpClient _httpClient;
-    public ConversationService(HttpClient httpClient) : base(httpClient)
-    {
-        _httpClient = httpClient;
-
-    }
+    public ConversationService(HttpClient httpClient) : base(httpClient) {}
 
     public Task<Conversation> GetByIdAsync(int id)
     {
