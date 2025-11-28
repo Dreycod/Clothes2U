@@ -8,7 +8,7 @@ namespace FrontBlazor.ViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
 
-        public List<Annonce> Annonces { get; set; } = new();
+        public List<Annonce> Annonces { get; set; } = new List<Annonce>();
         public Annonce? AnnonceDetail { get; set; }
         public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
@@ -25,7 +25,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                Annonces = await _annonceService.GetActiveAnnonces() ?? new();
+                Annonces = await _annonceService.GetActiveAnnonces() ?? new List<Annonce>();
             }
             catch (Exception ex)
             {

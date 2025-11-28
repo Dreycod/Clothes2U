@@ -9,7 +9,7 @@ public abstract class WritableService<T> : BaseGenericService, IWritableService<
     
     public virtual async Task<T?> AddAsync(T entity)
     {
-        var response = await _httpClient.PostAsJsonAsync($"{typeof(T).Name}", entity);
+        var response = await _httpClient.PostAsJsonAsync($"api/{typeof(T).Name}", entity);
         if (!response.IsSuccessStatusCode)
             return null; 
 
@@ -20,11 +20,11 @@ public abstract class WritableService<T> : BaseGenericService, IWritableService<
 
     public virtual async Task UpdateAsync( T updatedEntity)
     {
-        await _httpClient.PutAsJsonAsync($"{typeof(T).Name}/id/{updatedEntity.GetId()}", updatedEntity);
+        await _httpClient.PutAsJsonAsync($"api/{typeof(T).Name}/id/{updatedEntity.GetId()}", updatedEntity);
     }
 
     public virtual async Task DeleteAsync(int id)
     {
-        await _httpClient.DeleteAsync($"{typeof(T).Name}/id/{id}");
+        await _httpClient.DeleteAsync($"api/{typeof(T).Name}/id/{id}");
     }
 }

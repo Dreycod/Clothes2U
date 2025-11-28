@@ -102,4 +102,11 @@ public class ConnexionViewModel
     {
         // Implement Google login logic here
     }
+
+    public async Task<bool> CheckLoginStatus()
+    {
+        if (await _authService.GetCurrentUserAsync() != null)
+            return true;
+        return false;
+    }
 }

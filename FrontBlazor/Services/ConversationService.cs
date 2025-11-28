@@ -4,12 +4,7 @@ namespace FrontBlazor.Services;
 
 public class ConversationService: WritableService<Conversation>, IConversationService<Conversation>
 {
-    protected readonly HttpClient _httpClient;
-    public ConversationService(HttpClient httpClient) : base(httpClient)
-    {
-        _httpClient = httpClient;
-
-    }
+    public ConversationService(HttpClient httpClient) : base(httpClient) {}
 
     public Task<Conversation> GetByIdAsync(int id)
     {
@@ -19,13 +14,13 @@ public class ConversationService: WritableService<Conversation>, IConversationSe
     public async Task<List<Conversation?>> GetConversationDetailById(int id)
     {
         return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
-       $"Conversation/conversation/{id}"
+       $"api/Conversation/conversation/{id}"
    );
     }
     public async Task<List<Conversation?>> GetConversationsByUserId(int id)
     {
         return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
-       $"Conversation/utilisateur/{id}"
+       $"api/Conversation/utilisateur/{id}"
    );
     }
 }

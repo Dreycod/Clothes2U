@@ -7,36 +7,20 @@ using FrontBlazor.ViewModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Configuration HttpClient avec cookies pour Blazor Server
-builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
-    {
-        client.BaseAddress = new Uri("http://localhost:5096"); // ou https si tu utilises https
-    })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        UseCookies = true,
-        CookieContainer = new System.Net.CookieContainer()
-    });
-
-// HttpClient pour les autres services
-builder.Services.AddHttpClient<AnnonceService>(client =>
-    {
-        client.BaseAddress = new Uri("http://localhost:5096");
-    })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        UseCookies = true,
-        CookieContainer = new System.Net.CookieContainer()
-    });
+// HttpClient global (comme WASM)
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("http://localhost:5096/api/")
+});
 
 // State Services
 builder.Services.AddScoped<IStateService<Utilisateur>, UserStateService>();
 
 // Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
 builder.Services.AddScoped<ICategorieService<Categorie>, CategorieService>();
 builder.Services.AddScoped<IConversationService<Conversation>, ConversationService>();
@@ -53,7 +37,6 @@ builder.Services.AddScoped<MessageViewModel>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

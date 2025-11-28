@@ -6,12 +6,7 @@ namespace FrontBlazor.Services;
 
 public class MessageService : WritableService<Message>, IMessageService<Message>
 {
-    protected readonly HttpClient _httpClient;
-    public MessageService(HttpClient httpClient) : base(httpClient)
-    {
-        _httpClient = httpClient;
-
-    }
+    public MessageService(HttpClient httpClient) : base(httpClient) { }
 
     public Task<Message> GetByIdAsync(int id)
     {

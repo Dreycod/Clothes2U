@@ -36,7 +36,8 @@ public class GenericProfile : Profile
         CreateMap<Utilisateur, UtilisateurDTO>().ReverseMap();
 
         CreateMap<Annonce, AnnonceDTO>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque))
             .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat))
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
