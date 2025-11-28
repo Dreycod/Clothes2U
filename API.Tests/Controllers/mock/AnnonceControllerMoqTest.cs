@@ -17,7 +17,7 @@ namespace API.Tests.Controllers.mock;
 
 [TestClass]
 [TestSubject(typeof(AnnonceController))]
-[TestCategory("mock")]
+[TestCategory("mock")]  
 public class AnnonceControllerMoqTest
 {
     private readonly AnnonceController _controller;
@@ -168,7 +168,8 @@ public class AnnonceControllerMoqTest
         {
             AnnonceId = 1,
             Title = "Veste en jean",
-            DateAnnonce = DateTime.Now,
+            Description = "Veste en jean de neuf en couleur blanche.",
+            DateAnnonce = DateTime.Now.AddMinutes(-35),
             Negociable = true,
             Prix = 29.99m,
             UtilisateurId = 1,
@@ -183,6 +184,7 @@ public class AnnonceControllerMoqTest
         {
             AnnonceId = 2,
             Title = "Chaussures Nike",
+            Description = "Chaussures Nike en couleur blanche.",
             DateAnnonce = DateTime.Now.AddMinutes(-30),
             Negociable = false,
             Prix = 59.90m,
@@ -199,7 +201,8 @@ public class AnnonceControllerMoqTest
         {
             AnnonceId = 3,
             Title = "Casquette",
-            DateAnnonce = DateTime.Now.AddMinutes(-30),
+            Description = "Casquette en couleur blanche.",
+            DateAnnonce = DateTime.Now,
             Negociable = true,
             Prix = 19.99m,
             UtilisateurId = 2,
@@ -213,8 +216,8 @@ public class AnnonceControllerMoqTest
         
         _favoris1 = new Favoris 
         { 
-            UtilisateurId = 2, 
-            AnnonceId = 1 
+            UtilisateurId = 1, 
+            AnnonceId = 2
         };
         _favoris2 = new Favoris 
         { 
@@ -227,6 +230,10 @@ public class AnnonceControllerMoqTest
             UtilisateurId = 3,
             AnnonceId = 1
         };
+        
+        _default1.UtilisateursFavoris = new List<Favoris> { _favoris3 }; // 1 like
+        _default2.UtilisateursFavoris = new List<Favoris> { _favoris1, _favoris2 }; // 2 likes
+        _default3.UtilisateursFavoris = new List<Favoris>(); // 0 like
     }
     
     [TestMethod]
@@ -363,5 +370,52 @@ public class AnnonceControllerMoqTest
         var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
         Assert.IsNotNull(annonces);
         Assert.AreEqual(2, annonces.Count());
+        
+        _manager.Verify(manager => manager.GetByUtilisateurFavoris(2), Times.Once);
     }
+
+    [TestMethod]
+    public void ShouldGetMostLiked()
+    {
+        //Arrange
+        _manager
+            .Setup(manager => manager.GetPlusLikeAsync())
+            .ReturnsAsync(new[] {_default1, _default2, _default3 }
+                .OrderByDescending(annonce => annonce.UtilisateursFavoris.Count));
+        
+        //Act
+        var result = _controller.GetMostLiked().GetAwaiter().GetResult();
+        
+        //Assert
+        Assert.IsNotNull(result.Result);
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(3, annonces.Count());
+        Assert.AreEqual(annonces.First().AnnonceId, _default2.AnnonceId);
+    }
+
+    [TestMethod]
+    public void ShouldGetMostRecent()
+    {
+        //Arrange
+        _manager
+            .Setup(manager => manager.GetMostRecentAsync())
+            .ReturnsAsync(new[] { _default1, _default2, _default3 }
+                .OrderByDescending(a => a.DateAnnonce));
+        
+        //Act
+        var result = _controller.GetMostRecent().GetAwaiter().GetResult();
+        
+        //Assert
+        Assert.IsNotNull(result.Result);
+        var okResult = result.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var annonces = okResult.Value as IEnumerable<AnnonceDTO>;
+        Assert.IsNotNull(annonces);
+        Assert.AreEqual(3, annonces.Count());
+        Assert.AreEqual(annonces.First().AnnonceId, _default3.AnnonceId);
+    }
+    
 }
