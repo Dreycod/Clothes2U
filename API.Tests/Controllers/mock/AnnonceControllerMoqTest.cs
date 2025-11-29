@@ -237,7 +237,7 @@ public class AnnonceControllerMoqTest
     }
     
     [TestMethod]
-    public void ShouldGetActiveAnnonces()
+    public void ShouldGetActiveAnnoncesMoq()
     {
         // Arrange
         _manager
@@ -260,7 +260,7 @@ public class AnnonceControllerMoqTest
     }
 
     [TestMethod]
-    public void ShouldGetAllAnnonceByCategorieId()
+    public void ShouldGetAllAnnonceByCategorieIdMoq()
     {
         // Arrange
         _manager
@@ -282,7 +282,7 @@ public class AnnonceControllerMoqTest
     }
     
     [TestMethod]
-    public void ShouldGetAllAnnonceByUtilisateurd()
+    public void ShouldGetAllAnnonceByUtilisateurIdMoq()
     {
         // Arrange
         _manager
@@ -304,7 +304,7 @@ public class AnnonceControllerMoqTest
     }
     
     [TestMethod]
-    public void ShouldGetAllAnnonceBySousCategorieId()
+    public void ShouldGetAllAnnonceBySousCategorieIdMoq()
     {
         // Arrange
         _manager
@@ -326,7 +326,7 @@ public class AnnonceControllerMoqTest
     }
 
     [TestMethod]
-    public void ShouldGetAnnonceById()
+    public void ShouldGetAnnonceByIdMoq()
     {
         //Arrange
         _manager
@@ -353,7 +353,26 @@ public class AnnonceControllerMoqTest
     }
 
     [TestMethod]
-    public void ShouldGetByFavorisUtilisateur()
+    public void ShouldNotGetAnnonceByIdBecauseAnnonceDoesNotExistMoq()
+    {
+        //Arrange
+        _manager
+            .Setup(manager => manager.GetByIdAsync(_default1.AnnonceId))
+            .ReturnsAsync((Annonce)null);
+        
+        //Act
+        ActionResult<AnnonceDetailDTO> result = _controller.GetById(_default1.AnnonceId).GetAwaiter().GetResult();
+        
+        //Assert
+        _manager.Verify(manager => manager.GetByIdAsync(_default1.AnnonceId), Times.Once);
+        
+        Assert.IsNotNull(result);
+        var notFoundResult = result.Result as NotFoundResult;
+        Assert.IsInstanceOfType(notFoundResult, typeof(NotFoundResult));
+    }
+
+    [TestMethod]
+    public void ShouldGetByFavorisUtilisateurMoq()
     {
         //Arrange
         _manager
@@ -375,7 +394,7 @@ public class AnnonceControllerMoqTest
     }
 
     [TestMethod]
-    public void ShouldGetMostLiked()
+    public void ShouldGetMostLikedMoq()
     {
         //Arrange
         _manager
@@ -394,10 +413,12 @@ public class AnnonceControllerMoqTest
         Assert.IsNotNull(annonces);
         Assert.AreEqual(3, annonces.Count());
         Assert.AreEqual(annonces.First().AnnonceId, _default2.AnnonceId);
+        
+        _manager.Verify(manager => manager.GetPlusLikeAsync(), Times.Once);
     }
 
     [TestMethod]
-    public void ShouldGetMostRecent()
+    public void ShouldGetMostRecentMoq()
     {
         //Arrange
         _manager
@@ -416,6 +437,70 @@ public class AnnonceControllerMoqTest
         Assert.IsNotNull(annonces);
         Assert.AreEqual(3, annonces.Count());
         Assert.AreEqual(annonces.First().AnnonceId, _default3.AnnonceId);
+        
+        _manager.Verify(manager => manager.GetMostRecentAsync(), Times.Once);
+    }
+
+    [TestMethod]
+    public void ShouldAddAnnonceMoq()
+    {
+        //Arrange
+        Annonce AnnonceToAdd = _default1;
+        AnnonceDetailDTO AnnonceToAddDTO = _mapper.Map<AnnonceDetailDTO>(AnnonceToAdd);
+
+        _manager
+            .Setup(manager => manager.AddAsync(AnnonceToAdd));
+
+        //Act
+        var result = _controller.AddAnnonce(AnnonceToAddDTO).GetAwaiter().GetResult();
+        
+        //Assert
+        _manager.Verify(manager => manager.AddAsync(AnnonceToAdd), Times.Once);
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result, typeof(ActionResult<AnnonceDetailDTO>));
+        CreatedAtActionResult createdResult = result.Result as CreatedAtActionResult;
+        Assert.IsNotNull(createdResult);
+        AnnonceDetailDTO AnnonceDetailDTO = createdResult.Value as AnnonceDetailDTO;
+        Assert.AreEqual(AnnonceDetailDTO.AnnonceId, AnnonceToAdd.AnnonceId);
+    }
+
+    [TestMethod]
+    public void ShouldDeleteAnnonceMoq()
+    {
+        //Arrange
+        _manager
+            .Setup(manager => manager.GetByIdAsync(_default1.AnnonceId))
+            .ReturnsAsync(_default1);
+
+        _manager
+            .Setup(manager => manager.DeleteAsync(_default1));
+
+        //Act
+        IActionResult action = _controller.DeleteAnnonce(_default1.AnnonceId).GetAwaiter().GetResult();
+        
+        //Assert
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(NoContentResult));
+        
+        _manager.Verify(manager => manager.GetByIdAsync(_default1.AnnonceId), Times.Once);
+        _manager.Verify(manager => manager.DeleteAsync(_default1), Times.Once);
     }
     
+    [TestMethod]
+    public void ShouldNotDeleteAnnonceBecauseAnnonceDoesNotExistMoq()
+    {
+        // Arrange
+        _manager
+            .Setup(manager => manager.GetByIdAsync(_default1.AnnonceId))
+            .ReturnsAsync((Annonce)null);
+        
+        // Act
+        IActionResult action = _controller.DeleteAnnonce(_default1.AnnonceId).GetAwaiter().GetResult();
+        
+        // Assert
+        _manager.Verify(manager => manager.GetByIdAsync(_default1.AnnonceId), Times.Once);
+
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(NotFoundResult));
+    }
 }
