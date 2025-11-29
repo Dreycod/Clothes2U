@@ -13,6 +13,7 @@ public class PhotoManager: GenericCRUDManager<Photo>, IPhotoRepository<Photo, in
     {
         return await _context.Photos
             .Include(p => p.Annonces)
+            .Include(p => p.Utilisateur)
             .FirstOrDefaultAsync(p => p.PhotoId == id);
     }
 

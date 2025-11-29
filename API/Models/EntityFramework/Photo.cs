@@ -23,5 +23,8 @@ public class Photo : IEntity
     [InverseProperty(nameof(MessageContientImage.Photo))]
     public virtual ICollection<MessageContientImage>? Messages { get; set; } = new List<MessageContientImage>();
     
+    [InverseProperty(nameof(Utilisateur.PhotoProfil))]
+    public virtual Utilisateur?  Utilisateur { get; set; }
+    
     public int GetId() => PhotoId;
 }

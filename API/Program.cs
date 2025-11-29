@@ -82,6 +82,11 @@ builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManag
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 
+//injection de service: 
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorDev", policy =>
