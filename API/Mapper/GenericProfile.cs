@@ -43,11 +43,11 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
             .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat))
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
-            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoUri)))
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId)))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
-            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoUri))
+            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoId))
             .ReverseMap();
         CreateMap<Annonce, AnnonceDetailDTO>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
@@ -80,7 +80,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
     
-            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoUri).ToList()))
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
     
             .ReverseMap();
 
