@@ -3,19 +3,20 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class CategorieService : ReadableService<Categorie>, ICategorieService<Categorie>
+    public class MarqueService : ReadableService<Marque>, IMarqueService<Marque>
     {
         private readonly HttpClient _httpClient;
-        public CategorieService(HttpClient httpClient) : base(httpClient)
+        public MarqueService(HttpClient httpClient) : base(httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<List<Categorie>?> GetAllCategories()
+
+        public async Task<List<Marque>?> GetAllMarques()
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<List<Categorie>>("Categorie");
+                return await _httpClient.GetFromJsonAsync<List<Marque>>("Marque");
             }
             catch (Exception ex)
             {
@@ -24,7 +25,7 @@ namespace FrontBlazor.Services
             }
         }
 
-        public Task<Categorie?> AddAsync(Categorie entity)
+        public Task<Marque?> AddAsync(Marque entity)
         {
             throw new NotImplementedException();
         }
@@ -34,12 +35,7 @@ namespace FrontBlazor.Services
             throw new NotImplementedException();
         }
 
-        public Task<Categorie> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(Categorie updatedEntity)
+        public Task UpdateAsync(Marque updatedEntity)
         {
             throw new NotImplementedException();
         }

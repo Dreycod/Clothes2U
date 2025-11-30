@@ -14,6 +14,7 @@
 @using FrontBlazor.Models;
 @using FrontBlazor.Models.StateServices
 @inject IStateService<Utilisateur> userStateService
+@inject IStateService<Annonce> annonceStateService
 @inject NavigationManager navigationManager
 @inject ConnexionViewModel VM_Connexion
 @inject MessageViewModel VM_Messages
@@ -21,3 +22,6 @@
 @inject AnnoncesViewModel VM_Annonces
 @inject ProfilViewModel VM_Profil
 @inject CategorieViewModel VM_Categorie
+@inject TailleViewModel VM_Taille
+@inject MarqueViewModel VM_Marque
+@inject CouleurViewModel VM_Couleur

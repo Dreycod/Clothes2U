@@ -1,21 +1,22 @@
 ﻿using FrontBlazor.Models;
 using FrontBlazor.Services.GenericIServices;
+using System.Net.Http;
 
 namespace FrontBlazor.Services
 {
-    public class CategorieService : ReadableService<Categorie>, ICategorieService<Categorie>
+    public class TailleService : ReadableService<Taille>, ITailleService<Taille>
     {
         private readonly HttpClient _httpClient;
-        public CategorieService(HttpClient httpClient) : base(httpClient)
+        public TailleService(HttpClient httpClient) : base(httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<List<Categorie>?> GetAllCategories()
+        public async Task<List<Taille>?> GetAllTailles()
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<List<Categorie>>("Categorie");
+                return await _httpClient.GetFromJsonAsync<List<Taille>>("Taille");
             }
             catch (Exception ex)
             {
@@ -24,7 +25,7 @@ namespace FrontBlazor.Services
             }
         }
 
-        public Task<Categorie?> AddAsync(Categorie entity)
+        public Task<Taille?> AddAsync(Taille entity)
         {
             throw new NotImplementedException();
         }
@@ -34,12 +35,12 @@ namespace FrontBlazor.Services
             throw new NotImplementedException();
         }
 
-        public Task<Categorie> GetByIdAsync(int id)
+        public Task<Taille> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(Categorie updatedEntity)
+        public Task UpdateAsync(Taille updatedEntity)
         {
             throw new NotImplementedException();
         }

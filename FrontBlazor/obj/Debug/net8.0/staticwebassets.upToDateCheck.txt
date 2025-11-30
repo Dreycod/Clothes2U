@@ -1,2 +1,3 @@
 wwwroot\app.css
+wwwroot\css\moderation-shared.css
 wwwroot\favicon.png
