@@ -1,101 +1,137 @@
+using API.DTO;
 using API.Exceptions;
+using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
-public class PhotoService :  IPhotoService
+public class PhotoService : IPhotoService
 {
-    private readonly IAnnonceRepository<Annonce, int> _annonceRepository;
     private readonly IPhotoRepository<Photo, int> _photoRepository;
-    private readonly IDataRepository<Illustre_Annonce, int> _illustAnnonceRepository;
-    private readonly IWebHostEnvironment _env;
-    
+    private readonly IAnnonceRepository<Annonce, int> _annonceRepository;
+    private readonly IDataRepository<Illustre_Annonce, int> _illustreAnnonceRepository;
+    private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
+    private readonly Clothes2UDbContext _context;
+
     public PhotoService(
-        IAnnonceRepository<Annonce, int> annonceRepository,
         IPhotoRepository<Photo, int> photoRepository,
-        IDataRepository<Illustre_Annonce, int> illustAnnonceRepository,
-        IWebHostEnvironment env) 
+        IAnnonceRepository<Annonce, int> annonceRepository,
+        IDataRepository<Illustre_Annonce, int> illustreAnnonceRepository,
+        IDataRepository<Utilisateur, int> utilisateurRepository,
+        Clothes2UDbContext context)
     {
-        _annonceRepository = annonceRepository ?? throw new ArgumentNullException(nameof(annonceRepository));
-        _photoRepository = photoRepository ?? throw new ArgumentNullException(nameof(photoRepository));
-        _illustAnnonceRepository = illustAnnonceRepository ?? throw new ArgumentNullException(nameof(illustAnnonceRepository));
-        _env = env ?? throw new ArgumentNullException(nameof(env));
+        _photoRepository = photoRepository;
+        _annonceRepository = annonceRepository;
+        _illustreAnnonceRepository = illustreAnnonceRepository;
+        _utilisateurRepository = utilisateurRepository;
+        _context = context;
     }
 
-    public async Task<string> AddPhotoToAnnonceAsync(int annonceId, IFormFile photoFile)
+    public async Task<Photo?> GetPhotoAsync(int id)
     {
-        //ajouter l'analyse de données. 
-        
-        
-        
-        Annonce? annonce = await _annonceRepository.GetByIdAsync(annonceId);
-        if (annonce == null)
+        return await _photoRepository.GetByIdAsync(id);
+    }
+
+    public async Task<Photo> UploadPhotoAnnonceAsync(PhotoDTO photoDto, int annonceId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            throw new AnnonceNotFoundException(annonceId);
+            // Validation métier
+            var annonce = await _annonceRepository.GetByIdAsync(annonceId);
+            if (annonce == null)
+            {
+                throw new NotFoundException($"Annonce {annonceId} introuvable");
+            }
+
+            // TODO: Ajouter validation d'image (taille, format, contenu)
+            
+            // Création de la photo
+            var photo = await _photoRepository.AddPhotoAsync(photoDto);
+
+            // Création de la relation
+            var illustre = new Illustre_Annonce
+            {
+                AnnonceId = annonceId,
+                PhotoId = photo.PhotoId
+            };
+            await _illustreAnnonceRepository.AddAsync(illustre);
+
+            await transaction.CommitAsync();
+            return photo;
         }
-   
-        var directoryPath = Path.Combine(_env.ContentRootPath, "Medias/Images");
-
-        if (!Directory.Exists(directoryPath))
-            Directory.CreateDirectory(directoryPath);
-   
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(photoFile.FileName)}";
-        var filePath = Path.Combine(directoryPath, fileName);
-   
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        catch
         {
-            await photoFile.CopyToAsync(stream);
+            await transaction.RollbackAsync();
+            throw;
         }
-
-        Photo photo = new Photo()
-        {
-            PhotoUri = fileName
-        };
-
-        await _photoRepository.AddAsync(photo); 
-        Illustre_Annonce relation = new Illustre_Annonce()
-        {
-            AnnonceId = annonceId,
-            Photo = photo
-        };
-
-        await _illustAnnonceRepository.AddAsync(relation); 
-        return fileName;
-    }
-    public Task<string> GetMediaPath(string folder, string fileName)
-    {
-        var path = Path.Combine(_env.ContentRootPath, "Medias", folder, fileName);
-
-        if (!File.Exists(path))
-            throw new PhotoNotFoundException(fileName);
-
-        return Task.FromResult(path);
     }
 
-    public async Task DeleteMediaById(int id)
+    public async Task<Photo> UploadComptePhotoAsync(PhotoDTO photoDto, int compteId)
     {
-        // Récupérer la photo avec ses Illustre_Annonce
-        Photo? photo = await _photoRepository.GetByIdWithRelationsAsync(id);
-        if (photo == null)
-            throw new PhotoNotFoundException(id.ToString());
-
-        // Supprimer toutes les relations Illustre_Annonce
-        var illustRelations = photo.Annonces.ToList();
-        foreach (var relation in illustRelations)
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            await _illustAnnonceRepository.DeleteAsync(relation);
+            // Validation métier
+            var utilisateur = await _utilisateurRepository.GetByIdAsync(compteId);
+            if (utilisateur == null)
+            {
+                throw new NotFoundException($"Utilisateur {compteId} introuvable");
+            }
+
+            // TODO: Ajouter validation d'image
+
+            // Création de la photo
+            var photo = await _photoRepository.AddPhotoAsync(photoDto);
+
+            // Mise à jour de l'utilisateur
+            var utilisateurToUpdate = await _utilisateurRepository.GetByIdAsync(compteId);
+            utilisateurToUpdate.PhotoId = photo.PhotoId;
+            await _utilisateurRepository.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
+
+            await transaction.CommitAsync();
+            return photo;
         }
-
-        // Supprimer le fichier physique
-        var path = Path.Combine(_env.ContentRootPath, "Medias", "Images", photo.PhotoUri);
-        if (File.Exists(path))
-            File.Delete(path);
-
-        // Supprimer l'entité Photo
-        await _photoRepository.DeleteAsync(photo);
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
+    public async Task DeletePhotoAsync(int id)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var photo = await _photoRepository.GetByIdWithRelationsAsync(id);
+            if (photo == null)
+            {
+                throw new NotFoundException($"Photo {id} introuvable");
+            }
+            var illustreAnnonce = await ((IllustreAnnonceRepository<Illustre_Annonce, int>)_illustreAnnonceRepository)
+                .GetByPhotoId(id);
+
+            if (illustreAnnonce != null)
+            {
+                await _illustreAnnonceRepository.DeleteAsync(illustreAnnonce);
+            }
+            if (photo.Utilisateur != null)
+            {
+                var utilisateurToUpdate = await _utilisateurRepository.GetByIdAsync(photo.Utilisateur.UtilisateurId);
+                utilisateurToUpdate.PhotoId = null;
+                await _utilisateurRepository.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
+            }
+            await _photoRepository.DeleteAsync(photo);
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
 }

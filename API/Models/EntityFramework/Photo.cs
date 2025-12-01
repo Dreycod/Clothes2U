@@ -11,8 +11,8 @@ public class Photo : IEntity
     [Column("pho_photo_id")]
     public int PhotoId { get; set; }
     
-    [Column("pho_uri_photo")]
-    public string PhotoUri { get; set; }
+    [Column("pho_image", TypeName = "bytea")]
+    public byte[] Image { get; set; }
     
     //relaiton avec les autres tables
     
@@ -22,6 +22,9 @@ public class Photo : IEntity
     
     [InverseProperty(nameof(MessageContientImage.Photo))]
     public virtual ICollection<MessageContientImage>? Messages { get; set; } = new List<MessageContientImage>();
+    
+    [InverseProperty(nameof(Utilisateur.PhotoProfil))]
+    public virtual Utilisateur?  Utilisateur { get; set; }
     
     public int GetId() => PhotoId;
 }

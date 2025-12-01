@@ -1,50 +1,57 @@
 using FrontBlazor.Components;
 using FrontBlazor.Models;
+using FrontBlazor.Models;
+using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.ViewModel;
-using Microsoft.JSInterop;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddBlazorBootstrap();
+// HttpClient global (comme WASM)
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("http://localhost:5096/api/")
+});
 
-builder.Services.AddScoped(sp =>
-    new HttpClient
-    {
-        BaseAddress = new Uri("http://localhost:5096/api/")
-    }
-);
+// State Services
+builder.Services.AddScoped<IStateService<Utilisateur>, UserStateService>();
+builder.Services.AddScoped<IStateService<Annonce>, AnnonceStateService>();
 
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<AnnonceService>();
-builder.Services.AddSingleton<CurrentUserService>();
+// Services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
+builder.Services.AddScoped<ICategorieService<Categorie>, CategorieService>();
+builder.Services.AddScoped<IConversationService<Conversation>, ConversationService>();
+builder.Services.AddScoped<IMessageService<Message>, MessageService>();
+builder.Services.AddScoped<ITailleService<Taille>, TailleService>();
+builder.Services.AddScoped<IMarqueService<Marque>, MarqueService>();
+builder.Services.AddScoped<ICouleurService<Couleur>, CouleurService>();
 
+// ViewModels
 builder.Services.AddScoped<ConnexionViewModel>();
-builder.Services.AddScoped<IAnnonceService<Annonce>, AnnoncesViewModel>();
-
-builder.Services.AddScoped<HomeViewModel>();
+builder.Services.AddScoped<AnnoncesViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
-
+builder.Services.AddScoped<HomeViewModel>();
+builder.Services.AddScoped<CategorieViewModel>();
+builder.Services.AddScoped<ConversationViewModel>();
+builder.Services.AddScoped<MessageViewModel>();
+builder.Services.AddScoped<TailleViewModel>();
+builder.Services.AddScoped<MarqueViewModel>();
+builder.Services.AddScoped<CouleurViewModel>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-
-
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 

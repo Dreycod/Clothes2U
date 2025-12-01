@@ -1,5 +1,7 @@
+using API.DTO;
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace API.Models.Repository.Managers;
 
@@ -11,7 +13,23 @@ public class PhotoManager: GenericCRUDManager<Photo>, IPhotoRepository<Photo, in
     {
         return await _context.Photos
             .Include(p => p.Annonces)
+            .Include(p => p.Utilisateur)
             .FirstOrDefaultAsync(p => p.PhotoId == id);
     }
 
-}
+    public async Task<Photo> AddPhotoAsync(PhotoDTO photoDto)
+    {
+        using var ms = new MemoryStream();
+        await photoDto.File.CopyToAsync(ms);
+
+        var photo = new Photo
+        {
+            Image = ms.ToArray()
+        };
+
+        _context.Photos.Add(photo);
+        await _context.SaveChangesAsync();
+        return photo;
+    }
+
+}   

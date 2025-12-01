@@ -15,6 +15,9 @@ public class Annonce : IEntity
     [Column("ann_titre")]
     public string Title { get; set; }
     
+    [Column("ann_description")]
+    public string Description { get; set; }
+    
     [Column("ann_dateannonce")]
     public DateTime DateAnnonce { get; set; }
     
@@ -115,4 +118,15 @@ public class Annonce : IEntity
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();
     
     public int GetId() => AnnonceId;
+    
+    protected bool Equals(Annonce other) => AnnonceId == other.AnnonceId;
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((Annonce) obj);
+    }
+    public override int GetHashCode() => AnnonceId;
 }

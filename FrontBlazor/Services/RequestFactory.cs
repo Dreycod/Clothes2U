@@ -1,4 +1,5 @@
-﻿using FrontBlazor.Models.Annonces;
+﻿using FrontBlazor.Models;
+using FrontBlazor.Models;
 using FrontBlazor.Models.LoginRegister;
 
 namespace FrontBlazor.Services

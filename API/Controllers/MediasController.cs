@@ -1,9 +1,5 @@
 using API.DTO;
 using API.Exceptions;
-using API.Models;
-using API.Models.EntityFramework;
-using API.Models.Repository;
-using API.Models.Repository.Managers;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,66 +9,102 @@ namespace API.Controllers;
 [ApiController]
 public class MediasController : ControllerBase
 {
-    private readonly IPhotoService _photoManager;
+    private readonly IPhotoService _photoService;
 
-    public MediasController(Clothes2UDbContext context, IPhotoService manager, IWebHostEnvironment env)
+    public MediasController(IPhotoService photoService)
     {
-        _photoManager = manager;
+        _photoService = photoService;
     }
-    [HttpGet("Photos/{fileName}")]
-    public async Task<IActionResult> GetPhotos(string fileName)
+
+    [HttpGet("Photos/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPhotos(int id)
     {
         try
         {
-            var path = await _photoManager.GetMediaPath("Images", fileName);
-            return PhysicalFile(path, "image/jpeg");
+            var photo = await _photoService.GetPhotoAsync(id);
+            if (photo == null)
+            {
+                return NotFound(new { message = $"Photo {id} introuvable" });
+            }
+            return File(photo.Image, "image/jpeg");
         }
-        catch (PhotoNotFoundException ex)
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de la récupération de la photo", error = ex.Message });
+        }
+    }
+
+    [HttpPost("uploadPhotoAnnonce/{annonceId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadPhotoAnnonce([FromForm] PhotoDTO photoDto, int annonceId)
+    {
+        if (photoDto?.File == null)
+        {
+            return BadRequest(new { message = "Fichier requis" });
+        }
+
+        try
+        {
+            var photo = await _photoService.UploadPhotoAnnonceAsync(photoDto, annonceId);
+            return File(photo.Image, "image/jpeg");
+        }
+        catch (NotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Erreur serveur", details = ex.Message });
+            return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }
 
-    
-    [HttpPost("uploadPhotoAnnonce")]
-    public async Task<IActionResult> UploadPhotoAnnonce([FromForm] MediaUploadDto dto, int annonceId)
+    [HttpPost("uploadComptePhoto/{compteId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadComptePhoto([FromForm] PhotoDTO photoDto, int compteId)
     {
-        if (dto.File == null || dto.File.Length == 0)
-            return BadRequest("Aucun fichier envoyé.");
+        if (photoDto?.File == null)
+        {
+            return BadRequest(new { message = "Fichier requis" });
+        }
 
         try
         {
-            var fileName = await _photoManager.AddPhotoToAnnonceAsync(annonceId, dto.File);
-            var url = $"{Request.Scheme}://{Request.Host}/api/medias/images/{fileName}";
-        
-            return Ok(new { FileName = fileName, Url = url });
+            var photo = await _photoService.UploadComptePhotoAsync(photoDto, compteId);
+            return File(photo.Image, "image/jpeg");
         }
-        catch (AnnonceNotFoundException ex)
+        catch (NotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Erreur lors de l'upload", details = ex.Message });
+            return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }
 
     [HttpDelete("Photos/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePhoto(int id)
     {
         try
         {
-            await _photoManager.DeleteMediaById(id);
+            await _photoService.DeletePhotoAsync(id);
             return NoContent();
         }
-        catch (PhotoNotFoundException ex)
+        catch (NotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de la suppression de la photo", error = ex.Message });
+        }
     }
-
 }

@@ -31,7 +31,6 @@ public class MessageController : ControllerBase
         _mapper = mapper;
     }
 
-    // Endpoint pour créer un message texte
     [HttpPost("texte")]
     [ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,7 +39,6 @@ public class MessageController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        // Créer d'abord le message parent
         var message = new Message
         {
             MessageDate = DateTime.UtcNow,
@@ -51,7 +49,6 @@ public class MessageController : ControllerBase
         
         await _messageManager.AddAsync(message);
 
-        // Puis créer le message texte
         var messageTexte = new MessageTexte
         {
             MessageId = message.MessageId,
@@ -63,7 +60,6 @@ public class MessageController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
 
-    // Endpoint pour créer un message demande
     [HttpPost("demande")]
     [ProducesResponseType(typeof(MessageDemandePostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -93,7 +89,6 @@ public class MessageController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
 
-    // Endpoint pour créer un message validation
     [HttpPost("validation")]
     [ProducesResponseType(typeof(MessageValidationPostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -121,16 +116,7 @@ public class MessageController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
-
-    // Endpoint commun pour récupérer tous les messages
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Message>>> GetAll()
-    {
-        var messages = await _messageManager.GetAllAsync();
-        return Ok(messages);
-    }
-
-    // Endpoint commun pour récupérer un message par ID
+    
     [HttpGet("{id}")]
     public async Task<ActionResult<Message>> GetById(int id)
     {
@@ -140,4 +126,29 @@ public class MessageController : ControllerBase
             
         return Ok(message);
     }
+
+
+    [HttpDelete("Delete/TexteMessage/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteTexteMessage(int id)
+    {
+        Message? message = await _messageManager.GetByIdAsync(id);
+        if (message == null)
+        {
+            return NotFound();
+        }
+        
+        MessageTexte? messageTexte = await _messageTexteManager.GetByIdAsync(message.MessageTexte.MessageTexteId);
+        if (messageTexte == null)
+        {
+            return NotFound();
+        }
+        
+        await _messageTexteManager.DeleteAsync(messageTexte);
+        await _messageManager.DeleteAsync(message);
+        return NoContent();
+    }
+    
 }

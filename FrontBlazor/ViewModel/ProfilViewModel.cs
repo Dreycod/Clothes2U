@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Models.User;
+﻿using FrontBlazor.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel

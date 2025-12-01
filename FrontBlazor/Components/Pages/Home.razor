@@ -1,11 +1,14 @@
 ﻿@page "/"
+@inject IJSRuntime JS
 @inject HomeViewModel VM_Home
 @inject AnnoncesViewModel VM_Annonces
+@inject FrontBlazor.Models.StateServices.IStateService<FrontBlazor.Models.Utilisateur> UserStateService
 
 
 <PageTitle>Clothes2U - Home</PageTitle>
 
 <NavBar/>
+
 
 <!-- Hero Section -->
 <div class="hero-section">
@@ -109,7 +112,3 @@
         }
     </div>
 </div>
-
-@code {
-
-}

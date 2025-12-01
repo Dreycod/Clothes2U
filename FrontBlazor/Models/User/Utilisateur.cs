@@ -1,14 +1,13 @@
 ﻿namespace FrontBlazor.Models;
 
-public class Utilisateur : IEntity
+public class Utilisateur 
 {
-    public string? Login { get; set; }
-    public string? Email { get; set; }
-    public string Password { get; set; }
-    public string? PasswordConfirm { get; set; }
-
-    public int GetId()
-    {
-        return 0;
-    }
+    public int UtilisateurId { get; set; }
+    public string Email { get; set; }
+    public string Login { get; set; }
+    public DateTime Dateinscription { get; set; }
+    public string? Description { get; set; }
+    public int? StatutId { get; set; }
+    public int? AdresseId { get; set; }
+  
 }

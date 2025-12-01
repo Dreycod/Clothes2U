@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using FrontBlazor.Services.GenericIServices
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -8,14 +9,19 @@
 @using Microsoft.JSInterop
 @using FrontBlazor
 @using FrontBlazor.Components
-@using BlazorBootstrap;
 @using FrontBlazor.ViewModel;
 @using FrontBlazor.Services;
-@using FrontBlazor.Components;
 @using FrontBlazor.Models;
-
+@using FrontBlazor.Models.StateServices
+@inject IStateService<Utilisateur> userStateService
+@inject IStateService<Annonce> annonceStateService
+@inject NavigationManager navigationManager
 @inject ConnexionViewModel VM_Connexion
+@inject MessageViewModel VM_Messages
+@inject ConversationViewModel VM_Conversation
 @inject AnnoncesViewModel VM_Annonces
 @inject ProfilViewModel VM_Profil
-@inject NavigationManager navigationManager
-@inject CurrentUserService currentUserService
+@inject CategorieViewModel VM_Categorie
+@inject TailleViewModel VM_Taille
+@inject MarqueViewModel VM_Marque
+@inject CouleurViewModel VM_Couleur

@@ -1,76 +1,87 @@
-﻿using FrontBlazor.Models.Annonces;
+﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel
 {
     public class AnnoncesViewModel
     {
-        private readonly AnnonceService _service;
+        private readonly IAnnonceService<Annonce> _annonceService;
 
         public List<Annonce> Annonces { get; set; } = new List<Annonce>();
+        public Annonce? AnnonceDetail { get; set; }
+        public bool IsLoading { get; set; }
+        public string? ErrorMessage { get; set; }
 
-        public AnnoncesViewModel(AnnonceService service)
+        public AnnoncesViewModel(IAnnonceService<Annonce> annonceService)
         {
-            _service = service;
+            _annonceService = annonceService;
         }
 
-        public async Task LoadAsync()
+        public async Task LoadActiveAnnoncesAsync()
         {
-            Annonces = new List<Annonce>();
-            Annonces = await _service.GetActiveAnnoncesAsync();
-        }
+            IsLoading = true;
+            ErrorMessage = null;
 
-        public async Task<List<Annonce>> RecupererAnnoncesUtilisateur()
-        {
-            //Annonces = await _service.GetAnnoncesByIdUser
-            Annonces.Add(new Annonce());
-            return Annonces;
-        }
-
-
-        // Exclusive to search page, nouveautés et tendances
-        public async Task<List<Annonce>> GetAnnoncesByFilters()
-        {
-            Annonces = await _service.GetActiveAnnoncesAsync();
-            //Annonces = await _service.GetAnnoncesById
-            return Annonces;
-        }
-
-
-
-
-
-
-
-
-        ////// Annonce Detail
-        public AnnonceDetailDTO annonceDetailDTO { get; set; } = new AnnonceDetailDTO();
-        private AnnonceService _annonceService;
-
-        public void LoadAnnonceDetail(int id) // the page overrided to async Task this
-        {
-            //AnnonceDetailDTO annonce = await _annonceService.GetAnnonceDetailById(id).Result;
-            //simulate annonce detail loading
-            annonceDetailDTO = new AnnonceDetailDTO
+            try
             {
-                AnnonceId = id,
-                Title = "Veste en cuir vintage",
-                Negociable = true,
-                UtilisateurId = 3,
-                NomMarque = "VintageCo",
-                DateAnnonce = DateTime.Now.AddDays(-5),
-                EtatArticle = "Bon état",
-                Taille = "M",
-                Photos = new List<string>
+                Annonces = await _annonceService.GetActiveAnnonces() ?? new List<Annonce>();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Erreur lors du chargement des annonces";
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task LoadAnnonceDetailAsync(int id)
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+
+            try
+            {
+                AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
+                if (AnnonceDetail == null)
                 {
-                    "https://example.com/photos/veste1.jpg",
-                    "https://example.com/photos/veste2.jpg"
-                },
-                NombreLikes = 27,
-                Prix = 120.00m,
-                SousCategorie = "Vestes",
-                Categorie = "Vêtements",
-            };
+                    ErrorMessage = "Annonce introuvable";
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Erreur lors du chargement de l'annonce";
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+        public async Task CreateAnnonceAsync(Annonce newAnnonce)
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+            try
+            {
+                var createdAnnonce = await _annonceService.AddAsync(newAnnonce);
+                if (createdAnnonce != null)
+                {
+                    Annonces.Add(createdAnnonce);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Erreur lors de la création de l'annonce";
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 }

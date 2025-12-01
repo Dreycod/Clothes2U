@@ -7,8 +7,6 @@ using API.Models.Repository.Managers;
 using System.Text.Json.Serialization;
 using API.Services;
 using Microsoft.IdentityModel.Tokens;
-using Hangfire;
-using Hangfire.PostgreSql;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,17 +39,29 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-builder.Services.AddHangfire(config =>
-    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("Clothes2UDb")));
-
-builder.Services.AddHangfireServer();
-
-
-builder.Services.AddScoped<DecisionSuspensionJobService>();
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorPolicy", builder =>
+    {
+        builder.WithOrigins("https://localhost:7xxx") 
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials(); 
+    });
+});
+
+
+
+
+
+
+
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -65,18 +75,28 @@ builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>,  ConversationManager>(); 
 builder.Services.AddScoped<INotificationRepository<Notification>, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
-builder.Services.AddScoped<IDecisionSuspensionRepository<Decision_suspension, int>, DecisionSuspensionManager>();
-builder.Services.AddScoped<IDemandeRestaurationRepository<DemandeRestauration, int>, DemandeRestaurationManager>();
-builder.Services.AddScoped<DecisionSuspensionJobService>();
+
+//injection de service: 
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorDev", policy =>
+        policy.WithOrigins("http://localhost:5094")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 
 var app = builder.Build();
+app.UseCors("AllowBlazorDev");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -84,19 +104,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("BlazorPolicy");
     
 app.UseHttpsRedirection();
 
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHangfireDashboard("/hangfire");
-
-RecurringJob.AddOrUpdate<DecisionSuspensionJobService>(
-    "verifier-suspensions-expirees",
-    job => job.VérifierSuspensionsExpirées(),
-    Cron.Daily(2, 00)
-);
 
 app.MapControllers();
 
