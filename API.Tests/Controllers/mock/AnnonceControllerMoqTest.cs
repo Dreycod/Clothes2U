@@ -52,7 +52,7 @@ public class AnnonceControllerMoqTest
         _defaultPhoto = new Photo
         {
             PhotoId = 1,
-            PhotoUri = "https://example.com/profile.jpg"
+            Image = new byte[] { 255, 216, 255, 224, 0, 16, 74, 70, 73, 70 }
         };
 
         // Utilisateur
