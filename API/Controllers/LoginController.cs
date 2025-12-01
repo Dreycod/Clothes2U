@@ -42,7 +42,14 @@ public class LoginController : ControllerBase
     {
         await LoadUtilisateursAsync();
 
+        if (string.IsNullOrEmpty(request.Login) && string.IsNullOrEmpty(request.Email))
+        {
+            return BadRequest("Email ou login obligatoires.");
+        }
+
         var loginOrEmail = string.IsNullOrEmpty(request.Login) ? request.Email : request.Login;
+        
+        
         var utilisateur = AuthentificateUtilisateur(loginOrEmail!, request.Password);
 
         if (utilisateur == null)
@@ -69,17 +76,34 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> SignUp([FromBody] LoginRequest request)
     {
-        if (request == null ||
-            string.IsNullOrEmpty(request.Email) ||
-            string.IsNullOrEmpty(request.Login) ||
-            string.IsNullOrEmpty(request.Password) ||
-            string.IsNullOrEmpty(request.PasswordConfirm))
+        if (request == null)
             return BadRequest("Données invalides.");
+        
+        if (string.IsNullOrEmpty(request.Login))
+        {
+            return BadRequest("Login obligatoires.");
+        }
+
+        if (string.IsNullOrEmpty(request.Email))
+        {
+            return BadRequest("Email obligatoire.");
+        }
+
+        if (string.IsNullOrEmpty(request.Password))
+        {
+            return BadRequest("Mot de passe obligatoire.");
+        }
+        
+        if (string.IsNullOrEmpty(request.PasswordConfirm))
+        {
+            return BadRequest("Confirmation de mot de passe obligatoire.");
+        }
 
         if (!new EmailAddressAttribute().IsValid(request.Email))
             return BadRequest("Email invalide.");
 
         string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+        
         if (!Regex.IsMatch(request.Password, pattern))
             return BadRequest("Mot de passe non conforme.");
 
