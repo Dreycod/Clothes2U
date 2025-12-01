@@ -1,3 +1,4 @@
+using API.Controllers;
 using API.Models.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,6 +6,6 @@ namespace API.Services;
 
 public interface ILoginService
 {
-    protected Task<Utilisateur> AuthentificateUtilisateur(string login, string password);
-    protected Task<string> GenerateJwtToken(Utilisateur utilisateur);
+    (AuthResult result, Utilisateur? user) AuthenticateUtilisateur(string loginOrEmail, string password, List<Utilisateur> users);
+    string GenerateJwtToken(Utilisateur utilisateur);
 }
