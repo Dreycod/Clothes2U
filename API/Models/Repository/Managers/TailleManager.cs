@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
 
-public class TailleManager : GenericCRUDManager<Taille>, IFiltrableByIdRepository<Taille, int>
+public class TailleManager : GenericCRUDManager<Taille>, ITailleRepository
 {
     public TailleManager(Clothes2UDbContext context) : base(context){}
 

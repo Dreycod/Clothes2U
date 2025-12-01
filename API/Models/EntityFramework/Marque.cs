@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_marque_mar")]
-public class Marque
+public class Marque :  IEntity
 {
     [Key]
     [Column("mar_id")]
@@ -17,4 +17,6 @@ public class Marque
     
     [InverseProperty(nameof(Annonce.Marque))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
+    
+    public int GetId() => MarqueId;
 }

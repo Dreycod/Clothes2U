@@ -69,9 +69,9 @@ builder.Services.AddScoped<IDataRepository<Categorie, int>, CategorieManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
-builder.Services.AddScoped<IFavorisRepository, FavorisRepository>();
+builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
-builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
+builder.Services.AddScoped<ITailleRepository,  TailleManager>();
 builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
@@ -81,7 +81,7 @@ builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
-
+builder.Services.AddScoped<IDataRepository<Marque, int>,  MarqueManager>();
 //injection de service: 
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
