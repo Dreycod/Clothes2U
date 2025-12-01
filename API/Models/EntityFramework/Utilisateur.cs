@@ -103,6 +103,9 @@ public class Utilisateur : IEntity
     public virtual ICollection<Achete> Achats { get; set; } = new List<Achete>();
     [InverseProperty(nameof(Vend.UtilisateurVendeur))]
     public virtual ICollection<Vend> Ventes { get; set; } = new List<Vend>();
-    
+
+    [InverseProperty(nameof(DemandeRestauration.Plaignant))]
+    public virtual ICollection<DemandeRestauration> DemandesRestauration { get; set; } = new List<DemandeRestauration>();
+
     public int GetId() => UtilisateurId;
 }

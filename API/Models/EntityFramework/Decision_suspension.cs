@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_decision_suspension_sus")]
-public class Decision_suspension
+public class Decision_suspension : IEntity
 {
     [Key]
     [Column("sus_id")]
@@ -18,6 +18,9 @@ public class Decision_suspension
     
     [Column("sus_motif_suspension")]
     public string MotifSuspension { get; set; }
+
+    [Column("sus_traitee")]
+    public bool EstTraitee { get; set; } = false;
     
     [Column("sus_utilisateur_id")]
     public int? UtilisateurId { get; set; }
@@ -46,4 +49,10 @@ public class Decision_suspension
     [ForeignKey(nameof(TypeSuspensionId))]
     [InverseProperty(nameof(TypeSuspension.Decision_suspensions))]
     public virtual TypeSuspension TypeSuspension { get; set; }
+
+    [InverseProperty(nameof(DemandeRestauration.Suspension))]
+    public virtual ICollection<DemandeRestauration> DemandesRes { get; set; } = new List<DemandeRestauration>();
+
+    public int GetId() => Decision_suspensionId;
+
 }

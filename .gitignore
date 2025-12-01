@@ -72,3 +72,6 @@
 /FrontBlazor/FrontBlazor.csproj.user
 >>>>>>> f042218b7de101768944fbf30ea2fd8da1f508dc
 /API/bin/Debug/net8.0/API.dll
+/API/bin/Debug/net8.0/API.dll
+/API/bin/Debug/net8.0/API.pdb
+/API/bin/Debug/net8.0/API.staticwebassets.endpoints.json
