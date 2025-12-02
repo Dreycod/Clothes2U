@@ -1,7 +1,11 @@
+using System.Security.Claims;
 using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Managers;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -11,23 +15,64 @@ namespace API.Controllers;
 public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int> _annonceManager;
+    private readonly IFavorisRepository _favorisManager;
+    private readonly IDataRepository<Utilisateur, int> _utilisateurManager;
     private readonly IMapper _mapper;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int> manager, IMapper mapper)
+    public AnnonceController(IAnnonceRepository<Annonce, int> annonceManager,IFavorisRepository favorisManager,IDataRepository<Utilisateur, int> utilisateurManager,  IMapper mapper)
     {
-        _annonceManager = manager;
+        _annonceManager = annonceManager;
+        _favorisManager = favorisManager;
+        _utilisateurManager = utilisateurManager;
         _mapper = mapper;
     }
     
+    private async Task<int?> GetCurrentUserId()
+    {
+        var userIdStr = User.FindFirst("userId")?.Value;
+        return  string.IsNullOrEmpty(userIdStr) ? null : int.Parse(userIdStr);
+    }
+    
     [HttpGet("GetActiveAnnonces")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
     {
+        Console.WriteLine($"[AnnonceController] ➡️ Tentative d'accès à GetActiveAnnonces.");
+        foreach (var claim in User.Claims)
+        {
+            Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
+        }
+
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+        
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                int userId = int.Parse(userIdClaim);
+                Console.WriteLine($"[API] ✅ Utilisateur connecté détecté - ID: {userId}. (Authentification via cookie/token réussie)");
+            
+                var userName = User.Identity.Name;
+                Console.WriteLine($"[API] ✅ Nom d'utilisateur: {userName}");
+            }
+            else
+            {
+                // Cela se produit si un token existe mais ne contient pas le claim 'userId'
+                Console.WriteLine($"[API] ⚠️ Utilisateur authentifié mais claim 'userId' manquant. Vérifiez la génération du JWT.");
+            }
+        }
+        else
+        {
+            // C'est l'erreur que nous cherchons à corriger. Si l'utilisateur est connecté, ce log ne devrait pas apparaître.
+            Console.WriteLine($"[API] ❌ Utilisateur non connecté (anonyme). Le cookie d'authentification n'a PAS été envoyé ou n'a PAS été validé.");
+        }
+
+        // Récupérer les annonces actives
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+
         return Ok(annoncesDTO);
     }
+
     
     [HttpGet("ByCategorieId/{categorieId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]

@@ -12,4 +12,10 @@ public class FavorisManager : GenericCRUDManager<Favoris>,  IFavorisRepository
         return await _context.Favorises
             .FirstOrDefaultAsync(f => f.UtilisateurId == UtilisateurId && f.AnnonceId == AnnonceId);
     }
+
+    public async Task<bool> CheckIfLiked(int utilisateurId, int annonceId)
+    {
+        Favoris? postIsLiked = await _context.Favorises.FirstOrDefaultAsync(f => f.UtilisateurId == utilisateurId && f.AnnonceId == annonceId);
+        return postIsLiked != null;
+    }
 }

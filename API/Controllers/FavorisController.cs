@@ -61,5 +61,11 @@ public class FavorisController :  ControllerBase
         await _favorisManager.DeleteAsync(favorisToDelete);
         return NoContent();
     }
-    
+
+    [HttpGet("isliked")]
+    public async Task<bool> IsLiked(int utilisateurId, int annonceId)
+    {
+        return await _favorisManager.CheckIfLiked(utilisateurId, annonceId);
+    }
+
 }
