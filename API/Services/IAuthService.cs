@@ -3,16 +3,21 @@ using System.Security.Claims;
 using System.Text;
 using API.Controllers;
 using API.Models.EntityFramework;
-using API.Models.Repository;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services;
 
-public class LoginService : ILoginService
+public interface IAuthService
+{
+    (AuthResult result, Utilisateur? user) AuthenticateUtilisateur(string loginOrEmail, string password, List<Utilisateur> users);
+    string GenerateJwtToken(Utilisateur utilisateur);
+}
+
+public class AuthService : IAuthService
 {
     private readonly IConfiguration _config;
 
-    public LoginService(IConfiguration config)
+    public AuthService(IConfiguration config)
     {
         _config = config;
     }
