@@ -1,0 +1,174 @@
+@page "/profile/{username}"
+
+
+<PageTitle>Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="profile-page">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar"></div>
+            <div class="profile-info">
+                <div class="profile-top-row">
+                    <h1 class="profile-name">Denielz Denielz</h1>
+                    <div class="profile-actions">
+                        <button class="btn-icon">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <button class="btn-follow">Suivre</button>
+                    </div>
+                </div>
+                <div class="profile-location">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Annecy, France</span>
+                </div>
+                <div class="profile-stats-row">
+                    <span class="profile-stat">412 Abonnés, 12 Abonnements</span>
+                </div>
+                <div class="profile-member-info">
+                    <span>Membre depuis Novembre 2025</span>
+                    <div class="profile-rating">
+                        <i class="bi bi-star-fill"></i>
+                        <span>4.8 (127 avis)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="profile-tabs">
+            <button class="tab-btn @(VM_Profil.activeTab == "articles" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("articles")'>
+                <i class="bi bi-bag"></i>
+                <span>Articles</span>
+            </button>
+            
+
+            <button class="tab-btn @(VM_Profil.activeTab == "avis" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("avis")'>
+                <i class="bi bi-star"></i>
+                <span>Avis</span>
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            @if (VM_Profil.activeTab == "articles")
+            {
+                @if (VM_Profil.hasArticles)
+                {
+                    <div class="products-grid">
+                        @for (int i = 0; i < 8; i++)
+                        {
+                            <div class="product-card">
+                                <div class="product-image-container">
+                                    <div class="product-image"></div>
+                                    <button class="wishlist-btn">
+                                        <i class="bi bi-heart"></i>
+                                    </button>
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-title">T-Shirt Adidas</h3>
+                                    <p class="product-brand">Adidas</p>
+                                    <div class="product-meta">
+                                        <span class="product-size">Taille XL</span>
+                                        <span class="product-condition">Très bon état</span>
+                                    </div>
+                                    <div class="product-footer">
+                                        <span class="product-price">20.99€</span>
+                                        <span class="product-seller">par Daniel</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="filter-dropdown">
+                        <button class="filter-btn">
+                            <i class="bi bi-funnel"></i>
+                            <span>Tous</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <p>Vous n'avez pas encore mis en vente des articles</p>
+                        <button class="btn-add-article" @onclick="AddArticle">
+                            Ajouter un article
+                        </button>
+                    </div>
+                }
+            }
+            else if (VM_Profil.activeTab == "favoris")
+            {
+                <div class="products-grid">
+                    @for (int i = 0; i < 8; i++)
+                    {
+                        <div class="product-card">
+                            <div class="product-image-container">
+                                <div class="product-image"></div>
+                                <button class="wishlist-btn">
+                                    <i class="bi bi-heart-fill"></i>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">T-Shirt Adidas</h3>
+                                <p class="product-brand">Adidas</p>
+                                <div class="product-meta">
+                                    <span class="product-size">Taille XL</span>
+                                    <span class="product-condition">Très bon état</span>
+                                </div>
+                                <div class="product-footer">
+                                    <span class="product-price">20.99€</span>
+                                    <span class="product-seller">par Daniel</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else if (VM_Profil.activeTab == "avis")
+            {
+                <div class="reviews-list">
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="review-user">
+                                    <div class="review-avatar"></div>
+                                    <h3 class="review-name">Marie-Antoinette</h3>
+                                </div>
+                                <span class="review-date">02/11/2025</span>
+                            </div>
+                            <div class="review-rating">
+                                @for (int j = 0; j < 5; j++)
+                                {
+                                    <i class="bi bi-star-fill"></i>
+                                }
+                            </div>
+                            <p class="review-text">Excellent vendeur! Je recommande.</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        //await VM_Profil.InitializeAsync();
+        // show user's data
+        // show user's articles
+        // show user's favoris IF logged in user is the same as profile user (don't GET if not)
+        // show user's reviews
+
+    }
+
+    public void AddArticle()
+    {
+        navigationManager.NavigateTo("/ajouter-article");
+    }
+}

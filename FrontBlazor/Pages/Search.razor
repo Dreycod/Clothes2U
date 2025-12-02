@@ -1,0 +1,430 @@
+@page "/search"
+<PageTitle>Rechercher - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="search-page">
+    <!-- Hero Banner -->
+    <div class="search-hero"></div>
+
+    <div class="search-container">
+        <!-- Page Header -->
+        <div class="search-header">
+            <div>
+                <h1 class="search-title">Rechercher des articles</h1>
+                <p class="search-subtitle">
+                    Paramétrez le filtre pour trouver ce qui vous intéresse le plus
+                </p>
+            </div>
+        </div>
+
+        <div class="search-content">
+            <!-- Filters Sidebar -->
+            <aside class="filters-sidebar">
+                <div class="filters-header">
+                    <h3>Filtres</h3>
+                    <button class="reset-btn" @onclick="ResetFilters">Réinitialiser</button>
+                </div>
+
+                <!-- Type de vêtement -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Type de vêtement</h4>
+                    <div class="filter-options">
+                        @if (VM_Categorie.IsLoading)
+                        {
+                            <div class="filter-loading">
+                                <div class="spinner-small"></div>
+                                <span>Chargement...</span>
+                            </div>
+                        }
+                        else if (VM_Categorie.Categories != null && VM_Categorie.Categories.Any())
+                        {
+                            @foreach (var categorie in VM_Categorie.Categories)
+                            {
+                                <div class="category-filter-item">
+                                    <!-- Main Category -->
+                                    <div class="category-header" @onclick="() => ToggleCategory(categorie.IdCategorie)">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox"
+                                                   checked="@IsCategorySelected(categorie.IdCategorie)"
+                                                   @onchange="(e) => ToggleCategorySelection(categorie.IdCategorie, (bool)e.Value!)"
+                                                   @onclick:stopPropagation />
+                                            <span>@categorie.LibelleCategorie</span>
+                                        </label>
+                                        @if (categorie.SousCategories != null && categorie.SousCategories.Any())
+                                        {
+                                            <i class="bi bi-chevron-@(expandedCategories.Contains(categorie.IdCategorie) ? "up" : "down") expand-icon"></i>
+                                        }
+                                    </div>
+
+                                    <!-- Subcategories (expandable) -->
+                                    @if (expandedCategories.Contains(categorie.IdCategorie) &&
+                                                                categorie.SousCategories != null &&
+                                                                categorie.SousCategories.Any())
+                                    {
+                                        <div class="subcategory-list">
+                                            @foreach (var sousCategorie in categorie.SousCategories)
+                                            {
+                                                <label class="checkbox-label subcategory-item">
+                                                    <input type="checkbox"
+                                                           checked="@IsSubcategorySelected(sousCategorie.SousCategorieId)"
+                                                           @onchange="(e) => ToggleSubcategorySelection(sousCategorie.SousCategorieId, (bool)e.Value!)" />
+                                                    <span>@sousCategorie.LibelleSousCategorie</span>
+                                                </label>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="filter-empty">Aucune catégorie disponible</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Marque -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Marque</h4>
+                    <div class="filter-options">
+                        @if (VM_Marque.IsLoading)
+                        {
+                            <div class="filter-loading">
+                                <div class="spinner-small"></div>
+                                <span>Chargement...</span>
+                            </div>
+                        }
+                        else if (VM_Marque.Marques != null && VM_Marque.Marques.Any())
+                        {
+                            @foreach (var marque in VM_Marque.Marques)
+                            {
+                                <label class="checkbox-label">
+                                    <input type="checkbox"
+                                           checked="@IsMarqueSelected(marque.MarqueId)"
+                                           @onchange="(e) => ToggleMarqueSelection(marque.MarqueId, (bool)e.Value!)" />
+                                    <span>@marque.NomMarque</span>
+                                </label>
+                            }
+                        }
+                        else
+                        {
+                            <p class="filter-empty">Aucune marque disponible</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Taille -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Taille</h4>
+                    @if (VM_Taille.IsLoading)
+                    {
+                        <div class="filter-loading">
+                            <div class="spinner-small"></div>
+                            <span>Chargement...</span>
+                        </div>
+                    }
+                    else if (VM_Taille.Tailles != null && VM_Taille.Tailles.Any())
+                    {
+                        <div class="size-buttons">
+                            @foreach (var taille in VM_Taille.Tailles)
+                            {
+                                <button type="button"
+                                        class="size-btn @(selectedTailleId == taille.TailleId ? "active" : "")"
+                                        @onclick="() => ToggleTailleSelection(taille.TailleId)">
+                                    @taille.Libelletaille
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="filter-empty">Aucune taille disponible</p>
+                    }
+                </div>
+
+                <!-- Prix -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Prix</h4>
+                    <div class="price-range">
+                        <div class="price-inputs">
+                            <span>0€</span>
+                            <span>@maxPrice€</span>
+                        </div>
+                        <input type="range" min="0" max="@priceMax" @bind="priceMax" class="price-slider" />
+                        <div class="price-current">
+                            <span>Prix maximum: @priceMax€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- État -->
+                <div class="filter-section">
+                    <h4 class="filter-title">État</h4>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="conditionNew" />
+                            <span>Comme neuf</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="conditionVeryGood" />
+                            <span>Très bon état</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="conditionGood" />
+                            <span>Bon état</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Apply Button -->
+                <button class="apply-filters-btn" @onclick="ApplyFilters">
+                    Appliquer les filtres
+                </button>
+            </aside>
+
+            <!-- Products Grid -->
+            <div class="products-section">
+                @if (VM_Annonces.IsLoading)
+                {
+                    <div class="loading-state">
+                        <div class="spinner-large"></div>
+                        <p>Chargement des annonces...</p>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(VM_Annonces.ErrorMessage))
+                {
+                    <div class="error-state">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <p>@VM_Annonces.ErrorMessage</p>
+                        <button class="btn-retry" @onclick="LoadAnnonces">Réessayer</button>
+                    </div>
+                }
+                else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-search"></i>
+                        <p>Aucune annonce trouvée</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="product-grid">
+                        @foreach (var annonce in VM_Annonces.Annonces)
+                        {
+                            <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
+                                <div class="product-image-container">
+                                    <div class="product-image"></div>
+                                    <button class="wishlist-btn" @onclick:stopPropagation="true" @onclick="() => ToggleFavorite(annonce.AnnonceId)">
+                                        <i class="bi bi-heart@(IsFavorite(annonce.AnnonceId) ? "-fill" : "")"></i>
+                                    </button>
+                                </div>
+
+                                <div class="product-info">
+                                    <h3 class="product-title">@annonce.Title</h3>
+
+                                    <div class="product-meta">
+                                        <span class="product-size">Taille @annonce.Taille</span>
+                                        <span class="product-condition">@annonce.EtatArticle</span>
+                                    </div>
+
+                                    <div class="product-footer">
+                                        <span class="product-price">@annonce.Prix€</span>
+                                        <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Filter states
+    private HashSet<int> selectedCategories = new();
+    private HashSet<int> selectedSubcategories = new();
+    private HashSet<int> expandedCategories = new();
+    private HashSet<int> selectedMarques = new();
+    private int? selectedTailleId = null;
+
+    private int priceMax = 500;
+    private int maxPrice = 500;
+
+    private bool conditionNew = false;
+    private bool conditionVeryGood = false;
+    private bool conditionGood = false;
+
+    private HashSet<int> favoriteIds = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+        await LoadMarques();
+        await LoadTailles();
+        await LoadAnnonces();
+        CalculateMaxPrice();
+    }
+
+    private async Task LoadCategories()
+    {
+        await VM_Categorie.LoadCategoriesAsync();
+    }
+
+    private async Task LoadMarques()
+    {
+        await VM_Marque.LoadMarquesAsync();
+    }
+
+    private async Task LoadTailles()
+    {
+        await VM_Taille.LoadTaillesAsync();
+    }
+
+    private async Task LoadAnnonces()
+    {
+        await VM_Annonces.LoadActiveAnnoncesAsync();
+        CalculateMaxPrice();
+    }
+
+    private void CalculateMaxPrice()
+    {
+        if (VM_Annonces.Annonces != null && VM_Annonces.Annonces.Any())
+        {
+            var highestPrice = VM_Annonces.Annonces.Max(a => a.Prix);
+            priceMax = (int)Math.Ceiling(highestPrice);
+        }
+    }
+
+    // Category methods
+    private void ToggleCategory(int categoryId)
+    {
+        if (expandedCategories.Contains(categoryId))
+        {
+            expandedCategories.Remove(categoryId);
+        }
+        else
+        {
+            expandedCategories.Add(categoryId);
+        }
+    }
+
+    private void ToggleCategorySelection(int categoryId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            selectedCategories.Add(categoryId);
+        }
+        else
+        {
+            selectedCategories.Remove(categoryId);
+        }
+    }
+
+    private void ToggleSubcategorySelection(int subcategoryId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            selectedSubcategories.Add(subcategoryId);
+        }
+        else
+        {
+            selectedSubcategories.Remove(subcategoryId);
+        }
+    }
+
+    private bool IsCategorySelected(int categoryId)
+    {
+        return selectedCategories.Contains(categoryId);
+    }
+
+    private bool IsSubcategorySelected(int subcategoryId)
+    {
+        return selectedSubcategories.Contains(subcategoryId);
+    }
+
+    // Marque methods
+    private void ToggleMarqueSelection(int marqueId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            selectedMarques.Add(marqueId);
+        }
+        else
+        {
+            selectedMarques.Remove(marqueId);
+        }
+    }
+
+    private bool IsMarqueSelected(int marqueId)
+    {
+        return selectedMarques.Contains(marqueId);
+    }
+
+    // Taille methods
+    private void ToggleTailleSelection(int tailleId)
+    {
+        if (selectedTailleId == tailleId)
+        {
+            selectedTailleId = null;
+        }
+        else
+        {
+            selectedTailleId = tailleId;
+        }
+    }
+
+    private void NavigateToProductDetail(int? productId)
+    {
+        if (productId.HasValue)
+        {
+            navigationManager.NavigateTo($"/product/{productId}");
+        }
+    }
+
+    private void ToggleFavorite(int? annonceId)
+    {
+        if (annonceId.HasValue)
+        {
+            if (favoriteIds.Contains(annonceId.Value))
+            {
+                favoriteIds.Remove(annonceId.Value);
+            }
+            else
+            {
+                favoriteIds.Add(annonceId.Value);
+            }
+            // TODO: Call API to save favorite
+        }
+    }
+
+    private bool IsFavorite(int? annonceId)
+    {
+        return annonceId.HasValue && favoriteIds.Contains(annonceId.Value);
+    }
+
+    private void ResetFilters()
+    {
+        selectedCategories.Clear();
+        selectedSubcategories.Clear();
+        expandedCategories.Clear();
+        selectedMarques.Clear();
+        selectedTailleId = null;
+        priceMax = maxPrice;
+        conditionNew = conditionVeryGood = conditionGood = false;
+    }
+
+    private async Task ApplyFilters()
+    {
+        // TODO: Implement filter logic in VM_Annonces
+        Console.WriteLine($"Selected Categories: {string.Join(", ", selectedCategories)}");
+        Console.WriteLine($"Selected Subcategories: {string.Join(", ", selectedSubcategories)}");
+        Console.WriteLine($"Selected Marques: {string.Join(", ", selectedMarques)}");
+        Console.WriteLine($"Selected Taille: {selectedTailleId}");
+        Console.WriteLine($"Price Max: {priceMax}");
+        // await VM_Annonces.ApplyFiltersAsync(selectedCategories, selectedSubcategories, selectedMarques, selectedTailleId, priceMax, ...);
+    }
+}
