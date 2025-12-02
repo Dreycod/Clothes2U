@@ -3,7 +3,7 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class CategorieService : ReadableService<Categorie>, ICategorieService<Categorie>
+    public class CategorieService : ListableService<Categorie>
     {
         private readonly HttpClient _httpClient;
         public CategorieService(HttpClient httpClient) : base(httpClient)
@@ -11,18 +11,7 @@ namespace FrontBlazor.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Categorie>?> GetAllCategories()
-        {
-            try
-            {
-                return await _httpClient.GetFromJsonAsync<List<Categorie>>("Categorie");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"GetAllCategories Error: {ex.Message}");
-                return null;
-            }
-        }
+        
 
         public Task<Categorie?> AddAsync(Categorie entity)
         {

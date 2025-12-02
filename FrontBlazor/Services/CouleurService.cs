@@ -3,7 +3,7 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class CouleurService : ReadableService<Couleur>, ICouleurService<Couleur>
+    public class CouleurService : ReadableService<Couleur>
     {
         private readonly HttpClient _httpClient;
         public CouleurService(HttpClient httpClient) : base(httpClient)

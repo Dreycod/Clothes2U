@@ -92,10 +92,10 @@
                     <span>Chargement des marques...</span>
                 </div>
             }
-            else if (VM_Marque.Marques != null && VM_Marque.Marques.Any())
+            else if (VM_Marque.Items != null && VM_Marque.Items.Any())
             {
                 <div class="button-grid">
-                    @foreach (Marque marque in VM_Marque.Marques)
+                    @foreach (Marque marque in VM_Marque.Items)
                     {
                         <button type="button"
                                 class="category-btn @(selectedMarqueId == marque.MarqueId ? "active" : "")"
@@ -125,10 +125,10 @@
                             <span>Chargement...</span>
                         </div>
                     }
-                    else if (VM_Taille.Tailles != null && VM_Taille.Tailles.Any())
+                    else if (VM_Taille.Items != null && VM_Taille.Items.Any())
                     {
                         <div class="size-buttons">
-                            @foreach (Taille taille in VM_Taille.Tailles)
+                            @foreach (Taille taille in VM_Taille.Items)
                             {
                                 <button type="button"
                                         class="size-btn @(selectedTailleId == taille.TailleId ? "active" : "")"
@@ -150,11 +150,11 @@
                     {
                         <div class="loading-inline">Chargement...</div>
                     }
-                    else if (VM_Couleur.Couleurs != null && VM_Couleur.Couleurs.Any())
+                    else if (VM_Couleur.Items != null && VM_Couleur.Items.Any())
                     {
                         <select class="form-input" @bind="selectedCouleurId">
                             <option value="0">-- Sélectionnez une couleur --</option>
-                            @foreach (Couleur couleur in VM_Couleur.Couleurs)
+                            @foreach (Couleur couleur in VM_Couleur.Items)
                             {
                                 <option value="@couleur.CouleurId">@couleur.Nom</option>
                             }
@@ -182,10 +182,10 @@
                             <span>Chargement...</span>
                         </div>
                     }
-                    else if (VM_Categorie.Categories != null && VM_Categorie.Categories.Any())
+                    else if (VM_Categorie.Items != null && VM_Categorie.Items.Any())
                     {
                         <div class="button-grid">
-                            @foreach (var categorie in VM_Categorie.Categories)
+                            @foreach (var categorie in VM_Categorie.Items)
                             {
                                 <button type="button"
                                         class="category-btn @(selectedCategorieId == categorie.IdCategorie ? "active" : "")"
@@ -198,7 +198,7 @@
                         @* Show subcategories if a category is selected *@
                         @if (selectedCategorieId != 0)
                         {
-                            var selectedCat = VM_Categorie.Categories.FirstOrDefault(c => c.IdCategorie == selectedCategorieId);
+                            var selectedCat = VM_Categorie.Items.FirstOrDefault(c => c.IdCategorie == selectedCategorieId);
                             if (selectedCat?.SousCategories != null && selectedCat.SousCategories.Any())
                             {
                                 <div class="subcategory-section">
@@ -309,10 +309,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await VM_Marque.LoadMarquesAsync();
-        await VM_Taille.LoadTaillesAsync();
-        await VM_Couleur.LoadCouleursAsync();
-        await VM_Categorie.LoadCategoriesAsync();
+        await VM_Marque.LoadAsync();
+        await VM_Taille.LoadAsync();
+        await VM_Couleur.LoadAsync();
+        await VM_Categorie.LoadAsync();
 
         // Load existing annonce from state service if available
         var existingAnnonce = annonceStateService.GetEntity();

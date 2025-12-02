@@ -3,7 +3,7 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class MarqueService : ReadableService<Marque>, IMarqueService<Marque>
+    public class MarqueService : ReadableService<Marque>
     {
         private readonly HttpClient _httpClient;
         public MarqueService(HttpClient httpClient) : base(httpClient)

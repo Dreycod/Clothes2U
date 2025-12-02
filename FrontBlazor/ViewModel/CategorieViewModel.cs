@@ -5,12 +5,12 @@ namespace FrontBlazor.ViewModel
 {
     public class CategorieViewModel
     {
-        private readonly ICategorieService<Categorie> _categorieService;
+        private readonly ListableService<Categorie> _categorieService;
         public List<Categorie> Categories { get; set; } = new();
         public bool IsLoading { get; set; } = false;
         public string? ErrorMessage { get; set; }
 
-        public CategorieViewModel(ICategorieService<Categorie> categorieService)
+        public CategorieViewModel(ListableService<Categorie> categorieService)
         {
             _categorieService = categorieService;
         }
@@ -22,7 +22,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                var result = await _categorieService.GetAllCategories();
+                var result = await _categorieService.GetAllAsync();
 
                 if (result != null)
                 {

@@ -4,7 +4,7 @@ using System.Net.Http;
 
 namespace FrontBlazor.Services
 {
-    public class TailleService : ReadableService<Taille>, ITailleService<Taille>
+    public class TailleService : ReadableService<Taille>
     {
         private readonly HttpClient _httpClient;
         public TailleService(HttpClient httpClient) : base(httpClient)
