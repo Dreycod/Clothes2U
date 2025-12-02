@@ -1,6 +1,7 @@
 using AutoMapper;
 using API.DTO;
 using API.DTO.Annonce;
+using API.DTO.Bloque;
 using API.DTO.Categorie;
 using API.DTO.Conversation;
 using API.DTO.Couleur;
@@ -261,6 +262,20 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId));
+
+        CreateMap<Bloque, BloqueDTO>()
+            .ForMember(dest => dest.BloqueId, opt => opt.MapFrom(src => src.BloqueId))
+            .ForMember(dest => dest.BloqueurId, opt => opt.MapFrom(src => src.UtilisateurBloqueurId))
+            .ForMember(dest => dest.UtilisateurBloqueId, opt => opt.MapFrom(src => src.UtilisateurBloqueId))
+            .ReverseMap();
+
+        CreateMap<Bloque, BloqueDetailDTO>()
+            .ForMember(dest => dest.BloqueId, opt => opt.MapFrom(src => src.BloqueId))
+            .ForMember(dest => dest.BloqueurId, opt => opt.MapFrom(src => src.UtilisateurBloqueurId))
+            .ForMember(dest => dest.UtilisateurBloqueId, opt => opt.MapFrom(src => src.UtilisateurBloqueId))
+            .ForMember(dest => dest.BloqueurLogin, opt => opt.MapFrom(src => src.UtilisateurBloqueur.Login))
+            .ForMember(dest => dest.UtilisateurBloqueLogin, opt => opt.MapFrom(src => src.UtilisateurBloque.Login))
+            .ReverseMap();
 
 
     }

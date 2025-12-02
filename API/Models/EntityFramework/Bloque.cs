@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_bloque_blo")]
-public class Bloque
+public class Bloque : IEntity
 {
     [Key]
     [Column("blo_id")]
@@ -26,4 +26,7 @@ public class Bloque
     [ForeignKey(nameof(UtilisateurBloqueId))]
     [InverseProperty(nameof(Utilisateur.BloqueParUtilisateurs))]
     public virtual Utilisateur UtilisateurBloque { get; set; } = null!;
+
+    public int GetId() => BloqueId;
+
 }
