@@ -1,0 +1,119 @@
+@page "/messages"
+<PageTitle>Messages - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="messages-page">
+    <div class="messages-container">
+        <!-- Left Sidebar - Conversations List -->
+        <aside class="conversations-sidebar">
+            <h2 class="sidebar-title">Messages</h2>
+            
+            <div class="conversations-list">
+                @foreach (var conversation in VM_Conversation.Conversations)
+                {
+                    <div class="conversation-item @(selectedConversationId == conversation.ConversationId ? "active" : "")" 
+                         @onclick="() => SelectConversation(conversation.ConversationId)">
+                        <div class="conversation-avatar"></div>
+                        <div class="conversation-info">
+                            <h3 class="conversation-name">@conversation.Acheteur</h3>
+                            <p class="conversation-preview">@conversation.LastMessage</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </aside>
+
+        <!-- Right Side - Chat Area -->
+        <div class="chat-area">
+            @if (selectedConversationId != null)
+            {
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-product-info">
+                        <div class="product-thumbnail"></div>
+                        <div>
+                            <h3 class="product-name">T-shirt Adidas à revendre! Très bon état!</h3>
+                            <p class="product-price">20.99€</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="messages-area">
+                    <!-- Received Message -->
+                    <div class="message received">
+                        <p class="message-text">Bonjour, j'aime trop le t-shirt que vous vendez</p>
+                        <span class="message-time">14:30</span>
+                    </div>
+
+                    <!-- Sent Message -->
+                    <div class="message sent">
+                        <p class="message-text">Je vois, vous pouvez l'acheter.</p>
+                        <span class="message-time">18:29</span>
+                    </div>
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-area">
+                    <input type="text" 
+                           class="message-input" 
+                           placeholder="Ecrivez votre message ici..." 
+                           @bind="newMessage"
+                           @onkeydown="HandleKeyPress" />
+                    <button class="send-btn" @onclick="SendMessage">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="no-conversation">
+                    <p>Sélectionnez une conversation pour commencer</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+
+
+
+
+
+
+    private int? selectedConversationId = 1;
+    private string newMessage = string.Empty;
+
+
+
+    private void SelectConversation(int conversationId)
+    {
+        selectedConversationId = conversationId;
+    }
+
+    private void SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(newMessage))
+        {
+            // TODO: Send message logic
+            newMessage = string.Empty;
+        }
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SendMessage();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_Conversation.GetConversationsByUserId(2);
+    }
+}

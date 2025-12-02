@@ -1,0 +1,174 @@
+@page "/moderation/support"
+
+<PageTitle>Support - Modération</PageTitle>
+
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+
+<div class="moderation-page">
+    <div class="moderation-container">
+        <!-- Sidebar -->
+        <aside class="mod-sidebar">
+            <div class="mod-header">
+                <div class="mod-logo">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Moderation Board</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mod-nav">
+                <a href="/moderation" class="mod-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/moderation/signalements" class="mod-nav-item">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>Signalements</span>
+                </a>
+                <a href="/moderation/images" class="mod-nav-item">
+                    <i class="bi bi-image"></i>
+                    <span>Images</span>
+                </a>
+                <a href="/moderation/restauration" class="mod-nav-item">
+                    <i class="bi bi-person-check"></i>
+                    <span>Restauration</span>
+                </a>
+                <a href="/moderation/sanctions" class="mod-nav-item">
+                    <i class="bi bi-person-x"></i>
+                    <span>Sanctions</span>
+                </a>
+                <a href="/moderation/mots-interdits" class="mod-nav-item">
+                    <i class="bi bi-chat-square-text"></i>
+                    <span>Mots interdits</span>
+                </a>
+                <a href="/moderation/support" class="mod-nav-item active">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="mod-content">
+            <h1 class="mod-page-title">Demandes de support</h1>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab @(statusFilter == "pending" ? "active" : "")" @onclick='() => statusFilter = "pending"'>
+                    En attente
+                </button>
+                <button class="filter-tab @(statusFilter == "answered" ? "active" : "")" @onclick='() => statusFilter = "answered"'>
+                    Répondues
+                </button>
+                <button class="filter-tab @(statusFilter == "closed" ? "active" : "")" @onclick='() => statusFilter = "closed"'>
+                    Fermées
+                </button>
+            </div>
+
+            <!-- Support Tickets -->
+            <div class="support-list">
+                @for (int i = 0; i < 4; i++)
+                {
+                    var status = i % 3 == 0 ? "pending" : i % 3 == 1 ? "answered" : "closed";
+
+                    <div class="support-card">
+                        <div class="support-header">
+                            <div class="report-user">
+                                <div class="report-avatar"></div>
+                                <div>
+                                    <h3>User @(i + 1)</h3>
+                                    <p class="support-date">Il y a @(i + 1) heures</p>
+                                </div>
+                            </div>
+                            <span class="support-status @status">
+                                @(status == "pending" ? "En attente" : status == "answered" ? "Répondue" : "Fermée")
+                            </span>
+                        </div>
+
+                        <div class="support-content">
+                            <h4 class="support-subject">
+                                @(i % 3 == 0 ? "Problème de paiement" : i % 3 == 1 ? "Question sur la livraison" : "Demande de remboursement")
+                            </h4>
+                            <p class="support-message">
+                                Bonjour, j'ai un problème avec ma commande. Pourriez-vous m'aider ? Merci d'avance.
+                            </p>
+                        </div>
+
+                        <div class="support-actions">
+                            @if (status == "pending")
+                            {
+                                <button class="btn-respond" @onclick="() => RespondTicket(i)">
+                                    <i class="bi bi-reply"></i>
+                                    Répondre
+                                </button>
+                            }
+                            else if (status == "answered")
+                            {
+                                <button class="btn-view-response" @onclick="() => ViewResponse(i)">
+                                    <i class="bi bi-eye"></i>
+                                    Voir la réponse
+                                </button>
+                            }
+                            <button class="btn-close-ticket" @onclick="() => CloseTicket(i)">
+                                <i class="bi bi-check-circle"></i>
+                                @(status == "closed" ? "Fermé" : "Fermer")
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Response Modal -->
+@if (showResponseModal)
+{
+    <div class="modal-overlay" @onclick="() => showResponseModal = false">
+        <div class="modal-content response-modal" @onclick:stopPropagation>
+            <h3>Répondre au ticket</h3>
+
+            <div class="response-form">
+                <textarea class="response-textarea" placeholder="Écrivez votre réponse..." @bind="responseText" rows="6"></textarea>
+
+                <div class="modal-actions">
+                    <button class="btn-cancel" @onclick="() => showResponseModal = false">Annuler</button>
+                    <button class="btn-confirm" @onclick="SendResponse">Envoyer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string statusFilter = "pending";
+    private bool showResponseModal = false;
+    private string responseText = string.Empty;
+    private int currentTicketId = 0;
+
+    private void RespondTicket(int ticketId)
+    {
+        currentTicketId = ticketId;
+        showResponseModal = true;
+    }
+
+    private void ViewResponse(int ticketId)
+    {
+        // TODO: Show response in modal
+    }
+
+    private void CloseTicket(int ticketId)
+    {
+        // TODO: Close ticket
+    }
+
+    private void SendResponse()
+    {
+        // TODO: Send response to user
+        showResponseModal = false;
+        responseText = string.Empty;
+    }
+}

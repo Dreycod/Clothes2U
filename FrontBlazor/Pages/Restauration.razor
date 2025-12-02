@@ -1,0 +1,116 @@
+@page "/moderation/restauration"
+
+
+<PageTitle>Restauration de comptes - Modération</PageTitle>
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+
+<div class="moderation-page">
+    <div class="moderation-container">
+        <!-- Sidebar -->
+        <aside class="mod-sidebar">
+            <div class="mod-header">
+                <div class="mod-logo">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Moderation Board</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mod-nav">
+                <a href="/moderation" class="mod-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/moderation/signalements" class="mod-nav-item">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>Signalements</span>
+                </a>
+                <a href="/moderation/images" class="mod-nav-item">
+                    <i class="bi bi-image"></i>
+                    <span>Images</span>
+                </a>
+                <a href="/moderation/restauration" class="mod-nav-item active">
+                    <i class="bi bi-person-check"></i>
+                    <span>Restauration</span>
+                </a>
+                <a href="/moderation/sanctions" class="mod-nav-item">
+                    <i class="bi bi-person-x"></i>
+                    <span>Sanctions</span>
+                </a>
+                <a href="/moderation/mots-interdits" class="mod-nav-item">
+                    <i class="bi bi-chat-square-text"></i>
+                    <span>Mots interdits</span>
+                </a>
+                <a href="/moderation/support" class="mod-nav-item">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="mod-content">
+            <h1 class="mod-page-title">Demandes de restauration</h1>
+
+            <!-- Restoration Requests -->
+            <div class="restoration-list">
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div class="restoration-card">
+                        <div class="restoration-header">
+                            <div class="report-user">
+                                <div class="report-avatar"></div>
+                                <div>
+                                    <h3>User @(i + 1)</h3>
+                                    <p class="restoration-date">Demande envoyée il y a @(i + 1) jours</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="restoration-message">
+                            <h4>Message de l'utilisateur:</h4>
+                            <p>Bonjour, je souhaiterais récupérer mon compte car j'ai été banni par erreur. Je n'ai jamais violé les règles de la plateforme. Merci de considérer ma demande.</p>
+                        </div>
+
+                        <div class="restoration-info">
+                            <div class="info-item">
+                                <span class="info-label">Raison du bannissement:</span>
+                                <span class="info-value">Spam</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Date du bannissement:</span>
+                                <span class="info-value">@DateTime.Now.AddDays(-(i + 5)).ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+
+                        <div class="restoration-actions">
+                            <button class="btn-approve-large" @onclick="() => ApproveRestoration(i)">
+                                <i class="bi bi-check-lg"></i>
+                                Approuver la restauration
+                            </button>
+                            <button class="btn-reject-large" @onclick="() => RejectRestoration(i)">
+                                <i class="bi bi-x-lg"></i>
+                                Refuser
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    private void ApproveRestoration(int requestId)
+    {
+        // TODO: Restore user account
+    }
+
+    private void RejectRestoration(int requestId)
+    {
+        // TODO: Reject restoration request
+    }
+}

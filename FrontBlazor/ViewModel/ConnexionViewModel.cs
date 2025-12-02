@@ -1,0 +1,114 @@
+using System.Net;
+using FrontBlazor.Models;
+using FrontBlazor.Models.LoginRegister;
+using FrontBlazor.Models.StateServices;
+using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
+
+namespace FrontBlazor.ViewModel;
+
+public class ConnexionViewModel
+{
+    private readonly IAuthService _authService;
+    public ConnexionViewModel(IAuthService authService)
+    {
+        _authService = authService;
+    }
+
+    public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword, bool AcceptTerms)
+    {
+        if (!AcceptTerms)
+        {
+            return "Vous devez accepter les conditions d'utilisation.";
+        }
+
+        try
+        {
+            LoginRequest loginRequest = new LoginRequest()
+            {
+                Login = RegisterUsername,
+                Email = RegisterEmail,
+                Password = RegisterPassword,
+                PasswordConfirm = RegisterConfirmPassword
+                
+            };
+            var result = await _authService.SignUpAsync(loginRequest);
+
+            if (result.Success)
+            {
+                return "Success";
+            }
+            else
+            {
+                return result.ErrorMessage ?? "Erreur lors de l'inscription. Veuillez réessayer.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+            return "Une erreur est survenue lors de l'inscription.";
+        }
+    }
+
+    public async Task<string> HandleLogin(string LoginEmail, string LoginPassword)
+    {
+        if (string.IsNullOrWhiteSpace(LoginEmail) || string.IsNullOrWhiteSpace(LoginPassword))
+        {
+            return "Veuillez remplir tous les champs.";
+        }
+
+        try
+        {
+            LoginRequest requestAuth = new LoginRequest()
+            {
+                Login = LoginEmail,
+                Email = LoginEmail,
+                Password = LoginPassword
+            };
+            var result = await _authService.LoginAsync(requestAuth);
+
+            switch (result)
+            {
+                case HttpStatusCode.OK:
+                    return "Succes";
+                
+                case HttpStatusCode.Unauthorized:
+                    return "Erreur lors de la connexion";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+            return $"Erreur réelle: {ex.Message}";
+        }
+
+        return "";
+    }
+
+    public async Task<bool> HandleLogout()
+    {
+        try
+        {
+            await _authService.LogoutAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la déconnexion: {ex.Message}");
+            return false;
+        }
+    }
+
+    public void HandleGoogleLogin()
+    {
+        // Implement Google login logic here
+    }
+
+    public async Task<bool> CheckLoginStatus()
+    {
+        if (await _authService.GetCurrentUserAsync() != null)
+            return true;
+        return false;
+    }
+}
