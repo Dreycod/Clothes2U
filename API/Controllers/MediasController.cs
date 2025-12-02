@@ -26,7 +26,7 @@ public class MediasController : ControllerBase
             var photo = await _photoService.GetPhotoAsync(id);
             if (photo == null)
             {
-                return NotFound(new { message = $"Photo {id} introuvable" });
+                return NotFound($"Photo {id} introuvable");
             }
             return File(photo.Image, "image/jpeg");
         }
@@ -44,7 +44,7 @@ public class MediasController : ControllerBase
     {
         if (photoDto?.File == null)
         {
-            return BadRequest(new { message = "Fichier requis" });
+            return BadRequest("Fichier requis" );
         }
 
         try
