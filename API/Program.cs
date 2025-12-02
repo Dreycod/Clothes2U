@@ -162,6 +162,8 @@ builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManag
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>();
+builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
+
 
 // Services
 builder.Services.AddScoped<IPhotoService, PhotoService>();
