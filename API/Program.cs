@@ -81,6 +81,7 @@ builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
+builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 
 //injection de service: 
 builder.Services.AddScoped<IPhotoService, PhotoService>();
