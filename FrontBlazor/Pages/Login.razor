@@ -1,8 +1,5 @@
 ﻿@page "/login"
-@rendermode InteractiveServer
 
-@inject NavigationManager Navigation
-@inject ConnexionViewModel VM_Connexion
 
 <PageTitle>Connexion - Clothes2U</PageTitle>
 
@@ -183,7 +180,7 @@
             {
                 SuccessMessage = "Connexion réussie.";
                 // Le ViewModel met à jour le _userStateService; on navigue
-                Navigation.NavigateTo("/");
+                navigationManager.NavigateTo("/");
             }
             else
             {

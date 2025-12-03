@@ -1,5 +1,5 @@
 ﻿@page "/profile/{username}"
-@rendermode InteractiveServer
+
 
 
 
@@ -46,13 +46,13 @@
                 <i class="bi bi-bag"></i>
                 <span>Articles</span>
             </button>
-            @if (userStateService.CurrentEntity.UtilisateurId == VM_Profil.ViewingUser_UserId) 
+            @* @if (userStateService.CurrentEntity.UtilisateurId == VM_Profil.ViewingUser_UserId) 
             {
                 <button class="tab-btn @(VM_Profil.activeTab == "favoris" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("favoris")'>
                     <i class="bi bi-heart"></i>
                     <span>Favoris</span>
                 </button>
-            }
+            } *@
 
             <button class="tab-btn @(VM_Profil.activeTab == "avis" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("avis")'>
                 <i class="bi bi-star"></i>
