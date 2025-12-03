@@ -1,4 +1,6 @@
-@page "/search"
+﻿@page "/search"
+@rendermode InteractiveServer
+
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -38,9 +40,9 @@
                                 <span>Chargement...</span>
                             </div>
                         }
-                        else if (VM_Categorie.Categories != null && VM_Categorie.Categories.Any())
+                        else if (VM_Categorie.Items != null && VM_Categorie.Items.Any())
                         {
-                            @foreach (var categorie in VM_Categorie.Categories)
+                            @foreach (var categorie in VM_Categorie.Items)
                             {
                                 <div class="category-filter-item">
                                     <!-- Main Category -->
@@ -96,9 +98,9 @@
                                 <span>Chargement...</span>
                             </div>
                         }
-                        else if (VM_Marque.Marques != null && VM_Marque.Marques.Any())
+                        else if (VM_Marque.Items != null && VM_Marque.Items.Any())
                         {
-                            @foreach (var marque in VM_Marque.Marques)
+                            @foreach (var marque in VM_Marque.Items)
                             {
                                 <label class="checkbox-label">
                                     <input type="checkbox"
@@ -125,10 +127,10 @@
                             <span>Chargement...</span>
                         </div>
                     }
-                    else if (VM_Taille.Tailles != null && VM_Taille.Tailles.Any())
+                    else if (VM_Taille.Items != null && VM_Taille.Items.Any())
                     {
                         <div class="size-buttons">
-                            @foreach (var taille in VM_Taille.Tailles)
+                            @foreach (var taille in VM_Taille.Items)
                             {
                                 <button type="button"
                                         class="size-btn @(selectedTailleId == taille.TailleId ? "active" : "")"
@@ -271,17 +273,17 @@
 
     private async Task LoadCategories()
     {
-        await VM_Categorie.LoadCategoriesAsync();
+        await VM_Categorie.LoadAsync();
     }
 
     private async Task LoadMarques()
     {
-        await VM_Marque.LoadMarquesAsync();
+        await VM_Marque.LoadAsync();
     }
 
     private async Task LoadTailles()
     {
-        await VM_Taille.LoadTaillesAsync();
+        await VM_Taille.LoadAsync();
     }
 
     private async Task LoadAnnonces()
@@ -420,7 +422,7 @@
     private async Task ApplyFilters()
     {
         // TODO: Implement filter logic in VM_Annonces
-        Console.WriteLine($"Selected Categories: {string.Join(", ", selectedCategories)}");
+        Console.WriteLine($"Selected Items: {string.Join(", ", selectedCategories)}");
         Console.WriteLine($"Selected Subcategories: {string.Join(", ", selectedSubcategories)}");
         Console.WriteLine($"Selected Marques: {string.Join(", ", selectedMarques)}");
         Console.WriteLine($"Selected Taille: {selectedTailleId}");

@@ -8,14 +8,34 @@ namespace FrontBlazor.Services;
 public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
 {
     public AnnonceService(HttpClient httpClient) : base(httpClient) {}
-
     public async Task<List<Annonce>?> GetActiveAnnonces()
     {
         try
         {
-            // ✅ Simple GET - le token est déjà dans les headers
-            return await _httpClient.GetFromJsonAsync<List<Annonce>>("Annonce/GetActiveAnnonces")
-                   ?? new List<Annonce>();
+            var request = new HttpRequestMessage(HttpMethod.Get, "Annonce/GetActiveAnnonces");
+
+            // Ajouter un en-tête personnalisé si nécessaire
+            request.Headers.Add("Authorization", "Bearer YOUR_TOKEN");
+
+            // Log des headers
+            Console.WriteLine("Request Headers:");
+            foreach (var header in request.Headers)
+            {
+                Console.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
+            }
+
+            // Envoi de la requête
+            var response = await _httpClient.SendAsync(request);
+
+            // Vérifier la réponse
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<Annonce>>() ?? new List<Annonce>();
+            }
+
+            // Gestion des erreurs HTTP
+            Console.WriteLine($"Error: {response.StatusCode}");
+            return null;
         }
         catch (HttpRequestException ex)
         {
@@ -23,6 +43,7 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
             return null;
         }
     }
+
     public async Task<List<Annonce>?> GetAnnoncesByCategorieId(int Id)
     {
         return await _httpClient.GetFromJsonAsync<List<Annonce>>(
