@@ -1,6 +1,12 @@
-﻿namespace FrontBlazor.Models.LoginRegister;
+﻿using System.Text.Json.Serialization;
+
+namespace FrontBlazor.Models.LoginRegister;
 
 public class LoginResponse
 {
-    public Utilisateur Utilisateur { get; set; }
+    [JsonPropertyName("utilisateur")]
+    public Utilisateur utilisateur { get; set; }
+
+    [JsonPropertyName("token")]
+    public string token { get; set; }
 }

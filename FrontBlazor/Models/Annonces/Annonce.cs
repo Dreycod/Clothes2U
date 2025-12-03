@@ -10,6 +10,7 @@ public class Annonce: IEntity
     public string? Description { get; set; } = null!;
 
     public DateTime DateAnnonce { get; set; }
+    public bool IsLikedByCurrentUser { get; set; }
     public string? EtatArticle { get; set; } = null!;
     public string? Taille { get; set; } = null!;
     public List<string>? Photos { get; set; } = new();

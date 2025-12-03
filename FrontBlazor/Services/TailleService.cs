@@ -1,6 +1,7 @@
 ﻿using FrontBlazor.Models;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http;
+using System.Net.Http.Json;
 
 namespace FrontBlazor.Services
 {

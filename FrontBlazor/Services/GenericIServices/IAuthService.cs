@@ -1,12 +1,14 @@
-﻿using FrontBlazor.Models;
+﻿using System.Net;
+using FrontBlazor.Models;
 using System.Net.Http;
+using FrontBlazor.Models.LoginRegister;
 
 namespace FrontBlazor.Services.GenericIServices;
 
 public interface IAuthService
 {
-    public Task<AuthResult> LoginAsync(string loginOrEmail, string password);
-    public Task<AuthResult> SignUpAsync(string email, string login, string password, string  passwordConfirmation);
+    public Task<HttpStatusCode> LoginAsync(LoginRequest compte);
+    public Task<AuthResult> SignUpAsync(LoginRequest compte);
     public Task LogoutAsync();
     public Task<Utilisateur?> GetCurrentUserAsync();
 }

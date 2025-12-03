@@ -26,6 +26,11 @@ namespace FrontBlazor.ViewModel
             try
             {
                 Annonces = await _annonceService.GetActiveAnnonces() ?? new List<Annonce>();
+                foreach (var annonce in Annonces)
+                {
+                    Console.WriteLine(annonce.IsLikedByCurrentUser);    
+                }
+                
             }
             catch (Exception ex)
             {

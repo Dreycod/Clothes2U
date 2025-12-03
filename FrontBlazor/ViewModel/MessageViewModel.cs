@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Components.Pages;
+﻿using FrontBlazor.Pages;
 using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;

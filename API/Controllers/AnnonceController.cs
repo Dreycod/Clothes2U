@@ -2,6 +2,7 @@ using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,13 +20,44 @@ public class AnnonceController : ControllerBase
         _mapper = mapper;
     }
     
+    [AllowAnonymous]
     [HttpGet("GetActiveAnnonces")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
     {
+        Console.WriteLine($"[AnnonceController] ➡️ Tentative d'accès à GetActiveAnnonces.");
+        foreach (var claim in User.Claims)
+        {
+            Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
+        }
+
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+        
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                int userId = int.Parse(userIdClaim);
+                Console.WriteLine($"[API] ✅ Utilisateur connecté détecté - ID: {userId}. (Authentification via cookie/token réussie)");
+            
+                var userName = User.Identity.Name;
+                Console.WriteLine($"[API] ✅ Nom d'utilisateur: {userName}");
+            }
+            else
+            {
+                // Cela se produit si un token existe mais ne contient pas le claim 'userId'
+                Console.WriteLine($"[API] ⚠️ Utilisateur authentifié mais claim 'userId' manquant. Vérifiez la génération du JWT.");
+            }
+        }
+        else
+        {
+            // C'est l'erreur que nous cherchons à corriger. Si l'utilisateur est connecté, ce log ne devrait pas apparaître.
+            Console.WriteLine($"[API] ❌ Utilisateur non connecté (anonyme). Le cookie d'authentification n'a PAS été envoyé ou n'a PAS été validé.");
+        }
+
+        // Récupérer les annonces actives
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+
         return Ok(annoncesDTO);
     }
     

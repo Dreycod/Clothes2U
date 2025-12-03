@@ -1,3 +1,4 @@
+using System.Net;
 using FrontBlazor.Models;
 using FrontBlazor.Models.LoginRegister;
 using FrontBlazor.Models.StateServices;
@@ -9,12 +10,9 @@ namespace FrontBlazor.ViewModel;
 public class ConnexionViewModel
 {
     private readonly IAuthService _authService;
-    private readonly IStateService<Utilisateur> _userStateService;
-
-    public ConnexionViewModel(IAuthService authService, IStateService<Utilisateur> userStateService)
+    public ConnexionViewModel(IAuthService authService)
     {
         _authService = authService;
-        _userStateService = userStateService;
     }
 
     public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword, bool AcceptTerms)
@@ -26,15 +24,18 @@ public class ConnexionViewModel
 
         try
         {
-            var result = await _authService.SignUpAsync(RegisterEmail, RegisterUsername, RegisterPassword, RegisterConfirmPassword);
+            LoginRequest loginRequest = new LoginRequest()
+            {
+                Login = RegisterUsername,
+                Email = RegisterEmail,
+                Password = RegisterPassword,
+                PasswordConfirm = RegisterConfirmPassword
+                
+            };
+            var result = await _authService.SignUpAsync(loginRequest);
 
             if (result.Success)
             {
-                Console.WriteLine("Inscription réussie!");
-
-                _userStateService.CurrentEntity = result.Utilisateur;
-
-                Console.WriteLine("L'utilisateur est : " + _userStateService.CurrentEntity.Login);
                 return "Success";
             }
             else
@@ -58,20 +59,21 @@ public class ConnexionViewModel
 
         try
         {
-            var result = await _authService.LoginAsync(LoginEmail, LoginPassword);
-
-            if (result.Success)
+            LoginRequest requestAuth = new LoginRequest()
             {
-                Console.WriteLine("Connexion réussie!");
-                Console.WriteLine("Utilisateur: " + result.Utilisateur.Login);
+                Login = LoginEmail,
+                Email = LoginEmail,
+                Password = LoginPassword
+            };
+            var result = await _authService.LoginAsync(requestAuth);
 
-                _userStateService.CurrentEntity = result.Utilisateur;
-
-                return "Success";
-            }
-            else
+            switch (result)
             {
-                return result.ErrorMessage ?? "Email/Login ou mot de passe incorrect.";
+                case HttpStatusCode.OK:
+                    return "Succes";
+                
+                case HttpStatusCode.Unauthorized:
+                    return "Erreur lors de la connexion";
             }
         }
         catch (Exception ex)
@@ -79,6 +81,8 @@ public class ConnexionViewModel
             Console.WriteLine($"Erreur: {ex.Message}");
             return $"Erreur réelle: {ex.Message}";
         }
+
+        return "";
     }
 
     public async Task<bool> HandleLogout()
@@ -86,8 +90,6 @@ public class ConnexionViewModel
         try
         {
             await _authService.LogoutAsync();
-            
-            _userStateService.CurrentEntity = null;
             
             return true;
         }

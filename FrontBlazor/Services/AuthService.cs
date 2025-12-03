@@ -1,110 +1,91 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using FrontBlazor.Models;
 using FrontBlazor.Models.LoginRegister;
 using FrontBlazor.Services.GenericIServices;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace FrontBlazor.Services;
 
-public class AuthService : IAuthService
+public class AuthService : BaseGenericService, IAuthService
 {
-    private readonly HttpClient _httpClient;
-
-    public AuthService(HttpClient httpClient)
+    public AuthService(HttpClient httpClient) : base(httpClient)
     {
-        _httpClient = httpClient;
+        
     }
 
-    public async Task<AuthResult> LoginAsync(string loginOrEmail, string password)
+    public async Task<Utilisateur?> GetCurrentUserAsync()
     {
         try
         {
-            var request = new LoginRequest
-            {
-                Login = loginOrEmail,
-                Email = loginOrEmail,
-                Password = password
-            };
+            var response = await _httpClient.GetAsync("Login/me");
 
-            var response = await _httpClient.PostAsJsonAsync("Login", request);
+            if (!response.IsSuccessStatusCode)
+                return null;
 
-            if (response.IsSuccessStatusCode)
-            {
-                var utilisateur = await response.Content.ReadFromJsonAsync<Utilisateur>();
-                if (utilisateur == null)
-                    return new AuthResult
-                    {
-                        Success = false,
-                        ErrorMessage = "Utilisateur reçu est null"
-                    };
-
-                return new AuthResult
-                {
-                    Success = true,
-                    Utilisateur = utilisateur
-                };
-            }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                return new AuthResult
-                {
-                    Success = false,
-                    ErrorMessage = errorContent.Trim('"')
-                };
-            }
+            return await response.Content.ReadFromJsonAsync<Utilisateur>();
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"Exception dans LoginAsync: {ex.Message}");
-            return new AuthResult
-            {
-                Success = false,
-                ErrorMessage = $"Erreur de connexion: {ex.Message}"
-            };
+            return null;
         }
     }
 
-    public async Task<AuthResult> SignUpAsync(string email, string login, string password, string passwordConfirm)
+    public async Task<AuthResult> SignUpAsync(LoginRequest compte)
     {
         try
         {
-            var request = new LoginRequest
+            var response = await _httpClient.PostAsJsonAsync("Login/signup", compte);
+
+            if (!response.IsSuccessStatusCode)
             {
-                Email = email,
-                Login = login,
-                Password = password,
-                PasswordConfirm = passwordConfirm
+                var error = await response.Content.ReadAsStringAsync();
+                return new AuthResult { Success = false, ErrorMessage = error };
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            return new AuthResult
+            {
+                Success = true,
+                Utilisateur = result?.utilisateur
             };
-
-            var response = await _httpClient.PostAsJsonAsync("Login/signup", request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var utilisateur = await response.Content.ReadFromJsonAsync<Utilisateur>();
-                return new AuthResult
-                {
-                    Success = true,
-                    Utilisateur = utilisateur
-                };
-            }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                return new AuthResult
-                {
-                    Success = false,
-                    ErrorMessage = errorContent.Trim('"')
-                };
-            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Exception dans SignUpAsync: {ex.Message}");
-            return new AuthResult
+            return new AuthResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<HttpStatusCode> LoginAsync(LoginRequest compte)
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "Login")
             {
-                Success = false,
-                ErrorMessage = $"Erreur d'inscription: {ex.Message}"
+                Content = JsonContent.Create(compte)
             };
+
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+            var response = await _httpClient.SendAsync(request);
+            
+            // Ne pas lancer d'exception si 401 (credentials invalides)
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return HttpStatusCode.Unauthorized;
+            }
+            
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                return HttpStatusCode.BadRequest;
+            }
+            
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode;
+        }
+        catch
+        {
+            return HttpStatusCode.InternalServerError;
         }
     }
 
@@ -114,31 +95,13 @@ public class AuthService : IAuthService
         {
             await _httpClient.PostAsync("Login/logout", null);
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erreur lors de la déconnexion: {ex.Message}");
-        }
+        catch { }
     }
+}
 
-    public async Task<Utilisateur?> GetCurrentUserAsync()
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync("Login/me");
-
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<Utilisateur>();
-            }
-
-            return null;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erreur GetCurrentUserAsync: {ex.Message}");
-            return null;
-        }
-    }
+public class LoginResponse
+{
+    public Utilisateur utilisateur { get; set; } = new();
 }
 
 public class AuthResult

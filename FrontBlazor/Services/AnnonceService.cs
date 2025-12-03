@@ -1,4 +1,6 @@
-﻿using FrontBlazor.Models;
+﻿using System.Net.Http.Json;
+using System.Runtime.Serialization;
+using FrontBlazor.Models;
 using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services;
@@ -11,11 +13,13 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<List<Annonce>>("Annonce/GetActiveAnnonces");
+            // ✅ Simple GET - le token est déjà dans les headers
+            return await _httpClient.GetFromJsonAsync<List<Annonce>>("Annonce/GetActiveAnnonces")
+                   ?? new List<Annonce>();
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"HTTP Error: {ex.Message}");
+            Console.WriteLine($"HTTP Error (GetActiveAnnonces): {ex.Message}");
             return null;
         }
     }

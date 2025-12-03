@@ -1,3 +1,5 @@
+using System.Net.Http.Json;
+
 namespace FrontBlazor.Services.GenericIServices;
 
 public abstract class ListableService<T >: BaseGenericService, IListableService<T> where T : class
