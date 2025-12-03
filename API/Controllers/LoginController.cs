@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
@@ -15,7 +16,7 @@ public class LoginRequest
 {
     public string? Login { get; set; }
     public string? Email { get; set; }
-    public string Password { get; set; } = string.Empty;
+    public string Password { get; set; }
     public string? PasswordConfirm { get; set; }
 }
 
@@ -30,13 +31,15 @@ public class LoginController : ControllerBase
 
     public LoginController(IConfiguration config, IMapper mapper, IDataRepository<Utilisateur, int> dataRepo)
     {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
-        _config = config;
         _dataRepository = dataRepo;
         
-        // 💡 Log de diagnostic de la clé de signature au démarrage
-        string key = _config["Jwt:Key"];
-        Console.WriteLine($"[LoginController Init] 🔑 Clé JWT lue (longueur {key.Length}): {key.Substring(0, 10)}...");
+        // LOG POUR VÉRIFIER QUE LA CONFIG EST BIEN CHARGÉE
+        Console.WriteLine($"📋 [LoginController] Configuration chargée:");
+        Console.WriteLine($"   Jwt:Key = {(_config["Jwt:Key"]?.Length > 0 ? "✅ Présent" : "❌ Absent")}");
+        Console.WriteLine($"   Jwt:Issuer = '{_config["Jwt:Issuer"]}'");
+        Console.WriteLine($"   Jwt:Audience = '{_config["Jwt:Audience"]}'");
     }
 
     [HttpPost]
@@ -44,90 +47,84 @@ public class LoginController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         await LoadUtilisateursAsync();
-        Console.WriteLine($"[LoginController] ➡️ Tentative de connexion pour : {request.Login ?? request.Email}");
-        
-        string? loginOrEmail = request.Login?.Trim();
-        if (string.IsNullOrEmpty(loginOrEmail))
-            loginOrEmail = request.Email?.Trim();
 
-        if (string.IsNullOrEmpty(loginOrEmail) || string.IsNullOrEmpty(request.Password))
-            return BadRequest("Email/Login et mot de passe obligatoires.");
+        var loginOrEmail = string.IsNullOrEmpty(request.Login) ? request.Email : request.Login;
+        var utilisateur = AuthentificateUtilisateur(loginOrEmail!, request.Password);
 
-        var utilisateur = AuthentificateUtilisateur(loginOrEmail, request.Password);
         if (utilisateur == null)
-        {
-            Console.WriteLine("[LoginController] ❌ Échec de l'authentification.");
             return Unauthorized("Email/Login ou mot de passe incorrect.");
-        }
-        
-        Console.WriteLine($"[LoginController] ✅ Authentification réussie pour UtilisateurId: {utilisateur.UtilisateurId}");
 
+        // Génération JWT
         var tokenString = GenerateJwtToken(utilisateur);
-        Console.WriteLine($"[LoginController] 🔑 JWT généré pour utilisateur {utilisateur.UtilisateurId}");
 
-// ✅ Configuration du cookie sécurisé
-        CookieOptions cookieOptions = new CookieOptions()
+        // Cookie HttpOnly
+        var cookieOptions = new CookieOptions
         {
-            HttpOnly = true,              // Protection contre XSS
-            SameSite = SameSiteMode.None, // Nécessaire pour cross-origin
-            Secure = true,                // Obligatoire avec SameSite=None
-            Expires = DateTimeOffset.UtcNow.AddHours(1), // ✅ Cohérent avec l'expiration du JWT
-            Path = "/",
-            Domain = null                 // ✅ Laissez le domaine se définir automatiquement
+            HttpOnly = true,
+            Secure = false, 
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTime.Now.AddMinutes(30)
+        };
+        Response.Cookies.Append("authToken", tokenString, cookieOptions);
+
+        // Retour direct de l'utilisateur
+        return Ok(utilisateur);
+    }
+
+    [HttpPost("signup")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SignUp([FromBody] LoginRequest request)
+    {
+        if (request == null ||
+            string.IsNullOrEmpty(request.Email) ||
+            string.IsNullOrEmpty(request.Login) ||
+            string.IsNullOrEmpty(request.Password) ||
+            string.IsNullOrEmpty(request.PasswordConfirm))
+            return BadRequest("Données invalides.");
+
+        if (!new EmailAddressAttribute().IsValid(request.Email))
+            return BadRequest("Email invalide.");
+
+        string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+        if (!Regex.IsMatch(request.Password, pattern))
+            return BadRequest("Mot de passe non conforme.");
+
+        if (request.Password != request.PasswordConfirm)
+            return BadRequest("Les mots de passe ne correspondent pas.");
+
+        var existingUsers = await _dataRepository.GetAllAsync();
+        if (existingUsers.Any(u => u.Email.ToUpper() == request.Email.ToUpper()))
+            return BadRequest("Cet email est déjà utilisé.");
+        if (existingUsers.Any(u => u.Login.ToUpper() == request.Login.ToUpper()))
+            return BadRequest("Ce login est déjà utilisé.");
+
+        var newUser = new Utilisateur
+        {
+            Email = request.Email,
+            Login = request.Login,
+            Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Description = "",
+            StatutId = 1,
+            Dateinscription = DateTime.UtcNow,
+            RoleId = 1
         };
 
+        await _dataRepository.AddAsync(newUser);
+
+        // JWT
+        var tokenString = GenerateJwtToken(newUser);
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false, 
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.Now.AddMinutes(30)
+        };
         Response.Cookies.Append("authToken", tokenString, cookieOptions);
-        Console.WriteLine("[LoginController] 🍪 Cookie 'authToken' ajouté (Secure=True, SameSite=None, HttpOnly=True)");
 
-// Retourner le token dans la réponse JSON
-        return Ok(new
-        {
-            utilisateur = new 
-            {
-                utilisateur.UtilisateurId,
-                utilisateur.Login,
-                utilisateur.Email
-                // N'incluez PAS le mot de passe !
-            },
-            token = tokenString
-        });
+        return Ok(newUser); // Retour direct
     }
-
-    // ... (méthode SignUp)
-
-   [HttpGet("me")]
-public async Task<IActionResult> GetCurrentUser()
-{
-    Console.WriteLine("[LoginController] ➡️ Entrée dans GetCurrentUser");
-    
-    // ✅ CORRECTION : Utiliser "uid" au lieu de "userId"
-    var claim = User.FindFirst("uid")?.Value;
-    
-    if(string.IsNullOrEmpty(claim))
-    {
-        Console.WriteLine("[LoginController] ❌ Claim 'uid' manquant dans le token.");
-        Console.WriteLine("[LoginController] Claims disponibles:");
-        foreach(var c in User.Claims)
-        {
-            Console.WriteLine($"   - {c.Type} = {c.Value}");
-        }
-        return Unauthorized();
-    }
-    
-    int userId = int.Parse(claim);
-    Console.WriteLine($"[LoginController] 🔍 Utilisateur ID extrait du token: {userId}");
-    
-    Utilisateur user = await _dataRepository.GetByIdAsync(userId); 
-    
-    if(user == null)
-    {
-        Console.WriteLine($"[LoginController] ❌ Utilisateur {userId} non trouvé en base de données.");
-        return NotFound();
-    }
-    
-    Console.WriteLine($"[LoginController] ✅ Utilisateur courant récupéré : {user.Login}");
-    return Ok(user);
-}
 
     [HttpPost("logout")]
     public IActionResult Logout()
@@ -136,42 +133,60 @@ public async Task<IActionResult> GetCurrentUser()
         return Ok(new { message = "Déconnexion réussie" });
     }
 
-    private Utilisateur? AuthentificateUtilisateur(string loginOrEmail, string password)
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        var userIdStr = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userIdStr))
+            return Unauthorized();
+
+        var utilisateur = await _dataRepository.GetByIdAsync(int.Parse(userIdStr));
+        if (utilisateur == null)
+            return NotFound();
+
+        return Ok(utilisateur);
+    }
+
+    private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
     {
         return _utilisateurs?.SingleOrDefault(u =>
-            (u.Email?.ToUpper() == loginOrEmail.ToUpper() || u.Login?.ToUpper() == loginOrEmail.ToUpper())
+            (u.Email.ToUpper() == loginOrEmail.ToUpper() || u.Login.ToUpper() == loginOrEmail.ToUpper())
             && BCrypt.Net.BCrypt.Verify(password, u.Password));
     }
 
     private string GenerateJwtToken(Utilisateur utilisateur)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+        var key = _config["Jwt:Key"];
+        var issuer = _config["Jwt:Issuer"];
+        var audience = _config["Jwt:Audience"];
+    
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        // ✅ SOLUTION : Réduire le nombre de claims et utiliser des noms courts
         var claims = new[]
         {
-            new Claim("uid", utilisateur.UtilisateurId.ToString()),  // ✅ "uid" au lieu de "userId"
-            new Claim("role", "Authorized"),
+            new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
+            new Claim("userId", utilisateur.UtilisateurId.ToString()),
+            new Claim("login", utilisateur.Login),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),  // ✅ Cohérent avec le cookie
-            signingCredentials: credentials
-        );
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(30),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = credentials
+        };
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-    
-        // ✅ Log pour vérifier la longueur du token
-        Console.WriteLine($"[JWT] Token généré - Longueur: {tokenString.Length} caractères");
-        Console.WriteLine($"[JWT] Token: {tokenString}"); // Pour debug uniquement, à retirer en production
-    
-        return tokenString;
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
+    
+    
 
     private async Task LoadUtilisateursAsync()
     {

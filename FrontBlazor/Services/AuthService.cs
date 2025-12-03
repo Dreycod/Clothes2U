@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using FrontBlazor.Models;
 using FrontBlazor.Models.LoginRegister;
@@ -11,14 +11,16 @@ public class AuthService : BaseGenericService, IAuthService
 {
     public AuthService(HttpClient httpClient) : base(httpClient)
     {
-        
     }
 
     public async Task<Utilisateur?> GetCurrentUserAsync()
     {
         try
         {
-            var response = await _httpClient.GetAsync("Login/me");
+            var request = new HttpRequestMessage(HttpMethod.Get, "Login/me");
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -35,7 +37,13 @@ public class AuthService : BaseGenericService, IAuthService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("Login/signup", compte);
+            var request = new HttpRequestMessage(HttpMethod.Post, "Login/signup")
+            {
+                Content = JsonContent.Create(compte)
+            };
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -93,7 +101,10 @@ public class AuthService : BaseGenericService, IAuthService
     {
         try
         {
-            await _httpClient.PostAsync("Login/logout", null);
+            var request = new HttpRequestMessage(HttpMethod.Post, "Login/logout");
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            await _httpClient.SendAsync(request);
         }
         catch { }
     }

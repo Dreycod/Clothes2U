@@ -1,10 +1,7 @@
-using System.Security.Claims;
 using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
-using API.Models.Repository.Managers;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,24 +12,15 @@ namespace API.Controllers;
 public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int> _annonceManager;
-    private readonly IFavorisRepository _favorisManager;
-    private readonly IDataRepository<Utilisateur, int> _utilisateurManager;
     private readonly IMapper _mapper;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int> annonceManager,IFavorisRepository favorisManager,IDataRepository<Utilisateur, int> utilisateurManager,  IMapper mapper)
+    public AnnonceController(IAnnonceRepository<Annonce, int> manager, IMapper mapper)
     {
-        _annonceManager = annonceManager;
-        _favorisManager = favorisManager;
-        _utilisateurManager = utilisateurManager;
+        _annonceManager = manager;
         _mapper = mapper;
     }
     
-    private async Task<int?> GetCurrentUserId()
-    {
-        var userIdStr = User.FindFirst("userId")?.Value;
-        return  string.IsNullOrEmpty(userIdStr) ? null : int.Parse(userIdStr);
-    }
-    
+    [Authorize]
     [HttpGet("GetActiveAnnonces")]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
     {
@@ -72,7 +60,6 @@ public class AnnonceController : ControllerBase
 
         return Ok(annoncesDTO);
     }
-
     
     [HttpGet("ByCategorieId/{categorieId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]

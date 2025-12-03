@@ -8,40 +8,15 @@ namespace FrontBlazor.Services;
 public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
 {
     public AnnonceService(HttpClient httpClient) : base(httpClient) {}
-    public async Task<List<Annonce>?> GetActiveAnnonces()
+
+    public async Task<List<Annonce>> GetActiveAnnonces()
     {
-        try
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "Annonce/GetActiveAnnonces");
+        var response = await GetWithCredentialsAsync("Annonce/GetActiveAnnonces");
+        response.EnsureSuccessStatusCode();
 
-            // Ajouter un en-tête personnalisé si nécessaire
-            request.Headers.Add("Authorization", "Bearer YOUR_TOKEN");
+        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
 
-            // Log des headers
-            Console.WriteLine("Request Headers:");
-            foreach (var header in request.Headers)
-            {
-                Console.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
-            }
-
-            // Envoi de la requête
-            var response = await _httpClient.SendAsync(request);
-
-            // Vérifier la réponse
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<List<Annonce>>() ?? new List<Annonce>();
-            }
-
-            // Gestion des erreurs HTTP
-            Console.WriteLine($"Error: {response.StatusCode}");
-            return null;
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"HTTP Error (GetActiveAnnonces): {ex.Message}");
-            return null;
-        }
+        return annonces ?? new List<Annonce>();
     }
 
     public async Task<List<Annonce>?> GetAnnoncesByCategorieId(int Id)
@@ -53,8 +28,8 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
     public async Task<List<Annonce?>?> GetAnnoncesBySousCategoryId(int Id)
     {
         return await _httpClient.GetFromJsonAsync<List<Annonce>>(
-             $"Annonce/BySousCategorieId/{Id}"
-         );
+            $"Annonce/BySousCategorieId/{Id}"
+        );
     }
     public async Task<Annonce> GetAnnonceDetailById(int Id)
     {

@@ -3,111 +3,91 @@ using System.Text;
 using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using Microsoft.EntityFrameworkCore;
 using API.Models.Repository.Managers;
 using System.Text.Json.Serialization;
 using API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -----------------------------
-//  DATABASE
-// -----------------------------
 builder.Services.AddDbContext<Clothes2UDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Clothes2UDb")));
 
-// -----------------------------
-//  AUTHENTICATION (JWT + COOKIE)
-// -----------------------------
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-
-// ✅ Récupération de la clé JWT
+// Configuration JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
-Console.WriteLine($"[Program.cs] 🔑 Clé JWT configurée (longueur: {jwtKey?.Length ?? 0})");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
+Console.WriteLine($"🔑 Configuration JWT:");
+Console.WriteLine($"   Key length: {jwtKey?.Length ?? 0} caractères");
+Console.WriteLine($"   Issuer: {jwtIssuer}");
+Console.WriteLine($"   Audience: {jwtAudience}");
 
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        ClockSkew = TimeSpan.FromMinutes(5),
-
-        // IMPORTANT pour que User.FindFirst("uid") et roles fonctionnent
-        NameClaimType = "uid",
-        RoleClaimType = "role"
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
+        options.SaveToken = true;
+        
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            // Lire le cookie "authToken" si présent
-            if (context.Request.Cookies.TryGetValue("authToken", out var cookieToken) &&
-                !string.IsNullOrEmpty(cookieToken))
-            {
-                context.Token = cookieToken;
-            }
-
-            // Debug (facultatif)
-            var authHeader = context.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authHeader))
-            {
-                Console.WriteLine($"📩 Header Authorization: {authHeader.Substring(0, Math.Min(50, authHeader.Length))}...");
-            }
-            else if (!string.IsNullOrEmpty(cookieToken))
-            {
-                Console.WriteLine($"📩 Token lu depuis cookie (length {cookieToken.Length})");
-            }
-            else
-            {
-                Console.WriteLine("⚠️ Aucun token dans Authorization header ni dans cookie");
-            }
-
-            return Task.CompletedTask;
-        },
-
-        OnTokenValidated = ctx =>
+            ValidateIssuer = false,           // ← DÉSACTIVÉ
+            ValidateAudience = true,          // Gardé activé car présent
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+        
+        options.Events = new JwtBearerEvents
         {
-            Console.WriteLine("✅ Token VALIDÉ avec succès !");
-            foreach (var claim in ctx.Principal.Claims)
-                Console.WriteLine($"   Claim: {claim.Type} = {claim.Value}");
-            return Task.CompletedTask;
-        },
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.TryGetValue("authToken", out var token))
+                {
+                    token = token.Trim();
+            
+                    // NE PAS utiliser context.Token - ça ne marche pas
+                    // À la place, injecter dans le header Authorization
+                    context.Request.Headers.Remove("Authorization");
+                    context.Request.Headers.Append("Authorization", $"Bearer {token}");
+            
+                    Console.WriteLine($"✅ [OnMessageReceived] Token ajouté au header Authorization");
+                    Console.WriteLine($"   Token complet: {token}");
+                }
+                else
+                {
+                    Console.WriteLine("❌ [OnMessageReceived] Cookie 'authToken' absent");
+                }
+        
+                return Task.CompletedTask;
+            },
+    
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"❌ [OnAuthenticationFailed] {context.Exception.Message}");
+        
+                // Déboguer ce que le middleware reçoit réellement
+                var authHeader = context.Request.Headers["Authorization"].ToString();
+                Console.WriteLine($"❌ Header Authorization au moment de l'échec: '{authHeader}'");
+        
+                return Task.CompletedTask;
+            },
+    
+            OnTokenValidated = context =>
+            {
+                var userId = context.Principal?.FindFirst("userId")?.Value;
+                var email = context.Principal?.FindFirst("sub")?.Value;
+                Console.WriteLine($"✅✅✅ [OnTokenValidated] Email: {email}, UserId: {userId}");
+                return Task.CompletedTask;
+            }
+        };
+    });
 
-        OnAuthenticationFailed = ctx =>
-        {
-            Console.WriteLine($"❌ Échec de l'authentification JWT : {ctx.Exception?.Message}");
-            return Task.CompletedTask;
-        }
-    };
-});
+builder.Services.AddAuthorization();
 
-
-
-builder.Services.AddAuthorization(config =>
-{
-    config.AddPolicy(Policies.Authorized, Policies.Logged());
-});
-
-// -----------------------------
-//  JSON & CONTROLLERS
-// -----------------------------
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -115,43 +95,26 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// -----------------------------
-//  SWAGGER
-// -----------------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// -----------------------------
-//  CORS (Blazor WebAssembly + cookies)
-// -----------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorDev", policy =>
-    {
-        policy.WithOrigins(
-                "https://localhost:7188",
-                "http://localhost:5094",  
-                "http://localhost:5084",  
-                "https://localhost:7214"  
-            )
+        policy.WithOrigins("http://localhost:5281")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
-    });
+            .AllowCredentials());
 });
 
-// -----------------------------
-//  DEPENDENCY INJECTION
-// -----------------------------
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 builder.Services.AddScoped<IDataRepository<Categorie, int>, CategorieManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
-builder.Services.AddScoped<ITailleRepository, TailleManager>();
+builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
@@ -161,21 +124,46 @@ builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
-builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
-builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
-
-// Services
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
-// -----------------------------
-//  APP
-// -----------------------------
 var app = builder.Build();
 
-// -----------------------------
-//  MIDDLEWARES
-// -----------------------------
+
+// 1. Middleware de diagnostic (le vôtre)
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"\n🌐 ========== NOUVELLE REQUÊTE ==========");
+    Console.WriteLine($"🎯 {context.Request.Method} {context.Request.Path}");
+    // ... vos logs
+    await next();
+    Console.WriteLine($"📤 Réponse: {context.Response.StatusCode}");
+    Console.WriteLine($"==========================================\n");
+});
+
+
+// Middleware de diagnostic
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"\n🌐 ========== NOUVELLE REQUÊTE ==========");
+    Console.WriteLine($"🎯 {context.Request.Method} {context.Request.Path}");
+    Console.WriteLine($"🌍 Origin: {context.Request.Headers["Origin"]}");
+    Console.WriteLine($"🍪 Cookies: {context.Request.Cookies.Count}");
+    
+    foreach (var cookie in context.Request.Cookies)
+    {
+        var preview = cookie.Value.Length > 50 ? cookie.Value.Substring(0, 50) + "..." : cookie.Value;
+        Console.WriteLine($"   🍪 {cookie.Key}: {preview}");
+    }
+    
+    await next();
+    
+    Console.WriteLine($"📤 Réponse: {context.Response.StatusCode}");
+    Console.WriteLine($"==========================================\n");
+});
+
+// CORS AVANT Authentication
+app.UseCors("AllowBlazorDev");
 
 if (app.Environment.IsDevelopment())
 {
@@ -183,19 +171,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-// ✅ ORDRE IMPORTANT : CORS avant Authentication
-app.UseCors("AllowBlazorDev"); 
-
-// ✅ Authentification & Autorisation
-app.UseAuthentication();
+// Ordre CRITIQUE des middlewares
+app.UseAuthentication();  // DOIT être avant UseAuthorization
 app.UseAuthorization();
 
-// Controllers
 app.MapControllers();
 
-Console.WriteLine("🚀 Application démarrée et prête à accepter des connexions");
-
-// Run
 app.Run();
