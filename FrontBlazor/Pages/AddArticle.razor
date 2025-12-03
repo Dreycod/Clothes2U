@@ -1,0 +1,426 @@
+﻿@page "/add-article"
+@rendermode InteractiveServer
+
+<PageTitle>Ajouter un article - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="add-article-page">
+    <div class="add-article-container">
+        <!-- Photos Section -->
+        <div class="photos-section">
+            <h2 class="section-title">Photos de l'article</h2>
+            <p class="section-subtitle">Ajoutez des photos montrer votre article</p>
+
+            <div class="photo-upload-area">
+                @if (uploadedPhotos.Any())
+                {
+                    <div class="uploaded-photos-grid">
+                        @foreach (var photo in uploadedPhotos)
+                        {
+                            <div class="uploaded-photo">
+                                <img src="@photo" alt="Photo" />
+                                <button class="remove-photo-btn" @onclick="() => RemovePhoto(photo)">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        }
+                        @if (uploadedPhotos.Count < 5)
+                        {
+                            <label class="add-more-btn">
+                                <i class="bi bi-plus"></i>
+                                <input type="file" accept="image/*" @onchange="HandlePhotoUpload" style="display: none;" />
+                            </label>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <label class="upload-placeholder">
+                        <i class="bi bi-upload"></i>
+                        <input type="file" accept="image/*" multiple @onchange="HandlePhotoUpload" style="display: none;" />
+                    </label>
+                }
+            </div>
+        </div>
+
+        <!-- Article Information Section -->
+        <div class="info-section">
+            <h2 class="section-title">Informations sur l'article</h2>
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">Nom de l'article</label>
+                    <input type="text" class="form-input" placeholder="Ex: T-Shirt Adidas Vert" @bind="articleName" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Prix (€)</label>
+                    <input type="number" class="form-input" placeholder="0" @bind="price" step="0.01" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Offre négotiable?</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked="@isNegotiable" @onchange="() => SetNegotiable(true)" />
+                            <span>Oui</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked="@(!isNegotiable)" @onchange="() => SetNegotiable(false)" />
+                            <span>Non</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" placeholder="Décrivez l'article, son état, usage, les détails, etc." @bind="description" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brand Section -->
+        <div class="brand-section">
+            <h2 class="section-title">Marque</h2>
+
+            @if (VM_Marque.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement des marques...</span>
+                </div>
+            }
+            else if (VM_Marque.Items != null && VM_Marque.Items.Any())
+            {
+                <div class="button-grid">
+                    @foreach (Marque marque in VM_Marque.Items)
+                    {
+                        <button type="button"
+                                class="category-btn @(selectedMarqueId == marque.MarqueId ? "active" : "")"
+                                @onclick="() => selectedMarqueId = marque.MarqueId">
+                            @marque.NomMarque
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="empty-message">Aucune marque disponible</p>
+            }
+        </div>
+
+        <!-- Size & Color Section -->
+        <div class="size-color-section">
+            <h2 class="section-title">Taille & Couleur</h2>
+
+            <div class="size-color-grid">
+                <div class="size-group">
+                    <label class="form-label">Taille</label>
+                    @if (VM_Taille.IsLoading)
+                    {
+                        <div class="loading-inline">
+                            <div class="spinner-small"></div>
+                            <span>Chargement...</span>
+                        </div>
+                    }
+                    else if (VM_Taille.Items != null && VM_Taille.Items.Any())
+                    {
+                        <div class="size-buttons">
+                            @foreach (Taille taille in VM_Taille.Items)
+                            {
+                                <button type="button"
+                                        class="size-btn @(selectedTailleId == taille.TailleId ? "active" : "")"
+                                        @onclick="() => selectedTailleId = taille.TailleId">
+                                    @taille.Libelletaille
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="empty-message">Aucune taille disponible</p>
+                    }
+                </div>
+
+                <div class="color-group">
+                    <label class="form-label">Couleur</label>
+                    @if (VM_Couleur.IsLoading)
+                    {
+                        <div class="loading-inline">Chargement...</div>
+                    }
+                    else if (VM_Couleur.Items != null && VM_Couleur.Items.Any())
+                    {
+                        <select class="form-input" @bind="selectedCouleurId">
+                            <option value="0">-- Sélectionnez une couleur --</option>
+                            @foreach (Couleur couleur in VM_Couleur.Items)
+                            {
+                                <option value="@couleur.CouleurId">@couleur.Nom</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <input type="text" class="form-input" placeholder="Aucune couleur disponible" disabled />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Category & Condition Section -->
+        <div class="category-section">
+            <h2 class="section-title">Catégorie & État</h2>
+
+            <div class="category-state-grid">
+                <div class="category-group">
+                    <label class="form-label">Catégorie</label>
+                    @if (VM_Categorie.IsLoading)
+                    {
+                        <div class="loading-inline">
+                            <div class="spinner-small"></div>
+                            <span>Chargement...</span>
+                        </div>
+                    }
+                    else if (VM_Categorie.Items != null && VM_Categorie.Items.Any())
+                    {
+                        <div class="button-grid">
+                            @foreach (var categorie in VM_Categorie.Items)
+                            {
+                                <button type="button"
+                                        class="category-btn @(selectedCategorieId == categorie.IdCategorie ? "active" : "")"
+                                        @onclick="() => ToggleCategorieSelection(categorie.IdCategorie)">
+                                    @categorie.LibelleCategorie
+                                </button>
+                            }
+                        </div>
+
+                        @* Show subcategories if a category is selected *@
+                        @if (selectedCategorieId != 0)
+                        {
+                            var selectedCat = VM_Categorie.Items.FirstOrDefault(c => c.IdCategorie == selectedCategorieId);
+                            if (selectedCat?.SousCategories != null && selectedCat.SousCategories.Any())
+                            {
+                                <div class="subcategory-section">
+                                    <label class="form-label">Sous-catégorie</label>
+                                    <div class="button-grid">
+                                        @foreach (var sousCategorie in selectedCat.SousCategories)
+                                        {
+                                            <button type="button"
+                                                    class="category-btn @(selectedSousCategorieId == sousCategorie.SousCategorieId ? "active" : "")"
+                                                    @onclick="() => selectedSousCategorieId = sousCategorie.SousCategorieId">
+                                                @sousCategorie.LibelleSousCategorie
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p class="empty-message">Aucune catégorie disponible</p>
+                    }
+                </div>
+
+                <div class="state-group">
+                    <label class="form-label">État de l'article</label>
+                    <div class="button-grid-2col">
+                        <button type="button" class="state-btn @(insertedEtatArticle == "Neuf" ? "active" : "")" @onclick='() => insertedEtatArticle = "Neuf"'>Neuf</button>
+                        <button type="button" class="state-btn @(insertedEtatArticle == "Très bon état" ? "active" : "")" @onclick='() => insertedEtatArticle = "Très bon état"'>Très bon état</button>
+                        <button type="button" class="state-btn @(insertedEtatArticle == "Bon état" ? "active" : "")" @onclick='() => insertedEtatArticle = "Bon état"'>Bon état</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-cancel" @onclick="Cancel">Annuler</button>
+            <button class="btn-submit" @onclick="PublishArticle">Publier l'article</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Annonce newAnnonce = new Annonce();
+    private List<string> uploadedPhotos = new();
+
+    // Properties that bind to UI and update newAnnonce
+    private string articleName
+    {
+        get => newAnnonce.Title ?? string.Empty;
+        set => newAnnonce.Title = value;
+    }
+
+    private decimal? price
+    {
+        get => newAnnonce.Prix == 0 ? null : newAnnonce.Prix;
+        set => newAnnonce.Prix = value ?? 0;
+    }
+
+    private bool isNegotiable
+    {
+        get => newAnnonce.Negociable;
+        set => newAnnonce.Negociable = value;
+    }
+
+    private string description
+    {
+        get => newAnnonce.Description ?? string.Empty;
+        set => newAnnonce.Description = value;
+    }
+
+    private int? selectedMarqueId
+    {
+        get => newAnnonce.MarqueId;
+        set => newAnnonce.MarqueId = value;
+    }
+
+    private int? selectedTailleId
+    {
+        get => newAnnonce.TailleId;
+        set => newAnnonce.TailleId = value;
+    }
+
+    private int? selectedCouleurId
+    {
+        get => newAnnonce.CouleurId;
+        set => newAnnonce.CouleurId = value;
+    }
+
+    private int? selectedCategorieId
+    {
+        get => newAnnonce.CategorieId;
+        set => newAnnonce.CategorieId = value;
+    }
+
+    private int? selectedSousCategorieId
+    {
+        get => newAnnonce.SousCategorieId;
+        set => newAnnonce.SousCategorieId = value;
+    }
+
+    private string insertedEtatArticle
+    {
+        get => newAnnonce.EtatArticle ?? string.Empty;
+        set => newAnnonce.EtatArticle = value;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_Marque.LoadAsync();
+        await VM_Taille.LoadAsync();
+        await VM_Couleur.LoadAsync();
+        await VM_Categorie.LoadAsync();
+
+        // Load existing annonce from state service if available
+        var existingAnnonce = annonceStateService.GetEntity();
+        if (existingAnnonce != null)
+        {
+            newAnnonce = existingAnnonce;
+            // Photos will automatically populate through uploadedPhotos if needed
+        }
+    }
+
+    private void SetNegotiable(bool value)
+    {
+        isNegotiable = value;
+    }
+
+    private void ToggleCategorieSelection(int categoryId)
+    {
+        selectedCategorieId = categoryId;
+        selectedSousCategorieId = 0; // Reset subcategory when changing category
+    }
+
+    private async Task HandlePhotoUpload(ChangeEventArgs e)
+    {
+        // TODO: Handle actual file upload
+        // Simulate adding photos
+        //uploadedPhotos.Add("https://via.placeholder.com/200");
+    }
+
+    private void RemovePhoto(string photo)
+    {
+        uploadedPhotos.Remove(photo);
+    }
+
+    private void SaveAnnonce()
+    {
+        newAnnonce.DateAnnonce = DateTime.Now;
+        annonceStateService.SetEntity(newAnnonce);
+    }
+
+    private void PublishArticle()
+    {
+        // Validation
+        if (string.IsNullOrWhiteSpace(newAnnonce.Title))
+        {
+            Console.WriteLine("Error: Article name is required");
+            return;
+        }
+
+        if (newAnnonce.Prix <= 0)
+        {
+            Console.WriteLine("Error: Valid price is required");
+            return;
+        }
+
+        if (newAnnonce.MarqueId == 0)
+        {
+            Console.WriteLine("Error: Please select a brand");
+            return;
+        }
+
+        if (newAnnonce.TailleId == 0)
+        {
+            Console.WriteLine("Error: Please select a size");
+            return;
+        }
+
+        if (newAnnonce.CouleurId == 0)
+        {
+            Console.WriteLine("Error: Please select a color");
+            return;
+        }
+
+        if (newAnnonce.CategorieId == 0)
+        {
+            Console.WriteLine("Error: Please select a category");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newAnnonce.EtatArticle))
+        {
+            Console.WriteLine("Error: Please select article condition");
+            return;
+        }
+
+        // Save the annonce
+        SaveAnnonce();
+
+        // TODO: Submit article to API
+        Console.WriteLine("Publishing article...");
+        Console.WriteLine($"Name: {newAnnonce.Title}");
+        Console.WriteLine($"Price: {newAnnonce.Prix}");
+        Console.WriteLine($"Negotiable: {newAnnonce.Negociable}");
+        Console.WriteLine($"Marque ID: {newAnnonce.MarqueId}");
+        Console.WriteLine($"Taille ID: {newAnnonce.TailleId}");
+        Console.WriteLine($"Couleur ID: {newAnnonce.CouleurId}");
+        Console.WriteLine($"Category ID: {newAnnonce.CategorieId}");
+        Console.WriteLine($"Subcategory ID: {newAnnonce.SousCategorieId}");
+        Console.WriteLine($"État: {newAnnonce.EtatArticle}");
+
+        // Navigate back after publishing
+        navigationManager.NavigateTo("/profile");
+    }
+
+    private void Cancel()
+    {
+        // Save the current state even when canceling
+        SaveAnnonce();
+
+        navigationManager.NavigateTo("/");
+    }
+}

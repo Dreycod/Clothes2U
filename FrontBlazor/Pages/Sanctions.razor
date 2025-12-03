@@ -1,0 +1,129 @@
+﻿@page "/moderation/sanctions"
+@rendermode InteractiveServer
+
+<PageTitle>Historique des sanctions - Modération</PageTitle>
+
+<head>
+    <!-- other head content -->
+    <link rel="stylesheet" href="css/moderation-shared.css" />
+</head>
+
+<div class="moderation-page">
+    <div class="moderation-container">
+        <!-- Sidebar -->
+        <aside class="mod-sidebar">
+            <div class="mod-header">
+                <div class="mod-logo">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Moderation Board</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mod-nav">
+                <a href="/moderation" class="mod-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/moderation/signalements" class="mod-nav-item">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>Signalements</span>
+                </a>
+                <a href="/moderation/images" class="mod-nav-item">
+                    <i class="bi bi-image"></i>
+                    <span>Images</span>
+                </a>
+                <a href="/moderation/restauration" class="mod-nav-item">
+                    <i class="bi bi-person-check"></i>
+                    <span>Restauration</span>
+                </a>
+                <a href="/moderation/sanctions" class="mod-nav-item active">
+                    <i class="bi bi-person-x"></i>
+                    <span>Sanctions</span>
+                </a>
+                <a href="/moderation/mots-interdits" class="mod-nav-item">
+                    <i class="bi bi-chat-square-text"></i>
+                    <span>Mots interdits</span>
+                </a>
+                <a href="/moderation/support" class="mod-nav-item">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="mod-content">
+            <h1 class="mod-page-title">Historique des sanctions</h1>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab @(sanctionFilter == "all" ? "active" : "")" @onclick='() => sanctionFilter = "all"'>
+                    Toutes
+                </button>
+                <button class="filter-tab @(sanctionFilter == "warnings" ? "active" : "")" @onclick='() => sanctionFilter = "warnings"'>
+                    Avertissements
+                </button>
+                <button class="filter-tab @(sanctionFilter == "suspensions" ? "active" : "")" @onclick='() => sanctionFilter = "suspensions"'>
+                    Suspensions
+                </button>
+                <button class="filter-tab @(sanctionFilter == "bans" ? "active" : "")" @onclick='() => sanctionFilter = "bans"'>
+                    Bannissements
+                </button>
+            </div>
+
+            <!-- Sanctions Table -->
+            <div class="table-container">
+                <table class="sanctions-table">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Type</th>
+                            <th>Raison</th>
+                            <th>Modérateur</th>
+                            <th>Date</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < 10; i++)
+                        {
+                            var sanctionType = i % 3 == 0 ? "Bannissement" : i % 3 == 1 ? "Suspension" : "Avertissement";
+                            var isActive = i < 3;
+
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar-tiny"></div>
+                                        <span>User @(i + 1)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="sanction-badge @(sanctionType.ToLower())">
+                                        @sanctionType
+                                    </span>
+                                </td>
+                                <td>@(sanctionType == "Bannissement" ? "Spam répété" : sanctionType == "Suspension" ? "Harcèlement" : "Langage inapproprié")</td>
+                                <td>Admin</td>
+                                <td>@DateTime.Now.AddDays(-i).ToString("dd/MM/yyyy")</td>
+                                <td>@(sanctionType == "Bannissement" ? "Permanent" : sanctionType == "Suspension" ? "3 jours" : "N/A")</td>
+                                <td>
+                                    <span class="status-badge @(isActive ? "active" : "expired")">
+                                        @(isActive ? "Active" : "Expirée")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    private string sanctionFilter = "all";
+}

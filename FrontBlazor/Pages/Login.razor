@@ -1,0 +1,239 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+
+@inject NavigationManager Navigation
+@inject ConnexionViewModel VM_Connexion
+
+<PageTitle>Connexion - Clothes2U</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-content">
+        <div class="auth-header">
+            <h1 class="auth-logo">Clothes<span class="logo-accent">2</span>U</h1>
+            <p class="auth-tagline">Achetez et vendez des vêtements d'occasion</p>
+        </div>
+
+        <div class="auth-card">
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>@ErrorMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(SuccessMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@SuccessMessage</span>
+                </div>
+            }
+
+            <div class="auth-tabs">
+                <button class="auth-tab @(IsLoginMode ? "auth-tab-active" : "")" @onclick="ShowLogin">Connexion</button>
+                <button class="auth-tab @(!IsLoginMode ? "auth-tab-active" : "")" @onclick="ShowRegister">Inscription</button>
+            </div>
+
+            @if (IsLoginMode)
+            {
+                <!-- LOGIN FORM -->
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-envelope input-icon"></i>
+                            <input type="email" class="form-control" placeholder="votremail@example.com"
+                                   @bind="LoginEmail" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label">Mot de passe</label>
+                            <a href="/forgot-password" class="forgot-password">Mot de passe oublié?</a>
+                        </div>
+                        <div class="input-with-icon">
+                            <i class="bi bi-lock input-icon"></i>
+                            <input type="@(ShowLoginPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••"
+                                   @bind="LoginPassword" />
+                            <button type="button" class="password-toggle" @onclick="ToggleLoginPassword">
+                                <i class="bi bi-eye@(ShowLoginPassword ? "-slash" : "")"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-submit" @onclick="OnLoginClicked" disabled="@IsLoading">
+                        @if (IsLoading)
+                        {
+                            <span class="spinner"></span>
+                            <span>Connexion en cours...</span>
+                        }
+                        else { <span>Se connecter</span> }
+                    </button>
+
+                    <div class="divider"><span>OU</span></div>
+
+                    <button type="button" class="btn-google" @onclick="OnGoogleClicked">Connectez-vous avec Google</button>
+
+                    <div class="auth-footer">
+                        <span>Pas encore de compte?</span>
+                        <button type="button" class="auth-link-btn" @onclick="ShowRegister">S'inscrire</button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- REGISTER FORM -->
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Pseudo</label>
+                        <input type="text" class="form-control" placeholder="Un pseudo de votre choix" @bind="RegisterUsername" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-envelope input-icon"></i>
+                            <input type="email" class="form-control" placeholder="votremail@example.com" @bind="RegisterEmail" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-lock input-icon"></i>
+                            <input type="@(ShowRegisterPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="RegisterPassword" />
+                            <button type="button" class="password-toggle" @onclick="ToggleRegisterPassword">
+                                <i class="bi bi-eye@(ShowRegisterPassword ? "-slash" : "")"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirmer le mot de passe</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-lock input-icon"></i>
+                            <input type="@(ShowConfirmPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="RegisterConfirmPassword" />
+                            <button type="button" class="password-toggle" @onclick="ToggleConfirmPassword">
+                                <i class="bi bi-eye@(ShowConfirmPassword ? "-slash" : "")"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-check-group">
+                        <input type="checkbox" class="form-check-input" id="terms" @bind="AcceptTerms" />
+                        <label class="form-check-label" for="terms">
+                            J'accepte les <a href="#" class="terms-link">conditions d'utilisation</a> et la <a href="#" class="terms-link">politique de confidentialité</a>
+                        </label>
+                    </div>
+
+                    <button type="button" class="btn-submit" @onclick="OnRegisterClicked" disabled="@IsLoading">
+                        @if (IsLoading)
+                        {
+                            <span class="spinner"></span>
+                            <span>Inscription en cours...</span>
+                        }
+                        else { <span>S'inscrire</span> }
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    // Propriétés UI locales (ne doivent pas être nommées VM_Connexion)
+    public string LoginEmail { get; set; } = string.Empty;
+    public string LoginPassword { get; set; } = string.Empty;
+
+    public string RegisterUsername { get; set; } = string.Empty;
+    public string RegisterEmail { get; set; } = string.Empty;
+    public string RegisterPassword { get; set; } = string.Empty;
+    public string RegisterConfirmPassword { get; set; } = string.Empty;
+    public bool AcceptTerms { get; set; } = false;
+
+    public bool IsLoginMode { get; set; } = true;
+    public bool IsLoading { get; set; } = false;
+
+    public bool ShowLoginPassword { get; set; } = false;
+    public bool ShowRegisterPassword { get; set; } = false;
+    public bool ShowConfirmPassword { get; set; } = false;
+
+    public string ErrorMessage { get; set; } = string.Empty;
+    public string SuccessMessage { get; set; } = string.Empty;
+
+    // UI helpers
+    public void ShowLogin() => IsLoginMode = true;
+    public void ShowRegister() => IsLoginMode = false;
+    public void ToggleLoginPassword() => ShowLoginPassword = !ShowLoginPassword;
+    public void ToggleRegisterPassword() => ShowRegisterPassword = !ShowRegisterPassword;
+    public void ToggleConfirmPassword() => ShowConfirmPassword = !ShowConfirmPassword;
+
+    private async Task OnLoginClicked()
+    {
+        ErrorMessage = SuccessMessage = string.Empty;
+        IsLoading = true;
+
+        try
+        {
+            // Appel de ton ViewModel (signature existante)
+            var result = await VM_Connexion.HandleLogin(LoginEmail, LoginPassword);
+            if (result == "Success")
+            {
+                SuccessMessage = "Connexion réussie.";
+                // Le ViewModel met à jour le _userStateService; on navigue
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                ErrorMessage = result ?? "Erreur lors de la connexion.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnRegisterClicked()
+    {
+        ErrorMessage = SuccessMessage = string.Empty;
+        IsLoading = true;
+
+        try
+        {
+            var result = await VM_Connexion.HandleRegister(RegisterUsername, RegisterEmail, RegisterPassword, RegisterConfirmPassword, AcceptTerms);
+            if (result == "Success")
+            {
+                SuccessMessage = "Inscription réussie.";
+                // Option : basculer en mode connexion automatiquement
+                IsLoginMode = true;
+            }
+            else
+            {
+                ErrorMessage = result ?? "Erreur lors de l'inscription.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnGoogleClicked()
+    {
+        // Ton VM a HandleGoogleLogin sans async; appelle-le si tu veux
+        VM_Connexion.HandleGoogleLogin();
+    }
+}
