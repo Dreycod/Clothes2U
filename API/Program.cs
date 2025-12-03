@@ -163,7 +163,7 @@ builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeM
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
-
+builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
 
 // Services
 builder.Services.AddScoped<IPhotoService, PhotoService>();
