@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_j_recense_rec")]
-public class Recense
+public class Recense : IEntity
 {
     [Key]
     [Column("rec_id")]
@@ -27,4 +27,7 @@ public class Recense
     [ForeignKey(nameof(TagId))]
     [InverseProperty(nameof(Tag.Annonces))]
     public virtual Tag Tag { get; set; } = null!;
+
+    public int GetId() => RecenseId;
+
 }

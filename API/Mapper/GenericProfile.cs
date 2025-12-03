@@ -18,6 +18,7 @@ using API.Models.EntityFramework;
 using API.DTO.NoteUtilisateur;
 using API.DTO.Notification;
 using API.DTO.DemandeRestauration;
+using API.DTO.Recense;
 
 
 namespace API.Mapper;
@@ -277,6 +278,19 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.UtilisateurBloqueLogin, opt => opt.MapFrom(src => src.UtilisateurBloque.Login))
             .ReverseMap();
 
+        CreateMap<Recense, RecenseDTO>()
+            .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ReverseMap();
+
+        CreateMap<Recense, RecenseDetailDTO>()
+            .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.AnnonceTitre, opt => opt.MapFrom(src => src.Annonce.Title))
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.Tag.LibelleTag))
+            .ReverseMap();
 
     }
 }

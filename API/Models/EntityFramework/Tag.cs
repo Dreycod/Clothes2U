@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_tag_tag")]
-public class Tag
+public class Tag : IEntity
 {
     [Key]
     [Column("tag_id")]
@@ -17,4 +17,7 @@ public class Tag
     
     [InverseProperty(nameof(Recense.Tag))]
     public virtual ICollection<Recense> Annonces { get; set; } = new List<Recense>();
+
+    public int GetId() => TagId;
+
 }
