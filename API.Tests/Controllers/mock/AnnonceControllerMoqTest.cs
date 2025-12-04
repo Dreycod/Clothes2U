@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using API.Controllers;
 using API.DTO.Annonce;
 using API.Mapper;
@@ -9,6 +10,7 @@ using API.Models.Repository;
 using API.Models.Repository.Managers;
 using AutoMapper;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,6 +25,8 @@ public class AnnonceControllerMoqTest
     private readonly AnnonceController _controller;
     private readonly Mock<IAnnonceRepository<Annonce,int>>  _manager;
     private readonly IMapper _mapper;
+    private readonly Mock<IFavorisRepository> _favorismanager;
+    private readonly Mock<IDataRepository<Utilisateur, int>> _utilisateurmanager;
     
     private Annonce _default2, _default1, _default3;
     private Utilisateur _defaultUser, _defaultUser2,_defaultUser3;
@@ -43,7 +47,9 @@ public class AnnonceControllerMoqTest
         });
         _mapper = config.CreateMapper();
         _manager = new Mock<IAnnonceRepository<Annonce,int>>();
-        _controller = new AnnonceController(_manager.Object, _mapper);
+        _favorismanager = new Mock<IFavorisRepository>();
+        _utilisateurmanager = new Mock<IDataRepository<Utilisateur, int>>();
+        _controller = new AnnonceController(_manager.Object,_favorismanager.Object ,_mapper);
     }
     
     [TestInitialize]
@@ -240,10 +246,30 @@ public class AnnonceControllerMoqTest
     public void ShouldGetActiveAnnoncesMoq()
     {
         // Arrange
+        var user = new ClaimsPrincipal(new ClaimsIdentity(
+            new Claim[]
+            {
+                new Claim("userId", "2") // tu simules un utilisateur connecté ID = 2
+            },
+            "mock")); 
+        
+        _controller.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = user }
+        };
+        
         _manager
             .Setup(manager => manager.GetActiveAnnonces())
             .ReturnsAsync(new[] { _default1, _default2 , _default3});
         
+        _favorismanager
+            .Setup(repo => repo.CheckIfLiked(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(false);
+        
+        _favorismanager
+            .Setup(repo => repo.CheckIfLiked(2, 2))
+            .ReturnsAsync(true);
+
         // Act
         var result = _controller.GetActiveAnnonces().GetAwaiter().GetResult();
         
@@ -256,7 +282,13 @@ public class AnnonceControllerMoqTest
         Assert.IsNotNull(annonces);
         Assert.AreEqual(3, annonces.Count());
         
+        var annonce2 = annonces.First(a => a.AnnonceId == 2);
+        var check = annonce2.IsLikedByCurrentUser;
+        Assert.IsTrue(annonce2.IsLikedByCurrentUser);
+        
         _manager.Verify(manager => manager.GetActiveAnnonces(), Times.Once);
+        //_utilisateurmanager.Verify(manager => manager.GetByIdAsync(2), Times.Once);
+        
     }
 
     [TestMethod]

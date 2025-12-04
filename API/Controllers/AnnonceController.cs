@@ -23,22 +23,25 @@ public class AnnonceController : ControllerBase
         _mapper = mapper;
     }
     
-    [Authorize]
+    [AllowAnonymous]
     [HttpGet("GetActiveAnnonces")]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         
-        if (User.Identity?.IsAuthenticated == true)
+        if (User?.Identity?.IsAuthenticated == true)
         {
             var userIdClaim = User.FindFirst("userId")?.Value;
 
-            foreach (AnnonceDTO annonce in annoncesDTO)
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int userId))
             {
-                if (await _favorisRepository.CheckIfLiked(int.Parse(userIdClaim), annonce.AnnonceId))
+                foreach (AnnonceDTO annonce in annoncesDTO)
                 {
-                    annonce.IsLikedByCurrentUser = true;
+                    if (await _favorisRepository.CheckIfLiked(int.Parse(userIdClaim), annonce.AnnonceId))
+                    {
+                        annonce.IsLikedByCurrentUser = true;
+                    }
                 }
             }
         }
