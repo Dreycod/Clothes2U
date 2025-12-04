@@ -324,6 +324,29 @@ public class LoginControllerTest
     }
     
     [TestMethod]
+    public async Task ShouldNotSignUpCauseNoPasswordConfirmationNotValid()
+    {
+        //Arrange
+        LoginRequest loginRequest = new LoginRequest
+        {
+            Email = "test@example.com",
+            Login = "test",
+            Password = "Qwerty123!",
+            PasswordConfirm = "Azerty123!"
+        };
+        
+        //Act
+        var result = await _controller.SignUp(loginRequest);
+        
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+        var badRequestObject = result as BadRequestObjectResult;
+        Assert.IsNotNull(badRequestObject);
+        Assert.AreEqual("Les mots de passe ne correspondent pas", badRequestObject.Value);
+    }
+    
+    [TestMethod]
     public async Task ShouldNotSignUpCauseEmailExist()
     {
         //Arrange

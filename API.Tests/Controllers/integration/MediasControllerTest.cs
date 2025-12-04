@@ -9,7 +9,7 @@ using API.Models.EntityFramework;
 using API.Models.Repository.Managers;
 using API.Services;
 using AutoMapper;
-using Castle.Components.DictionaryAdapter.Xml;
+//sing Castle.Components.DictionaryAdapter.Xml;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -262,5 +262,34 @@ public class MediasControllerTest
         var badRequestObjectResult = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequestObjectResult);
         Assert.AreEqual("Fichier requis", badRequestObjectResult.Value);
+    }
+
+    [TestMethod]
+    public async Task ShouldDeletePhoto()
+    {
+        //Arrange
+        _context.Photos.Add(_photo1);
+        _context.SaveChanges();
+        
+        //Act
+        var result = await _controller.DeletePhoto(_photo1.PhotoId);
+        
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result, typeof(NoContentResult));
+    }
+    
+    [TestMethod]
+    public async Task ShouldNotDeletePhotoCauseIdDoesNotExist()
+    {
+        //Arrange
+        int id = 100;
+        
+        //Act
+        var result = await _controller.DeletePhoto(id);
+        
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result, typeof(NotFoundResult));
     }
 }
