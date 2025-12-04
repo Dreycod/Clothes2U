@@ -92,7 +92,7 @@
         isLoggedIn = false;
         showDropdown = false;
         await VM_Connexion.HandleLogout();
-        navigationManager.NavigateTo("/login");
+        navigationManager.NavigateTo(navigationManager.Uri, true);
     }
 
     protected override async Task OnInitializedAsync()
