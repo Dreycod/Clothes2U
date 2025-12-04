@@ -1,3 +1,4 @@
+using API.DTO;
 using API.DTO.Annonce;
 using API.Extensions;
 using API.Models.EntityFramework;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
 
-public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<Annonce, int>
+public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<Annonce, int, FilterDTO>
 {
     public AnnonceManager(Clothes2UDbContext context) : base(context)
     {
@@ -124,8 +125,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> FilterAsync(string? motCle, string? marque,string? categorie,string? sousCategorie, string? taille, double? prix)
+    public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto)
     {
+        
+        throw new NotImplementedException();
+        /*
         var query = BaseAnnonceQuery();
         if (!string.IsNullOrEmpty(motCle))
         {
@@ -158,7 +162,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
 
         var result = await query.ToListAsync();
         
-        return result;
+        return result;*/
     }
 
 

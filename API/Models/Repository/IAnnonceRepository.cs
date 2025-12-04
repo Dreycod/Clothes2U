@@ -2,7 +2,7 @@ using API.DTO.Annonce;
 
 namespace API.Models.Repository;
 
-public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEntity, TIdentifier>
+public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IDataRepository<TEntity, TIdentifier>
 {
     
     Task<IEnumerable<TEntity>> GetByCategorieId(TIdentifier id);
@@ -15,5 +15,5 @@ public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEnt
 
     Task<IEnumerable<TEntity>> GetMostRecentAsync();
     Task<IEnumerable<TEntity>> GetPlusLikeAsync();
-    Task<IEnumerable<TEntity>> FilterAsync(string? motCle, string? marque,string? categorie,string? sousCategorie, string? taille,double? prix);
+    Task<IEnumerable<TEntity>> FilterAsync(TFilterEntity filterDto);
 }

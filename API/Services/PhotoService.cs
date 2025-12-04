@@ -11,14 +11,14 @@ namespace API.Services;
 public class PhotoService : IPhotoService
 {
     private readonly IPhotoRepository<Photo, int> _photoRepository;
-    private readonly IAnnonceRepository<Annonce, int> _annonceRepository;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IDataRepository<Illustre_Annonce, int> _illustreAnnonceRepository;
     private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
     private readonly Clothes2UDbContext _context;
 
     public PhotoService(
         IPhotoRepository<Photo, int> photoRepository,
-        IAnnonceRepository<Annonce, int> annonceRepository,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         IDataRepository<Illustre_Annonce, int> illustreAnnonceRepository,
         IDataRepository<Utilisateur, int> utilisateurRepository,
         Clothes2UDbContext context)

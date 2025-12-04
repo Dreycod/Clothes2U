@@ -1,3 +1,4 @@
+using API.DTO;
 using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
@@ -12,24 +13,19 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class AnnonceController : ControllerBase
 {
-    private readonly IAnnonceRepository<Annonce, int> _annonceManager;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly IFavorisRepository  _favorisRepository;
     private readonly IMapper _mapper;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int> manager,IFavorisRepository favorisManager,  IMapper mapper)
+    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper)
     {
         _annonceManager = manager;
         _favorisRepository = favorisManager;
         _mapper = mapper;
     }
-    
-    [AllowAnonymous]
-    [HttpGet("GetActiveAnnonces")]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
+
+    private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
     {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        
         if (User?.Identity?.IsAuthenticated == true)
         {
             var userIdClaim = User.FindFirst("userId")?.Value;
@@ -45,6 +41,20 @@ public class AnnonceController : ControllerBase
                 }
             }
         }
+
+        return annoncesDTO;
+    }
+    
+    
+    
+    
+    [AllowAnonymous]
+    [HttpGet("GetActiveAnnonces")]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
+    {
+        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
     
@@ -55,6 +65,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces =  await _annonceManager.GetByCategorieId(categorieId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
@@ -65,6 +76,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
     
@@ -75,6 +87,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces =  await _annonceManager.GetBySousCategorieId(sousCategorieId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
     
@@ -89,6 +102,19 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int userId))
+            {
+                if (await _favorisRepository.CheckIfLiked(int.Parse(userIdClaim), id))
+                {
+                    annonceDTO.IsLikedByCurrentUser = true;
+                }
+                
+            }
+        }
         return Ok(annonceDTO);
     }
     
@@ -100,6 +126,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris(id);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
     
@@ -137,6 +164,7 @@ public class AnnonceController : ControllerBase
     {
         var annonces = await _annonceManager.GetMostRecentAsync();
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
@@ -147,6 +175,7 @@ public class AnnonceController : ControllerBase
     {
         var annonces = await _annonceManager.GetPlusLikeAsync();
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
@@ -165,23 +194,15 @@ public class AnnonceController : ControllerBase
         return NoContent();
     }
     
-    
-    
     [HttpGet("productByFilter")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllAnnonceByFilter(
-        [FromQuery] string? motCle = null, 
-        [FromQuery] string? marque = null, 
-        [FromQuery] string? categorie = null,
-        [FromQuery] string? sousCategorie = null,
-        [FromQuery] string? taille = null,
-        [FromQuery] double? prix = null)
+        [FromQuery] FilterDTO filterDto)
     {
-        var annonces = (await _annonceManager.FilterAsync(motCle, marque, categorie, sousCategorie, taille, prix));
+        var annonces = (await _annonceManager.FilterAsync(filterDto));
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return new ActionResult<IEnumerable<AnnonceDTO>>(annoncesDTO);
     }
-
 }
