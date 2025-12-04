@@ -26,26 +26,33 @@ public class AnnonceController : ControllerBase
 
     private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
     {
+        int? userId = GetConnectedUserId();
+        if (userId == null)
+        {
+            foreach (AnnonceDTO annonce in annoncesDTO)
+            {
+                if (await _favorisRepository.CheckIfLiked((int)userId, annonce.AnnonceId))
+                {
+                    annonce.IsLikedByCurrentUser = true;
+                }
+            }
+        }
+        return annoncesDTO;
+    }
+
+    private int? GetConnectedUserId()
+    {
         if (User?.Identity?.IsAuthenticated == true)
         {
             var userIdClaim = User.FindFirst("userId")?.Value;
 
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int userId))
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
             {
-                foreach (AnnonceDTO annonce in annoncesDTO)
-                {
-                    if (await _favorisRepository.CheckIfLiked(int.Parse(userIdClaim), annonce.AnnonceId))
-                    {
-                        annonce.IsLikedByCurrentUser = true;
-                    }
-                }
+                return id;
             }
         }
-
-        return annoncesDTO;
+        return null;
     }
-    
-    
     
     
     [AllowAnonymous]
@@ -102,29 +109,29 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
-        if (User?.Identity?.IsAuthenticated == true)
+        int? userId = GetConnectedUserId();
+        if (userId == null)
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int userId))
+            if (await _favorisRepository.CheckIfLiked((int)userId, id))
             {
-                if (await _favorisRepository.CheckIfLiked(int.Parse(userIdClaim), id))
-                {
-                    annonceDTO.IsLikedByCurrentUser = true;
-                }
-                
+                annonceDTO.IsLikedByCurrentUser = true;
             }
         }
         return Ok(annonceDTO);
     }
-    
-    [HttpGet("ByFavorisUtilisateur/{id}")]
+    [Authorize]
+    [HttpGet("ByFavorisUtilisateur")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(int id)
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur()
     {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris(id);
+        int ? userId = GetConnectedUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
