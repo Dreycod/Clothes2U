@@ -1257,7 +1257,7 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(v => v.UtilisateurId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(v => v.Annonce)
+            entity.HasOne(v => v.AnnonceVisu)
                 .WithMany(a => a.LesVisualisations)
                 .HasForeignKey(v => v.AnnonceId)
                 .OnDelete(DeleteBehavior.Cascade);

@@ -21,13 +21,13 @@ namespace API.Models.EntityFramework
 
         // Relations
         [ForeignKey(nameof(UtilisateurId))]
-        [InverseProperty(nameof(UtilisateurVisu.Visualisations))]
+        [InverseProperty(nameof(Utilisateur.Visualisations))]
         public virtual Utilisateur UtilisateurVisu { get; set; } = null!;
 
         [ForeignKey(nameof(AnnonceId))]
         [InverseProperty(nameof(Annonce.LesVisualisations))]
 
-        public virtual Annonce Annonce { get; set; } = null!;
+        public virtual Annonce AnnonceVisu { get; set; } = null!;
 
         public int GetId() => VisualisationId;
     }

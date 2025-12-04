@@ -12,7 +12,7 @@ namespace API.Models.Repository.Managers
         {
             return _context.Visualisations
                 .Include(v => v.UtilisateurVisu)
-                .Include(v => v.Annonce)
+                .Include(v => v.AnnonceVisu)
                 .AsSplitQuery();
         }
 

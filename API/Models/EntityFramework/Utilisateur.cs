@@ -107,7 +107,7 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(DemandeRestauration.Plaignant))]
     public virtual ICollection<DemandeRestauration> DemandesRestauration { get; set; } = new List<DemandeRestauration>();
 
-    [InverseProperty(nameof(API.Models.EntityFramework.Visualisation.UtilisateurVisu))]
+    [InverseProperty(nameof(Visualisation.UtilisateurVisu))]
     public virtual ICollection<Visualisation> Visualisations { get; set; } = new List<Visualisation>();
 
     public int GetId() => UtilisateurId;

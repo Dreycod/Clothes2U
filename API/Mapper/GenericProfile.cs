@@ -317,7 +317,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.LoginUtilisateur, opt => opt.MapFrom(src => src.UtilisateurVisu.Login))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
-            .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.Annonce.Title))
+            .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.AnnonceVisu.Title))
             .ForMember(dest => dest.DateVisualisation, opt => opt.MapFrom(src => src.DateVisualisation))
             .ReverseMap();
 
