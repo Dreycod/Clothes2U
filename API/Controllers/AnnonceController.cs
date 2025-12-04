@@ -23,7 +23,7 @@ public class AnnonceController : ControllerBase
         _mapper = mapper;
     }
     
-    [Authorize]
+    [AllowAnonymous]
     [HttpGet("GetActiveAnnonces")]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
     {
@@ -162,5 +162,23 @@ public class AnnonceController : ControllerBase
         return NoContent();
     }
     
+    
+    
+    [HttpGet("productByFilter")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllAnnonceByFilter(
+        [FromQuery] string? motCle = null, 
+        [FromQuery] string? marque = null, 
+        [FromQuery] string? categorie = null,
+        [FromQuery] string? sousCategorie = null,
+        [FromQuery] string? taille = null,
+        [FromQuery] double? prix = null)
+    {
+        var annonces = (await _annonceManager.FilterAsync(motCle, marque, categorie, sousCategorie, taille, prix));
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+
+        return new ActionResult<IEnumerable<AnnonceDTO>>(annoncesDTO);
+    }
 
 }
