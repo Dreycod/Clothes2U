@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 
 namespace API.Controllers;
@@ -15,8 +16,19 @@ namespace API.Controllers;
 public class LoginRequest
 {
     public string? Login { get; set; }
+    
+    [EmailAddress(ErrorMessage = "Email invalide.")]
     public string? Email { get; set; }
+    
+    [Required(ErrorMessage = "Mot de passe obligatoire.")]
+    [DataType(DataType.Password)]
+    [RegularExpression(
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+        ErrorMessage = "Mot de passe non conforme."
+    )]
     public string Password { get; set; }
+    
+    [Compare("Password", ErrorMessage = "Les mots de passe ne correspondent pas.")]
     public string? PasswordConfirm { get; set; }
 }
 
@@ -26,14 +38,16 @@ public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly IDataRepository<Utilisateur, int> _dataRepository;
+    private readonly ILoginService _loginService;
     private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
 
-    public LoginController(IConfiguration config, IMapper mapper, IDataRepository<Utilisateur, int> dataRepo)
+    public LoginController(IConfiguration config, IMapper mapper, IDataRepository<Utilisateur, int> dataRepo, ILoginService loginService)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
         _dataRepository = dataRepo;
+        _loginService = loginService;
         
         // LOG POUR VÉRIFIER QUE LA CONFIG EST BIEN CHARGÉE
         Console.WriteLine($"📋 [LoginController] Configuration chargée:");
@@ -46,16 +60,29 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        await LoadUtilisateursAsync();
+        var utilisateurs = await _dataRepository.GetAllAsync();
+        var usersList = utilisateurs?.ToList();
+        
+        if (string.IsNullOrEmpty(request.Login) && string.IsNullOrEmpty(request.Email))
+        {
+            return BadRequest("Email ou login obligatoires.");
+        }
 
         var loginOrEmail = string.IsNullOrEmpty(request.Login) ? request.Email : request.Login;
-        var utilisateur = AuthentificateUtilisateur(loginOrEmail!, request.Password);
+        var auth = _loginService.AuthenticateUtilisateur(loginOrEmail!, request.Password, usersList);;
 
-        if (utilisateur == null)
-            return Unauthorized("Email/Login ou mot de passe incorrect.");
+        if (auth.result != AuthResult.Success)
+        {
+            if(auth.result == AuthResult.InvalidLoginOrEmail)
+                return Unauthorized("Utilisateur inconnu.");
+            return Unauthorized("Votre mot de passe est incorrect.");
+        }
+            
+
+        var utilisateur = auth.user;
 
         // Génération JWT
-        var tokenString = GenerateJwtToken(utilisateur);
+        var tokenString = _loginService.GenerateJwtToken(utilisateur);
 
         // Cookie HttpOnly
         var cookieOptions = new CookieOptions
@@ -75,26 +102,30 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> SignUp([FromBody] LoginRequest request)
     {
-        if (request == null ||
-            string.IsNullOrEmpty(request.Email) ||
-            string.IsNullOrEmpty(request.Login) ||
-            string.IsNullOrEmpty(request.Password) ||
-            string.IsNullOrEmpty(request.PasswordConfirm))
+        if (request == null)
             return BadRequest("Données invalides.");
+        
+        if (string.IsNullOrEmpty(request.Login))
+        {
+            return BadRequest("Login obligatoires.");
+        }
 
-        if (!new EmailAddressAttribute().IsValid(request.Email))
-            return BadRequest("Email invalide.");
-
-        string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
-        if (!Regex.IsMatch(request.Password, pattern))
-            return BadRequest("Mot de passe non conforme.");
-
-        if (request.Password != request.PasswordConfirm)
-            return BadRequest("Les mots de passe ne correspondent pas.");
+        if (string.IsNullOrEmpty(request.Email))
+        {
+            return BadRequest("Email obligatoire.");
+        }
+        
+        
+        if (string.IsNullOrEmpty(request.PasswordConfirm))
+        {
+            return BadRequest("Confirmation de mot de passe obligatoire.");
+        }
 
         var existingUsers = await _dataRepository.GetAllAsync();
+        
         if (existingUsers.Any(u => u.Email.ToUpper() == request.Email.ToUpper()))
             return BadRequest("Cet email est déjà utilisé.");
+        
         if (existingUsers.Any(u => u.Login.ToUpper() == request.Login.ToUpper()))
             return BadRequest("Ce login est déjà utilisé.");
 
@@ -112,7 +143,7 @@ public class LoginController : ControllerBase
         await _dataRepository.AddAsync(newUser);
 
         // JWT
-        var tokenString = GenerateJwtToken(newUser);
+        var tokenString = _loginService.GenerateJwtToken(newUser);
 
         var cookieOptions = new CookieOptions
         {
@@ -130,7 +161,7 @@ public class LoginController : ControllerBase
     public IActionResult Logout()
     {
         Response.Cookies.Delete("authToken");
-        return Ok(new { message = "Déconnexion réussie" });
+        return Ok("Déconnexion réussie");
     }
 
     [HttpGet("me")]
@@ -148,49 +179,42 @@ public class LoginController : ControllerBase
         return Ok(utilisateur);
     }
 
-    private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
-    {
-        return _utilisateurs?.SingleOrDefault(u =>
-            (u.Email.ToUpper() == loginOrEmail.ToUpper() || u.Login.ToUpper() == loginOrEmail.ToUpper())
-            && BCrypt.Net.BCrypt.Verify(password, u.Password));
-    }
+    // private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
+    // {
+    //     return _utilisateurs?.SingleOrDefault(u =>
+    //         (u.Email.ToUpper() == loginOrEmail.ToUpper() || u.Login.ToUpper() == loginOrEmail.ToUpper())
+    //         && BCrypt.Net.BCrypt.Verify(password, u.Password));
+    // }
 
-    private string GenerateJwtToken(Utilisateur utilisateur)
-    {
-        var key = _config["Jwt:Key"];
-        var issuer = _config["Jwt:Issuer"];
-        var audience = _config["Jwt:Audience"];
+    // private string GenerateJwtToken(Utilisateur utilisateur)
+    // {
+    //     var key = _config["Jwt:Key"];
+    //     var issuer = _config["Jwt:Issuer"];
+    //     var audience = _config["Jwt:Audience"];
+    //
+    //     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+    //     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+    //
+    //     var claims = new[]
+    //     {
+    //         new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
+    //         new Claim("userId", utilisateur.UtilisateurId.ToString()),
+    //         new Claim("login", utilisateur.Login),
+    //         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    //     };
+    //
+    //     var tokenDescriptor = new SecurityTokenDescriptor
+    //     {
+    //         Subject = new ClaimsIdentity(claims),
+    //         Expires = DateTime.UtcNow.AddMinutes(30),
+    //         Issuer = issuer,
+    //         Audience = audience,
+    //         SigningCredentials = credentials
+    //     };
+    //
+    //     var tokenHandler = new JwtSecurityTokenHandler();
+    //     var token = tokenHandler.CreateToken(tokenDescriptor);
+    //     return tokenHandler.WriteToken(token);
+    // }
     
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
-            new Claim("userId", utilisateur.UtilisateurId.ToString()),
-            new Claim("login", utilisateur.Login),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(30),
-            Issuer = issuer,
-            Audience = audience,
-            SigningCredentials = credentials
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
-    }
-    
-    
-
-    private async Task LoadUtilisateursAsync()
-    {
-        var utilisateurs = await _dataRepository.GetAllAsync();
-        _utilisateurs = utilisateurs?.ToList();
-    }
 }

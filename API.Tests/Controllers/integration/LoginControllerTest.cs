@@ -157,7 +157,7 @@ public class LoginControllerTest
         Assert.IsInstanceOfType(result, typeof(UnauthorizedObjectResult));
         var unauthorizedObjectResult = result as UnauthorizedObjectResult;
         Assert.IsNotNull(unauthorizedObjectResult);
-        Assert.AreEqual("Email/Login incorrect.", unauthorizedObjectResult.Value);
+        Assert.AreEqual("Utilisateur inconnu.", unauthorizedObjectResult.Value);
     }
     
     [TestMethod]
@@ -180,7 +180,7 @@ public class LoginControllerTest
         Assert.IsInstanceOfType(result, typeof(UnauthorizedObjectResult));
         var unauthorizedObjectResult = result as UnauthorizedObjectResult;
         Assert.IsNotNull(unauthorizedObjectResult);
-        Assert.AreEqual("Email/Login incorrect.", unauthorizedObjectResult.Value);
+        Assert.AreEqual("Utilisateur inconnu.", unauthorizedObjectResult.Value);
     }
 
     [TestMethod]
