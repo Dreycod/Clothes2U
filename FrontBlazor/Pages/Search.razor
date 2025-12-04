@@ -218,8 +218,8 @@
                             <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
                                 <div class="product-image-container">
                                     <div class="product-image"></div>
-                                    <button class="wishlist-btn" @onclick:stopPropagation="true" @onclick="() => ToggleFavorite(annonce.AnnonceId)">
-                                        <i class="bi bi-heart@(IsFavorite(annonce.AnnonceId) ? "-fill" : "")"></i>
+                                    <button class="wishlist-btn" @onclick:stopPropagation="true" @onclick="() => ToggleFavorite(annonce.IsLikedByCurrentUser, annonce.AnnonceId)">
+                                        <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                                     </button>
                                 </div>
 
@@ -259,8 +259,6 @@
     private bool conditionNew = false;
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
-
-    private HashSet<int> favoriteIds = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -387,25 +385,14 @@
         }
     }
 
-    private void ToggleFavorite(int? annonceId)
+    private async void ToggleFavorite(bool isLiked, int annonceId)
     {
-        if (annonceId.HasValue)
+        if (VM_Connexion.CheckLoginStatus == null)
         {
-            if (favoriteIds.Contains(annonceId.Value))
-            {
-                favoriteIds.Remove(annonceId.Value);
-            }
-            else
-            {
-                favoriteIds.Add(annonceId.Value);
-            }
-            // TODO: Call API to save favorite
+            navigationManager.NavigateTo("/login");
+            return;
         }
-    }
-
-    private bool IsFavorite(int? annonceId)
-    {
-        return annonceId.HasValue && favoriteIds.Contains(annonceId.Value);
+        await VM_Annonces.ToggleFavorite(isLiked, annonceId);
     }
 
     private void ResetFilters()
