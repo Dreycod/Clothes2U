@@ -85,12 +85,13 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
     
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
     
             .ReverseMap();
 
 
 
-        CreateMap<FavorisDTO, Favoris>();
+        CreateMap<FavorisDTO, Favoris>().ReverseMap();
         
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId,

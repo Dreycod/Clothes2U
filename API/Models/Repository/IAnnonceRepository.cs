@@ -15,6 +15,5 @@ public interface IAnnonceRepository<TEntity, TIdentifier> : IDataRepository<TEnt
 
     Task<IEnumerable<TEntity>> GetMostRecentAsync();
     Task<IEnumerable<TEntity>> GetPlusLikeAsync();
-
-
+    Task<IEnumerable<TEntity>> FilterAsync(string? motCle, string? marque,string? categorie,string? sousCategorie, string? taille,double? prix);
 }

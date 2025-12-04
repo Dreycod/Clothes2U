@@ -13,7 +13,8 @@ public class AnnonceDetailDTO
     public DateTime DateAnnonce { get; set; }
     public string? EtatArticle { get; set; } = null!;
     public string? Taille { get; set; } = null!;
-    public List<string>? Photos { get; set; } = new();
+    public List<int>? Photos { get; set; } = new();
+    public List<string>? Tags { get; set; } = new();
     public int NombreLikes { get; set; } = 0;
     public decimal Prix { get; set; }
     public string? SousCategorie { get; set; } 

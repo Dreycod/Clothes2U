@@ -19,6 +19,8 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Include(a => a.Categorie)
             .Include(a => a.SousCategorie)
             .Include(a => a.Taille)
+            .Include(a => a.Tags)
+            .ThenInclude(t => t.Tag)
             .Include(a => a.Etat)
             .Include(a => a.Photos)
             .ThenInclude(pa => pa.Photo)
@@ -122,6 +124,42 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Annonce>> FilterAsync(string? motCle, string? marque,string? categorie,string? sousCategorie, string? taille, double? prix)
+    {
+        var query = BaseAnnonceQuery();
+        if (!string.IsNullOrEmpty(motCle))
+        {
+            var lowerMotCle = motCle.ToLower();
+
+            query = query.Where(p =>
+                p.Title.ToLower().Contains(lowerMotCle) ||
+                p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle))
+            );
+        }
+
+
+        if (!string.IsNullOrEmpty(marque))
+            query = query.Where(p => p.Marque.NomMarque == marque);
+
+        if (!string.IsNullOrEmpty(categorie))
+            query = query.Where(p => p.Categorie.LibelleCategorie == categorie);
+        
+        if (!string.IsNullOrEmpty(sousCategorie))
+            query = query.Where(p => p.SousCategorie.LibelleSousCategorie == sousCategorie);
+        
+        if (!string.IsNullOrEmpty(taille))
+            query = query.Where(p => p.Taille.Libelletaille == taille);
+        
+        if (prix.HasValue)
+        {
+            decimal prixDecimal = (decimal)prix.Value;
+            query = query.Where(p => p.Prix == prixDecimal);
+        }
+
+        var result = await query.ToListAsync();
+        
+        return result;
+    }
 
 
 
