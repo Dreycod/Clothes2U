@@ -130,7 +130,8 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAbonnementRepository<Abonnement, int>, AbonnementManager>();
 builder.Services.AddScoped<IVisualisationRepository<Visualisation, int>, VisualisationManager>();
 builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
-
+builder.Services.AddScoped<ITailleRepository, TailleManager>();
+builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>(); 
 
 var app = builder.Build();
 

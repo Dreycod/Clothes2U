@@ -92,7 +92,7 @@ public class GenericProfile : Profile
             .ReverseMap();
 
 
-
+        CreateMap<Marque, MarqueDTO>().ReverseMap();
         CreateMap<FavorisDTO, Favoris>().ReverseMap();
         
         CreateMap<Conversation, ConversationDTO>()
