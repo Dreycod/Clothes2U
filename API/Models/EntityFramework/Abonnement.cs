@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_j_abonnement_abo")]
-public class Abonnement
+public class Abonnement : IEntity
 {
     [Key]
     [Column("abo_id")]
@@ -27,4 +27,7 @@ public class Abonnement
     [ForeignKey(nameof(UtilisateurSuivisId))]
     [InverseProperty(nameof(Utilisateur.Abonnes))]
     public virtual Utilisateur UtilisateurSuivis { get; set; } = null!;
+
+    public int GetId() => AbonnementId;
+
 }

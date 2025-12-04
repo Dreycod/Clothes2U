@@ -1,5 +1,6 @@
 using AutoMapper;
 using API.DTO;
+using API.DTO.Abonnement;
 using API.DTO.Annonce;
 using API.DTO.Bloque;
 using API.DTO.Categorie;
@@ -19,6 +20,7 @@ using API.DTO.NoteUtilisateur;
 using API.DTO.Notification;
 using API.DTO.DemandeRestauration;
 using API.DTO.Recense;
+using API.DTO.Visualisation;
 
 
 namespace API.Mapper;
@@ -292,6 +294,36 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
             .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.Tag.LibelleTag))
             .ReverseMap();
+
+        CreateMap<Abonnement, AbonnementDTO>()
+            .ForMember(dest => dest.AbonnementId, opt => opt.MapFrom(src => src.AbonnementId))
+            .ForMember(dest => dest.UtilisateurSuiveurId, opt => opt.MapFrom(src => src.UtilisateurSuiveurId))
+            .ForMember(dest => dest.UtilisateurSuiviId, opt => opt.MapFrom(src => src.UtilisateurSuivisId))
+            .ReverseMap();
+
+        CreateMap<Abonnement, AbonnementDetailDTO>()
+            .ForMember(dest => dest.AbonnementID, opt => opt.MapFrom(src => src.AbonnementId))
+            .ForMember(dest => dest.UtilisateurSuiveurID, opt => opt.MapFrom(src => src.UtilisateurSuiveurId))
+            .ForMember(dest => dest.LoginUtilisateurSuiveur, opt => opt.MapFrom(src => src.UtilisateurSuiveur.Login))
+            .ForMember(dest => dest.UtilisateurSuiviID, opt => opt.MapFrom(src => src.UtilisateurSuivisId))
+            .ForMember(dest => dest.LoginUtilisateurSuivi, opt => opt.MapFrom(src => src.UtilisateurSuivis.Login))
+            .ReverseMap();
+
+        CreateMap<Visualisation, VisualisationDTO>()
+            .ReverseMap();
+
+        CreateMap<Visualisation, VisualisationDetailDTO>()
+            .ForMember(dest => dest.VisualisationId, opt => opt.MapFrom(src => src.VisualisationId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.LoginUtilisateur, opt => opt.MapFrom(src => src.UtilisateurVisu.Login))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.Annonce.Title))
+            .ForMember(dest => dest.DateVisualisation, opt => opt.MapFrom(src => src.DateVisualisation))
+            .ReverseMap();
+
+        CreateMap<VisualisationCreateDTO, Visualisation>()
+            .ForMember(dest => dest.VisualisationId, opt => opt.Ignore())
+            .ForMember(dest => dest.DateVisualisation, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
     }
 }

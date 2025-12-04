@@ -127,6 +127,10 @@ builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValid
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IAbonnementRepository<Abonnement, int>, AbonnementManager>();
+builder.Services.AddScoped<IVisualisationRepository<Visualisation, int>, VisualisationManager>();
+builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
+
 
 var app = builder.Build();
 
