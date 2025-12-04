@@ -70,7 +70,7 @@ public class ConnexionViewModel
             switch (result)
             {
                 case HttpStatusCode.OK:
-                    return "Succes";
+                    return "Success";
                 
                 case HttpStatusCode.Unauthorized:
                     return "Erreur lors de la connexion";
