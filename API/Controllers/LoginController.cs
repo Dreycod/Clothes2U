@@ -28,7 +28,6 @@ public class LoginRequest
     )]
     public string Password { get; set; }
     
-    [Compare("Password", ErrorMessage = "Les mots de passe ne correspondent pas.")]
     public string? PasswordConfirm { get; set; }
 }
 
@@ -120,6 +119,9 @@ public class LoginController : ControllerBase
         {
             return BadRequest("Confirmation de mot de passe obligatoire.");
         }
+        
+        if (request.Password != request.PasswordConfirm)
+            return BadRequest("Les mots de passe ne correspondent pas");
 
         var existingUsers = await _dataRepository.GetAllAsync();
         
