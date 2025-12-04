@@ -1,26 +1,50 @@
+using FrontBlazor.Attributes;
+using System.Text.Json.Serialization;
+
 namespace FrontBlazor.Models;
 
 public class Annonce: IEntity
 {
-    public int AnnonceId { get; set; }
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public int AnnonceId { get; set; } 
     public string Title { get; set; } = null!;
     public bool Negociable { get; set; }
     public int? UtilisateurId { get; set; }
-    public string? NomMarque { get; set; } = null!;
-    public string? Description { get; set; } = null!;
-
-    public DateTime DateAnnonce { get; set; }
-    public bool IsLikedByCurrentUser { get; set; }
-    public string? EtatArticle { get; set; } = null!;
-    public string? Taille { get; set; } = null!;
-    public List<string>? Photos { get; set; } = new();
-    public int NombreLikes { get; set; } = 0;
     public decimal Prix { get; set; }
+    public string? Description { get; set; } = null!;
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public string? NomMarque { get; set; } = null!;
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public DateTime DateAnnonce { get; set; }
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public bool IsLikedByCurrentUser { get; set; }
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public string? EtatArticle { get; set; } = null!;
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public string? Taille { get; set; } = null!;
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public List<string>? Photos { get; set; } = new();
+    [JsonIgnore]
+    [IgnoreInTemplate]
+    public int NombreLikes { get; set; } = 0;
+    [JsonIgnore]
+    [IgnoreInTemplate]
     public string NomAuteur { get; set; } = null!;
+    [JsonIgnore]
+    [IgnoreInTemplate]
     public string? UriPhotoProfilAuteur { get; set; } = null!;
-
-
+    [JsonIgnore]
+    [IgnoreInTemplate]
     public string? SousCategorie { get; set; }
+    [JsonIgnore]
+    [IgnoreInTemplate]
     public string? Categorie { get; set; }
 
     //id pour les posts : 

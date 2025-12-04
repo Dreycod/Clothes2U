@@ -1,6 +1,5 @@
 ﻿@page "/add-article"
 
-
 <PageTitle>Ajouter un article - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -226,9 +225,9 @@
                 <div class="state-group">
                     <label class="form-label">État de l'article</label>
                     <div class="button-grid-2col">
-                        <button type="button" class="state-btn @(insertedEtatArticle == "Neuf" ? "active" : "")" @onclick='() => insertedEtatArticle = "Neuf"'>Neuf</button>
-                        <button type="button" class="state-btn @(insertedEtatArticle == "Très bon état" ? "active" : "")" @onclick='() => insertedEtatArticle = "Très bon état"'>Très bon état</button>
-                        <button type="button" class="state-btn @(insertedEtatArticle == "Bon état" ? "active" : "")" @onclick='() => insertedEtatArticle = "Bon état"'>Bon état</button>
+                        <button type="button" class="state-btn @(selectedEtatArticleId == 0 ? "active" : "")" @onclick='() => selectedEtatArticleId = 0'>Neuf</button>
+                        <button type="button" class="state-btn @(selectedEtatArticleId == 1 ? "active" : "")" @onclick='() => selectedEtatArticleId = 1'>Très bon état</button>
+                        <button type="button" class="state-btn @(selectedEtatArticleId == 2 ? "active" : "")" @onclick='() => selectedEtatArticleId = 2'>Bon état</button>
                     </div>
                 </div>
             </div>
@@ -271,6 +270,12 @@
         set => newAnnonce.Description = value;
     }
 
+    private int? selectedUtilisateurId
+    {
+        get => newAnnonce.UtilisateurId;
+        set => newAnnonce.UtilisateurId = value;
+    }
+
     private int? selectedMarqueId
     {
         get => newAnnonce.MarqueId;
@@ -301,10 +306,10 @@
         set => newAnnonce.SousCategorieId = value;
     }
 
-    private string insertedEtatArticle
+    private int? selectedEtatArticleId
     {
-        get => newAnnonce.EtatArticle ?? string.Empty;
-        set => newAnnonce.EtatArticle = value;
+        get => newAnnonce.EtatId;
+        set => newAnnonce.EtatId = value;
     }
 
     protected override async Task OnInitializedAsync()
@@ -385,21 +390,24 @@
             return;
         }
 
+        if (newAnnonce.EtatId == 0)
+        {
+            Console.WriteLine("Error: Please select a state");
+            return;
+        }
+
         if (newAnnonce.CategorieId == 0)
         {
             Console.WriteLine("Error: Please select a category");
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(newAnnonce.EtatArticle))
-        {
-            Console.WriteLine("Error: Please select article condition");
-            return;
-        }
-
         // Save the annonce
-        SaveAnnonce();
+      //  VM_Annonce.CreateAnnonceAsync(newAnnonce);
+        //Console.WriteLine($"Annonce creation result: {result}");
+        //SaveAnnonce();
 
+     
         // TODO: Submit article to API
         Console.WriteLine("Publishing article...");
         Console.WriteLine($"Name: {newAnnonce.Title}");
@@ -410,7 +418,8 @@
         Console.WriteLine($"Couleur ID: {newAnnonce.CouleurId}");
         Console.WriteLine($"Category ID: {newAnnonce.CategorieId}");
         Console.WriteLine($"Subcategory ID: {newAnnonce.SousCategorieId}");
-        Console.WriteLine($"État: {newAnnonce.EtatArticle}");
+        Console.WriteLine($"État: {newAnnonce.EtatId}");
+        Console.WriteLine($"Utilisateur: {newAnnonce.UtilisateurId}");
 
         // Navigate back after publishing
         navigationManager.NavigateTo("/profile");

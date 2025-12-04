@@ -7,15 +7,19 @@ namespace FrontBlazor.ViewModel
     public class AnnoncesViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
+        private readonly IFavorisService<Favoris> _favorisService;
+        private readonly IAuthService _authService;
 
         public List<Annonce> Annonces { get; set; } = new List<Annonce>();
         public Annonce? AnnonceDetail { get; set; }
         public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public AnnoncesViewModel(IAnnonceService<Annonce> annonceService)
+        public AnnoncesViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
         {
             _annonceService = annonceService;
+            _favorisService = favorisService;
+            _authService = authService;
         }
 
         public async Task LoadActiveAnnoncesAsync()
@@ -87,6 +91,16 @@ namespace FrontBlazor.ViewModel
             {
                 IsLoading = false;
             }
+        }
+
+        public async Task ToggleFavorite(bool isLiked, int annonceId)
+        {
+            if (isLiked)
+                await _favorisService.AddFavoris(annonceId);
+            else
+                await _favorisService.DeleteFavoris(annonceId);
+
+
         }
     }
 }
