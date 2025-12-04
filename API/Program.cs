@@ -126,6 +126,7 @@ builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeM
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
 
 var app = builder.Build();
 
