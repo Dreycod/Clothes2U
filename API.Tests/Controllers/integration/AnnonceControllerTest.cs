@@ -54,8 +54,11 @@ public class AnnonceControllerTest
         
         InitialzeDefaultAnnonces();
         
+        var favorisManager = new FavorisManager(_context);
+        var utilisateurManager = new UtilisateurManager(_context);
+        
         var manager = new AnnonceManager(_context);
-        _controller = new AnnonceController(manager, _mapper);
+        _controller = new AnnonceController(manager, favorisManager, _mapper);
     }
     
     private void InitialzeDefaultAnnonces()
