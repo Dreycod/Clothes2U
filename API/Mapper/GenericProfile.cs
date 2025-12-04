@@ -91,7 +91,7 @@ public class GenericProfile : Profile
 
 
 
-        CreateMap<FavorisDTO, Favoris>();
+        CreateMap<FavorisDTO, Favoris>().ReverseMap();
         
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId,
