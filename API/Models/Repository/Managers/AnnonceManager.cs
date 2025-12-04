@@ -127,42 +127,67 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
 
     public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto)
     {
-        
-        throw new NotImplementedException();
-        /*
         var query = BaseAnnonceQuery();
-        if (!string.IsNullOrEmpty(motCle))
+        
+        if (!string.IsNullOrEmpty(filterDto.MotCle))
         {
-            var lowerMotCle = motCle.ToLower();
-
+            var lowerMotCle = filterDto.MotCle.ToLower();
             query = query.Where(p =>
                 p.Title.ToLower().Contains(lowerMotCle) ||
                 p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle))
             );
         }
 
+        if (!string.IsNullOrEmpty(filterDto.Marque))
+            query = query.Where(p => p.Marque.NomMarque == filterDto.Marque);
 
-        if (!string.IsNullOrEmpty(marque))
-            query = query.Where(p => p.Marque.NomMarque == marque);
-
-        if (!string.IsNullOrEmpty(categorie))
-            query = query.Where(p => p.Categorie.LibelleCategorie == categorie);
+        if (!string.IsNullOrEmpty(filterDto.Categorie))
+            query = query.Where(p => p.Categorie.LibelleCategorie == filterDto.Categorie);
         
-        if (!string.IsNullOrEmpty(sousCategorie))
-            query = query.Where(p => p.SousCategorie.LibelleSousCategorie == sousCategorie);
+        if (!string.IsNullOrEmpty(filterDto.SousCategorie))
+            query = query.Where(p => p.SousCategorie.LibelleSousCategorie == filterDto.SousCategorie);
         
-        if (!string.IsNullOrEmpty(taille))
-            query = query.Where(p => p.Taille.Libelletaille == taille);
+        if (!string.IsNullOrEmpty(filterDto.Taille))
+            query = query.Where(p => p.Taille.Libelletaille == filterDto.Taille);
         
-        if (prix.HasValue)
+        if (filterDto.Prix.HasValue)
         {
-            decimal prixDecimal = (decimal)prix.Value;
-            query = query.Where(p => p.Prix == prixDecimal);
+            decimal prixDecimal = (decimal)filterDto.Prix.Value;
+            query = query.Where(p => p.Prix <= prixDecimal); 
         }
 
-        var result = await query.ToListAsync();
-        
-        return result;*/
+        query = ApplySorting(query, filterDto);
+
+        return await query.ToListAsync();
+    }
+
+    private IQueryable<Annonce> ApplySorting(IQueryable<Annonce> query, FilterDTO filterDto)
+    {
+        if (filterDto.SortBy == null)
+            return query.OrderByDescending(a => a.DateAnnonce); 
+
+        var isDescending = filterDto.SortOrder == SortOrder.Descending;
+
+        return filterDto.SortBy switch
+        {
+            SortField.Prix => isDescending 
+                ? query.OrderByDescending(a => a.Prix) 
+                : query.OrderBy(a => a.Prix),
+                
+            SortField.DateAnnonce => isDescending 
+                ? query.OrderByDescending(a => a.DateAnnonce) 
+                : query.OrderBy(a => a.DateAnnonce),
+                
+            SortField.Titre => isDescending 
+                ? query.OrderByDescending(a => a.Title) 
+                : query.OrderBy(a => a.Title),
+                
+            SortField.NombreFavoris => isDescending 
+                ? query.OrderByDescending(a => a.UtilisateursFavoris.Count) 
+                : query.OrderBy(a => a.UtilisateursFavoris.Count),
+                
+            _ => query.OrderByDescending(a => a.DateAnnonce)
+        };
     }
 
 
