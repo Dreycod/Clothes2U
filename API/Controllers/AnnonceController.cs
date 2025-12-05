@@ -223,11 +223,22 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllAnnonceByFilter(
-        [FromQuery] FilterDTO filterDto)
+        [FromQuery] FilterDTO filterDto,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30)
     {
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest();
+        }
         var annonces = (await _annonceManager.FilterAsync(filterDto));
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
-        return new ActionResult<IEnumerable<AnnonceDTO>>(annoncesDTO);
+        int skip = (page - 1) * pageSize;
+        var paginatedDTO = annoncesDTO
+            .Skip(skip)
+            .Take(pageSize)
+            .ToList();
+        paginatedDTO = (await LikeAnnonce(paginatedDTO)).ToList();
+        return Ok(paginatedDTO);
     }
 }
