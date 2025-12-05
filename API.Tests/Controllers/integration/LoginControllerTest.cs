@@ -79,6 +79,7 @@ public class LoginControllerTest
             Email = "test@example.com",
             Password = BCrypt.Net.BCrypt.HashPassword("password"),
             Description = "Test User",
+            Telephone = "0777777777"
             // PhotoId = 1,
             // PhotoProfil = _defaultPhoto
         };
