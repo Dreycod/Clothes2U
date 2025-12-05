@@ -12,6 +12,9 @@ public class NotificationMessage : IEntity
     [Column("notmes_message_id")]
     public int MessageId { get; set; }
     
+    [Column("notmes_message_preview")]
+    public string MessagePreview { get; set; }
+    
     [Column("notmes_notification_id")]
     public int NotificationId { get; set; }
     //relation avec les autres tables :

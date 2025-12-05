@@ -47,12 +47,6 @@ public class LoginController : ControllerBase
         _mapper = mapper;
         _dataRepository = dataRepo;
         _loginService = loginService;
-        
-        // LOG POUR VÉRIFIER QUE LA CONFIG EST BIEN CHARGÉE
-        Console.WriteLine($"📋 [LoginController] Configuration chargée:");
-        Console.WriteLine($"   Jwt:Key = {(_config["Jwt:Key"]?.Length > 0 ? "✅ Présent" : "❌ Absent")}");
-        Console.WriteLine($"   Jwt:Issuer = '{_config["Jwt:Issuer"]}'");
-        Console.WriteLine($"   Jwt:Audience = '{_config["Jwt:Audience"]}'");
     }
 
     [HttpPost]

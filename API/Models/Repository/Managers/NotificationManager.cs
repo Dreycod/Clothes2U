@@ -8,47 +8,45 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
     public NotificationManager(Clothes2UDbContext context) : base(context)
     {
     }
-    private IQueryable<Notification> BaseAnnonceQuery()
+
+    /// <summary>
+    /// Base query avec toutes les relations nécessaires pour AutoMapper
+    /// </summary>
+    private IQueryable<Notification> BaseNotificationQuery()
     {
         return _context.Notifications
+            .Include(n => n.NotificationType)
             .Include(n => n.NotificationAdmins)
             .Include(n => n.NotificationAvertissements)
-            .Include(n =>n.NotificationMessages)
-            .Include(n => n.NotificationModifications)
-            .Include(n => n.NotificationNouvellesAnnonces)
-            .AsSplitQuery();
-    }
-    public async Task<IEnumerable<Notification>> GetByUserId(int userId)
-    {
-        return await BaseAnnonceQuery().Where(n => n.UtilisateurId == userId).ToListAsync();
-    }
-    public async Task<IEnumerable<Notification>> GetByUtilisateurIdAsync(int utilisateurId)
-    {
-        return await _context.Notifications
-            .Include(n => n.NotificationType)
             .Include(n => n.NotificationMessages)
             .ThenInclude(nm => nm.Message)
+            .ThenInclude(m => m.Utilisateur)  // <-- essentiel pour récupérer l'auteur
             .Include(n => n.NotificationNouvellesAnnonces)
             .ThenInclude(nna => nna.Annonce)
+            .ThenInclude(a => a.Utilisateur)
             .Include(n => n.NotificationModifications)
             .ThenInclude(nm => nm.Annonce)
-            .Where(n => n.UtilisateurId == utilisateurId)
+            .ThenInclude(a => a.Utilisateur)
+            .AsSplitQuery();
+    }
+
+
+    /// <summary>
+    /// Récupère toutes les notifications d’un utilisateur
+    /// </summary>
+    public async Task<IEnumerable<Notification>> GetByUserId(int userId)
+    {
+        return await BaseNotificationQuery()
+            .Where(n => n.UtilisateurId == userId)
             .OrderByDescending(n => n.DateCreation)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Notification>> GetUnreadByUtilisateurIdAsync(int utilisateurId)
+    public Task<int> GetNotificationsUnreadCountByUserId(int userId)
     {
-        return await _context.Notifications
-            .Include(n => n.NotificationType)
-            .Include(n => n.NotificationMessages)
-            .ThenInclude(nm => nm.Message)
-            .Include(n => n.NotificationNouvellesAnnonces)
-            .ThenInclude(nna => nna.Annonce)
-            .Include(n => n.NotificationModifications)
-            .ThenInclude(nm => nm.Annonce)
-            .Where(n => n.UtilisateurId == utilisateurId && !n.EstLu)
-            .OrderByDescending(n => n.DateCreation)
-            .ToListAsync();
+        return BaseNotificationQuery()
+            .Where(n => n.EstLu == false && n.UtilisateurId == userId)
+            .CountAsync();
     }
+
 }

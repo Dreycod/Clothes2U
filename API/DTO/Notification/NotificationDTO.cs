@@ -2,8 +2,10 @@ namespace API.DTO.Notification;
 
 public class NotificationDTO
 {
-    public int NotificationTypeId { get; set; }
-    
+    public int NotificationId { get; set; }
+    public DateTime DateCreation { get; set; }
+    public string LibelleType { get; set; }
+    public bool EstLu { get; set; }
     
     //message administrateur
     public String? AdminText { get; set; }
@@ -13,14 +15,13 @@ public class NotificationDTO
     public string? MessageAvertissement  { get; set; } = null!;
     
     //Nouveau message
-    public int? MessageId { get; set; }
-    
+    public int? ConversationId { get; set; }
+    public string? MessagePreview { get; set; }    
     //modification annonce
     public int? ModificationAnnonceId { get; set; }
+    public string? NomAuteur { get; set; }
+    public string? Title {get; set;}
     
     //nouvelle annonce
     public int? NouvelleAnnonceId { get; set; }
-    
-    //type d'annonce 
-    public string TypeAnnonce  { get; set; } = null!;
 }
