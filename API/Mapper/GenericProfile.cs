@@ -1,5 +1,6 @@
 using AutoMapper;
 using API.DTO;
+using API.DTO.Abonnement;
 using API.DTO.Annonce;
 using API.DTO.Bloque;
 using API.DTO.Categorie;
@@ -19,6 +20,7 @@ using API.DTO.NoteUtilisateur;
 using API.DTO.Notification;
 using API.DTO.DemandeRestauration;
 using API.DTO.Recense;
+using API.DTO.Visualisation;
 
 
 namespace API.Mapper;
@@ -90,7 +92,7 @@ public class GenericProfile : Profile
             .ReverseMap();
 
 
-
+        CreateMap<Marque, MarqueDTO>().ReverseMap();
         CreateMap<FavorisDTO, Favoris>().ReverseMap();
         
         CreateMap<Conversation, ConversationDTO>()
@@ -174,43 +176,63 @@ public class GenericProfile : Profile
 
         
         CreateMap<Notification, NotificationDTO>()
-            // Type de notification
-            .ForMember(dest => dest.NotificationTypeId,
-                opt => opt.MapFrom(src => src.NotificationTypeId))
+            // Type de notification => libellé
+            .ForMember(dest => dest.LibelleType,
+                opt => opt.MapFrom(src => src.NotificationType.LibelleType))
 
-            // Texte administrateur
+            
+            // --- Est Lu ---
+            .ForMember(dest => dest.EstLu, 
+                opt => opt.MapFrom(src => src.EstLu))
+            // --- Notification Administrateur ---
             .ForMember(dest => dest.AdminText,
-                opt => opt.MapFrom(src => src.NotificationAdmins != null 
-                    ? src.NotificationAdmins.AdminText 
+                opt => opt.MapFrom(src => src.NotificationAdmins != null
+                    ? src.NotificationAdmins.AdminText
                     : null))
 
-            // Message d’avertissement
+            // --- Notification Avertissement ---
             .ForMember(dest => dest.MessageAvertissement,
                 opt => opt.MapFrom(src => src.NotificationAvertissements != null
                     ? src.NotificationAvertissements.MessageAvertissement
                     : null))
 
-            // Nouveau message
-            .ForMember(dest => dest.MessageId,
+            // --- Notification Nouveau Message ---
+            .ForMember(dest => dest.ConversationId,
                 opt => opt.MapFrom(src => src.NotificationMessages != null
-                    ? src.NotificationMessages.MessageId
+                    ? src.NotificationMessages.Message.ConversationId
                     : (int?)null))
 
-            // Modification annonce
+            .ForMember(dest => dest.MessagePreview,
+                opt => opt.MapFrom(src => src.NotificationMessages != null
+                    ? src.NotificationMessages.MessagePreview
+                    : null))
+            
+            // --- Notification Modification Annonce ---
             .ForMember(dest => dest.ModificationAnnonceId,
                 opt => opt.MapFrom(src => src.NotificationModifications != null
                     ? src.NotificationModifications.AnnonceId
                     : (int?)null))
 
-            // Nouvelle annonce
+            .ForMember(dest => dest.NomAuteur,
+                opt => opt.MapFrom(src => src.NotificationMessages != null 
+                    ? src.NotificationMessages.Message.Utilisateur.Login      // auteur du message
+                    : src.NotificationModifications != null
+                        ? src.NotificationModifications.Annonce.Utilisateur.Login  // auteur modif annonce
+                        : src.NotificationNouvellesAnnonces != null
+                            ? src.NotificationNouvellesAnnonces.Annonce.Utilisateur.Login  // auteur nouvelle annonce
+                            : null))
+
+
+            .ForMember(dest => dest.Title,
+                opt => opt.MapFrom(src => src.NotificationModifications != null
+                    ? src.NotificationModifications.Annonce.Title
+                    : null))
+
+            // --- Notification Nouvelle Annonce ---
             .ForMember(dest => dest.NouvelleAnnonceId,
                 opt => opt.MapFrom(src => src.NotificationNouvellesAnnonces != null
                     ? src.NotificationNouvellesAnnonces.AnnonceId
-                    : (int?)null))
-
-            // Type d’annonce (libellé du type)
-            .ForMember(dest => dest.TypeAnnonce,
-                opt => opt.MapFrom(src => src.NotificationType.LibelleType));
+                    : (int?)null));
 
         CreateMap<DemandeRestauration, DemandeRestaurationDTO>()
             .ForMember(dest => dest.DemandeRestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId));
@@ -292,6 +314,36 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
             .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.Tag.LibelleTag))
             .ReverseMap();
+
+        CreateMap<Abonnement, AbonnementDTO>()
+            .ForMember(dest => dest.AbonnementId, opt => opt.MapFrom(src => src.AbonnementId))
+            .ForMember(dest => dest.UtilisateurSuiveurId, opt => opt.MapFrom(src => src.UtilisateurSuiveurId))
+            .ForMember(dest => dest.UtilisateurSuiviId, opt => opt.MapFrom(src => src.UtilisateurSuivisId))
+            .ReverseMap();
+
+        CreateMap<Abonnement, AbonnementDetailDTO>()
+            .ForMember(dest => dest.AbonnementID, opt => opt.MapFrom(src => src.AbonnementId))
+            .ForMember(dest => dest.UtilisateurSuiveurID, opt => opt.MapFrom(src => src.UtilisateurSuiveurId))
+            .ForMember(dest => dest.LoginUtilisateurSuiveur, opt => opt.MapFrom(src => src.UtilisateurSuiveur.Login))
+            .ForMember(dest => dest.UtilisateurSuiviID, opt => opt.MapFrom(src => src.UtilisateurSuivisId))
+            .ForMember(dest => dest.LoginUtilisateurSuivi, opt => opt.MapFrom(src => src.UtilisateurSuivis.Login))
+            .ReverseMap();
+
+        CreateMap<Visualisation, VisualisationDTO>()
+            .ReverseMap();
+
+        CreateMap<Visualisation, VisualisationDetailDTO>()
+            .ForMember(dest => dest.VisualisationId, opt => opt.MapFrom(src => src.VisualisationId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.LoginUtilisateur, opt => opt.MapFrom(src => src.UtilisateurVisu.Login))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.AnnonceVisu.Title))
+            .ForMember(dest => dest.DateVisualisation, opt => opt.MapFrom(src => src.DateVisualisation))
+            .ReverseMap();
+
+        CreateMap<VisualisationCreateDTO, Visualisation>()
+            .ForMember(dest => dest.VisualisationId, opt => opt.Ignore())
+            .ForMember(dest => dest.DateVisualisation, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
     }
 }

@@ -112,7 +112,10 @@ public class Annonce : IEntity
     
     [InverseProperty(nameof(Conversation.LAnnonce))]
     public virtual ICollection<Conversation> LesConversations { get; set; } = new List<Conversation>();
-    
+
+    [InverseProperty(nameof(Visualisation.AnnonceVisu))]
+    public virtual ICollection<Visualisation> LesVisualisations { get; set; } = new List<Visualisation>();
+
     [InverseProperty(nameof(Recense.Annonce))]
     [NavigationProperty]
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();

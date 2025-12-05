@@ -1,3 +1,4 @@
+using API.DTO;
 using API.DTO.Favoris;
 using API.Models.EntityFramework;
 using API.Models.Repository;
@@ -15,10 +16,10 @@ namespace API.Controllers;
 public class FavorisController :  ControllerBase
 {
     private readonly IFavorisRepository _favorisManager;
-    private readonly IAnnonceRepository<Annonce, int> _annonceManager;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly IMapper _mapper;
     
-    public FavorisController(IFavorisRepository manager,IAnnonceRepository<Annonce, int> annonceManager, IMapper mapper)
+    public FavorisController(IFavorisRepository manager,IAnnonceRepository<Annonce, int, FilterDTO> annonceManager, IMapper mapper)
     {
         _favorisManager = manager;
         _annonceManager = annonceManager;

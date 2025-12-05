@@ -6,7 +6,13 @@ using API.Models.Repository;
 using Microsoft.EntityFrameworkCore;
 using API.Models.Repository.Managers;
 using System.Text.Json.Serialization;
+using API.DTO;
 using API.Services;
+using API.Services.Email;
+using API.Services.Notifications;
+using API.Services.Notifications.Observers;
+using API.Services.SMS;
+using API.Services.Verification;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -117,9 +123,8 @@ builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
-builder.Services.AddScoped<IAnnonceRepository<Annonce, int>, AnnonceManager>();
+builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
-builder.Services.AddScoped<INotificationRepository<Notification>, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
@@ -127,8 +132,44 @@ builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValid
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IAbonnementRepository<Abonnement, int>, AbonnementManager>();
+builder.Services.AddScoped<IVisualisationRepository<Visualisation, int>, VisualisationManager>();
+builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
+builder.Services.AddScoped<ITailleRepository, TailleManager>();
+builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>(); 
+builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
+
+
+//services
+builder.Services.AddScoped<IVerificationService, VerificationService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
+
+
+
+
+//notification
+builder.Services.AddScoped<INotificationRepository, NotificationManager>();
+builder.Services.AddScoped<INotificationMessageRepository, NotificationMessageManager>();
+builder.Services.AddScoped<INotificationNouvelleAnnonceRepository, NotificationNouvelleAnnonceManager>();
+builder.Services.AddScoped<INotificationModificationAnnonceRepository, NotificationModificationAnnonceManager>();
+
+// Service de notification - Singleton (mais utilise IServiceProvider pour créer des scopes)
+builder.Services.AddSingleton<INotificationService, NotificationService>();
+
+// Observers - Scoped (IMPORTANT: ne plus les enregistrer comme INotificationObserver)
+builder.Services.AddScoped<MessageNotificationObserver>();
+builder.Services.AddScoped<NouvelleAnnonceNotificationObserver>();
+builder.Services.AddScoped<ModificationAnnonceNotificationObserver>();
+
 
 var app = builder.Build();
+
+
+var notificationService = app.Services.GetRequiredService<INotificationService>();
+notificationService.Subscribe<MessageNotificationObserver>();
+notificationService.Subscribe<NouvelleAnnonceNotificationObserver>();
+notificationService.Subscribe<ModificationAnnonceNotificationObserver>();
 
 
 // 1. Middleware de diagnostic (le vôtre)

@@ -70,7 +70,7 @@ namespace FrontBlazor.ViewModel
                 IsLoading = false;
             }
         }
-        public async Task CreateAnnonceAsync(Annonce newAnnonce)
+        public async Task<bool> CreateAnnonceAsync(Annonce newAnnonce)
         {
             IsLoading = true;
             ErrorMessage = null;
@@ -80,12 +80,15 @@ namespace FrontBlazor.ViewModel
                 if (createdAnnonce != null)
                 {
                     Annonces.Add(createdAnnonce);
+                    return true;
                 }
+                return false;
             }
             catch (Exception ex)
             {
                 ErrorMessage = "Erreur lors de la création de l'annonce";
                 Console.WriteLine($"Error: {ex.Message}");
+                return false;
             }
             finally
             {

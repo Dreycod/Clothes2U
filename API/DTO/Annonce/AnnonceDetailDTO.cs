@@ -19,6 +19,7 @@ public class AnnonceDetailDTO
     public decimal Prix { get; set; }
     public string? SousCategorie { get; set; } 
     public string? Categorie { get; set; } 
+    public bool IsLikedByCurrentUser { get; set; }
     
     //id pour les posts : 
     

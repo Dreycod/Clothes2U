@@ -5,7 +5,8 @@ namespace API.Models;
 
 public partial class Clothes2UDbContext : DbContext
 {
-    public DbSet<Abonnement> Abonnements { get; set; } 
+    public DbSet<Abonnement> Abonnements { get; set; }
+    public DbSet<VerificationCode> VerificationCodes { get; set; }
     public DbSet<Achete> Achetes { get; set; }
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
@@ -51,8 +52,10 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<TypeSuspension> TypeSuspensions { get; set; }
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     public DbSet<Vend> Vends { get; set; }
-    
-    
+    public DbSet<Visualisation> Visualisations { get; set; }
+
+
+
     public Clothes2UDbContext() { }
 
     public Clothes2UDbContext(DbContextOptions<Clothes2UDbContext> options) : base(options) { }
@@ -1227,7 +1230,52 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.UtilisateurVendeurId)
                 .HasDatabaseName("idx_vend_utilisateur");
         });
-        
+
+        modelBuilder.Entity<VerificationCode>(entity =>
+        {
+            entity.ToTable("t_e_verification_code_ver");
+            entity.HasKey(e => e.VerificationCodeId);
+        });
+
+        modelBuilder.Entity<Visualisation>(entity =>
+        {
+            entity.ToTable("t_j_visualisation_vis");
+
+            entity.HasKey(e => e.VisualisationId);
+
+            entity.Property(e => e.VisualisationId)
+                .HasColumnName("vis_id")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.UtilisateurId)
+                .HasColumnName("vis_utilisateur_id")
+                .IsRequired();
+
+            entity.Property(e => e.AnnonceId)
+                .HasColumnName("vis_annonce_id")
+                .IsRequired();
+
+            entity.Property(e => e.DateVisualisation)
+                .HasColumnName("vis_date")
+                .IsRequired();
+
+            entity.HasOne(v => v.UtilisateurVisu)
+                .WithMany(u => u.Visualisations)
+                .HasForeignKey(v => v.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(v => v.AnnonceVisu)
+                .WithMany(a => a.LesVisualisations)
+                .HasForeignKey(v => v.AnnonceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.UtilisateurId)
+                .HasDatabaseName("idx_visualisation_utilisateur_utilisateurid");
+
+            entity.HasIndex(e => e.AnnonceId)
+                .HasDatabaseName("idx_visualisation_annonce_annonceid");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 

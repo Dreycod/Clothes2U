@@ -12,13 +12,40 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class NotificationController : ControllerBase
 {
-    private readonly INotificationRepository<Notification> _notificationManager;
+    private readonly INotificationRepository _notificationManager;
     private readonly IMapper _mapper;
 
-    public NotificationController(INotificationRepository<Notification> notificationManager, IMapper mapper)
+    public NotificationController(INotificationRepository notificationManager, IMapper mapper)
     {
         _notificationManager = notificationManager;
         _mapper = mapper;
+    }
+    private int? GetConnectedUserId()
+    {
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+            {
+                return id;
+            }
+        }
+        return null;
+    }
+
+    [HttpGet("notificationCount")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<int>> GetNotificationsUnreadCountByUser()
+    {
+        int? userId =  GetConnectedUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        int count = await _notificationManager.GetNotificationsUnreadCountByUserId((int)userId);
+        return count;
     }
 
     [HttpGet("byUserId/{userId}")]
@@ -30,6 +57,23 @@ public class NotificationController : ControllerBase
         IEnumerable<NotificationDTO> notificationDtos = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
         return Ok(notificationDtos);
     }
+
+    [HttpPut("markAsRead")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> MarkAsRead()
+    {
+        int? userId = GetConnectedUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        await  _notificationManager.MarkAsRead((int)userId);
+        return NoContent();
+    }
+    
+    
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

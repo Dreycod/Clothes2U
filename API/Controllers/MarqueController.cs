@@ -1,5 +1,8 @@
+using API.DTO;
+using API.DTO.Taille;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -11,19 +14,22 @@ namespace API.Controllers;
 public class MarqueController : ControllerBase
 {
     private readonly IDataRepository<Marque, int> _marqueManager;
+    private readonly IMapper _mapper;
 
-    public MarqueController(IDataRepository<Marque, int> manager)
+    public MarqueController(IDataRepository<Marque, int> manager, IMapper mapper)
     {
         _marqueManager= manager;
+        _mapper = mapper;
     }
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<Marque>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Marque>> GetAllMarques()
+    public async Task<ActionResult<MarqueDTO>> GetAllMarques()
     {
         IEnumerable<Marque> marques = await _marqueManager.GetAllAsync();
-        return Ok(marques);
+        IEnumerable<MarqueDTO> marquesDTO = _mapper.Map<IEnumerable<MarqueDTO>>(marques);
+        return Ok(marquesDTO);
     }
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(Marque),StatusCodes.Status200OK)]
