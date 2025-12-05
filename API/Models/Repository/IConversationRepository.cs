@@ -4,5 +4,6 @@ public interface IConversationRepository<TEntity, TIdentifier> : IDataRepository
 {
     Task<TEntity> GetByIdAsync(TIdentifier id);
     Task<IEnumerable<TEntity>> GetAllAsyncByUser(TIdentifier id);
-    
+    Task<int?> GetOtherUser(int currentUserId, TEntity entity);
+
 }

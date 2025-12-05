@@ -3,6 +3,8 @@ using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
+using API.Services.Notifications;
+using API.Services.Notifications.Events;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +17,15 @@ public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly IFavorisRepository  _favorisRepository;
+    private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper)
+    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService)
     {
         _annonceManager = manager;
         _favorisRepository = favorisManager;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
@@ -64,17 +68,6 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
-    
-    [HttpGet("ByCategorieId/{categorieId}")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByCategorieId(int  categorieId)
-    {
-        IEnumerable<Annonce> annonces =  await _annonceManager.GetByCategorieId(categorieId);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
-        return Ok(annoncesDTO);
-    }
 
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -82,17 +75,6 @@ public class AnnonceController : ControllerBase
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByUtilisateurId(int utilisateurId)
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
-        return Ok(annoncesDTO);
-    }
-    
-    [HttpGet("BySousCategorieId/{categorieId}")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllBySousCategorieId(int  sousCategorieId)
-    {
-        IEnumerable<Annonce> annonces =  await _annonceManager.GetBySousCategorieId(sousCategorieId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
@@ -136,7 +118,41 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
+
+    [Authorize]
+    [HttpPut("id/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> PutAnnonce(int id, [FromBody] AnnonceDetailDTO annonceDTO)
+    {
+        if (id != annonceDTO.AnnonceId)
+        {
+            return BadRequest();
+        }
+        int? userId = GetConnectedUserId();
+        if (userId == null || userId != annonceDTO.UtilisateurId)
+        {
+            return Unauthorized();
+        }
+        Annonce annonceToUpdate = await _annonceManager.GetByIdAsync(id);
+        if (annonceToUpdate == null)
+        {
+            return NotFound();
+        }
+        Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
+        await _annonceManager.UpdateAsync(annonceToUpdate, annonce);
+        var notificationEvent = new ModificationAnnonceEvent()
+        {
+            AnnonceId = annonce.AnnonceId,
+            CreatorId = annonce.UtilisateurId,
+            
+        };
+        await _notificationService.NotifyAsync(notificationEvent);
+        return NoContent();
+    }
     
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -147,21 +163,23 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+        int? userId = GetConnectedUserId();
+        if (userId == null || userId != annonceDto.UtilisateurId)
+        {
+            return Unauthorized();
+        }
 
         var annonce =  _mapper.Map<Annonce>(annonceDto);
         await _annonceManager.AddAsync(annonce);
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
+        var notificationEvent = new NewAnnonceEvent
+        {
+            AnnonceId = annonce.AnnonceId,
+            CreatorId = annonce.UtilisateurId,
+            
+        };
+        await _notificationService.NotifyAsync(notificationEvent);
         return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
-    }
-
-    [HttpPost("Search")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> Search([FromBody] AnnonceSearchRequestDTO request)
-    {
-        var annonces = await _annonceManager.SearchAsync(request);
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
     }
 
     [HttpGet("MostRecent")]

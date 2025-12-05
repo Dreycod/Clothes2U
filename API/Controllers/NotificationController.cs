@@ -12,10 +12,10 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class NotificationController : ControllerBase
 {
-    private readonly INotificationRepository<Notification> _notificationManager;
+    private readonly INotificationRepository _notificationManager;
     private readonly IMapper _mapper;
 
-    public NotificationController(INotificationRepository<Notification> notificationManager, IMapper mapper)
+    public NotificationController(INotificationRepository notificationManager, IMapper mapper)
     {
         _notificationManager = notificationManager;
         _mapper = mapper;

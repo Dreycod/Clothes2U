@@ -1,6 +1,22 @@
+using API.Models.EntityFramework;
+
 namespace API.Models.Repository;
 
-public interface INotificationRepository<TEntity> : IDataRepository<TEntity, int>
+public interface INotificationRepository : IDataRepository<Notification, int>
 {
-    public Task<IEnumerable<TEntity>> GetByUserId(int userId);
+    Task<IEnumerable<Notification>> GetByUtilisateurIdAsync(int utilisateurId);
+    Task<IEnumerable<Notification>> GetUnreadByUtilisateurIdAsync(int utilisateurId);
+    public Task<IEnumerable<Notification>> GetByUserId(int userId);
+}
+
+public interface INotificationMessageRepository : IDataRepository<NotificationMessage, int>
+{
+}
+
+public interface INotificationNouvelleAnnonceRepository : IDataRepository<NotificationNouvelleAnnonce, int>
+{
+}
+
+public interface INotificationModificationAnnonceRepository : IDataRepository<NotificationModificationAnnonce, int>
+{
 }

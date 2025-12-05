@@ -35,5 +35,20 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Where(a => a.Vendeur.UtilisateurVendeurId == id || a.Acheteur.UtilisateurAcheteurId == id)
             .ToListAsync();
     }
+
+    public async Task<int?> GetOtherUser(int currentUserId, Conversation conversation)
+    {
+        int? otherUserId = null;
+        if (conversation.Acheteur.UtilisateurAcheteurId == currentUserId)
+        {
+            otherUserId = conversation.Vendeur?.UtilisateurVendeurId;
+        }
+            
+        else if (conversation.Vendeur.UtilisateurVendeurId == currentUserId)
+        {
+            otherUserId = conversation.Acheteur?.UtilisateurAcheteurId;
+        }
+        return otherUserId;
+    }
     
 }

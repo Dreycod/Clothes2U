@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_notification_modifiaction_notmod")]
-public class NotificationModificationAnnonce
+public class NotificationModificationAnnonce : IEntity
 {
     [Key]
     [Column("notmod_id")]
@@ -25,4 +25,6 @@ public class NotificationModificationAnnonce
     [ForeignKey(nameof(NotificationId))]
     [InverseProperty(nameof(Notification.NotificationModifications))]
     public virtual Notification LaNotification { get; set; } = null!;
+    
+    public int GetId() => NotificationModificationId;
 }

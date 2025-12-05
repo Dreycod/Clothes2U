@@ -5,7 +5,8 @@ namespace API.Models;
 
 public partial class Clothes2UDbContext : DbContext
 {
-    public DbSet<Abonnement> Abonnements { get; set; } 
+    public DbSet<Abonnement> Abonnements { get; set; }
+    public DbSet<VerificationCode> VerificationCodes { get; set; }
     public DbSet<Achete> Achetes { get; set; }
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
@@ -1228,6 +1229,12 @@ public partial class Clothes2UDbContext : DbContext
             // Index pour rechercher les ventes d'un utilisateur
             entity.HasIndex(e => e.UtilisateurVendeurId)
                 .HasDatabaseName("idx_vend_utilisateur");
+        });
+
+        modelBuilder.Entity<VerificationCode>(entity =>
+        {
+            entity.ToTable("t_e_verification_code_ver");
+            entity.HasKey(e => e.VerificationCodeId);
         });
 
         modelBuilder.Entity<Visualisation>(entity =>

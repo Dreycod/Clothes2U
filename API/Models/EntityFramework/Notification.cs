@@ -10,7 +10,11 @@ public class Notification : IEntity
     [Column("not_id")]
     public int NotificationId { get; set; }
     
-    //id des relations : 
+    [Column("not_date_creation")]
+    public DateTime DateCreation { get; set; } = DateTime.UtcNow;
+    
+    [Column("not_est_lu")]
+    public bool EstLu { get; set; } = false;
     
     [Column("not_type_id")]
     public int NotificationTypeId { get; set; }

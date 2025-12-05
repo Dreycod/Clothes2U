@@ -138,6 +138,8 @@ public class LoginController : ControllerBase
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Description = "",
             StatutId = 1,
+            ValidEmail = false,
+            ValidTelephone = false,
             Dateinscription = DateTime.UtcNow,
             RoleId = 1
         };
