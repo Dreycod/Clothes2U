@@ -47,7 +47,7 @@ public class MarqueController : ControllerBase
     [ProducesResponseType(typeof(Marque), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Marque>> AddAnnonce(Marque marque)
+    public async Task<ActionResult<Marque>> AddMarque(Marque marque)
     {
         if (!ModelState.IsValid)
         {
@@ -60,7 +60,7 @@ public class MarqueController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteAnnonce(int id) 
+    public async Task<IActionResult> DeleteMarque(int id) 
     {
         Marque? marqueToDelete = await _marqueManager.GetByIdAsync(id);
         if (marqueToDelete == null)

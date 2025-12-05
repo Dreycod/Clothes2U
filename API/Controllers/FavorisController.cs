@@ -6,6 +6,7 @@ using API.Models.Repository.Managers;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Favoris = API.Models.EntityFramework.Favoris;
 
 namespace API.Controllers;
 
