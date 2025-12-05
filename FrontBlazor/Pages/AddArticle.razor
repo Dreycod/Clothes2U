@@ -1,5 +1,5 @@
 ﻿@page "/add-article"
-
+@inject AnnoncesViewModel VM_Annonce
 <PageTitle>Ajouter un article - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -232,19 +232,35 @@
                 </div>
             </div>
         </div>
+        <!-- Success/Error Message Section -->
+        @if (HasCreated.HasValue)
+        {
+            <div class="status-message @((HasCreated.Value ? "success" : "error"))">
+                @if (HasCreated.Value)
+                {
+                    <p>Succès! L'article a été créé avec succès.</p>
+                }
+                else
+                {
+                    <p>Erreur! Il y a eu un problème lors de la création de l'article.</p>
+                }
+            </div>
+        }
 
         <!-- Action Buttons -->
         <div class="action-buttons">
             <button class="btn-cancel" @onclick="Cancel">Annuler</button>
             <button class="btn-submit" @onclick="PublishArticle">Publier l'article</button>
         </div>
+
     </div>
 </div>
 
 @code {
     private Annonce newAnnonce = new Annonce();
     private List<string> uploadedPhotos = new();
-
+    bool? HasCreated = null;
+    #region Variables
     // Properties that bind to UI and update newAnnonce
     private string articleName
     {
@@ -311,6 +327,7 @@
         get => newAnnonce.EtatId;
         set => newAnnonce.EtatId = value;
     }
+    #endregion
 
     protected override async Task OnInitializedAsync()
     {
@@ -338,7 +355,7 @@
         selectedCategorieId = categoryId;
         selectedSousCategorieId = 0; // Reset subcategory when changing category
     }
-
+    #region Photo Methods
     private async Task HandlePhotoUpload(ChangeEventArgs e)
     {
         // TODO: Handle actual file upload
@@ -350,6 +367,7 @@
     {
         uploadedPhotos.Remove(photo);
     }
+    #endregion
 
     private void SaveAnnonce()
     {
@@ -357,9 +375,9 @@
         annonceStateService.SetEntity(newAnnonce);
     }
 
-    private void PublishArticle()
+    private async Task PublishArticle()
     {
-        // Validation
+        #region Validation
         if (string.IsNullOrWhiteSpace(newAnnonce.Title))
         {
             Console.WriteLine("Error: Article name is required");
@@ -401,13 +419,15 @@
             Console.WriteLine("Error: Please select a category");
             return;
         }
-
+        #endregion
         // Save the annonce
-      //  VM_Annonce.CreateAnnonceAsync(newAnnonce);
+        bool result = await VM_Annonce.CreateAnnonceAsync(newAnnonce);
+        HasCreated = result;
+
         //Console.WriteLine($"Annonce creation result: {result}");
         //SaveAnnonce();
 
-     
+        #region Debug Output    
         // TODO: Submit article to API
         Console.WriteLine("Publishing article...");
         Console.WriteLine($"Name: {newAnnonce.Title}");
@@ -420,9 +440,9 @@
         Console.WriteLine($"Subcategory ID: {newAnnonce.SousCategorieId}");
         Console.WriteLine($"État: {newAnnonce.EtatId}");
         Console.WriteLine($"Utilisateur: {newAnnonce.UtilisateurId}");
-
+        #endregion
         // Navigate back after publishing
-        navigationManager.NavigateTo("/profile");
+        StateHasChanged();
     }
 
     private void Cancel()
