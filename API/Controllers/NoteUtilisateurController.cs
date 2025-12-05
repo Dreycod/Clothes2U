@@ -2,6 +2,7 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -42,11 +43,30 @@ namespace API.Controllers
 
             return Ok(_mapper.Map<NoteUtilisateurDetailDTO>(note));
         }
+        private int? GetConnectedUserId()
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userIdClaim = User.FindFirst("userId")?.Value;
 
+                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+                {
+                    return id;
+                }
+            }
+            return null;
+        }
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<NoteUtilisateurDTO>> AddNote(NoteUtilisateurCreateDTO dto)
         {
+            int? userId = GetConnectedUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
             var entity = _mapper.Map<NoteUtilisateur>(dto);
+            entity.AuteurId = (int)userId;
             await _repo.AddAsync(entity);
 
             return CreatedAtAction(nameof(GetById), new { id = entity.NoteUtilisateurId },

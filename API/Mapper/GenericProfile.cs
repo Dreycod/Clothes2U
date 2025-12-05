@@ -135,16 +135,19 @@ public class GenericProfile : Profile
             .ForMember(dest=> dest.Utilisateur,opt=> opt.MapFrom(src=>src.Utilisateur.Login));
 
  
-
-        CreateMap<NoteUtilisateur, NoteUtilisateurDTO>();
+        CreateMap<NoteUtilisateur, NoteUtilisateurDTO>()
+            .ForMember(dest => dest.NoteurId, opt => opt.MapFrom(src => src.AuteurId))  
+            .ForMember(dest => dest.NoteId, opt => opt.MapFrom(src => src.CibleId));    
 
         CreateMap<NoteUtilisateur, NoteUtilisateurDetailDTO>()
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
             .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
 
         CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
-            .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow));
-
+            .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))      
+            .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.NoteUtilisateurId, opt => opt.Ignore()); 
+        
         CreateMap<Signalement, SignalementDTO>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login));

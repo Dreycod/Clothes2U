@@ -9,39 +9,37 @@ public class NoteUtilisateur : IEntity
 {
     [Key]
     [Column("notuti_id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // ✅ Ajoutez ceci
     public int NoteUtilisateurId { get; set; }
-    
+
     [Column("notuti_note")]
-    [Range(0, 5, ErrorMessage = "La note doit être comprise entre 0 et 5.")]
+    [Range(0, 5)]
     public int Note { get; set; }
-    
+
     [Column("notuti_commentaire")]
     [MaxLength(200)]
     public string Commentaire { get; set; }
-    
+
     [Column("notuti_date")]
     public DateTime DatePublication { get; set; }
-    
-    //id pour les relations
+
+    // id pour les relations
     [Column("notuti_noteur_id")]
-    public int NoteurId { get; set; }
-    
-    [Column("notuti_note_id")]
-    public int NoteId { get; set; }
-    
-    //relation avec les autres tables
-    
-    [ForeignKey(nameof(NoteurId))]
+    public int AuteurId { get; set; }
+
+    [Column("notuti_cible_id")]
+    public int CibleId { get; set; }
+
+    [ForeignKey(nameof(AuteurId))]
     [InverseProperty(nameof(Utilisateur.NotesAuteur))]
-    public virtual Utilisateur Auteur { get; set; } = null!;
-    
-    [ForeignKey(nameof(NoteId))]
+    public Utilisateur Auteur { get; set; }
+
+    [ForeignKey(nameof(CibleId))]
     [InverseProperty(nameof(Utilisateur.NotesCible))]
-    public virtual Utilisateur Cible { get; set; } = null!;
-    
+    public Utilisateur Cible { get; set; }
+
     [InverseProperty(nameof(SignalementAvis.Avis))]
-    public virtual ICollection<SignalementAvis> Signalements { get; set; } = new List<SignalementAvis>();
+    public ICollection<SignalementAvis> Signalements { get; set; } = new List<SignalementAvis>();
 
     public int GetId() => NoteUtilisateurId;
-
 }
