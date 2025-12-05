@@ -12,13 +12,11 @@ namespace FrontBlazor.Services
         {
             throw new NotImplementedException();
         }
-
         public async Task AddFavoris(int annonceId)
         {
-            var body = JsonContent.Create(new { AnnonceId = annonceId });
+            var body = JsonContent.Create(annonceId);
 
             var response = await PostWithCredentialsAsync("Favoris", body);
-            response.EnsureSuccessStatusCode();
         }
         public async Task DeleteFavoris(int annonceId)
         {
