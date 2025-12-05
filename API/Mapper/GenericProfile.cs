@@ -176,43 +176,63 @@ public class GenericProfile : Profile
 
         
         CreateMap<Notification, NotificationDTO>()
-            // Type de notification
-            .ForMember(dest => dest.NotificationTypeId,
-                opt => opt.MapFrom(src => src.NotificationTypeId))
+            // Type de notification => libellé
+            .ForMember(dest => dest.LibelleType,
+                opt => opt.MapFrom(src => src.NotificationType.LibelleType))
 
-            // Texte administrateur
+            
+            // --- Est Lu ---
+            .ForMember(dest => dest.EstLu, 
+                opt => opt.MapFrom(src => src.EstLu))
+            // --- Notification Administrateur ---
             .ForMember(dest => dest.AdminText,
-                opt => opt.MapFrom(src => src.NotificationAdmins != null 
-                    ? src.NotificationAdmins.AdminText 
+                opt => opt.MapFrom(src => src.NotificationAdmins != null
+                    ? src.NotificationAdmins.AdminText
                     : null))
 
-            // Message d’avertissement
+            // --- Notification Avertissement ---
             .ForMember(dest => dest.MessageAvertissement,
                 opt => opt.MapFrom(src => src.NotificationAvertissements != null
                     ? src.NotificationAvertissements.MessageAvertissement
                     : null))
 
-            // Nouveau message
-            .ForMember(dest => dest.MessageId,
+            // --- Notification Nouveau Message ---
+            .ForMember(dest => dest.ConversationId,
                 opt => opt.MapFrom(src => src.NotificationMessages != null
-                    ? src.NotificationMessages.MessageId
+                    ? src.NotificationMessages.Message.ConversationId
                     : (int?)null))
 
-            // Modification annonce
+            .ForMember(dest => dest.MessagePreview,
+                opt => opt.MapFrom(src => src.NotificationMessages != null
+                    ? src.NotificationMessages.MessagePreview
+                    : null))
+            
+            // --- Notification Modification Annonce ---
             .ForMember(dest => dest.ModificationAnnonceId,
                 opt => opt.MapFrom(src => src.NotificationModifications != null
                     ? src.NotificationModifications.AnnonceId
                     : (int?)null))
 
-            // Nouvelle annonce
+            .ForMember(dest => dest.NomAuteur,
+                opt => opt.MapFrom(src => src.NotificationMessages != null 
+                    ? src.NotificationMessages.Message.Utilisateur.Login      // auteur du message
+                    : src.NotificationModifications != null
+                        ? src.NotificationModifications.Annonce.Utilisateur.Login  // auteur modif annonce
+                        : src.NotificationNouvellesAnnonces != null
+                            ? src.NotificationNouvellesAnnonces.Annonce.Utilisateur.Login  // auteur nouvelle annonce
+                            : null))
+
+
+            .ForMember(dest => dest.Title,
+                opt => opt.MapFrom(src => src.NotificationModifications != null
+                    ? src.NotificationModifications.Annonce.Title
+                    : null))
+
+            // --- Notification Nouvelle Annonce ---
             .ForMember(dest => dest.NouvelleAnnonceId,
                 opt => opt.MapFrom(src => src.NotificationNouvellesAnnonces != null
                     ? src.NotificationNouvellesAnnonces.AnnonceId
-                    : (int?)null))
-
-            // Type d’annonce (libellé du type)
-            .ForMember(dest => dest.TypeAnnonce,
-                opt => opt.MapFrom(src => src.NotificationType.LibelleType));
+                    : (int?)null));
 
         CreateMap<DemandeRestauration, DemandeRestaurationDTO>()
             .ForMember(dest => dest.DemandeRestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId));

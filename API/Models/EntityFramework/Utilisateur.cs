@@ -16,7 +16,7 @@ public class Utilisateur : IEntity
     
     [Column("uti_telephone")]
     [Phone]
-    public string Telephone { get; set; }
+    public string? Telephone { get; set; }
     
     [Column("uti_login")]
     public string Login { get; set; }

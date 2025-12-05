@@ -4,9 +4,8 @@ namespace API.Models.Repository;
 
 public interface INotificationRepository : IDataRepository<Notification, int>
 {
-    Task<IEnumerable<Notification>> GetByUtilisateurIdAsync(int utilisateurId);
-    Task<IEnumerable<Notification>> GetUnreadByUtilisateurIdAsync(int utilisateurId);
     public Task<IEnumerable<Notification>> GetByUserId(int userId);
+    public Task<int> GetNotificationsUnreadCountByUserId(int userId);
 }
 
 public interface INotificationMessageRepository : IDataRepository<NotificationMessage, int>

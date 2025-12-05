@@ -45,7 +45,8 @@ public class MessageNotificationObserver : INotificationObserver
             var notificationMessage = new NotificationMessage
             {
                 NotificationId = notification.NotificationId,
-                MessageId = messageEvent.MessageId
+                MessageId = messageEvent.MessageId,
+                MessagePreview = messageEvent.MessagePreview,
             };
 
             await _notificationMessageRepository.AddAsync(notificationMessage);

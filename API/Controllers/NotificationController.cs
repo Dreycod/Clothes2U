@@ -20,6 +20,33 @@ public class NotificationController : ControllerBase
         _notificationManager = notificationManager;
         _mapper = mapper;
     }
+    private int? GetConnectedUserId()
+    {
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+            {
+                return id;
+            }
+        }
+        return null;
+    }
+
+    [HttpGet("notificationCount")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<int>> GetNotificationsUnreadCountByUser()
+    {
+        int? userId =  GetConnectedUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        int count = await _notificationManager.GetNotificationsUnreadCountByUserId((int)userId);
+        return count;
+    }
 
     [HttpGet("byUserId/{userId}")]
     [ProducesResponseType(typeof(IEnumerable<NotificationDTO>), StatusCodes.Status200OK)]
