@@ -218,9 +218,12 @@
                             <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
                                 <div class="product-image-container">
                                     <div class="product-image"></div>
-                                    <button class="wishlist-btn" @onclick:stopPropagation="true" @onclick="() => ToggleFavorite(annonce.IsLikedByCurrentUser, annonce.AnnonceId)">
+                                    <button class="wishlist-btn"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="() => ToggleFavorite(annonce.AnnonceId)">
                                         <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                                     </button>
+
                                 </div>
 
                                 <div class="product-info">
@@ -385,14 +388,27 @@
         }
     }
 
-    private async void ToggleFavorite(bool isLiked, int annonceId)
+    private async Task ToggleFavorite(int annonceId)
     {
         if (VM_Connexion.CheckLoginStatus == null)
         {
             navigationManager.NavigateTo("/login");
             return;
         }
-        await VM_Annonces.ToggleFavorite(isLiked, annonceId);
+
+        var annonce = VM_Annonces.Annonces.First(a => a.AnnonceId == annonceId);
+
+        await VM_Annonces.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
+
+        annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
+
+        StateHasChanged();
+    }
+
+
+    private async void ToggleFavorite(bool isLiked, int annonceId)
+    {
+        
     }
 
     private void ResetFilters()
