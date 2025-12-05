@@ -49,4 +49,13 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
             .CountAsync();
     }
 
+    public async Task MarkAsRead(int userId)
+    {
+        var notifications = BaseNotificationQuery();
+        foreach (var notification in notifications)
+        {
+            notification.EstLu = true;
+            await _context.SaveChangesAsync();
+        }
+    }
 }

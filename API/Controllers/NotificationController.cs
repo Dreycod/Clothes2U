@@ -58,6 +58,23 @@ public class NotificationController : ControllerBase
         return Ok(notificationDtos);
     }
 
+    [HttpPut("markAsRead")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> MarkAsRead()
+    {
+        int? userId = GetConnectedUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        await  _notificationManager.MarkAsRead((int)userId);
+        return NoContent();
+    }
+    
+    
+
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
