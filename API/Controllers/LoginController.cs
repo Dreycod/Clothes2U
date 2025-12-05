@@ -36,16 +36,16 @@ public class LoginRequest
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly IDataRepository<Utilisateur, int> _dataRepository;
+    private readonly IUtilisateurRepository _utilisateurManager;
     private readonly ILoginService _loginService;
     private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
 
-    public LoginController(IConfiguration config, IMapper mapper, IDataRepository<Utilisateur, int> dataRepo, ILoginService loginService)
+    public LoginController(IConfiguration config, IMapper mapper, IUtilisateurRepository dataRepo, ILoginService loginService)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
-        _dataRepository = dataRepo;
+        _utilisateurManager = dataRepo;
         _loginService = loginService;
     }
 
@@ -53,7 +53,7 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var utilisateurs = await _dataRepository.GetAllAsync();
+        var utilisateurs = await _utilisateurManager.GetAllAsync();
         var usersList = utilisateurs?.ToList();
         
         if (string.IsNullOrEmpty(request.Login) && string.IsNullOrEmpty(request.Email))
@@ -117,7 +117,7 @@ public class LoginController : ControllerBase
         if (request.Password != request.PasswordConfirm)
             return BadRequest("Les mots de passe ne correspondent pas");
 
-        var existingUsers = await _dataRepository.GetAllAsync();
+        var existingUsers = await _utilisateurManager.GetAllAsync();
         
         if (existingUsers.Any(u => u.Email.ToUpper() == request.Email.ToUpper()))
             return BadRequest("Cet email est déjà utilisé.");
@@ -138,7 +138,7 @@ public class LoginController : ControllerBase
             RoleId = 1
         };
 
-        await _dataRepository.AddAsync(newUser);
+        await _utilisateurManager.AddAsync(newUser);
 
         // JWT
         var tokenString = _loginService.GenerateJwtToken(newUser);
@@ -170,11 +170,61 @@ public class LoginController : ControllerBase
         if (string.IsNullOrEmpty(userIdStr))
             return Unauthorized();
 
-        var utilisateur = await _dataRepository.GetByIdAsync(int.Parse(userIdStr));
+        var utilisateur = await _utilisateurManager.GetByIdAsync(int.Parse(userIdStr));
         if (utilisateur == null)
             return NotFound();
 
         return Ok(utilisateur);
+    }
+    private int? GetConnectedUserId()
+    {
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+            {
+                return id;
+            }
+        }
+        return null;
+    }
+
+    [HttpPut("modificationMotDePasse")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangePassword(
+        [FromQuery] string currentPassword,
+        [FromQuery] string newPassword,
+        [FromQuery] string confirmNewPassword)
+    {
+        int? userId = GetConnectedUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        if (newPassword != confirmNewPassword)
+        {
+            return BadRequest("Les nouveaux mots de passe ne correspondent pas.");
+        }
+
+        Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
+    
+        if (user == null)
+        {
+            return NotFound();
+        }
+        if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
+        {
+            return Unauthorized("Mot de passe actuel incorrect.");
+        }
+    
+        await _utilisateurManager.UpdatePassword(user, BCrypt.Net.BCrypt.HashPassword(newPassword));
+        return NoContent();
     }
 
     // private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)

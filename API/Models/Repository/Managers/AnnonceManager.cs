@@ -64,6 +64,16 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Where(a => a.Statut.StatutLibelle == "En Ligne") 
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Annonce>> GetRecentAnnonces()
+    {
+        var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+
+        return await BaseAnnonceQuery()
+            .Where(a => a.DateAnnonce >= thirtyDaysAgo)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
     {
         var annonceIds = await _context.Favorises

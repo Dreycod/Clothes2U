@@ -527,16 +527,21 @@ public partial class Clothes2UDbContext : DbContext
         modelBuilder.Entity<NoteUtilisateur>(entity =>
         {
             entity.HasKey(e => e.NoteUtilisateurId);
-            
+    
+            entity.Property(e => e.NoteUtilisateurId)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+    
             entity.HasOne(e => e.Auteur)
                 .WithMany(u => u.NotesAuteur)
-                .HasForeignKey(e => e.NoteUtilisateurId)
+                .HasForeignKey(e => e.AuteurId)  
                 .OnDelete(DeleteBehavior.ClientSetNull);
+    
             entity.HasOne(e => e.Cible)
                 .WithMany(u => u.NotesCible)
-                .HasForeignKey(e => e.NoteId)
+                .HasForeignKey(e => e.CibleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-            
+    
             entity.HasMany(e => e.Signalements)
                 .WithOne(s => s.Avis)
                 .HasForeignKey(s => s.AvisId)

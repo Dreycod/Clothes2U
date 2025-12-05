@@ -242,7 +242,10 @@
                 }
                 else
                 {
-                    <p>Erreur! Il y a eu un problème lors de la création de l'article.</p>
+                    @foreach (var message in ErrorMessages)
+                    {
+                        <p>@message</p>
+                    }
                 }
             </div>
         }
@@ -259,6 +262,7 @@
 @code {
     private Annonce newAnnonce = new Annonce();
     private List<string> uploadedPhotos = new();
+    private List<string> ErrorMessages = new List<string>();
     bool? HasCreated = null;
     #region Variables
     // Properties that bind to UI and update newAnnonce
@@ -375,72 +379,72 @@
         annonceStateService.SetEntity(newAnnonce);
     }
 
-    private async Task PublishArticle()
+    private List<string> ValidateAnnonce()
     {
-        #region Validation
+        List<string> errorMessages = new List<string>();
+
+        // Add validation checks with corresponding error messages
         if (string.IsNullOrWhiteSpace(newAnnonce.Title))
-        {
-            Console.WriteLine("Error: Article name is required");
-            return;
-        }
+            errorMessages.Add("Error: Article name is required");
 
         if (newAnnonce.Prix <= 0)
-        {
-            Console.WriteLine("Error: Valid price is required");
-            return;
-        }
+            errorMessages.Add("Error: Valid price is required");
 
         if (newAnnonce.MarqueId == 0)
-        {
-            Console.WriteLine("Error: Please select a brand");
-            return;
-        }
+            errorMessages.Add("Error: Please select a brand");
 
         if (newAnnonce.TailleId == 0)
-        {
-            Console.WriteLine("Error: Please select a size");
-            return;
-        }
+            errorMessages.Add("Error: Please select a size");
 
         if (newAnnonce.CouleurId == 0)
-        {
-            Console.WriteLine("Error: Please select a color");
-            return;
-        }
+            errorMessages.Add("Error: Please select a color");
 
         if (newAnnonce.EtatId == 0)
-        {
-            Console.WriteLine("Error: Please select a state");
-            return;
-        }
+            errorMessages.Add("Error: Please select a state");
 
         if (newAnnonce.CategorieId == 0)
-        {
-            Console.WriteLine("Error: Please select a category");
-            return;
-        }
-        #endregion
-        // Save the annonce
-        bool result = await VM_Annonce.CreateAnnonceAsync(newAnnonce);
-        HasCreated = result;
+            errorMessages.Add("Error: Please select a category");
 
-        //Console.WriteLine($"Annonce creation result: {result}");
-        //SaveAnnonce();
+        return errorMessages;
+    }
 
-        #region Debug Output    
-        // TODO: Submit article to API
-        Console.WriteLine("Publishing article...");
-        Console.WriteLine($"Name: {newAnnonce.Title}");
+    private void PrintAnnonceDetails()
+    {
+        Console.WriteLine("Annonce Details:");
+        Console.WriteLine($"Title: {newAnnonce.Title}");
         Console.WriteLine($"Price: {newAnnonce.Prix}");
         Console.WriteLine($"Negotiable: {newAnnonce.Negociable}");
-        Console.WriteLine($"Marque ID: {newAnnonce.MarqueId}");
-        Console.WriteLine($"Taille ID: {newAnnonce.TailleId}");
-        Console.WriteLine($"Couleur ID: {newAnnonce.CouleurId}");
+        Console.WriteLine($"Brand ID: {newAnnonce.MarqueId}");
+        Console.WriteLine($"Size ID: {newAnnonce.TailleId}");
+        Console.WriteLine($"Color ID: {newAnnonce.CouleurId}");
         Console.WriteLine($"Category ID: {newAnnonce.CategorieId}");
         Console.WriteLine($"Subcategory ID: {newAnnonce.SousCategorieId}");
-        Console.WriteLine($"État: {newAnnonce.EtatId}");
-        Console.WriteLine($"Utilisateur: {newAnnonce.UtilisateurId}");
-        #endregion
+        Console.WriteLine($"State ID: {newAnnonce.EtatId}");
+        Console.WriteLine($"User ID: {newAnnonce.UtilisateurId}");
+    }
+
+    private async Task PublishArticle() 
+    {
+        ErrorMessages.Clear();
+
+        List<string> errorMessages = ValidateAnnonce();
+
+        if (ErrorMessages.Any())
+        {
+            HasCreated = false;
+            ErrorMessages = errorMessages;
+            StateHasChanged();
+            return;
+        }
+
+        // Save the annonce
+        bool result = await VM_Annonce.CreateAnnonceAsync(newAnnonce);
+        if (result == false ) 
+            ErrorMessages.Add("Product was not created due to API problems");
+        HasCreated = result;
+        //Console.WriteLine($"Annonce creation result: {result}");
+
+        PrintAnnonceDetails();
         // Navigate back after publishing
         StateHasChanged();
     }

@@ -8,20 +8,20 @@ namespace API.Services.Verification;
 public class VerificationService : IVerificationService
 {
     private readonly IVerificationCodeRepository _verificationCodeRepository;
-    private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
+    private readonly IUtilisateurRepository _utilisateurManager;
     private readonly IEmailService _emailService;
     private readonly ISmsService _smsService;
     private readonly ILogger<VerificationService> _logger;
 
     public VerificationService(
         IVerificationCodeRepository verificationCodeRepository,
-        IDataRepository<Utilisateur, int> utilisateurRepository,
+        IUtilisateurRepository utilisateurRepository,
         IEmailService emailService,
         ISmsService smsService,
         ILogger<VerificationService> logger)
     {
         _verificationCodeRepository = verificationCodeRepository;
-        _utilisateurRepository = utilisateurRepository;
+        _utilisateurManager = utilisateurRepository;
         _emailService = emailService;
         _smsService = smsService;
         _logger = logger;
@@ -33,7 +33,7 @@ public class VerificationService : IVerificationService
     {
         try
         {
-            var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
+            var utilisateur = await _utilisateurManager.GetByIdAsync(utilisateurId);
             if (utilisateur == null)
                 return (false, "Utilisateur introuvable", null);
 
@@ -121,17 +121,17 @@ public class VerificationService : IVerificationService
             await _verificationCodeRepository.UpdateAsync(existingCode, existingCode);
 
             // Valider l'utilisateur
-            var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
+            var utilisateur = await _utilisateurManager.GetByIdAsync(utilisateurId);
             if (utilisateur != null)
             {
-                var utilisateurToUpdate = await _utilisateurRepository.GetByIdAsync(utilisateurId);
+                var utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(utilisateurId);
                 
                 if (type == VerificationType.Email)
                     utilisateurToUpdate.ValidEmail = true;
                 else if (type == VerificationType.Telephone)
                     utilisateurToUpdate.ValidTelephone = true;
 
-                await _utilisateurRepository.UpdateAsync(utilisateur, utilisateurToUpdate);
+                await _utilisateurManager.UpdateAsync(utilisateur, utilisateurToUpdate);
             }
 
             return (true, "Vérification réussie");

@@ -19,18 +19,20 @@ namespace API.Models.Repository.Managers
         public async Task<IEnumerable<NoteUtilisateur>> GetByUserIdAsync(int userId)
         {
             return await BaseNoteQuery()
-                .Where(n => n.NoteId == userId)
+                .Where(n => n.CibleId == userId)
                 .ToListAsync();
         }
 
         public async Task<double> GetMoyenneNoteAsync(int userId)
         {
-            return await BaseNoteQuery()
-                .Where(n => n.NoteId == userId)
+            var notes = await _context.NoteUtilisateurs
+                .Where(n => n.CibleId == userId)
                 .Select(n => (double)n.Note)
-                .DefaultIfEmpty(0)
-                .AverageAsync();
+                .ToListAsync();
+
+            return notes.Count == 0 ? 0 : notes.Average();
         }
+
 
         public override async Task<NoteUtilisateur?> GetByIdAsync(int id)
         {
