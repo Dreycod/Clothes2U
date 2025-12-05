@@ -95,7 +95,7 @@ namespace FrontBlazor.ViewModel
 
         public async Task ToggleFavorite(bool isLiked, int annonceId)
         {
-            if (isLiked)
+            if (!isLiked)
                 await _favorisService.AddFavoris(annonceId);
             else
                 await _favorisService.DeleteFavoris(annonceId);

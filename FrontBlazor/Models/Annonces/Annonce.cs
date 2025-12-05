@@ -5,7 +5,6 @@ namespace FrontBlazor.Models;
 
 public class Annonce: IEntity
 {
-    [JsonIgnore]
     [IgnoreInTemplate]
     public int AnnonceId { get; set; } 
     public string Title { get; set; } = null!;
