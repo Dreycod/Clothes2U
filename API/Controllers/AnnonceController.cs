@@ -31,18 +31,24 @@ public class AnnonceController : ControllerBase
     private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
     {
         int? userId = GetConnectedUserId();
-        if (userId == null)
+
+        // If no user is connected, just return the list as-is
+        if (!userId.HasValue)
+            return annoncesDTO;
+
+        int uid = userId.Value;
+
+        foreach (var annonce in annoncesDTO)
         {
-            foreach (AnnonceDTO annonce in annoncesDTO)
+            if (await _favorisRepository.CheckIfLiked(uid, annonce.AnnonceId))
             {
-                if (await _favorisRepository.CheckIfLiked((int)userId, annonce.AnnonceId))
-                {
-                    annonce.IsLikedByCurrentUser = true;
-                }
+                annonce.IsLikedByCurrentUser = true;
             }
         }
+
         return annoncesDTO;
     }
+
 
     private int? GetConnectedUserId()
     {
@@ -68,6 +74,17 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
+
+    [AllowAnonymous]
+    [HttpGet("GetRecentAnnonces")]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetRecentAnnonces()
+    {
+        IEnumerable<Annonce> annonces = await _annonceManager.GetRecentAnnonces();
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        return Ok(annoncesDTO);
+    }
+
 
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]

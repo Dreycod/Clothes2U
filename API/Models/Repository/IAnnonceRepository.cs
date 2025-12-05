@@ -5,6 +5,8 @@ namespace API.Models.Repository;
 public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IDataRepository<TEntity, TIdentifier>
 {
     Task<IEnumerable<TEntity>> GetActiveAnnonces();
+    Task<IEnumerable<TEntity>> GetRecentAnnonces();
+
     Task<IEnumerable<TEntity>> GetByUtilisateurId(TIdentifier id);
     
     Task<IEnumerable<TEntity>> GetByUtilisateurFavoris(TIdentifier id);
