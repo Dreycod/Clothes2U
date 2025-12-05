@@ -1,29 +1,33 @@
 namespace API.DTO;
 
-
 public enum SortField
 {
-   DateAnnonce,
-   Prix,
-   Titre,
-   NombreFavoris
+    DateAnnonce,
+    Prix,
+    Titre,
+    NombreFavoris
 }
 
 public enum SortOrder
 {
-   Ascending,
-   Descending
+    Ascending,
+    Descending
 }
 
 public class FilterDTO
 {
-   public string? MotCle { get; set; }
-   public string? Marque { get; set; }
-   public string? Categorie { get; set; }
-   public string? SousCategorie { get; set; }
-   public string? Taille { get; set; }
-   public double? Prix { get; set; }
-   
-   public SortField? SortBy { get; set; }
-   public SortOrder SortOrder { get; set; } = SortOrder.Ascending;
+    public string? MotCle { get; set; }
+    
+    // Listes au lieu de valeurs uniques
+    public List<string>? Marques { get; set; }
+    public List<string>? Categories { get; set; }
+    public List<string>? SousCategories { get; set; }
+    public List<string>? Tailles { get; set; }
+    
+    // Plage de prix
+    public double? PrixMin { get; set; }
+    public double? PrixMax { get; set; }
+    
+    public SortField? SortBy { get; set; }
+    public SortOrder SortOrder { get; set; } = SortOrder.Ascending;
 }

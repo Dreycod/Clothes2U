@@ -10,8 +10,5 @@ public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IData
     Task<IEnumerable<TEntity>> GetByUtilisateurId(TIdentifier id);
     
     Task<IEnumerable<TEntity>> GetByUtilisateurFavoris(TIdentifier id);
-
-    Task<IEnumerable<TEntity>> GetMostRecentAsync();
-    Task<IEnumerable<TEntity>> GetPlusLikeAsync();
     Task<IEnumerable<TEntity>> FilterAsync(TFilterEntity filterDto);
 }
