@@ -109,7 +109,7 @@ public class AnnonceController : ControllerBase
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
         int? userId = GetConnectedUserId();
-        if (userId == null)
+        if (userId != null)
         {
             if (await _favorisRepository.CheckIfLiked((int)userId, id))
             {
@@ -197,28 +197,6 @@ public class AnnonceController : ControllerBase
         };
         await _notificationService.NotifyAsync(notificationEvent);
         return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
-    }
-
-    [HttpGet("MostRecent")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetMostRecent()
-    {
-        var annonces = await _annonceManager.GetMostRecentAsync();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
-        return Ok(annoncesDTO);
-    }
-
-    [HttpGet("PlusLike")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetMostLiked()
-    {
-        var annonces = await _annonceManager.GetPlusLikeAsync();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
-        return Ok(annoncesDTO);
     }
 
     [HttpDelete("id/{id}")]
