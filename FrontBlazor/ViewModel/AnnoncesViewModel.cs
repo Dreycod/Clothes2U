@@ -125,5 +125,19 @@ namespace FrontBlazor.ViewModel
 
 
         }
+
+        public async Task<List<Annonce>?> GetAnnoncesByFiltreAsync(FilterDTO filterDto, int page = 1, int pageSize = 3)
+        {
+            try
+            {
+                return await _annonceService.GetAnnonceByFilter(filterDto, page, pageSize);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Erreur lors du filtrage des annonces";
+                Console.WriteLine($"Error: {ex.Message}");
+                return null;
+            }
+        }
     }
 }

@@ -1,0 +1,15 @@
+namespace API.DTO.Utilisateur;
+
+public class UtilisateurPutDTO
+{
+    public int UtilisateurId { get; set; }
+    public string? Email { get; set; }
+    public string? Telephone { get; set; }
+    
+    public string? Login { get; set; }
+    public string? Description { get; set; }
+    public int? AdresseId { get; set; }
+    public int? StatutId { get; set; }
+    public int? PhotoProfilId { get; set; }
+    
+}

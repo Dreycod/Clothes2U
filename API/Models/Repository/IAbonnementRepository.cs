@@ -9,6 +9,7 @@ namespace API.Models.Repository
         Task<IEnumerable<TEntity>> GetAllFollowersByUtilisateurSuivi(TIdentifier id);
 
         Task<bool> Exists(int suiveurId, int suiviId);
+        Task<TEntity> FindAbonnement(int suiveurId, int suiviId);
 
     }
 }

@@ -51,7 +51,10 @@ namespace API.Models.Repository.Managers
                                b.UtilisateurSuivisId == suiviId);
         }
 
-
+        public async Task<Abonnement> FindAbonnement(int suiveurId, int suiviId)
+        {
+            return _context.Abonnements.FirstOrDefault( a => a.UtilisateurSuiveurId == suiveurId && a.UtilisateurSuivisId == suiviId );
+        }
 
     }
 }

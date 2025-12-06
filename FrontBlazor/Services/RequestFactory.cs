@@ -37,17 +37,11 @@ namespace FrontBlazor.Services
         //    SortField? sortBy = null,
         //    SortOrder sortOrder = SortOrder.Ascending)
         //{
-        //    return new FilterDTO
-        //    {
-        //        MotCle = motCle,
-        //        Marque = marque,
-        //        Categorie = categorie,
-        //        SousCategorie = sousCategorie,
-        //        Taille = taille,
-        //        Prix = prix,
-        //        SortBy = sortBy,
-        //        SortOrder = sortOrder
-        //    };
+        //    //return new AnnonceSearchRequestDTO
+        //    //{
+        //    //    CategoryId = categoryId,
+        //    //    Keyword = keyword
+        //    //};
         //}
         // TEMPORAIRE
         public static FilterDTO CreateFilterRequest(

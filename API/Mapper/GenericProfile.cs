@@ -29,13 +29,44 @@ public class GenericProfile : Profile
 {
     public GenericProfile()
     {
-        CreateMap<SousCategorie, SousCategorieDTO>();
+        CreateMap<SousCategorie, SousCategorieDTO>()
+            .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
+            .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
+            .ReverseMap();
         
         CreateMap<Categorie, CategorieDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
             .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))
             .ForMember(dest => dest.SousCategories, opt => opt.MapFrom(src => src.SousCategories));
 
+        CreateMap<Utilisateur, UtilisateurViewDTO>()
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.DateInscription, opt => opt.MapFrom(src => src.Dateinscription))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.ValidEmail, opt => opt.MapFrom(src => src.ValidEmail))
+            .ForMember(dest => dest.ValidTelephone, opt => opt.MapFrom(src => src.ValidTelephone))
+            .ForMember(dest => dest.Statut, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
+            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoProfil != null ? src.PhotoProfil.PhotoId : 0))
+            .ForMember(dest => dest.Abonnes, opt => opt.MapFrom(src => src.Abonnes.Count))
+            .ForMember(dest => dest.Abonnements, opt => opt.MapFrom(src => src.Abonnements.Count))
+            .ForMember(dest => dest.Moyenne, opt => opt.MapFrom(src => 
+                src.NotesCible.Any() 
+                    ? src.NotesCible.Average(n => n.Note) 
+                    : 0.0));
+
+        CreateMap<UtilisateurPutDTO, Utilisateur>()
+            .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.AdresseId))
+            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId));
+        
+        
+        
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         CreateMap<Couleur, CouleurDTO>();
         CreateMap<Taille, TailleDTO>();

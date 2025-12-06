@@ -3,6 +3,7 @@ using API.DTO.Bloque;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -18,6 +19,19 @@ namespace API.Controllers
         {
             _abonnementRepo = repo;
             _mapper = mapper;
+        }
+        private int? GetConnectedUserId()
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userIdClaim = User.FindFirst("userId")?.Value;
+
+                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+                {
+                    return id;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -46,28 +60,43 @@ namespace API.Controllers
 
         }
 
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<BloqueDTO>> Create(AbonnementDTO dto)
+        public async Task<ActionResult<BloqueDTO>> Create(int idUtilisateur)
         {
-            bool exists = await _abonnementRepo.Exists(dto.UtilisateurSuiveurId, dto.UtilisateurSuiviId);
+            int? connectedUserId = GetConnectedUserId();
+            if (connectedUserId == null)
+            {
+                return Unauthorized();
+            }
+            bool exists = await _abonnementRepo.Exists((int)connectedUserId, idUtilisateur);
 
             if (exists)
                 return BadRequest("Cet utilisateur est déjà suivi.");
-
-            var abo = _mapper.Map<Abonnement>(dto);
-            await _abonnementRepo.AddAsync(abo);
-
-            return Ok(_mapper.Map<AbonnementDTO>(abo));
+            Abonnement abonnement = new Abonnement
+            {
+                UtilisateurSuiveurId = (int)connectedUserId,
+                UtilisateurSuivisId = idUtilisateur
+            };
+            await _abonnementRepo.AddAsync(abonnement);
+            return Ok(_mapper.Map<AbonnementDTO>(abonnement));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [Authorize]
+        [HttpDelete("{idUtilisateur}")]
+        public async Task<IActionResult> Delete(int idUtilisateur)
         {
-            var entity = await _abonnementRepo.GetByIdAsync(id);
-            if (entity == null)
+            int? connectedUserId = GetConnectedUserId();
+            if (connectedUserId == null)
+            {
+                return Unauthorized();
+            }
+            Abonnement abonnement = await _abonnementRepo.FindAbonnement((int)connectedUserId, idUtilisateur);
+            if (abonnement == null)
+            {
                 return NotFound();
-
-            await _abonnementRepo.DeleteAsync(entity);
+            }
+            await _abonnementRepo.DeleteAsync(abonnement);
             return NoContent();
         }
     }

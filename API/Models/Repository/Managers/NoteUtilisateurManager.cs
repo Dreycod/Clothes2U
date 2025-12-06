@@ -20,6 +20,7 @@ namespace API.Models.Repository.Managers
         {
             return await BaseNoteQuery()
                 .Where(n => n.CibleId == userId)
+                .OrderByDescending(n => n.DatePublication)
                 .ToListAsync();
         }
 

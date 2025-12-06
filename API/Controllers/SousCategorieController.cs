@@ -23,8 +23,10 @@ public class SousCategorieController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<SousCategorie>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<SousCategorie>>> GetAll()
+    public async Task<ActionResult<IEnumerable<SousCategorieDTO>>> GetAll()
     {
-        return Ok(await _sousCategorieManager.GetAllAsync());
+        IEnumerable<SousCategorie> categories = await _sousCategorieManager.GetAllAsync();
+        IEnumerable<SousCategorieDTO> categoriesDTO = _mapper.Map<IEnumerable<SousCategorieDTO>>(categories);
+        return Ok(categoriesDTO);
     }
 }

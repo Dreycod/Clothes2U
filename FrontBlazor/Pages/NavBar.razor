@@ -82,6 +82,26 @@
     private bool isLoggedIn = false;
     private bool showDropdown = false;
 
+    private void NavigateToSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            navigationManager.NavigateTo($"/search?q={Uri.EscapeDataString(searchQuery)}");
+        }
+        else
+        {
+            navigationManager.NavigateTo("/search");
+        }
+    }
+
+    private void HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            NavigateToSearch();
+        }
+    }
+
     private void ToggleDropdown()
     {
         showDropdown = !showDropdown;

@@ -1,4 +1,5 @@
 ﻿@page "/search"
+@inject IJSRuntime JS;
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
@@ -261,12 +262,13 @@
     private bool conditionNew = false;
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
-
     private bool IsLoading = false;
 
     [Parameter]
-    [SupplyParameterFromQuery(Name = "q")]
+    [SupplyParameterFromQuery(Name = "s")]
     public string? Query { get; set; } = string.Empty;
+
+    FilterDTO filterRequest;
 
     protected override async Task OnInitializedAsync()
     {
@@ -274,8 +276,14 @@
         await LoadCategories();
         await LoadMarques();
         await LoadTailles();
-        FilterDTO filtreRequest = RequestFactory.CreateFilterRequest(Query, priceMax);
-        await LoadAnnonces(filtreRequest);
+        //FilterDTO filtreRequest = RequestFactory.CreateFilterRequest(Query, priceMax);
+        filterRequest = new FilterDTO
+        {
+            MotCle = Query,
+            PrixMax = priceMax
+        };
+
+        await LoadAnnonces();
         CalculateMaxPrice();
         IsLoading = false;
     }
@@ -295,14 +303,19 @@
         await VM_Taille.LoadAsync();
     }
 
-    private async Task LoadAnnonces(FilterDTO? filtre = null)
+    private async Task LoadAnnonces() // To fix, daniel
     {
-        if (filtre == null)
+        if (filterRequest == null)
         {
-            filtre = new FilterDTO();
+            filterRequest = new FilterDTO
+            {
+                MotCle = Query,
+                PrixMax = priceMax
+            };
         }
-
-        await VM_Annonces.LoadAnnoncesFiltreAsync(filtre);
+        JS.InvokeAsync<string>("console.log", "Loading annonces with filter");
+        List<Annonce> result = await VM_Annonces.GetAnnoncesByFiltreAsync(filterRequest, 1, 10);
+        VM_Annonces.Annonces = result;
         CalculateMaxPrice();
     }
 
@@ -315,6 +328,7 @@
         }
     }
 
+    // Category methods
     private void ToggleCategory(int categoryId)
     {
         if (expandedCategories.Contains(categoryId))
@@ -420,7 +434,7 @@
 
     private async void ToggleFavorite(bool isLiked, int annonceId)
     {
-        
+
     }
 
     private void ResetFilters()

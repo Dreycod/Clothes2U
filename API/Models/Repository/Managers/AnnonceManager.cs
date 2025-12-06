@@ -37,21 +37,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .FirstOrDefaultAsync(a => a.AnnonceId == id);
     }
 
-
-    public async Task<IEnumerable<Annonce>> GetByCategorieId(int id)
-    {
-        return await BaseAnnonceQuery()
-            .Where(a => a.CategorieId == id)
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Annonce>> GetBySousCategorieId(int id)
-    {
-        return await BaseAnnonceQuery()
-            .Where(a => a.SousCategorieId == id)
-            .ToListAsync();
-    }
-
     public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int id)
     {
         return await BaseAnnonceQuery()
@@ -65,15 +50,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> GetRecentAnnonces()
-    {
-        var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-
-        return await BaseAnnonceQuery()
-            .Where(a => a.DateAnnonce >= thirtyDaysAgo)
-            .ToListAsync();
-    }
-
     public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
     {
         var annonceIds = await _context.Favorises
@@ -81,31 +57,15 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Select(f => f.AnnonceId)
             .ToListAsync();
 
-        // Puis récupérer les annonces complètes avec toutes leurs relations
         return await BaseAnnonceQuery()
             .Where(a => annonceIds.Contains(a.AnnonceId))
-            .ToListAsync();
-    }
-
-    
-    public async Task<IEnumerable<Annonce>> GetMostRecentAsync()
-    {
-        return await BaseAnnonceQuery()
-            .OrderByDescending(a => a.DateAnnonce)
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Annonce>> GetPlusLikeAsync()
-    {
-        return await BaseAnnonceQuery()
-            .OrderByDescending(a => a.UtilisateursFavoris.Count)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto)
     {
         var query = BaseAnnonceQuery();
-        
+    
         if (!string.IsNullOrEmpty(filterDto.MotCle))
         {
             var lowerMotCle = filterDto.MotCle.ToLower();
@@ -114,25 +74,33 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
                 p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle))
             );
         }
-
-        if (!string.IsNullOrEmpty(filterDto.Marque))
-            query = query.Where(p => p.Marque.NomMarque == filterDto.Marque);
-
-        if (!string.IsNullOrEmpty(filterDto.Categorie))
-            query = query.Where(p => p.Categorie.LibelleCategorie == filterDto.Categorie);
-        
-        if (!string.IsNullOrEmpty(filterDto.SousCategorie))
-            query = query.Where(p => p.SousCategorie.LibelleSousCategorie == filterDto.SousCategorie);
-        
-        if (!string.IsNullOrEmpty(filterDto.Taille))
-            query = query.Where(p => p.Taille.Libelletaille == filterDto.Taille);
-        
-        if (filterDto.Prix.HasValue)
+        if (filterDto.Marques != null && filterDto.Marques.Any())
         {
-            decimal prixDecimal = (decimal)filterDto.Prix.Value;
-            query = query.Where(p => p.Prix <= prixDecimal); 
+            query = query.Where(p => filterDto.Marques.Contains(p.Marque.NomMarque));
         }
-
+        if (filterDto.Categories != null && filterDto.Categories.Any())
+        {
+            query = query.Where(p => filterDto.Categories.Contains(p.Categorie.LibelleCategorie));
+        }
+        if (filterDto.SousCategories != null && filterDto.SousCategories.Any())
+        {
+            query = query.Where(p => filterDto.SousCategories.Contains(p.SousCategorie.LibelleSousCategorie));
+        }
+        if (filterDto.Tailles != null && filterDto.Tailles.Any())
+        {
+            query = query.Where(p => filterDto.Tailles.Contains(p.Taille.Libelletaille));
+        }
+        if (filterDto.PrixMin.HasValue)
+        {
+            decimal prixMinDecimal = (decimal)filterDto.PrixMin.Value;
+            query = query.Where(p => p.Prix >= prixMinDecimal);
+        }
+    
+        if (filterDto.PrixMax.HasValue)
+        {
+            decimal prixMaxDecimal = (decimal)filterDto.PrixMax.Value;
+            query = query.Where(p => p.Prix <= prixMaxDecimal);
+        }
         query = ApplySorting(query, filterDto);
 
         return await query.ToListAsync();
