@@ -12,7 +12,7 @@ public enum SortOrder
     Ascending,
     Descending
 }
-
+ 
 public class FilterDTO
 {
     public string? MotCle { get; set; }

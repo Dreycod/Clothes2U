@@ -1,5 +1,5 @@
 ﻿@page "/search"
-
+@inject IJSRuntime JS;
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
@@ -262,14 +262,30 @@
     private bool conditionNew = false;
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
+    private bool IsLoading = false;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "s")]
+    public string? Query { get; set; } = string.Empty;
+
+    FilterDTO filterRequest;
 
     protected override async Task OnInitializedAsync()
     {
+        IsLoading = true;
         await LoadCategories();
         await LoadMarques();
         await LoadTailles();
+        //FilterDTO filtreRequest = RequestFactory.CreateFilterRequest(Query, priceMax);
+        filterRequest = new FilterDTO
+        {
+            MotCle = Query,
+            PrixMax = priceMax
+        };
+
         await LoadAnnonces();
         CalculateMaxPrice();
+        IsLoading = false;
     }
 
     private async Task LoadCategories()
@@ -287,9 +303,19 @@
         await VM_Taille.LoadAsync();
     }
 
-    private async Task LoadAnnonces()
+    private async Task LoadAnnonces() // To fix, daniel
     {
-        await VM_Annonces.LoadActiveAnnoncesAsync();
+        if (filterRequest == null)
+        {
+            filterRequest = new FilterDTO
+            {
+                MotCle = Query,
+                PrixMax = priceMax
+            };
+        }
+        JS.InvokeAsync<string>("console.log", "Loading annonces with filter");
+        List<Annonce> result = await VM_Annonces.GetAnnoncesByFiltreAsync(filterRequest, 1, 10);
+        VM_Annonces.Annonces = result;
         CalculateMaxPrice();
     }
 
