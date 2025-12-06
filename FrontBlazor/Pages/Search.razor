@@ -1,6 +1,5 @@
 ﻿@page "/search"
 
-
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -33,7 +32,7 @@
                 <div class="filter-section">
                     <h4 class="filter-title">Type de vêtement</h4>
                     <div class="filter-options">
-                        @if (VM_Categorie.IsLoading)
+                        @if (IsLoading)
                         {
                             <div class="filter-loading">
                                 <div class="spinner-small"></div>
@@ -91,7 +90,7 @@
                 <div class="filter-section">
                     <h4 class="filter-title">Marque</h4>
                     <div class="filter-options">
-                        @if (VM_Marque.IsLoading)
+                        @if (IsLoading)
                         {
                             <div class="filter-loading">
                                 <div class="spinner-small"></div>
@@ -120,7 +119,7 @@
                 <!-- Taille -->
                 <div class="filter-section">
                     <h4 class="filter-title">Taille</h4>
-                    @if (VM_Taille.IsLoading)
+                    @if (IsLoading)
                     {
                         <div class="filter-loading">
                             <div class="spinner-small"></div>
@@ -188,7 +187,7 @@
 
             <!-- Products Grid -->
             <div class="products-section">
-                @if (VM_Annonces.IsLoading)
+                @if (IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner-large"></div>
@@ -200,7 +199,7 @@
                     <div class="error-state">
                         <i class="bi bi-exclamation-circle"></i>
                         <p>@VM_Annonces.ErrorMessage</p>
-                        <button class="btn-retry" @onclick="LoadAnnonces">Réessayer</button>
+                        <button class="btn-retry" @onclick="() => LoadAnnonces()">Réessayer</button>
                     </div>
                 }
                 else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())
@@ -263,13 +262,22 @@
     private bool conditionVeryGood = false;
     private bool conditionGood = false;
 
+    private bool IsLoading = false;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        IsLoading = true;
         await LoadCategories();
         await LoadMarques();
         await LoadTailles();
-        await LoadAnnonces();
+        FilterDTO filtreRequest = RequestFactory.CreateFilterRequest(Query, priceMax);
+        await LoadAnnonces(filtreRequest);
         CalculateMaxPrice();
+        IsLoading = false;
     }
 
     private async Task LoadCategories()
@@ -287,9 +295,14 @@
         await VM_Taille.LoadAsync();
     }
 
-    private async Task LoadAnnonces()
+    private async Task LoadAnnonces(FilterDTO? filtre = null)
     {
-        await VM_Annonces.LoadActiveAnnoncesAsync();
+        if (filtre == null)
+        {
+            filtre = new FilterDTO();
+        }
+
+        await VM_Annonces.LoadAnnoncesFiltreAsync(filtre);
         CalculateMaxPrice();
     }
 
@@ -302,7 +315,6 @@
         }
     }
 
-    // Category methods
     private void ToggleCategory(int categoryId)
     {
         if (expandedCategories.Contains(categoryId))

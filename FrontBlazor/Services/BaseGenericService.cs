@@ -33,6 +33,9 @@ public abstract class BaseGenericService
     protected Task<HttpResponseMessage> GetWithCredentialsAsync(string url)
         => SendWithCredentialsAsync(HttpMethod.Get, url);
 
+    protected Task<HttpResponseMessage> UniqueGetWithCredentialsAsync(string url, HttpContent content)
+    => SendWithCredentialsAsync(HttpMethod.Get, url, content);
+
     protected Task<HttpResponseMessage> PostWithCredentialsAsync(string url, HttpContent content)
         => SendWithCredentialsAsync(HttpMethod.Post, url, content);
 

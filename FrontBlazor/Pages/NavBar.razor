@@ -14,8 +14,13 @@
 
         <!-- Search Bar -->
         <div class="navbar-search">
-            <i class="bi bi-search search-icon"></i>
-            <input type="text" class="search-input" placeholder="Un nouveau t-shirt?" @bind="searchQuery" />
+            <i class="bi bi-search search-icon" @onclick="NavigateToSearch" style="cursor: pointer;"></i>
+            <input type="text"
+                   class="search-input"
+                   placeholder="Un nouveau t-shirt?"
+                   @bind="searchQuery"
+                   @bind:event="oninput"
+                   @onkeydown="HandleSearchKeyDown" />
         </div>
 
         <!-- Right Navigation -->
@@ -72,8 +77,8 @@
 </nav>
 
 @code {
-    private string searchQuery = string.Empty;
-    private string username = "";
+    public string searchQuery = string.Empty;
+    private string username = string.Empty;
     private bool isLoggedIn = false;
     private bool showDropdown = false;
 
@@ -85,6 +90,26 @@
     private void CloseDropdown()
     {
         showDropdown = false;
+    }
+
+    private void NavigateToSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            navigationManager.NavigateTo($"/search?q={Uri.EscapeDataString(searchQuery)}");
+        }
+        else
+        {
+            navigationManager.NavigateTo("/search");
+        }
+    }
+
+    private void HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            NavigateToSearch();
+        }
     }
 
     private async Task HandleLogout()

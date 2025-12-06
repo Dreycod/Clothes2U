@@ -18,13 +18,10 @@ public class Annonce: IEntity
     [JsonIgnore]
     [IgnoreInTemplate]
     public DateTime DateAnnonce { get; set; }
-    [JsonIgnore]
     [IgnoreInTemplate]
     public bool IsLikedByCurrentUser { get; set; }
-    [JsonIgnore]
     [IgnoreInTemplate]
     public string? EtatArticle { get; set; } = null!;
-    [JsonIgnore]
     [IgnoreInTemplate]
     public string? Taille { get; set; } = null!;
     [JsonIgnore]
@@ -33,7 +30,6 @@ public class Annonce: IEntity
     [JsonIgnore]
     [IgnoreInTemplate]
     public int NombreLikes { get; set; } = 0;
-    [JsonIgnore]
     [IgnoreInTemplate]
     public string NomAuteur { get; set; } = null!;
     [JsonIgnore]

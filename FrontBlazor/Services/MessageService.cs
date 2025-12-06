@@ -22,7 +22,6 @@ public class MessageService : WritableService<Message>, IMessageService<Message>
     public async Task<List<Message?>> GetMessagesByUserId(int id)
     {
         return await _httpClient.GetFromJsonAsync<List<Message?>>(
-       $"Message/utilisateur/{id}"
-    );
+       $"Message/utilisateur/{id}");
     }
 }
