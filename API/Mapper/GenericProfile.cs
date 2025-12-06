@@ -29,7 +29,11 @@ public class GenericProfile : Profile
 {
     public GenericProfile()
     {
-        CreateMap<SousCategorie, SousCategorieDTO>();
+        CreateMap<SousCategorie, SousCategorieDTO>()
+            .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
+            .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
+            .ReverseMap();
         
         CreateMap<Categorie, CategorieDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
