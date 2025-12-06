@@ -210,7 +210,7 @@
 
         try
         {
-            List<Annonce> result = await VM_Annonces.GetAnnonceByFilter(filter, 1, 10);
+            List<Annonce> result = await VM_Annonces.GetAnnoncesByFiltreAsync(filter, 1, 10);
 
             if (result.Any())
             {

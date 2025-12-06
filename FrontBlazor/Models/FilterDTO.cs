@@ -27,3 +27,4 @@ public class FilterDTO
     public SortField? SortBy { get; set; }
     public SortOrder SortOrder { get; set; } = SortOrder.Ascending;
 }
+
