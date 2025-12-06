@@ -29,7 +29,11 @@ public class GenericProfile : Profile
 {
     public GenericProfile()
     {
-        CreateMap<SousCategorie, SousCategorieDTO>();
+        CreateMap<SousCategorie, SousCategorieDTO>()
+            .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
+            .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
+            .ReverseMap();
         
         CreateMap<Categorie, CategorieDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
@@ -51,7 +55,15 @@ public class GenericProfile : Profile
                 src.NotesCible.Any() 
                     ? src.NotesCible.Average(n => n.Note) 
                     : 0.0));
-        
+
+        CreateMap<UtilisateurPutDTO, Utilisateur>()
+            .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.AdresseId))
+            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId));
         
         
         
