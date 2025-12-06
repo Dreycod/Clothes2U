@@ -1,10 +1,83 @@
 ﻿@page "/"
 @inject IJSRuntime JS
-
+@inject AnnoncesViewModel VM_Annonces
 <PageTitle>Clothes2U - Home</PageTitle>
 
 <NavBar/>
 
+
+<!-- RECENTS Section -->
+<div class="section-container">
+    <div class="section-header">
+        <h2 class="section-title">RECENTS</h2>
+        <div class="carousel-controls">
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <!-- Products Grid -->
+    <div class="product-grid">
+        @if (VM_Annonces.IsLoading)
+        {
+            <div class="loading-state">
+                <div class="spinner-large"></div>
+                <p>Chargement des annonces...</p>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(VM_Annonces.ErrorMessage))
+        {
+            <div class="error-state">
+                <i class="bi bi-exclamation-circle"></i>
+                <p>@VM_Annonces.ErrorMessage</p>
+                <button class="btn-retry" @onclick="LoadRecentAnnonces">Réessayer</button>
+            </div>
+        }
+        else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())
+        {
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <p>Aucune annonce trouvée</p>
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var annonce in VM_Annonces.Annonces)
+                {
+                    <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
+                        <div class="product-image-container">
+                            <div class="product-image"></div>
+                            <button class="wishlist-btn"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="() => ToggleFavorite(annonce.AnnonceId)">
+                                <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="product-info">
+                            <h3 class="product-title">@annonce.Title</h3>
+
+                            <div class="product-meta">
+                                <span class="product-size">Taille @annonce.Taille</span>
+                                <span class="product-condition">@annonce.EtatArticle</span>
+                            </div>
+
+                            <div class="product-footer">
+                                <span class="product-price">@annonce.Prix€</span>
+                                <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
 
 <!-- Hero Section -->
 <div class="hero-section">
@@ -108,3 +181,87 @@
         }
     </div>
 </div>
+
+@code {
+    // Propriétés UI locales (ne doivent pas être nommées VM_Connexion)
+
+    public bool IsLoading { get; set; } = false;
+
+    public string ErrorMessage { get; set; } = string.Empty;
+    public string SuccessMessage { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JS.InvokeVoidAsync("console.log", "OnInitializedAsync triggered");
+        await LoadRecentAnnonces();
+    }
+
+    private async Task LoadRecentAnnonces()
+    {
+        await JS.InvokeVoidAsync("console.log", "LoadRecentAnnonces() called");
+        ErrorMessage = SuccessMessage = string.Empty;
+        IsLoading = true;
+
+        FilterDTO filter = new FilterDTO
+        {
+            SortBy = SortField.DateAnnonce,
+            SortOrder = SortOrder.Descending,
+        };
+
+        try
+        {
+            List<Annonce> result = await VM_Annonces.GetAnnonceByFilter(filter, 1, 10);
+
+            if (result.Any())
+            {
+                VM_Annonces.Annonces = result;
+                SuccessMessage = "Chargement réussi.";
+                // Print all of result in console for debugging
+                foreach (Annonce annonce in result)
+                {
+                    Console.WriteLine($"Annonce ID: {annonce.AnnonceId}, Title: {annonce.Title}");
+                }
+            }
+            else
+            {
+                ErrorMessage = "Erreur lors du chargement d'annonces recent.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateToProductDetail(int? productId)
+    {
+        if (productId.HasValue)
+        {
+            navigationManager.NavigateTo($"/product/{productId}");
+        }
+    }
+    private async Task ToggleFavorite(int annonceId)
+    {
+        if (VM_Connexion.CheckLoginStatus == null)
+        {
+            navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        var annonce = VM_Annonces.Annonces.First(a => a.AnnonceId == annonceId);
+
+        await VM_Annonces.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
+
+        annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
+
+        StateHasChanged();
+    }
+
+
+}
+

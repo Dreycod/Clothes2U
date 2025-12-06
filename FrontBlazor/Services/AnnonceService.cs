@@ -61,4 +61,20 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
         throw new NotImplementedException();
     }
 
+    public Task<List<Annonce>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 3)
+    {
+
+        //var response = await GetWithCredentialsAsync($"Annonce/productByFilter?page={page}&pageSize={pageSize}", filterDto);
+        //response.EnsureSuccessStatusCode();
+        //var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+        //return annonces ?? new List<Annonce>();
+
+        return _httpClient.PostAsJsonAsync($"Annonce/productByFilter?page={page}&pageSize={pageSize}", filterDto)
+            .ContinueWith(task =>
+            {
+                var response = task.Result;
+                response.EnsureSuccessStatusCode();
+                return response.Content.ReadFromJsonAsync<List<Annonce>>();
+            }).Unwrap();
+    }
 }
