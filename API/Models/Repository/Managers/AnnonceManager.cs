@@ -37,21 +37,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .FirstOrDefaultAsync(a => a.AnnonceId == id);
     }
 
-
-    public async Task<IEnumerable<Annonce>> GetByCategorieId(int id)
-    {
-        return await BaseAnnonceQuery()
-            .Where(a => a.CategorieId == id)
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Annonce>> GetBySousCategorieId(int id)
-    {
-        return await BaseAnnonceQuery()
-            .Where(a => a.SousCategorieId == id)
-            .ToListAsync();
-    }
-
     public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int id)
     {
         return await BaseAnnonceQuery()
@@ -62,15 +47,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     {
         return await BaseAnnonceQuery()
             .Where(a => a.Statut.StatutLibelle == "En Ligne") 
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Annonce>> GetRecentAnnonces()
-    {
-        var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-
-        return await BaseAnnonceQuery()
-            .Where(a => a.DateAnnonce >= thirtyDaysAgo)
             .ToListAsync();
     }
 

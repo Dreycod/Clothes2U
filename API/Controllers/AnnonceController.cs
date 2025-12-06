@@ -75,16 +75,6 @@ public class AnnonceController : ControllerBase
         return Ok(annoncesDTO);
     }
 
-    [AllowAnonymous]
-    [HttpGet("GetRecentAnnonces")]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetRecentAnnonces()
-    {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetRecentAnnonces();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
-        return Ok(annoncesDTO);
-    }
-
 
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
