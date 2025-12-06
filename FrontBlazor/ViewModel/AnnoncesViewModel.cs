@@ -106,7 +106,7 @@ namespace FrontBlazor.ViewModel
 
         }
 
-        public async Task<List<Annonce>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 3)
+        public async Task<List<Annonce>?> GetAnnoncesByFiltreAsync(FilterDTO filterDto, int page = 1, int pageSize = 3)
         {
             try
             {
