@@ -49,7 +49,7 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<List<Annonce>>($"Annonce/GetAnnoncesByUserId/{userId}");
+            return await _httpClient.GetFromJsonAsync<List<Annonce>>($"Annonce/ByUtilisateurId/{userId}");
         }
         catch (HttpRequestException ex)
         {
@@ -102,6 +102,17 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
         var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
         return annonces ?? new List<Annonce>();
     }
+
+    public async Task<List<Annonce>> GetByFavorisUtilisateur()
+    {
+        var response = await GetWithCredentialsAsync("Annonce/ByFavorisUtilisateur");
+        response.EnsureSuccessStatusCode();
+
+        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+
+        return annonces ?? new List<Annonce>();
+    }
+
     private void AddListToQuery(List<KeyValuePair<string, string?>> qp, string key, List<string>? values)
     {
         if (values == null) return;

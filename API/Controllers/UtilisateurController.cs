@@ -20,9 +20,8 @@ public class UtilisateurController :  ControllerBase
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
     }
-   
 
-    [HttpGet("utilisateur/{id}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
     {
         Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(id);
@@ -30,7 +29,7 @@ public class UtilisateurController :  ControllerBase
         return Ok(utiliateurDTO);
     }
 
-    [HttpPut("utilisateur/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> PutUtilisateur(int id, [FromBody] UtilisateurPutDTO utilisateurDTO)
     {
         if (!ModelState.IsValid)
@@ -49,9 +48,7 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
 
-    
-
-    [HttpDelete("id/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {
         Utilisateur utilisateur = await _utilisateurManager.GetByIdAsync(id);

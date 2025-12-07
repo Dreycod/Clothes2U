@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace FrontBlazor.Services.GenericIServices;
 
-public abstract class WritableService<T> : BaseGenericService, IWritableService<T>  where T : class, IEntity
+public class WritableService<T> : BaseGenericService, IWritableService<T>  where T : class, IEntity
 {
     public WritableService(HttpClient httpClient) : base(httpClient){}
     

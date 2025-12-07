@@ -1,6 +1,6 @@
 namespace FrontBlazor.Models;
 
-public class NoteUtilisateurCreateDTO: IEntity
+public class NoteUtilisateurCreate: IEntity
 {
     public int Note { get; set; }
     public string? Commentaire { get; set; }
