@@ -28,10 +28,6 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/ImagesValidation.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW1hZ2VzVmFsaWRhdGlvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -64,9 +60,13 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-8u7t56wstr
 
-[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/AddArticle.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRkQXJ0aWNsZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-1b8ri6p3mv
+[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/CreationAnnonce.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRpb25Bbm5vbmNlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-elm1lufs8e
+
+[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/DetailAnnonce.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGV0YWlsQW5ub25jZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-l4pr6s020f
 
 [C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/ForgotPassword.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRm9yZ290UGFzc3dvcmQucmF6b3I=
@@ -88,10 +88,6 @@ build_metadata.AdditionalFiles.CssScope = b-1v73ca8285
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTmF2QmFyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-4ysgeyt7dd
 
-[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/ProductDetail.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdERldGFpbC5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-gfq7wf4co3
-
 [C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/Profil.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZmlsLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-hwadgbkhif
@@ -104,6 +100,6 @@ build_metadata.AdditionalFiles.CssScope = b-zq9g8jsxcv
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2FuY3Rpb25zLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-r7nmjgmw3f
 
-[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/Search.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VhcmNoLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-orzvczook8
+[C:/Users/André Suzuki/source/repos/Dreycod/Clothes2U/FrontBlazor/Pages/SearchAnnonce.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VhcmNoQW5ub25jZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-rekg3bz0s2

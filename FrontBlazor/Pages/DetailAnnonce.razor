@@ -1,0 +1,240 @@
+﻿@page "/product/{Id:int}"
+
+
+<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="product-detail-page">
+    @if (VM_DetailAnnonce.IsLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner-large"></div>
+            <p>Chargement du produit...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(VM_DetailAnnonce.ErrorMessage))
+    {
+        <div class="error-container">
+            <i class="bi bi-exclamation-circle"></i>
+            <p>@VM_DetailAnnonce.ErrorMessage</p>
+            <button class="btn-retry" @onclick="LoadProduct">Réessayer</button>
+        </div>
+    }
+    else if (VM_DetailAnnonce.AnnonceDetail != null)
+    {
+        var annonce = VM_DetailAnnonce.AnnonceDetail;
+
+        <div class="product-container">
+            <!-- Left Side - Product Image -->
+            <div class="product-image-section">
+                <div class="main-image">
+                    @if (annonce.Photos != null && annonce.Photos.Any())
+                    {
+                        <img src="@annonce.Photos.First()" alt="@annonce.Title" />
+                    }
+                </div>
+                <button class="close-btn" @onclick="GoBack">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <!-- Right Side - Product Info -->
+            <div class="product-info-section">
+                <!-- Category Badge -->
+                <div class="category-badge">@annonce.Categorie</div>
+
+                <!-- Title -->
+                <h1 class="product-title">@annonce.Title</h1>
+
+                <!-- Brand & Price -->
+                <div class="brand-price-row">
+                    <span class="brand-name">@annonce.NomMarque</span>
+                    <span class="product-price">@annonce.Prix€</span>
+                </div>
+
+                <!-- Price Status - Based on Negociable property -->
+                <div class="price-status">
+                    @if (annonce.Negociable)
+                    {
+                        <span class="badge badge-negotiable">Prix négociable</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-non-negotiable">Prix non négociable</span>
+                    }
+                </div>
+
+                <!-- Actions Row -->
+                <div class="actions-row">
+                    <button class="btn-action" @onclick="ToggleFavorite">
+                        <i class="bi bi-heart@(isFavorite ? "-fill" : "")"></i>
+                    </button>
+                    <button class="btn-action">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <button class="btn-action" @onclick="ShareProduct">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </div>
+
+                <!-- Seller Info -->
+                <div class="seller-section">
+                    <div class="seller-avatar"></div>
+                    <div class="seller-info"> 
+                        <h3 class="seller-name">@(@*Description (it's not in the Annonce) annonce.Description ?? *@ "Vendeur")</h3>
+                        <div class="seller-rating">
+                            <i class="bi bi-star-fill"></i>
+                            <span>4.8 (100 avis)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details Grid -->
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Taille</div>
+                        <div class="detail-value">@annonce.Taille</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">État</div>
+                        <div class="detail-value">@annonce.EtatArticle</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Catégorie</div>
+                        <div class="detail-value">@annonce.SousCategorie</div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="description-section">
+                    <h3 class="section-title">Description</h3>
+                    <p class="description-text">
+                        @(@*Description (it's not in the Annonce) annonce.Description ?? *@ "Aucune description disponible.")
+                    </p>
+                </div>
+
+                <!-- Publication Date & Likes -->
+                <div class="product-stats">
+                    <span><i class="bi bi-calendar"></i> Publié le @annonce.DateAnnonce.ToString("dd/MM/yyyy")</span>
+                    <span><i class="bi bi-heart"></i> @annonce.NombreLikes likes</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-secondary" @onclick="ContactSeller">
+                        Contacter le vendeur
+                    </button>
+                    @if (annonce.Negociable)
+                    {
+                        <button class="btn-secondary" @onclick="MakeOffer">
+                            Faire une offre
+                        </button>
+                    }
+                </div>
+
+                <button class="btn-primary" @onclick="BuyProduct">
+                    Acheter l'article
+                </button>
+            </div>
+        </div>
+
+        <!-- Similar Products Section -->
+        <div class="similar-section">
+            <h2 class="similar-title">Produits Similaires</h2>
+            <div class="similar-grid">
+                @if (similarProducts != null && similarProducts.Any())
+                {
+                    @foreach (var similar in similarProducts.Take(3))
+                    {
+                        <div class="product-card" @onclick="() => NavigateToProduct(similar.AnnonceId)">
+                            <div class="product-image-container">
+                                <div class="product-image"></div>
+                                <button class="wishlist-btn" @onclick:stopPropagation="true">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                            </div>
+                            <div class="product-card-info">
+                                <h3 class="card-title">@similar.Title</h3>
+                                <p class="card-brand">@similar.NomMarque</p>
+                                <div class="card-meta">
+                                    <span class="card-size">Taille @similar.Taille</span>
+                                    <span class="card-condition">@similar.EtatArticle</span>
+                                </div>
+                                <div class="card-footer">
+                                    <span class="card-price">@similar.Prix€</span>
+                                    <span class="card-seller">par @(@*Description (it's not in the Annonce) annonce.Description ?? *@ "Vendeur")</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>Aucun produit similaire disponible</p>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private bool isFavorite = false;
+    private List<Annonce>? similarProducts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProduct();
+        // TODO: Load similar products based on category
+        // similarProducts = await VM_DetailAnnonce.GetSimilarProductsAsync(Id);
+    }
+
+    private async Task LoadProduct()
+    {
+        await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
+    }
+
+    private void ToggleFavorite()
+    {
+        isFavorite = !isFavorite;
+        // TODO: Call API to save/remove favorite
+    }
+
+    private void GoBack()
+    {
+        navigationManager.NavigateTo("/search");
+    }
+
+    private void ContactSeller()
+    {
+        // TODO: Navigate to messages or open contact dialog
+        navigationManager.NavigateTo("/messages");
+    }
+
+    private void MakeOffer()
+    {
+        // TODO: Open make offer dialog
+    }
+
+    private void BuyProduct()
+    {
+        // TODO: Add to cart or navigate to checkout
+    }
+
+    private void ShareProduct()
+    {
+        // TODO: Implement share functionality
+    }
+
+    private void NavigateToProduct(int? productId)
+    {
+        if (productId.HasValue)
+        {
+            navigationManager.NavigateTo($"/product/{productId}", forceLoad: true);
+        }
+    }
+}

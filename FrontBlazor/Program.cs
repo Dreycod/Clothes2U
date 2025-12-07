@@ -29,11 +29,14 @@ builder.Services.AddScoped<CredentialHttpClient>();
 builder.Services.AddScoped(typeof(ListableViewModel<>));
 // ViewModels
 builder.Services.AddScoped<LoginViewModel>();
-builder.Services.AddScoped<SearchViewModel>();
+builder.Services.AddScoped<SearchAnnonceViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
+builder.Services.AddScoped<ConversationViewModel>();
+builder.Services.AddScoped<DetailAnnonceViewModel>();
+builder.Services.AddScoped<DetailAnnonceViewModel>();
 builder.Services.AddScoped<MessageViewModel>();
-builder.Services.AddScoped<MessageViewModel>();
+builder.Services.AddScoped<CreationAnnonceViewModel>();
 
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });
