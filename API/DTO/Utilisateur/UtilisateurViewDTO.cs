@@ -3,6 +3,7 @@ namespace API.DTO.Utilisateur;
 public class UtilisateurViewDTO
 {
     public int UtilisateurId { get; set; }
+    public bool followeddByCurrentUser { get; set; }
     public string Login { get; set; }
     public DateTime DateInscription { get; set; }
     public string Description { get; set; }
