@@ -9,6 +9,7 @@ namespace FrontBlazor.Services
         public Task AddAbonnement(int utilisateurId)
         {
             
+            throw new NotImplementedException();
         }
 
         public Task<Abonnement?> AddAsync(Abonnement entity)
