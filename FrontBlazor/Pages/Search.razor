@@ -188,22 +188,22 @@
 
             <!-- Products Grid -->
             <div class="products-section">
-                @if (VM_Annonces.IsLoading)
+                @if (VM_Search.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner-large"></div>
                         <p>Chargement des annonces...</p>
                     </div>
                 }
-                else if (!string.IsNullOrEmpty(VM_Annonces.ErrorMessage))
+                else if (!string.IsNullOrEmpty(VM_Search.ErrorMessage))
                 {
                     <div class="error-state">
                         <i class="bi bi-exclamation-circle"></i>
-                        <p>@VM_Annonces.ErrorMessage</p>
+                        <p>@VM_Search.ErrorMessage</p>
                         <button class="btn-retry" @onclick="LoadAnnonces">Réessayer</button>
                     </div>
                 }
-                else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())
+                else if (VM_Search.Annonces == null || !VM_Search.Annonces.Any())
                 {
                     <div class="empty-state">
                         <i class="bi bi-search"></i>
@@ -213,7 +213,7 @@
                 else
                 {
                     <div class="product-grid">
-                        @foreach (var annonce in VM_Annonces.Annonces)
+                        @foreach (var annonce in VM_Search.Annonces)
                         {
                             <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
                                 <div class="product-image-container">
@@ -314,16 +314,16 @@
             };
         }
         JS.InvokeAsync<string>("console.log", "Loading annonces with filter");
-        List<Annonce> result = await VM_Annonces.GetAnnoncesByFiltreAsync(filterRequest, 1, 10);
-        VM_Annonces.Annonces = result;
+        List<Annonce> result = await VM_Search.GetAnnoncesByFiltreAsync(filterRequest, 1, 10);
+        VM_Search.Annonces = result;
         CalculateMaxPrice();
     }
 
     private void CalculateMaxPrice()
     {
-        if (VM_Annonces.Annonces != null && VM_Annonces.Annonces.Any())
+        if (VM_Search.Annonces != null && VM_Search.Annonces.Any())
         {
-            var highestPrice = VM_Annonces.Annonces.Max(a => a.Prix);
+            var highestPrice = VM_Search.Annonces.Max(a => a.Prix);
             priceMax = (int)Math.Ceiling(highestPrice);
         }
     }
@@ -422,9 +422,9 @@
             return;
         }
 
-        var annonce = VM_Annonces.Annonces.First(a => a.AnnonceId == annonceId);
+        var annonce = VM_Search.Annonces.First(a => a.AnnonceId == annonceId);
 
-        await VM_Annonces.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
+        await VM_Search.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
 
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
 
@@ -450,12 +450,12 @@
 
     private async Task ApplyFilters()
     {
-        // TODO: Implement filter logic in VM_Annonces
+        // TODO: Implement filter logic in VM_Search
         Console.WriteLine($"Selected Items: {string.Join(", ", selectedCategories)}");
         Console.WriteLine($"Selected Subcategories: {string.Join(", ", selectedSubcategories)}");
         Console.WriteLine($"Selected Marques: {string.Join(", ", selectedMarques)}");
         Console.WriteLine($"Selected Taille: {selectedTailleId}");
         Console.WriteLine($"Price Max: {priceMax}");
-        // await VM_Annonces.ApplyFiltersAsync(selectedCategories, selectedSubcategories, selectedMarques, selectedTailleId, priceMax, ...);
+        // await VM_Search.ApplyFiltersAsync(selectedCategories, selectedSubcategories, selectedMarques, selectedTailleId, priceMax, ...);
     }
 }

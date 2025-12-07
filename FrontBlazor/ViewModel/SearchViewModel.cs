@@ -4,7 +4,7 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel
 {
-    public class AnnoncesViewModel
+    public class SearchViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
@@ -15,7 +15,7 @@ namespace FrontBlazor.ViewModel
         public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public AnnoncesViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
+        public SearchViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;

@@ -28,11 +28,11 @@ builder.Services.AddScoped<CredentialHttpClient>();
 
 builder.Services.AddScoped(typeof(ListableViewModel<>));
 // ViewModels
-builder.Services.AddScoped<ConnexionViewModel>();
-builder.Services.AddScoped<AnnoncesViewModel>();
+builder.Services.AddScoped<LoginViewModel>();
+builder.Services.AddScoped<SearchViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
-builder.Services.AddScoped<ConversationViewModel>();
+builder.Services.AddScoped<MessageViewModel>();
 builder.Services.AddScoped<MessageViewModel>();
 
 // HttpClient AVEC CREDENTIALS (cookies)

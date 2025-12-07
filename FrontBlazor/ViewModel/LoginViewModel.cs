@@ -7,10 +7,11 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.ViewModel;
 
-public class ConnexionViewModel
+public class LoginViewModel
+
 {
     private readonly IAuthService _authService;
-    public ConnexionViewModel(IAuthService authService)
+    public LoginViewModel(IAuthService authService)
     {
         _authService = authService;
     }

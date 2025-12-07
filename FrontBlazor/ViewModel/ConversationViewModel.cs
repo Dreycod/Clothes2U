@@ -9,7 +9,6 @@ namespace FrontBlazor.ViewModel;
 public class ConversationViewModel
 {
     private readonly IConversationService<Conversation> _service;
-
     public List<Conversation> Conversations { get; set; } = new List<Conversation>();
 
     public ConversationViewModel(IConversationService<Conversation> service)
