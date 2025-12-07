@@ -11,7 +11,7 @@ public class UtilisateurViewDTO
     public string Statut { get; set; }
     public int Abonnements { get; set; }
     public int Abonnes { get; set; }
-    public double Moyenne { get; set; }
     public int PhotoProfilId { get; set; }
-
+    public double MoyenneAvis { get; set; }
+    public int NombreAvis { get; set; }
 }

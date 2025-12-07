@@ -110,19 +110,29 @@ public class AnnonceController : ControllerBase
     }
     [Authorize]
     [HttpGet("ByFavorisUtilisateur")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur()
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30)
     {
-        int ? userId = GetConnectedUserId();
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
+        }
+
+        int? userId = GetConnectedUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId);
+
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId, page, pageSize);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await LikeAnnonce(annoncesDTO);
+    
         return Ok(annoncesDTO);
     }
 
@@ -206,6 +216,7 @@ public class AnnonceController : ControllerBase
     
     [HttpGet("productByFilter")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllAnnonceByFilter(
         [FromQuery] FilterDTO filterDto,
@@ -214,16 +225,12 @@ public class AnnonceController : ControllerBase
     {
         if (page <= 0 || pageSize <= 0)
         {
-            return BadRequest();
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
-        var annonces = (await _annonceManager.FilterAsync(filterDto));
+        var annonces = await _annonceManager.FilterAsync(filterDto, page, pageSize);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        int skip = (page - 1) * pageSize;
-        var paginatedDTO = annoncesDTO
-            .Skip(skip)
-            .Take(pageSize)
-            .ToList();
-        paginatedDTO = (await LikeAnnonce(paginatedDTO)).ToList();
-        return Ok(paginatedDTO);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+    
+        return Ok(annoncesDTO);
     }
 }

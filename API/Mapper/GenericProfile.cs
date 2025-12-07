@@ -51,9 +51,10 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoProfil != null ? src.PhotoProfil.PhotoId : 0))
             .ForMember(dest => dest.Abonnes, opt => opt.MapFrom(src => src.Abonnes.Count))
             .ForMember(dest => dest.Abonnements, opt => opt.MapFrom(src => src.Abonnements.Count))
-            .ForMember(dest => dest.Moyenne, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.NombreAvis, opt => opt.MapFrom(src => src.NotesCible.Count))
+            .ForMember(dest => dest.MoyenneAvis, opt => opt.MapFrom(src => 
                 src.NotesCible.Any() 
-                    ? src.NotesCible.Average(n => n.Note) 
+                    ? src.NotesCible.Average(n => (double)n.Note) 
                     : 0.0));
 
         CreateMap<UtilisateurPutDTO, Utilisateur>()
@@ -173,6 +174,8 @@ public class GenericProfile : Profile
  
         CreateMap<NoteUtilisateur, NoteUtilisateurDTO>()
             .ForMember(dest => dest.NoteurId, opt => opt.MapFrom(src => src.AuteurId))  
+            .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
+            .ForMember(dest => dest.PhotoProfilAuteurId, opt => opt.MapFrom(src => src.Auteur.PhotoId))
             .ForMember(dest => dest.NoteId, opt => opt.MapFrom(src => src.CibleId));    
 
         CreateMap<NoteUtilisateur, NoteUtilisateurDetailDTO>()

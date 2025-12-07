@@ -21,17 +21,21 @@ namespace API.Controllers
         }
 
         [HttpGet("User/{userId}")]
-        public async Task<ActionResult<IEnumerable<NoteUtilisateurDTO>>> GetNotesByUserId(int userId)
+        [ProducesResponseType(typeof(IEnumerable<NoteUtilisateurDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<NoteUtilisateurDTO>>> GetNotesByUserId(
+            int userId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var notes = await _noteUtilisateurManager.GetByUserIdAsync(userId);
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page et pageSize doivent être supérieurs à 0");
+            }
+    
+            var notes = await _noteUtilisateurManager.GetByUserIdAsync(userId, page, pageSize);
+    
             return Ok(_mapper.Map<IEnumerable<NoteUtilisateurDTO>>(notes));
-        }
-
-        [HttpGet("User/{userId}/Average")]
-        public async Task<ActionResult<double>> GetMoyenne(int userId)
-        {
-            var avg = await _noteUtilisateurManager.GetMoyenneNoteAsync(userId);
-            return Ok(avg);
         }
 
         [HttpGet("{id}")]
