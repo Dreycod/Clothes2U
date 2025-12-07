@@ -21,6 +21,19 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
         return annonces ?? new List<Annonce>();
     }
 
+    public async Task<List<Annonce>> GetAnnoncesByFiltreAsync(FilterDTO filtre, int page = 1, int pageSize = 20)
+    {
+        var body = JsonContent.Create(filtre);
+
+        var url = $"Annonce/productByFilter?page={page}&pageSize={pageSize}";
+
+        var response = await PostWithCredentialsAsync(url, body);
+        response.EnsureSuccessStatusCode();
+
+        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+        return annonces ?? new List<Annonce>();
+    }
+
     public async Task<List<Annonce>?> GetAnnoncesByCategorieId(int Id)
     {
         return await _httpClient.GetFromJsonAsync<List<Annonce>>(

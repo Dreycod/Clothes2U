@@ -43,7 +43,7 @@ public class FavorisController :  ControllerBase
     [ProducesResponseType(typeof(FavorisDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<FavorisDTO>> AddFavoris(int annonceId)
+    public async Task<ActionResult<FavorisDTO>> AddFavoris([FromBody] int annonceId)
     {
         Annonce annonce = await _annonceManager.GetByIdAsync(annonceId);
         if (annonce == null)

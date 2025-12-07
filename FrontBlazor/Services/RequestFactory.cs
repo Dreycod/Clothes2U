@@ -27,15 +27,37 @@ namespace FrontBlazor.Services
             };
         }
 
-
-        //public static AnnonceSearchRequestDTO CreateFilterRequest(int? categoryId, string keyword)
+        //public static FilterDTO CreateFilterRequest(
+        //    string? motCle = null,
+        //    string? marque = null,
+        //    string? categorie = null,
+        //    string? sousCategorie = null,
+        //    string? taille = null,
+        //    double? prix = null,
+        //    SortField? sortBy = null,
+        //    SortOrder sortOrder = SortOrder.Ascending)
         //{
-        //    return new AnnonceSearchRequestDTO
-        //    {
-        //        CategoryId = categoryId,
-        //        Keyword = keyword
-        //    };
+        //    //return new AnnonceSearchRequestDTO
+        //    //{
+        //    //    CategoryId = categoryId,
+        //    //    Keyword = keyword
+        //    //};
         //}
+        // TEMPORAIRE
+        public static FilterDTO CreateFilterRequest(
+            string? motCle = null,
+            double? prix = null,
+            SortField? sortBy = null,
+            SortOrder sortOrder = SortOrder.Ascending)
+        {
+            return new FilterDTO
+            {
+                MotCle = motCle,
+                Prix = prix,
+                SortBy = sortBy,
+                SortOrder = sortOrder
+            };
+        }
     }
 
 }
