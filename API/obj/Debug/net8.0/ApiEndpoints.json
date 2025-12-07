@@ -1001,7 +1001,7 @@
   },
   {
     "ContainingType": "API.Controllers.FavorisController",
-    "Method": "DeleteProduit",
+    "Method": "DeleteFavoris",
     "RelativePath": "api/Favoris/id/{annonceId}",
     "HttpMethod": "DELETE",
     "IsController": true,
