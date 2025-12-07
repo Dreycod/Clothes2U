@@ -1,30 +1,30 @@
 ﻿@page "/product/{Id:int}"
 
 
-<PageTitle>@(VM_Annonces.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
+<PageTitle>@(VM_Search.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
 <NavBar />
 
 <div class="product-detail-page">
-    @if (VM_Annonces.IsLoading)
+    @if (VM_Search.IsLoading)
     {
         <div class="loading-container">
             <div class="spinner-large"></div>
             <p>Chargement du produit...</p>
         </div>
     }
-    else if (!string.IsNullOrEmpty(VM_Annonces.ErrorMessage))
+    else if (!string.IsNullOrEmpty(VM_Search.ErrorMessage))
     {
         <div class="error-container">
             <i class="bi bi-exclamation-circle"></i>
-            <p>@VM_Annonces.ErrorMessage</p>
+            <p>@VM_Search.ErrorMessage</p>
             <button class="btn-retry" @onclick="LoadProduct">Réessayer</button>
         </div>
     }
-    else if (VM_Annonces.AnnonceDetail != null)
+    else if (VM_Search.AnnonceDetail != null)
     {
-        var annonce = VM_Annonces.AnnonceDetail;
+        var annonce = VM_Search.AnnonceDetail;
 
         <div class="product-container">
             <!-- Left Side - Product Image -->
@@ -190,12 +190,12 @@
     {
         await LoadProduct();
         // TODO: Load similar products based on category
-        // similarProducts = await VM_Annonces.GetSimilarProductsAsync(Id);
+        // similarProducts = await VM_Search.GetSimilarProductsAsync(Id);
     }
 
     private async Task LoadProduct()
     {
-        await VM_Annonces.LoadAnnonceDetailAsync(Id);
+        await VM_Search.LoadAnnonceDetailAsync(Id);
     }
 
     private void ToggleFavorite()
