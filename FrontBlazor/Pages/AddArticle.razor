@@ -1,5 +1,5 @@
 ﻿@page "/add-article"
-@inject AnnoncesViewModel VM_Annonce
+
 <PageTitle>Ajouter un article - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -438,7 +438,7 @@
         }
 
         // Save the annonce
-        bool result = await VM_Annonce.CreateAnnonceAsync(newAnnonce);
+        bool result = await VM_Add.CreateAnnonceAsync(newAnnonce);
         if (result == false ) 
             ErrorMessages.Add("Product was not created due to API problems");
         HasCreated = result;
