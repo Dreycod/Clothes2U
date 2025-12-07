@@ -36,7 +36,7 @@ public class FavorisController :  ControllerBase
         if (favoris == null)
             return NotFound();
         return favoris;
-    }
+    } 
     
     [Authorize]
     [HttpPost]
@@ -45,7 +45,7 @@ public class FavorisController :  ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<FavorisDTO>> AddFavoris([FromBody] int annonceId)
     {
-        Annonce annonce = await _annonceManager.GetByIdAsync(annonceId);
+        Annonce annonce =  await _annonceManager.GetByIdAsync(annonceId);
         if (annonce == null)
         {
             return NotFound("L'annonce n'existe pas");
@@ -78,7 +78,7 @@ public class FavorisController :  ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteProduit(int annonceId)
+    public async Task<IActionResult> DeleteFavoris(int annonceId)
     {
        
         if (User?.Identity?.IsAuthenticated != true)
