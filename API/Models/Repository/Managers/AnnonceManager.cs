@@ -50,22 +50,27 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
+    public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id, int page, int pageSize)
     {
         var annonceIds = await _context.Favorises
             .Where(f => f.UtilisateurId == id)
             .Select(f => f.AnnonceId)
             .ToListAsync();
 
+        int skip = (page - 1) * pageSize;
+
         return await BaseAnnonceQuery()
             .Where(a => annonceIds.Contains(a.AnnonceId))
+            .Skip(skip)
+            .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto)
+    public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto, int page, int pageSize)
     {
         var query = BaseAnnonceQuery();
-    
+
+        // Filtres
         if (!string.IsNullOrEmpty(filterDto.MotCle))
         {
             var lowerMotCle = filterDto.MotCle.ToLower();
@@ -74,34 +79,45 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
                 p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle))
             );
         }
+    
         if (filterDto.Marques != null && filterDto.Marques.Any())
         {
             query = query.Where(p => filterDto.Marques.Contains(p.Marque.NomMarque));
         }
+    
         if (filterDto.Categories != null && filterDto.Categories.Any())
         {
             query = query.Where(p => filterDto.Categories.Contains(p.Categorie.LibelleCategorie));
         }
+    
         if (filterDto.SousCategories != null && filterDto.SousCategories.Any())
         {
             query = query.Where(p => filterDto.SousCategories.Contains(p.SousCategorie.LibelleSousCategorie));
         }
+    
         if (filterDto.Tailles != null && filterDto.Tailles.Any())
         {
             query = query.Where(p => filterDto.Tailles.Contains(p.Taille.Libelletaille));
         }
+    
         if (filterDto.PrixMin.HasValue)
         {
             decimal prixMinDecimal = (decimal)filterDto.PrixMin.Value;
             query = query.Where(p => p.Prix >= prixMinDecimal);
         }
-    
+
         if (filterDto.PrixMax.HasValue)
         {
             decimal prixMaxDecimal = (decimal)filterDto.PrixMax.Value;
             query = query.Where(p => p.Prix <= prixMaxDecimal);
         }
+    
+        // Tri
         query = ApplySorting(query, filterDto);
+
+        // Pagination
+        int skip = (page - 1) * pageSize;
+        query = query.Skip(skip).Take(pageSize);
 
         return await query.ToListAsync();
     }

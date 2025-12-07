@@ -16,12 +16,20 @@ namespace API.Models.Repository.Managers
                 .AsSplitQuery();
         }
 
-        public async Task<IEnumerable<NoteUtilisateur>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<NoteUtilisateur>> GetByUserIdAsync(int userId, int page, int pageSize)
         {
-            return await BaseNoteQuery()
+            IQueryable<NoteUtilisateur> query = BaseNoteQuery()
                 .Where(n => n.CibleId == userId)
-                .OrderByDescending(n => n.DatePublication)
+                .OrderByDescending(n => n.DatePublication);
+    
+            // Pagination
+            int skip = (page - 1) * pageSize;
+            var result = await query
+                .Skip(skip)
+                .Take(pageSize)
                 .ToListAsync();
+    
+            return result;
         }
 
         public async Task<double> GetMoyenneNoteAsync(int userId)
