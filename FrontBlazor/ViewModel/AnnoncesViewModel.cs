@@ -46,26 +46,6 @@ namespace FrontBlazor.ViewModel
                 IsLoading = false;
             }
         }
-        public async Task LoadAnnoncesFiltreAsync(FilterDTO filtre)
-        {
-            IsLoading = true;
-            ErrorMessage = null;
-
-            try
-            {
-                Annonces = await _annonceService.GetAnnoncesByFiltreAsync(filtre, 1, 20) ?? new List<Annonce>();
-                
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = "Erreur lors du chargement des annonces";
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
 
         public async Task LoadAnnonceDetailAsync(int id)
         {

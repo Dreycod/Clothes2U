@@ -33,7 +33,7 @@
                 <div class="filter-section">
                     <h4 class="filter-title">Type de vêtement</h4>
                     <div class="filter-options">
-                        @if (IsLoading)
+                        @if (VM_Categorie.IsLoading)
                         {
                             <div class="filter-loading">
                                 <div class="spinner-small"></div>
@@ -91,7 +91,7 @@
                 <div class="filter-section">
                     <h4 class="filter-title">Marque</h4>
                     <div class="filter-options">
-                        @if (IsLoading)
+                        @if (VM_Marque.IsLoading)
                         {
                             <div class="filter-loading">
                                 <div class="spinner-small"></div>
@@ -120,7 +120,7 @@
                 <!-- Taille -->
                 <div class="filter-section">
                     <h4 class="filter-title">Taille</h4>
-                    @if (IsLoading)
+                    @if (VM_Taille.IsLoading)
                     {
                         <div class="filter-loading">
                             <div class="spinner-small"></div>
@@ -188,7 +188,7 @@
 
             <!-- Products Grid -->
             <div class="products-section">
-                @if (IsLoading)
+                @if (VM_Annonces.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner-large"></div>
@@ -200,7 +200,7 @@
                     <div class="error-state">
                         <i class="bi bi-exclamation-circle"></i>
                         <p>@VM_Annonces.ErrorMessage</p>
-                        <button class="btn-retry" @onclick="() => LoadAnnonces()">Réessayer</button>
+                        <button class="btn-retry" @onclick="LoadAnnonces">Réessayer</button>
                     </div>
                 }
                 else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())

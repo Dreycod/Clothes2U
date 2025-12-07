@@ -1,9 +1,9 @@
 ﻿@page "/"
 @inject IJSRuntime JS
-@inject AnnoncesViewModel VM_Annonces
+@inject HomeViewModel VM_Home
 <PageTitle>Clothes2U - Home</PageTitle>
 
-<NavBar/>
+<NavBar />
 
 
 <!-- RECENTS Section -->
@@ -21,22 +21,22 @@
     </div>
     <!-- Products Grid -->
     <div class="products-section">
-        @if (VM_Annonces.IsLoading)
+        @if (VM_Home.IsLoading)
         {
             <div class="loading-state">
                 <div class="spinner-large"></div>
                 <p>Chargement des annonces...</p>
             </div>
         }
-        else if (!string.IsNullOrEmpty(VM_Annonces.ErrorMessage))
+        else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
         {
             <div class="error-state">
                 <i class="bi bi-exclamation-circle"></i>
-                <p>@VM_Annonces.ErrorMessage</p>
+                <p>@VM_Home.ErrorMessage</p>
                 <button class="btn-retry" @onclick="LoadRecentAnnonces">Réessayer</button>
             </div>
         }
-        else if (VM_Annonces.Annonces == null || !VM_Annonces.Annonces.Any())
+        else if (VM_Home.Annonces == null || !VM_Home.Annonces.Any())
         {
             <div class="empty-state">
                 <i class="bi bi-search"></i>
@@ -46,7 +46,7 @@
         else
         {
             <div class="product-grid">
-                @foreach (var annonce in VM_Annonces.Annonces)
+                @foreach (var annonce in VM_Home.Annonces)
                 {
                     <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
                         <div class="product-image-container">
@@ -183,7 +183,7 @@
 </div>
 
 @code {
- 
+
 
     public bool IsLoading { get; set; } = false;
 
@@ -210,11 +210,11 @@
 
         try
         {
-            List<Annonce> result = await VM_Annonces.GetAnnoncesByFiltreAsync(filter, 1, 10);
+            List<Annonce> result = await VM_Home.GetAnnoncesByFiltreAsync(filter, 1, 10);
 
             if (result.Any())
             {
-                VM_Annonces.Annonces = result;
+                VM_Home.Annonces = result;
                 SuccessMessage = "Chargement réussi.";
                 // Print all of result in console for debugging
                 foreach (Annonce annonce in result)
@@ -253,9 +253,9 @@
             return;
         }
 
-        var annonce = VM_Annonces.Annonces.First(a => a.AnnonceId == annonceId);
+        var annonce = VM_Home.Annonces.First(a => a.AnnonceId == annonceId);
 
-        await VM_Annonces.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
+        await VM_Home.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
 
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
 
