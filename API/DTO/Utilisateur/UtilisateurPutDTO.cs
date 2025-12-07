@@ -2,7 +2,6 @@ namespace API.DTO.Utilisateur;
 
 public class UtilisateurPutDTO
 {
-    public int UtilisateurId { get; set; }
     public string? Email { get; set; }
     public string? Telephone { get; set; }
     

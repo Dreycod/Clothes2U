@@ -57,15 +57,20 @@ public class GenericProfile : Profile
                     : 0.0));
 
         CreateMap<UtilisateurPutDTO, Utilisateur>()
+            // Ignorer la clé primaire
             .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+    
+            // Mapper les propriétés explicitement
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.AdresseId))
-            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId));
-        
-        
+            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId))
+    
+            // Ne mapper que les propriétés non nulles (à la fin)
+            .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => srcValue != null));
+
         
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         CreateMap<Couleur, CouleurDTO>();

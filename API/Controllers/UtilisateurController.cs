@@ -31,21 +31,24 @@ public class UtilisateurController :  ControllerBase
     }
 
     [HttpPut("utilisateur/{id}")]
-    public async Task<IActionResult> PutUtilisateur(int id, UtilisateurPutDTO utilisateurDTO)
+    public async Task<IActionResult> PutUtilisateur(int id, [FromBody] UtilisateurPutDTO utilisateurDTO)
     {
         if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
-        }
+
         Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
         if (utilisateurToUpdate == null)
-        {
             return NotFound();
-        }
-        Utilisateur utilisateur = _mapper.Map<Utilisateur>(utilisateurDTO);
-        await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateur);
+
+        // IMPORTANT : mapper dans le même objet
+        _mapper.Map(utilisateurDTO, utilisateurToUpdate);
+
+        // IMPORTANT : passer le même objet 2 fois
+        await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
+
         return NoContent();
     }
+
     
 
     [HttpDelete("id/{id}")]
