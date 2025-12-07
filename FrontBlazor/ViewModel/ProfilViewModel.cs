@@ -21,10 +21,5 @@ namespace FrontBlazor.ViewModel
             //await GetUser()
 
         }
-
-        public async Task AddArticle()
-        {
-            throw  new NotImplementedException();
-        }
     }
 }
