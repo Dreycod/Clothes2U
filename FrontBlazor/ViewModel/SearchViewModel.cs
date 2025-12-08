@@ -20,6 +20,7 @@ namespace FrontBlazor.ViewModel
         public ListableViewModel<Categorie> VM_Categorie { get; set; }
         public ListableViewModel<Marque> VM_Marque { get; set; }
         public ListableViewModel<Taille> VM_Taille { get; set; }
+        public ListableViewModel<EtatArticle> VM_Etats { get; set; }
         public NavigationManager navigationManager { get; set; }
         public LoginViewModel VM_Login { get; set; }
 
@@ -35,6 +36,7 @@ namespace FrontBlazor.ViewModel
         public HashSet<int> selectedSubcategories = new();
         public HashSet<int> expandedCategories = new();
         public HashSet<int> selectedMarques = new();
+        public HashSet<int> selectedEtats = new();
         public int? selectedTailleId = null;
 
         public int SliderMax = 500;
@@ -54,13 +56,14 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         #endregion
-        public SearchAnnonceViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, ListableViewModel<Categorie> vM_Categorie, ListableViewModel<Marque> vM_Marque, ListableViewModel<Taille> vM_Taille, NavigationManager navManager)
+        public SearchAnnonceViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, ListableViewModel<Categorie> vM_Categorie, ListableViewModel<Marque> vM_Marque, ListableViewModel<Taille> vM_Taille, ListableViewModel<EtatArticle> vM_Etats, NavigationManager navManager)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
             VM_Categorie = vM_Categorie;
             VM_Marque = vM_Marque;
             VM_Taille = vM_Taille;
+            VM_Etats = vM_Etats;
             navigationManager = navManager;
         }
 
@@ -70,6 +73,9 @@ namespace FrontBlazor.ViewModel
             await VM_Categorie.LoadAsync();
             await VM_Marque.LoadAsync();
             await VM_Taille.LoadAsync();
+            await VM_Etats.LoadAsync();
+            // print loadasync de etats
+            Console.WriteLine("Etats Loaded: " + VM_Etats.Items.Count);
             await ApplyFilters();
             IsLoading = false;
         }
@@ -147,7 +153,7 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         #region ToggleCategories
-        public void ToggleCategory(int categoryId)
+        public async void ToggleCategory(int categoryId)
         {
             if (expandedCategories.Contains(categoryId))
             {
@@ -157,10 +163,10 @@ namespace FrontBlazor.ViewModel
             {
                 expandedCategories.Add(categoryId);
             }
-            OnStateChange?.Invoke();
+            await ApplyFilters();
         }
 
-        public void ToggleCategorySelection(int categoryId, bool isChecked)
+        public async void ToggleCategorySelection(int categoryId, bool isChecked)
         {
             if (isChecked)
             {
@@ -170,7 +176,7 @@ namespace FrontBlazor.ViewModel
             {
                 selectedCategories.Remove(categoryId);
             }
-            OnStateChange?.Invoke();
+            await ApplyFilters();
         }
 
         public void ToggleSubcategorySelection(int subcategoryId, bool isChecked)
@@ -198,7 +204,7 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         #region ToggleMarques & Tailles
-        public void ToggleMarqueSelection(int marqueId, bool isChecked)
+        public async void ToggleMarqueSelection(int marqueId, bool isChecked)
         {
             if (isChecked)
             {
@@ -208,14 +214,14 @@ namespace FrontBlazor.ViewModel
             {
                 selectedMarques.Remove(marqueId);
             }
-            OnStateChange?.Invoke();
+            await ApplyFilters();
         }
 
         public bool IsMarqueSelected(int marqueId)
         {
             return selectedMarques.Contains(marqueId);
         }
-        public void ToggleTailleSelection(int tailleId)
+        public async void ToggleTailleSelection(int tailleId)
         {
             if (selectedTailleId == tailleId)
             {
@@ -225,9 +231,29 @@ namespace FrontBlazor.ViewModel
             {
                 selectedTailleId = tailleId;
             }
-            OnStateChange?.Invoke();
+            await ApplyFilters();
+        }
+
+        public async void ToggleEtatSelection(int etatId, bool isChecked)
+        {
+            if (isChecked)
+            {
+                selectedEtats.Add(etatId);
+            }
+            else
+            {
+                selectedEtats.Remove(etatId);
+            }
+            await ApplyFilters();
+        }
+
+        public bool IsEtatSelected(int etatId)
+        {
+            return selectedEtats.Contains(etatId);
         }
         #endregion
+
+
 
         #region Filtrage
         public async void ResetFilters()
@@ -266,11 +292,17 @@ namespace FrontBlazor.ViewModel
                 .Select(t => t.Libelletaille)
                 .FirstOrDefault() ?? "";
 
+            var selectedEtatsName = VM_Etats.Items
+               .Where(sc => selectedEtats.Contains(sc.EtatArticleId))
+                .Select(sc => sc.NomEtat!)
+                .ToList();
+
             // CONSOLE OUTPUT 
             Console.WriteLine($"Selected Categories: {string.Join(", ", selectedCategoryNames)}");
             Console.WriteLine($"Selected Subcategories: {string.Join(", ", selectedSubcategoryNames)}");
             Console.WriteLine($"Selected Marques: {string.Join(", ", selectedMarqueNames)}");
             Console.WriteLine($"Selected Taille: {selectedTailleName}");
+            Console.WriteLine($"Selected Etats: {selectedEtatsName}");
             Console.WriteLine($"Price Max: {SelectedPrice}");
 
             //  DTO
@@ -280,6 +312,7 @@ namespace FrontBlazor.ViewModel
                 Categories = selectedCategoryNames,
                 SousCategories = selectedSubcategoryNames,
                 Marques = selectedMarqueNames,
+                Etats = selectedEtatsName,
                 Tailles = string.IsNullOrEmpty(selectedTailleName) ? new List<string>() : new List<string> { selectedTailleName },
                 PrixMax = SelectedPrice,
                 PrixMin = 0

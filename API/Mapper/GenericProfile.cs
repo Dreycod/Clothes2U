@@ -21,7 +21,7 @@ using API.DTO.Notification;
 using API.DTO.DemandeRestauration;
 using API.DTO.Recense;
 using API.DTO.Visualisation;
-
+using API.DTO.EtatArticle;
 
 namespace API.Mapper;
 
@@ -76,6 +76,7 @@ public class GenericProfile : Profile
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         CreateMap<Couleur, CouleurDTO>();
         CreateMap<Taille, TailleDTO>();
+        CreateMap<EtatArticle, EtatArticleDTO>();
         CreateMap<Utilisateur, UtilisateurDTO>().ReverseMap();
 
         CreateMap<Annonce, AnnonceDTO>()

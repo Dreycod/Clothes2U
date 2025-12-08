@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_etatarticle_etaart")]
-public class EtatArticle
+public class EtatArticle : IEntity
 {
     [Key]
     [Column("etaart_id")]
@@ -19,4 +19,6 @@ public class EtatArticle
     
     [InverseProperty(nameof(Annonce.Etat))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
+
+    public int GetId() => EtatArticleId;
 }

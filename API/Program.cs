@@ -170,6 +170,7 @@ builder.Services.AddScoped<IAbonnementRepository<Abonnement, int>, AbonnementMan
 builder.Services.AddScoped<IVisualisationRepository<Visualisation, int>, VisualisationManager>();
 builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
 builder.Services.AddScoped<ITailleRepository, TailleManager>();
+builder.Services.AddScoped<IEtatArticleRepository, EtatArticleManager>();
 builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
 
