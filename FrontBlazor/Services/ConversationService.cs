@@ -12,9 +12,9 @@ public class ConversationService: WritableService<Conversation>, IConversationSe
         throw new NotImplementedException();
     }
 
-    public async Task<List<Conversation?>> GetConversationDetailById(int id)
+    public async Task<Conversation?> GetConversationDetailById(int id)
     {
-        return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
+        return await _httpClient.GetFromJsonAsync<Conversation?>(
        $"api/Conversation/conversation/{id}"
    );
     }
