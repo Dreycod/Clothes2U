@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace FrontBlazor.Models;
 public class Message: IEntity
 {
@@ -7,7 +9,7 @@ public class Message: IEntity
     public bool? SentbyCurrentUser { get; set; }
     public int? UtilisateurId { get; set; }
     public DateTime? Date { get; set; }
-    public List<int> ImagesId { get; set; } = new();
+    public ObservableCollection<int> ImagesId { get; set; } = new();
     public bool? Lu { get; set; }
     public string? Content { get; set; }
     public Utilisateur? Utilisateur { get; set; }

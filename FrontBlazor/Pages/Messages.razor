@@ -1,7 +1,10 @@
 ﻿@page "/messages"
 @using System.Collections.ObjectModel
 @inject MessagerieViewModel VM_Messagerie
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
+<script src="js/scrollHelper.js"></script>
 
 <PageTitle>Messages - Clothes2U</PageTitle>
 
@@ -15,7 +18,15 @@
             <h2 class="sidebar-title">Messages</h2>
             
             <div class="conversations-list">
-                @if (VM_Messagerie.conversations != null)
+                @if (VM_Messagerie.IsLoading)
+                {
+                    <p>Chargement...</p>
+                }
+                else if (VM_Messagerie.ErrorMessage != null)
+                {
+                    <p class="error">@VM_Messagerie.ErrorMessage</p>
+                }
+                else if (VM_Messagerie.conversations != null && VM_Messagerie.conversations.Any())
                 {
                     @foreach (var conversation in VM_Messagerie.conversations)
                     {
@@ -33,7 +44,6 @@
                 {
                     <p>Vous n'avez pas de conversations</p>
                 }
-                
             </div>
         </aside>
 
@@ -46,34 +56,32 @@
                     <div class="chat-product-info">
                         <div class="product-thumbnail"></div>
                         <div>
-                            <h3 class="product-name">@VM_Messagerie.conv?.TitreAnnonce</h3>
-                            <p class="product-price">@VM_Messagerie.conv?.Prix</p>
+                            <NavLink href="@($"/product/{VM_Messagerie.conv?.AnnonceId}")" class="product-link">
+                                <h3 class="product-name">
+                                    @VM_Messagerie.conv?.TitreAnnonce
+                                </h3>
+                            </NavLink> 
+                            <p class="product-price">@VM_Messagerie.conv?.Prix €</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Messages Area -->
                 <div class="messages-area">
-                    <!-- Received Message -->
-                    
-                    @foreach (var message in VM_Messagerie.conv.ListMessages)
+                    @if (VM_Messagerie.conv.ListMessages != null && VM_Messagerie.conv.ListMessages.Any())
                     {
-                        <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
-                            <p>@message.Content</p>
-                            <span>@message.Date</span>
-                        </div>
+                        @foreach (var message in VM_Messagerie.conv.ListMessages)
+                        {
+                            <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
+                                <p class="message-text">@message.Content</p>
+                                <span class="message-time">@message.Date?.ToString("HH:mm")</span>
+                            </div>
+                        }
                     }
-                    
-                    @* <div class="message received"> *@
-                    @*     <p class="message-text">Bonjour, j'aime trop le t-shirt que vous vendez</p> *@
-                    @*     <span class="message-time">14:30</span> *@
-                    @* </div> *@
-                    @* *@
-                    @* <!-- Sent Message --> *@
-                    @* <div class="message sent"> *@
-                    @*     <p class="message-text">Je vois, vous pouvez l'acheter.</p> *@
-                    @*     <span class="message-time">18:29</span> *@
-                    @* </div> *@
+                    else
+                    {
+                        <p class="no-messages">Aucun message dans cette conversation</p>
+                    }
                 </div>
 
                 <!-- Message Input -->
@@ -81,8 +89,9 @@
                     <input type="text" 
                            class="message-input" 
                            placeholder="Ecrivez votre message ici..." 
-                           @bind="VM_Messagerie.NewMessage" *
-                           @onkeydown="HandleKeyPress" /> 
+                           @bind="VM_Messagerie.NewMessage"
+                           @bind:event="oninput"
+                           @onkeydown="HandleKeyPress" />
                     <button class="send-btn" @onclick="OnSendClick">
                         <i class="bi bi-send"></i>
                     </button>
@@ -99,33 +108,39 @@
 </div>
 
 @code {
-
     protected override async Task OnInitializedAsync()
     {
-        await VM_Messagerie.Load(); // user courant
-        //StateHasChanged();
+        VM_Messagerie.OnChange += StateHasChanged;
+        await VM_Messagerie.Load();
     }
+
+    public void Dispose()
+    {
+        VM_Messagerie.OnChange -= StateHasChanged;
+    }
+
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage))
         {
             await VM_Messagerie.SendMessage();
             StateHasChanged();
         }
-            
     }
 
     private async Task OnSendClick()
     {
-        await VM_Messagerie.SendMessage();
-        StateHasChanged();
+        if (!string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage))
+        {
+            await VM_Messagerie.SendMessage();
+            StateHasChanged();
+        }
     }
 
     private async Task OnSelectConversation(int id)
     {
         await VM_Messagerie.SelectedConversation(id);
-        //StateHasChanged(); 
+        Console.WriteLine(VM_Messagerie.conv.AnnonceId.Value);
+        StateHasChanged();
     }
-
-   
 }

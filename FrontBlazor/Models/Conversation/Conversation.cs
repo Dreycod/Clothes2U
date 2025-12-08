@@ -8,7 +8,7 @@ public class Conversation : IEntity
     public DateTime? LastMessageDate { get; set; }
     public string? Interlocuteur { get; set; }
     public int? PhotoInterlocuteurId { get; set; }
-    public List<Message>? ListMessages { get; set; } = new();
+    public ObservableCollection<Message>? ListMessages { get; set; } = new ObservableCollection<Message>();
     public string? TitreAnnonce { get; set; }
     public int? AnnonceId { get; set; }
     public int? PhotoAnnonceId { get; set; }
