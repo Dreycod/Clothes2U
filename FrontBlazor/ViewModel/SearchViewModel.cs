@@ -28,6 +28,8 @@ namespace FrontBlazor.ViewModel
 
         #region Attributes
 
+        public bool IsLoading = false;
+        public string? Query { get; set; }
         #region Filtre
         public HashSet<int> selectedCategories = new();
         public HashSet<int> selectedSubcategories = new();
@@ -42,8 +44,6 @@ namespace FrontBlazor.ViewModel
         public bool conditionVeryGood = false;
         public bool conditionGood = false;
         #endregion
-
-        public bool IsLoading = false;
 
         #region Pagination
         public int CurrentPage { get; set; } = 1;
@@ -64,13 +64,13 @@ namespace FrontBlazor.ViewModel
             navigationManager = navManager;
         }
 
-        public async Task LoadAsync(string Query = "p")
+        public async Task LoadAsync()
         {
             IsLoading = true;
             await VM_Categorie.LoadAsync();
             await VM_Marque.LoadAsync();
             await VM_Taille.LoadAsync();
-            await LoadAnnonces();
+            await ApplyFilters();
             IsLoading = false;
         }
 
@@ -276,6 +276,7 @@ namespace FrontBlazor.ViewModel
             //  DTO
             filterRequest = new FilterDTO
             {
+                MotCle = Query,
                 Categories = selectedCategoryNames,
                 SousCategories = selectedSubcategoryNames,
                 Marques = selectedMarqueNames,
@@ -283,6 +284,8 @@ namespace FrontBlazor.ViewModel
                 PrixMax = SelectedPrice,
                 PrixMin = 0
             };
+
+            Console.WriteLine(filterRequest.MotCle+" Is the mot clé");    
 
             CurrentPage = 1;
             await LoadAnnonces();

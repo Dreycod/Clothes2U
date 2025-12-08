@@ -1,6 +1,6 @@
 ﻿@page "/search"
 @inject IJSRuntime JS;
-
+@using Microsoft.AspNetCore.WebUtilities;
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
@@ -295,8 +295,13 @@
 </div>
 
 @code {
+
     protected override async Task OnInitializedAsync()
     {
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("q", out var q))
+            VM_Search.Query = q;
         await VM_Search.LoadAsync();
         VM_Search.OnStateChange += StateHasChanged;
     }
