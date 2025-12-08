@@ -185,6 +185,27 @@ CreateMap<Message, MessageValidationDTO>()
             ? src.MessageValidation.PropositionValidee.PrixPropose
             : 0));
 
+CreateMap<Conversation, ConversationDTO>()
+    .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+    .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
+        src.Messages.OrderByDescending(m => m.MessageDate)
+            .FirstOrDefault().MessageTexte.ContenuMessage ?? string.Empty))
+    .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
+        src.Messages.OrderByDescending(m => m.MessageDate)
+            .FirstOrDefault().MessageDate))
+    .ForMember(dest => dest.Interlocuteur,
+        opt => opt.MapFrom((src, dest, _, context) =>
+            (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                ? src.Vendeur?.UtilisateurVendeur?.Login
+                : src.Acheteur?.UtilisateurAcheteur?.Login
+        ))
+    .ForMember(dest => dest.PhotoInterlocuteurId,
+        opt => opt.MapFrom((src, dest, _, context) =>
+            (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
+                : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
+        ));
+
 CreateMap<Conversation, ConversationDetailDTO>()
     .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
     .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
@@ -194,7 +215,7 @@ CreateMap<Conversation, ConversationDetailDTO>()
         src.LAnnonce.Photos.FirstOrDefault() != null 
             ? src.LAnnonce.Photos.First().Photo.PhotoId 
             : 0))
-    .ForMember(dest => dest.ListMessages, opt => opt.Ignore()) // On ignore pour le mapper manuellement
+    .ForMember(dest => dest.ListMessages, opt => opt.Ignore())
     .AfterMap((src, dest, context) =>
     {
         var currentUserId = (int)context.Items["CurrentUserId"];
@@ -202,25 +223,9 @@ CreateMap<Conversation, ConversationDetailDTO>()
 
         foreach (var message in src.Messages.OrderBy(m => m.MessageDate))
         {
-            Console.WriteLine("---------------------- Nouveau message -----------------------");
-            Console.WriteLine(">>> " + message.MessageId);
-            if (message.MessageTexte != null)
-            {
-                Console.WriteLine($">>> MessageTexte présent, contenu: {message.MessageTexte.ContenuMessage}");
-            }
-            else
-            {
-                Console.WriteLine(">>> MessageTexte absent");
-            }
-            if (message.MessageDemande != null)
-            {
-                Console.WriteLine($">>> MessageTexte présent, contenu: {message.MessageDemande.PrixPropose}");
-            }
-            else
-            {
-                Console.WriteLine(">>> MessageTexte absent");
-            }
             MessageDTO dto = null;
+
+            // Déterminer le type de message et créer le DTO approprié
             if (message.MessageTexte != null)
             {
                 dto = new MessageTextDTO
@@ -261,7 +266,9 @@ CreateMap<Conversation, ConversationDetailDTO>()
             }
 
             if (dto != null)
+            {
                 mappedMessages.Add(dto);
+            }
         }
 
         dest.ListMessages = mappedMessages;

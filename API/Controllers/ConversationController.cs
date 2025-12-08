@@ -49,7 +49,11 @@ public class ConversationController : ControllerBase
     public async Task<ActionResult<IEnumerable<ConversationDTO>>> GetByUtilisateurId(int id)
     {
         var conversations = await _conversationManager.GetAllAsyncByUser(id);
-        IEnumerable<ConversationDTO> conversationsDTO = _mapper.Map<IEnumerable<ConversationDTO>>(conversations);
+        IEnumerable<ConversationDTO> conversationsDTO = _mapper.Map<IEnumerable<ConversationDTO>>(conversations, opt =>
+            {
+                opt.Items["CurrentUserId"] = _currentUserService.GetUserId();
+            })
+            ;
         return Ok(conversationsDTO);
     }
     
