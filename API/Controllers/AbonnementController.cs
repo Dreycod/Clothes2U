@@ -62,7 +62,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<BloqueDTO>> Create(int idUtilisateur)
+        public async Task<ActionResult<AbonnementDTO>> Create(int idUtilisateur)
         {
             int? connectedUserId = GetConnectedUserId();
             if (connectedUserId == null)
