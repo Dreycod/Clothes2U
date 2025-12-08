@@ -84,6 +84,10 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         {
             query = query.Where(p => filterDto.Marques.Contains(p.Marque.NomMarque));
         }
+        if (filterDto.Etats != null && filterDto.Etats.Any())
+        {
+            query = query.Where(p => filterDto.Etats.Contains(p.Etat.NomEtat));
+        }
     
         if (filterDto.Categories != null && filterDto.Categories.Any())
         {
