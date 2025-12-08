@@ -20,7 +20,7 @@
                     @foreach (var conversation in VM_Messagerie.conversations)
                     {
                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "")"
-                             @onclick="() => VM_Messagerie.SelectedConversation(conversation.ConversationId)">
+                             @onclick="() => OnSelectConversation(conversation.ConversationId)">
                             <div class="conversation-avatar"></div>
                             <div class="conversation-info">
                                 <h3 class="conversation-name">@conversation.Interlocuteur</h3>
@@ -39,15 +39,15 @@
 
         <!-- Right Side - Chat Area -->
         <div class="chat-area">
-            @if (VM_Messagerie.SelectedConversationId != null)
+            @if (VM_Messagerie.SelectedConversationId != null && VM_Messagerie.conv != null)
             {
                 <!-- Chat Header -->
                 <div class="chat-header">
                     <div class="chat-product-info">
                         <div class="product-thumbnail"></div>
                         <div>
-                            <h3 class="product-name">@VM_Messagerie.conv.TitreAnnonce</h3>
-                            <p class="product-price">@VM_Messagerie.conv.Prix</p>
+                            <h3 class="product-name">@VM_Messagerie.conv?.TitreAnnonce</h3>
+                            <p class="product-price">@VM_Messagerie.conv?.Prix</p>
                         </div>
                     </div>
                 </div>
@@ -58,8 +58,8 @@
                     
                     @foreach (var message in VM_Messagerie.conv.ListMessages)
                     {
-                        <div class="message @(message.Utilisateur.UtilisateurId == VM_Messagerie.CurrentUser.UtilisateurId ? "sent" : "received")">
-                            <p>@message.Contenu</p>
+                        <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
+                            <p>@message.Content</p>
                             <span>@message.Date</span>
                         </div>
                     }
@@ -83,7 +83,7 @@
                            placeholder="Ecrivez votre message ici..." 
                            @bind="VM_Messagerie.NewMessage" *
                            @onkeydown="HandleKeyPress" /> 
-                    <button class="send-btn" @onclick="VM_Messagerie.SendMessage">
+                    <button class="send-btn" @onclick="OnSendClick">
                         <i class="bi bi-send"></i>
                     </button>
                 </div>
@@ -103,12 +103,28 @@
     protected override async Task OnInitializedAsync()
     {
         await VM_Messagerie.Load(); // user courant
-        StateHasChanged();
+        //StateHasChanged();
     }
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
+        {
             await VM_Messagerie.SendMessage();
+            StateHasChanged();
+        }
+            
+    }
+
+    private async Task OnSendClick()
+    {
+        await VM_Messagerie.SendMessage();
+        StateHasChanged();
+    }
+
+    private async Task OnSelectConversation(int id)
+    {
+        await VM_Messagerie.SelectedConversation(id);
+        //StateHasChanged(); 
     }
 
    

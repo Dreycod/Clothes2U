@@ -11,7 +11,7 @@ public class MessageTexte : IEntity
     public int MessageTexteId { get; set; }
     
     [Column("mestex_contenu_message")]
-    public string ContenuMessage { get; set; }
+    public string Content { get; set; }
     
     //id de relation avec les autres tables : 
     

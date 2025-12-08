@@ -157,7 +157,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.SentByCurrentUser, opt => opt.MapFrom((src, dest, _, context) =>
                 src.UtilisateurId == (int)context.Items["CurrentUserId"]))
             .ForMember(dest => dest.Content, opt => opt.MapFrom(src =>
-                src.MessageTexte != null ? src.MessageTexte.ContenuMessage : string.Empty))
+                src.MessageTexte != null ? src.MessageTexte.Content : string.Empty))
             .ForMember(dest => dest.ImagesId, opt => opt.MapFrom(src =>
                 src.MessageTexte != null && src.MessageTexte.Photos != null
                     ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList()
@@ -190,7 +190,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
                 src.Messages.OrderByDescending(m => m.MessageDate)
-                    .FirstOrDefault().MessageTexte.ContenuMessage ?? string.Empty))
+                    .FirstOrDefault().MessageTexte.Content ?? string.Empty))
             .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
                 src.Messages.OrderByDescending(m => m.MessageDate)
                     .FirstOrDefault().MessageDate))
@@ -237,7 +237,7 @@ public class GenericProfile : Profile
                             SenderId = message.UtilisateurId,
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
-                            Content = message.MessageTexte.ContenuMessage ?? string.Empty,
+                            Content = message.MessageTexte.Content ?? string.Empty,
                             ImagesId = message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList() ?? new List<int>()
                         };
                     }

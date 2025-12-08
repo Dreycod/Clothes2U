@@ -24,7 +24,6 @@ public class MessagerieViewModel : ComponentBase
         = new();
 
     public Conversation conv { get; private set; }
-        = new();
     public int? SelectedConversationId { get; private set; }
     public string NewMessage { get; set; } = string.Empty;
     public Utilisateur CurrentUser;
@@ -32,6 +31,7 @@ public class MessagerieViewModel : ComponentBase
     public async Task Load()
     {
         CurrentUser = await _authService.GetCurrentUserAsync();
+        Console.WriteLine(CurrentUser.UtilisateurId);
         var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
         conversations = data != null
             ? new ObservableCollection<Conversation>(data)
@@ -41,23 +41,41 @@ public class MessagerieViewModel : ComponentBase
 
     public async Task SelectedConversation(int id)
     {
+        CurrentUser = await _authService.GetCurrentUserAsync();
+        
         SelectedConversationId = id;
-        var conv = await _conversationService.GetConversationDetailById(id);
-        //StateHasChanged();
+        var data = await _conversationService.GetConversationDetailById(id);
+
+        if (data != null)
+            Console.WriteLine(data.ListMessages.Count);
+        else
+            Console.WriteLine("Pas de messages ou conversation null");
+
+        conv = data ?? new Conversation();
+        if (conv.ListMessages == null)
+            conv.ListMessages = new List<Message>();
     }
 
     public async Task SendMessage()
     {
+        await _authService.GetCurrentUserAsync();
         if (string.IsNullOrWhiteSpace(NewMessage)) return;
         Message message = new Message
         {
-           Date = DateTime.Now,
-           Lu = false,
-           Contenu = NewMessage,
-           Utilisateur = CurrentUser,
-           ConversationId = conv.ConversationId
+            //Date = DateTime.Now,
+            //Lu = false,
+            Content = NewMessage,
+            ImagesId = null,
+            //SenderId = CurrentUser.UtilisateurId, // obligatoire
+            ConversationId = conv.ConversationId,
+            UtilisateurId = CurrentUser.UtilisateurId
         };
 
         await _messageService.PostMessageTexte(message);
+        message.SentbyCurrentUser = true;
+        message.Date = DateTime.Now;
+        conv.ListMessages.Add(message);
+        NewMessage = string.Empty;
+        //StateHasChanged();
     }
 }
