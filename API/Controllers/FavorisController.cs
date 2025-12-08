@@ -3,6 +3,7 @@ using API.DTO.Favoris;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,14 @@ public class FavorisController :  ControllerBase
 {
     private readonly IFavorisRepository _favorisManager;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     
-    public FavorisController(IFavorisRepository manager,IAnnonceRepository<Annonce, int, FilterDTO> annonceManager, IMapper mapper)
+    public FavorisController(IFavorisRepository manager,IAnnonceRepository<Annonce, int, FilterDTO> annonceManager, IMapper mapper, ICurrentUserService currentUserService)
     {
         _favorisManager = manager;
         _annonceManager = annonceManager;
+        _currentUserService = currentUserService;
         _mapper = mapper;
     }
     [HttpGet("id/{id}")]
@@ -50,23 +53,19 @@ public class FavorisController :  ControllerBase
         {
             return NotFound("L'annonce n'existe pas");
         }
-        if (User?.Identity?.IsAuthenticated != true)
+        int? userId = _currentUserService.GetUserId();
+        if (userId == null)
         {
             return Unauthorized("Vous devez être connecté pour ajouter un favori");
         }
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-        {
-            return Unauthorized("ID utilisateur invalide");
-        }
-        bool alreadyLiked = await _favorisManager.CheckIfLiked(userId, annonceId);
+        bool alreadyLiked = await _favorisManager.CheckIfLiked((int)userId, annonceId);
         if (alreadyLiked)
         {
             return Conflict("Vous avez déjà ajouté cette annonce à vos favoris");
         }
         Favoris favoris = new Favoris
         {
-            UtilisateurId = userId,
+            UtilisateurId = (int)userId,
             AnnonceId = annonceId
         };
         await _favorisManager.AddAsync(favoris);
@@ -81,17 +80,13 @@ public class FavorisController :  ControllerBase
     public async Task<IActionResult> DeleteFavoris(int annonceId)
     {
        
-        if (User?.Identity?.IsAuthenticated != true)
-        {
-            return Unauthorized("Vous devez être connecté pour ajouter un favori");
-        }
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-        {
-            return Unauthorized("ID utilisateur invalide");
-        }
+       int? userId = _currentUserService.GetUserId();
+       if (userId == null)
+       {
+           return Unauthorized();
+       }
         
-        Favoris? favorisToDelete = await _favorisManager.GetFavorisByAnnonceAndUserId(userId, annonceId);
+        Favoris? favorisToDelete = await _favorisManager.GetFavorisByAnnonceAndUserId((int)userId, annonceId);
         if (favorisToDelete == null)
         {
             return NotFound();

@@ -34,7 +34,7 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
             .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
             .ReverseMap();
-        
+
         CreateMap<Categorie, CategorieDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
             .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))
@@ -48,19 +48,20 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.ValidEmail, opt => opt.MapFrom(src => src.ValidEmail))
             .ForMember(dest => dest.ValidTelephone, opt => opt.MapFrom(src => src.ValidTelephone))
             .ForMember(dest => dest.Statut, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
-            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoProfil != null ? src.PhotoProfil.PhotoId : 0))
+            .ForMember(dest => dest.PhotoProfilId,
+                opt => opt.MapFrom(src => src.PhotoProfil != null ? src.PhotoProfil.PhotoId : 0))
             .ForMember(dest => dest.Abonnes, opt => opt.MapFrom(src => src.Abonnes.Count))
             .ForMember(dest => dest.Abonnements, opt => opt.MapFrom(src => src.Abonnements.Count))
             .ForMember(dest => dest.NombreAvis, opt => opt.MapFrom(src => src.NotesCible.Count))
-            .ForMember(dest => dest.MoyenneAvis, opt => opt.MapFrom(src => 
-                src.NotesCible.Any() 
-                    ? src.NotesCible.Average(n => (double)n.Note) 
+            .ForMember(dest => dest.MoyenneAvis, opt => opt.MapFrom(src =>
+                src.NotesCible.Any()
+                    ? src.NotesCible.Average(n => (double)n.Note)
                     : 0.0));
 
         CreateMap<UtilisateurPutDTO, Utilisateur>()
             // Ignorer la clé primaire
             .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
-    
+
             // Mapper les propriétés explicitement
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
@@ -68,11 +69,11 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.AdresseId))
             .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId))
-    
+
             // Ne mapper que les propriétés non nulles (à la fin)
             .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => srcValue != null));
 
-        
+
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         CreateMap<Couleur, CouleurDTO>();
         CreateMap<Taille, TailleDTO>();
@@ -91,7 +92,8 @@ public class GenericProfile : Profile
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
-            .ForMember(dest => dest.UriPhotoProfilAuteur, opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoId))
+            .ForMember(dest => dest.UriPhotoProfilAuteur,
+                opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoId))
             .ReverseMap();
         CreateMap<Annonce, AnnonceDetailDTO>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
@@ -99,204 +101,203 @@ public class GenericProfile : Profile
             // Champs liés aux marques, état, taille
             .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque ?? "Inconnue"))
             .ForMember(dest => dest.MarqueId, opt => opt.MapFrom(src => src.MarqueId))
-            
+
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat ?? "Inconnu"))
             .ForMember(dest => dest.EtatId, opt => opt.MapFrom(src => src.EtatId))
-    
+
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille ?? "Inconnue"))
             .ForMember(dest => dest.TailleId, opt => opt.MapFrom(src => src.TailleId))
-    
+
             // Champs liés aux catégories
             .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie ?? "Inconnue"))
             .ForMember(dest => dest.CategorieId, opt => opt.MapFrom(src => src.CategorieId))
-    
-            .ForMember(dest => dest.SousCategorie, opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie ?? "Inconnue"))
+
+            .ForMember(dest => dest.SousCategorie,
+                opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie ?? "Inconnue"))
             .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
-    
+
             // Champs liés aux autres relations
             .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
-    
+
             // Autres champs simples
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title ?? "Sans titre"))
             .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
             .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.Negociable))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
-    
+
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
-    
+
             .ReverseMap();
 
 
         CreateMap<Marque, MarqueDTO>().ReverseMap();
         CreateMap<FavorisDTO, Favoris>().ReverseMap();
-        
-        
-        
-        
-        
+
+
+
+
+
         CreateMap<Message, MessageDTO>()
-    .Include<Message, MessageTextDTO>()
-    .Include<Message, MessagePropositionDTO>()
-    .Include<Message, MessageValidationDTO>()
-    .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
-    .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
-    .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu));
+            .Include<Message, MessageTextDTO>()
+            .Include<Message, MessagePropositionDTO>()
+            .Include<Message, MessageValidationDTO>()
+            .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
+            .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu));
 
-// Mapping pour MessageTexte -> MessageTextDTO
-CreateMap<Message, MessageTextDTO>()
-    .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
-    .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
-    .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
-    .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.UtilisateurId))
-    .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Utilisateur.Login))
-    .ForMember(dest => dest.SentByCurrentUser, opt => opt.MapFrom((src, dest, _, context) =>
-        src.UtilisateurId == (int)context.Items["CurrentUserId"]))
-    .ForMember(dest => dest.Content, opt => opt.MapFrom(src => 
-        src.MessageTexte != null ? src.MessageTexte.ContenuMessage : string.Empty))
-    .ForMember(dest => dest.ImagesId, opt => opt.MapFrom(src =>
-        src.MessageTexte != null && src.MessageTexte.Photos != null
-            ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList()
-            : new List<int>()));
+        CreateMap<Message, MessageTextDTO>()
+            .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
+            .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
+            .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.SentByCurrentUser, opt => opt.MapFrom((src, dest, _, context) =>
+                src.UtilisateurId == (int)context.Items["CurrentUserId"]))
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src =>
+                src.MessageTexte != null ? src.MessageTexte.ContenuMessage : string.Empty))
+            .ForMember(dest => dest.ImagesId, opt => opt.MapFrom(src =>
+                src.MessageTexte != null && src.MessageTexte.Photos != null
+                    ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList()
+                    : new List<int>()));
 
-// Mapping pour MessageDemande -> MessagePropositionDTO
-CreateMap<Message, MessagePropositionDTO>()
-    .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
-    .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
-    .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
-    .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.UtilisateurId))
-    .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Utilisateur.Login))
-    .ForMember(dest => dest.SentByCurrentUser, opt => opt.MapFrom((src, dest, _, context) =>
-        src.UtilisateurId == (int)context.Items["CurrentUserId"]))
-    .ForMember(dest => dest.PrixProposer, opt => opt.MapFrom(src =>
-        src.MessageDemande != null ? src.MessageDemande.PrixPropose : 0))
-    .ForMember(dest => dest.OffreParenteId, opt => opt.MapFrom(src =>
-        src.MessageDemande != null ? src.MessageDemande.DemandeId : null));
+        CreateMap<Message, MessagePropositionDTO>()
+            .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
+            .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
+            .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.SentByCurrentUser, opt => opt.MapFrom((src, dest, _, context) =>
+                src.UtilisateurId == (int)context.Items["CurrentUserId"]))
+            .ForMember(dest => dest.PrixProposer, opt => opt.MapFrom(src =>
+                src.MessageDemande != null ? src.MessageDemande.PrixPropose : 0))
+            .ForMember(dest => dest.OffreParenteId, opt => opt.MapFrom(src =>
+                src.MessageDemande != null ? src.MessageDemande.DemandeId : null));
 
-// Mapping pour MessageValidation -> MessageValidationDTO
-CreateMap<Message, MessageValidationDTO>()
-    .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
-    .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
-    .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
-    .ForMember(dest => dest.PrixValide, opt => opt.MapFrom(src =>
-        src.MessageValidation != null && src.MessageValidation.PropositionValidee != null
-            ? src.MessageValidation.PropositionValidee.PrixPropose
-            : 0));
+        // Mapping pour MessageValidation -> MessageValidationDTO
+        CreateMap<Message, MessageValidationDTO>()
+            .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
+            .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
+            .ForMember(dest => dest.PrixValide, opt => opt.MapFrom(src =>
+                src.MessageValidation != null && src.MessageValidation.PropositionValidee != null
+                    ? src.MessageValidation.PropositionValidee.PrixPropose
+                    : 0));
 
-CreateMap<Conversation, ConversationDTO>()
-    .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
-    .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
-        src.Messages.OrderByDescending(m => m.MessageDate)
-            .FirstOrDefault().MessageTexte.ContenuMessage ?? string.Empty))
-    .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
-        src.Messages.OrderByDescending(m => m.MessageDate)
-            .FirstOrDefault().MessageDate))
-    .ForMember(dest => dest.Interlocuteur,
-        opt => opt.MapFrom((src, dest, _, context) =>
-            (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
-                ? src.Vendeur?.UtilisateurVendeur?.Login
-                : src.Acheteur?.UtilisateurAcheteur?.Login
-        ))
-    .ForMember(dest => dest.PhotoInterlocuteurId,
-        opt => opt.MapFrom((src, dest, _, context) =>
-            (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
-                ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
-                : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
-        ));
+        CreateMap<Conversation, ConversationDTO>()
+            .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+            .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
+                src.Messages.OrderByDescending(m => m.MessageDate)
+                    .FirstOrDefault().MessageTexte.ContenuMessage ?? string.Empty))
+            .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
+                src.Messages.OrderByDescending(m => m.MessageDate)
+                    .FirstOrDefault().MessageDate))
+            .ForMember(dest => dest.Interlocuteur,
+                opt => opt.MapFrom((src, dest, _, context) =>
+                    (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                        ? src.Vendeur?.UtilisateurVendeur?.Login
+                        : src.Acheteur?.UtilisateurAcheteur?.Login
+                ))
+            .ForMember(dest => dest.PhotoInterlocuteurId,
+                opt => opt.MapFrom((src, dest, _, context) =>
+                    (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                        ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
+                        : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
+                ));
 
-CreateMap<Conversation, ConversationDetailDTO>()
-    .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
-    .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
-    .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix))
-    .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
-    .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src => 
-        src.LAnnonce.Photos.FirstOrDefault() != null 
-            ? src.LAnnonce.Photos.First().Photo.PhotoId 
-            : 0))
-    .ForMember(dest => dest.ListMessages, opt => opt.Ignore())
-    .AfterMap((src, dest, context) =>
-    {
-        var currentUserId = (int)context.Items["CurrentUserId"];
-        var mappedMessages = new List<MessageDTO>();
-
-        foreach (var message in src.Messages.OrderBy(m => m.MessageDate))
-        {
-            MessageDTO dto = null;
-
-            // Déterminer le type de message et créer le DTO approprié
-            if (message.MessageTexte != null)
+        CreateMap<Conversation, ConversationDetailDTO>()
+            .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+            .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
+            .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
+                src.LAnnonce.Photos.FirstOrDefault() != null
+                    ? src.LAnnonce.Photos.First().Photo.PhotoId
+                    : 0))
+            .ForMember(dest => dest.ListMessages, opt => opt.Ignore())
+            .AfterMap((src, dest, context) =>
             {
-                dto = new MessageTextDTO
+                var currentUserId = (int)context.Items["CurrentUserId"];
+                var mappedMessages = new List<MessageDTO>();
+
+                foreach (var message in src.Messages.OrderBy(m => m.MessageDate))
                 {
-                    MessageId = message.MessageId,
-                    Date = message.MessageDate,
-                    Lu = message.MessageLu,
-                    SenderId = message.UtilisateurId,
-                    SenderName = message.Utilisateur?.Login ?? string.Empty,
-                    SentByCurrentUser = message.UtilisateurId == currentUserId,
-                    Content = message.MessageTexte.ContenuMessage ?? string.Empty,
-                    ImagesId = message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList() ?? new List<int>()
-                };
-            }
-            else if (message.MessageDemande != null)
-            {
-                dto = new MessagePropositionDTO
-                {
-                    MessageId = message.MessageId,
-                    Date = message.MessageDate,
-                    Lu = message.MessageLu,
-                    SenderId = message.UtilisateurId,
-                    SenderName = message.Utilisateur?.Login ?? string.Empty,
-                    SentByCurrentUser = message.UtilisateurId == currentUserId,
-                    PrixProposer = message.MessageDemande.PrixPropose,
-                    OffreParenteId = message.MessageDemande.DemandeId
-                };
-            }
-            else if (message.MessageValidation != null)
-            {
-                dto = new MessageValidationDTO
-                {
-                    MessageId = message.MessageId,
-                    Date = message.MessageDate,
-                    Lu = message.MessageLu,
-                    PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
-                };
-            }
+                    MessageDTO dto = null;
 
-            if (dto != null)
-            {
-                mappedMessages.Add(dto);
-            }
-        }
+                    // Déterminer le type de message et créer le DTO approprié
+                    if (message.MessageTexte != null)
+                    {
+                        dto = new MessageTextDTO
+                        {
+                            MessageId = message.MessageId,
+                            Date = message.MessageDate,
+                            Lu = message.MessageLu,
+                            SenderId = message.UtilisateurId,
+                            SenderName = message.Utilisateur?.Login ?? string.Empty,
+                            SentByCurrentUser = message.UtilisateurId == currentUserId,
+                            Content = message.MessageTexte.ContenuMessage ?? string.Empty,
+                            ImagesId = message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList() ?? new List<int>()
+                        };
+                    }
+                    else if (message.MessageDemande != null)
+                    {
+                        dto = new MessagePropositionDTO
+                        {
+                            MessageId = message.MessageId,
+                            Date = message.MessageDate,
+                            Lu = message.MessageLu,
+                            SenderId = message.UtilisateurId,
+                            SenderName = message.Utilisateur?.Login ?? string.Empty,
+                            SentByCurrentUser = message.UtilisateurId == currentUserId,
+                            PrixProposer = message.MessageDemande.PrixPropose,
+                            OffreParenteId = message.MessageDemande.DemandeId
+                        };
+                    }
+                    else if (message.MessageValidation != null)
+                    {
+                        dto = new MessageValidationDTO
+                        {
+                            MessageId = message.MessageId,
+                            Date = message.MessageDate,
+                            Lu = message.MessageLu,
+                            PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
+                        };
+                    }
 
-        dest.ListMessages = mappedMessages;
-    });
-        
-        
-        
-        
-        
-        
-        
+                    if (dto != null)
+                    {
+                        mappedMessages.Add(dto);
+                    }
+                }
+
+                dest.ListMessages = mappedMessages;
+            });
+
+
+
+
+
+
+
 
 
         CreateMap<NoteUtilisateur, NoteUtilisateurDTO>()
-            .ForMember(dest => dest.NoteurId, opt => opt.MapFrom(src => src.AuteurId))  
+            .ForMember(dest => dest.NoteurId, opt => opt.MapFrom(src => src.AuteurId))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
             .ForMember(dest => dest.PhotoProfilAuteurId, opt => opt.MapFrom(src => src.Auteur.PhotoId))
-            .ForMember(dest => dest.NoteId, opt => opt.MapFrom(src => src.CibleId));    
+            .ForMember(dest => dest.NoteId, opt => opt.MapFrom(src => src.CibleId));
 
         CreateMap<NoteUtilisateur, NoteUtilisateurDetailDTO>()
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
             .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
 
         CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
-            .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))      
+            .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))
             .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.NoteUtilisateurId, opt => opt.Ignore()); 
-        
+            .ForMember(dest => dest.NoteUtilisateurId, opt => opt.Ignore());
+
         CreateMap<Signalement, SignalementDTO>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login));
@@ -326,65 +327,8 @@ CreateMap<Conversation, ConversationDetailDTO>()
             .ForMember(dest => dest.UtilisateurSignaleId, opt => opt.MapFrom(src => src.UtilisateurSignaleId))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.UtilisateurSignale.Login));
 
-        
-        CreateMap<Notification, NotificationDTO>()
-            // Type de notification => libellé
-            .ForMember(dest => dest.LibelleType,
-                opt => opt.MapFrom(src => src.NotificationType.LibelleType))
-
-            
-            // --- Est Lu ---
-            .ForMember(dest => dest.EstLu, 
-                opt => opt.MapFrom(src => src.EstLu))
-            // --- Notification Administrateur ---
-            .ForMember(dest => dest.AdminText,
-                opt => opt.MapFrom(src => src.NotificationAdmins != null
-                    ? src.NotificationAdmins.AdminText
-                    : null))
-
-            // --- Notification Avertissement ---
-            .ForMember(dest => dest.MessageAvertissement,
-                opt => opt.MapFrom(src => src.NotificationAvertissements != null
-                    ? src.NotificationAvertissements.MessageAvertissement
-                    : null))
-
-            // --- Notification Nouveau Message ---
-            .ForMember(dest => dest.ConversationId,
-                opt => opt.MapFrom(src => src.NotificationMessages != null
-                    ? src.NotificationMessages.Message.ConversationId
-                    : (int?)null))
-
-            .ForMember(dest => dest.MessagePreview,
-                opt => opt.MapFrom(src => src.NotificationMessages != null
-                    ? src.NotificationMessages.MessagePreview
-                    : null))
-            
-            // --- Notification Modification Annonce ---
-            .ForMember(dest => dest.ModificationAnnonceId,
-                opt => opt.MapFrom(src => src.NotificationModifications != null
-                    ? src.NotificationModifications.AnnonceId
-                    : (int?)null))
-
-            .ForMember(dest => dest.NomAuteur,
-                opt => opt.MapFrom(src => src.NotificationMessages != null 
-                    ? src.NotificationMessages.Message.Utilisateur.Login      // auteur du message
-                    : src.NotificationModifications != null
-                        ? src.NotificationModifications.Annonce.Utilisateur.Login  // auteur modif annonce
-                        : src.NotificationNouvellesAnnonces != null
-                            ? src.NotificationNouvellesAnnonces.Annonce.Utilisateur.Login  // auteur nouvelle annonce
-                            : null))
 
 
-            .ForMember(dest => dest.Title,
-                opt => opt.MapFrom(src => src.NotificationModifications != null
-                    ? src.NotificationModifications.Annonce.Title
-                    : null))
-
-            // --- Notification Nouvelle Annonce ---
-            .ForMember(dest => dest.NouvelleAnnonceId,
-                opt => opt.MapFrom(src => src.NotificationNouvellesAnnonces != null
-                    ? src.NotificationNouvellesAnnonces.AnnonceId
-                    : (int?)null));
 
         CreateMap<DemandeRestauration, DemandeRestaurationDTO>()
             .ForMember(dest => dest.DemandeRestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId));
@@ -422,13 +366,16 @@ CreateMap<Conversation, ConversationDetailDTO>()
             .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
 
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
-            .ForMember(dest => dest.UtilisateurNom, opt => opt.MapFrom(src => src.UtilisateurSuspendu != null ? src.UtilisateurSuspendu.Login : null))
+            .ForMember(dest => dest.UtilisateurNom,
+                opt => opt.MapFrom(src => src.UtilisateurSuspendu != null ? src.UtilisateurSuspendu.Login : null))
 
             .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))
-            .ForMember(dest => dest.AdminNom, opt => opt.MapFrom(src => src.Decisionnaire != null ? src.Decisionnaire.Login : null))
+            .ForMember(dest => dest.AdminNom,
+                opt => opt.MapFrom(src => src.Decisionnaire != null ? src.Decisionnaire.Login : null))
 
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
-            .ForMember(dest => dest.AnnonceTitre, opt => opt.MapFrom(src => src.AnnonceSuspendu != null ? src.AnnonceSuspendu.Title : null));
+            .ForMember(dest => dest.AnnonceTitre,
+                opt => opt.MapFrom(src => src.AnnonceSuspendu != null ? src.AnnonceSuspendu.Title : null));
 
         CreateMap<DecisionSuspensionCreateDTO, Decision_suspension>()
             .ForMember(dest => dest.Decision_suspensionId, opt => opt.Ignore()) // la DB gère l'ID
@@ -496,6 +443,5 @@ CreateMap<Conversation, ConversationDetailDTO>()
         CreateMap<VisualisationCreateDTO, Visualisation>()
             .ForMember(dest => dest.VisualisationId, opt => opt.Ignore())
             .ForMember(dest => dest.DateVisualisation, opt => opt.MapFrom(_ => DateTime.UtcNow));
-
     }
 }

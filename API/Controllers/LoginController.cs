@@ -37,14 +37,16 @@ public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly IUtilisateurRepository _utilisateurManager;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ILoginService _loginService;
     private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
 
-    public LoginController(IConfiguration config, IMapper mapper, IUtilisateurRepository dataRepo, ILoginService loginService)
+    public LoginController(IConfiguration config, IMapper mapper, IUtilisateurRepository dataRepo, ILoginService loginService, ICurrentUserService currentUserService)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
+        _currentUserService = currentUserService;
         _utilisateurManager = dataRepo;
         _loginService = loginService;
     }
@@ -166,28 +168,16 @@ public class LoginController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
-        var userIdStr = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdStr))
+        int? userId =  _currentUserService.GetUserId();
+        if (userId == null)
+        {
             return Unauthorized();
-
-        var utilisateur = await _utilisateurManager.GetByIdAsync(int.Parse(userIdStr));
+        }
+        var utilisateur = await _utilisateurManager.GetByIdAsync((int)userId);
         if (utilisateur == null)
             return NotFound();
 
         return Ok(utilisateur);
-    }
-    private int? GetConnectedUserId()
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-            {
-                return id;
-            }
-        }
-        return null;
     }
 
     [HttpPut("modificationMotDePasse")]
@@ -201,7 +191,7 @@ public class LoginController : ControllerBase
         [FromQuery] string newPassword,
         [FromQuery] string confirmNewPassword)
     {
-        int? userId = GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();

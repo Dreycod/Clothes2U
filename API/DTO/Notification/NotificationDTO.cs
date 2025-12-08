@@ -1,27 +1,49 @@
+using System.Text.Json.Serialization;
+
 namespace API.DTO.Notification;
 
-public class NotificationDTO
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "libelleType")]
+[JsonDerivedType(typeof(NotificationAdminDTO), "Administration")]
+[JsonDerivedType(typeof(NotificationAvertissementDTO), "Avertissement")]
+[JsonDerivedType(typeof(NotificationMessageDTO), "Message")]
+[JsonDerivedType(typeof(NotificationModificationAnnonceDTO), "Modification annonce")]
+[JsonDerivedType(typeof(NotificationNouvelleAnnonceDTO), "Nouvelle annonce")]
+public abstract class NotificationDTO
 {
     public int NotificationId { get; set; }
     public DateTime DateCreation { get; set; }
-    public string LibelleType { get; set; }
+    public abstract string LibelleType { get;  }
     public bool EstLu { get; set; }
-    
-    //message administrateur
+}
+
+public class NotificationAdminDTO : NotificationDTO
+{
+    public override string LibelleType => "Administration";
     public String? AdminText { get; set; }
-    
-    
-    //avertissement
+}
+
+public class NotificationAvertissementDTO : NotificationDTO
+{
+    public override string LibelleType => "Avertissement";
     public string? MessageAvertissement  { get; set; } = null!;
-    
-    //Nouveau message
+}
+public class NotificationMessageDTO  : NotificationDTO
+{
+    public override string LibelleType => "Message";
     public int? ConversationId { get; set; }
-    public string? MessagePreview { get; set; }    
-    //modification annonce
+    public string? MessagePreview { get; set; } 
+}
+
+public class NotificationModificationAnnonceDTO : NotificationDTO
+{
+    public override string LibelleType => "Modification annonce";
     public int? ModificationAnnonceId { get; set; }
     public string? NomAuteur { get; set; }
     public string? Title {get; set;}
-    
-    //nouvelle annonce
+}
+
+public class NotificationNouvelleAnnonceDTO : NotificationDTO
+{
+    public override string LibelleType => "Nouvelle annonce";
     public int? NouvelleAnnonceId { get; set; }
 }
