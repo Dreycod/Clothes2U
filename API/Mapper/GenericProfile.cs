@@ -184,6 +184,27 @@ CreateMap<Message, MessageValidationDTO>()
             ? src.MessageValidation.PropositionValidee.PrixPropose
             : 0));
 
+CreateMap<Conversation, ConversationDTO>()
+    .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+    .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
+        src.Messages.OrderByDescending(m => m.MessageDate)
+            .FirstOrDefault().MessageTexte.ContenuMessage ?? string.Empty))
+    .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
+        src.Messages.OrderByDescending(m => m.MessageDate)
+            .FirstOrDefault().MessageDate))
+    .ForMember(dest => dest.Interlocuteur,
+        opt => opt.MapFrom((src, dest, _, context) =>
+            (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                ? src.Vendeur?.UtilisateurVendeur?.Login
+                : src.Acheteur?.UtilisateurAcheteur?.Login
+        ))
+    .ForMember(dest => dest.PhotoInterlocuteurId,
+        opt => opt.MapFrom((src, dest, _, context) =>
+            (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
+                : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
+        ));
+
 CreateMap<Conversation, ConversationDetailDTO>()
     .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
     .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))

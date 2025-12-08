@@ -15,13 +15,13 @@ public class ConversationService: WritableService<Conversation>, IConversationSe
     public async Task<Conversation?> GetConversationDetailById(int id)
     {
         return await _httpClient.GetFromJsonAsync<Conversation?>(
-       $"api/Conversation/conversation/{id}"
+       $"Conversation/conversation/{id}"
    );
     }
     public async Task<List<Conversation?>> GetConversationsByUserId(int id)
     {
         return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
-       $"api/Conversation/utilisateur/{id}"
+       $"Conversation/utilisateur/{id}"
    );
     }
 }
