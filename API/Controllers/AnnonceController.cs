@@ -3,6 +3,7 @@ using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
+using API.Services;
 using API.Services.Notifications;
 using API.Services.Notifications.Events;
 using AutoMapper;
@@ -19,20 +20,20 @@ public class AnnonceController : ControllerBase
     private readonly IFavorisRepository  _favorisRepository;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService)
+    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService)
     {
         _annonceManager = manager;
         _favorisRepository = favorisManager;
         _mapper = mapper;
         _notificationService = notificationService;
+        _currentUserService = currentUserService;
     }
 
     private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
     {
-        int? userId = GetConnectedUserId();
-
-        // If no user is connected, just return the list as-is
+        int? userId = _currentUserService.GetUserId();
         if (!userId.HasValue)
             return annoncesDTO;
 
@@ -50,19 +51,7 @@ public class AnnonceController : ControllerBase
     }
 
 
-    private int? GetConnectedUserId()
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-            {
-                return id;
-            }
-        }
-        return null;
-    }
+    
     
     
     [AllowAnonymous]
@@ -98,7 +87,7 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
-        int? userId = GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId != null)
         {
             if (await _favorisRepository.CheckIfLiked((int)userId, id))
@@ -123,7 +112,7 @@ public class AnnonceController : ControllerBase
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
 
-        int? userId = GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -147,7 +136,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest();
         }
-        int? userId = GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId == null || userId != annonceDTO.UtilisateurId)
         {
             return Unauthorized();
@@ -180,7 +169,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        int? userId = GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId == null || userId != annonceDto.UtilisateurId)
         {
             return Unauthorized();

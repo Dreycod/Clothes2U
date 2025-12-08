@@ -10,6 +10,9 @@ public class MessageDemande : IEntity
     [Column("mesdem_id")]
     public int MessageDemandeId { get; set; }
     
+    [Column("mesdem_prix_propose")]
+    public double PrixPropose { get; set; }
+    
     //Id avec les autres tables : 
     [Column("mesdem_message_id")]
     public int MessageId { get; set; }
@@ -26,6 +29,9 @@ public class MessageDemande : IEntity
     [ForeignKey(nameof(MessageId))]
     [InverseProperty(nameof(Message.MessageDemande))]
     public virtual Message Message{ set; get; }
+    
+    [InverseProperty(nameof(MessageValidation.PropositionValidee))]
+    public virtual MessageValidation? Validation{ set; get; }
     
     [InverseProperty(nameof(MessageDemande.Offre))]
     public virtual ICollection<MessageDemande>? ContreOffres { get; set; } = new List<MessageDemande>();

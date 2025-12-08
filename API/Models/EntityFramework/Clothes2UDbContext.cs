@@ -501,15 +501,23 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.HasKey(e => e.MessageDemandeId);
 
+            // Relation MessageDemande -> Message (One-to-One)
             entity.HasOne(e => e.Message)
                 .WithOne(m => m.MessageDemande)
                 .HasForeignKey<MessageDemande>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Relation MessageDemande -> MessageDemande parent (Offre/Contre-offre)
             entity.HasOne(e => e.Offre)
                 .WithMany(e => e.ContreOffres)
                 .HasForeignKey(e => e.DemandeId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.NoAction);
+    
+            // Relation MessageDemande -> MessageValidation (One-to-One optionnelle)
+            entity.HasOne(e => e.Validation)
+                .WithOne(v => v.PropositionValidee)
+                .HasForeignKey<MessageValidation>(v => v.PropositionValideeId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<MessageValidation>(entity =>
@@ -518,10 +526,19 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.HasKey(e => e.MessageValidationId);
 
+            // Relation MessageValidation -> Message (One-to-One)
             entity.HasOne(e => e.Message)
                 .WithOne(m => m.MessageValidation)
                 .HasForeignKey<MessageValidation>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Relation MessageValidation -> MessageDemande (One-to-One obligatoire)
+            // Déjà configurée dans MessageDemande ci-dessus
+            entity.HasOne(e => e.PropositionValidee)
+                .WithOne(d => d.Validation)
+                .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired(); // La validation doit obligatoirement pointer vers une proposition
         });
 
         modelBuilder.Entity<NoteUtilisateur>(entity =>

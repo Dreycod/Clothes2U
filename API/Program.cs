@@ -15,6 +15,7 @@ using API.Services.SMS;
 using API.Services.Verification;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,13 +94,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
     });
+
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -145,7 +148,8 @@ builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>
 builder.Services.AddScoped<IVerificationService, VerificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
-
+builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
+builder.Services.AddHttpContextAccessor();
 
 
 
@@ -162,6 +166,8 @@ builder.Services.AddSingleton<INotificationService, NotificationService>();
 builder.Services.AddScoped<MessageNotificationObserver>();
 builder.Services.AddScoped<NouvelleAnnonceNotificationObserver>();
 builder.Services.AddScoped<ModificationAnnonceNotificationObserver>();
+
+
 
 
 var app = builder.Build();

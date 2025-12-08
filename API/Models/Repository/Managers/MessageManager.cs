@@ -11,13 +11,27 @@ public class MessageManager :  GenericCRUDManager<Message>
     {
         return _context.Messages
             .Include(m => m.MessageTexte)
+            .Include(m => m.MessageDemande)
+            .Include(m => m.MessageValidation)
             .AsSplitQuery();
     }
 
-    public override async Task<Message?> GetByIdAsync(int id)
+    public async Task<Conversation?> GetByIdAsync(int id)
     {
-        return await BaseAnnonceQuery()
-            .FirstOrDefaultAsync(m => m.MessageId == id);
+        return await _context.Conversations
+            .Include(c => c.Vendeur).ThenInclude(v => v.UtilisateurVendeur)
+            .Include(c => c.Acheteur).ThenInclude(a => a.UtilisateurAcheteur)
+            .Include(c => c.LAnnonce)
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.Utilisateur)
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageTexte)
+            .ThenInclude(mt => mt.Photos)
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageDemande)
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageValidation)
+            .FirstOrDefaultAsync(c => c.ConversationId == id);
     }
 }
 

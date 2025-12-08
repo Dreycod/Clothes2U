@@ -13,6 +13,9 @@ public class Message : IEntity
     [Column("mes_date_envoie")]
     public DateTime MessageDate { get; set; }
     
+    /*[Column("mes_type")]
+    public string MessageType { get; set; }*/
+    
     [Column("mes_lu")]
     public bool MessageLu { get; set; }
     
