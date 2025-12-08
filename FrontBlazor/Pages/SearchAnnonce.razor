@@ -165,25 +165,18 @@
                 <div class="filter-section">
                     <h4 class="filter-title">État</h4>
                     <div class="filter-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" @bind="VM_Search.conditionNew" />
-                            <span>Comme neuf</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" @bind="VM_Search.conditionVeryGood" />
-                            <span>Très bon état</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" @bind="VM_Search.conditionGood" />
-                            <span>Bon état</span>
-                        </label>
+                        @foreach (var etat in VM_Etat.Items)
+                        {
+                            <label class="checkbox-label subcategory-item">
+                                <input type="checkbox"
+                                       checked="@VM_Search.IsEtatSelected(etat.EtatArticleId)"
+                                       @onchange="(e) => VM_Search.ToggleEtatSelection(etat.EtatArticleId, (bool)e.Value!)" />
+                                <span>@etat.NomEtat</span>
+                            </label>
+                        }
                     </div>
                 </div>
 
-                <!-- Apply Button -->
-                <button class="apply-filters-btn" @onclick="VM_Search.ApplyFilters">
-                    Appliquer les filtres
-                </button>
             </aside>
 
             <!-- Products Grid -->

@@ -75,6 +75,7 @@ public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
         AddListToQuery(queryParams, "Categories", filterDto.Categories);
         AddListToQuery(queryParams, "SousCategories", filterDto.SousCategories);
         AddListToQuery(queryParams, "Tailles", filterDto.Tailles);
+        AddListToQuery(queryParams, "Etats", filterDto.Etats);
 
         if (filterDto.PrixMin.HasValue)
             queryParams.Add(new("PrixMin", filterDto.PrixMin.Value.ToString(CultureInfo.InvariantCulture)));
