@@ -33,15 +33,17 @@ public class MessagerieViewModel : ComponentBase
     {
         CurrentUser = await _authService.GetCurrentUserAsync();
         var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
-        conversations = new ObservableCollection<Conversation>(data);
-        StateHasChanged();
+        conversations = data != null
+            ? new ObservableCollection<Conversation>(data)
+            : new ObservableCollection<Conversation>();
+        //StateHasChanged();
     }
 
     public async Task SelectedConversation(int id)
     {
         SelectedConversationId = id;
         var conv = await _conversationService.GetConversationDetailById(id);
-        StateHasChanged();
+        //StateHasChanged();
     }
 
     public async Task SendMessage()

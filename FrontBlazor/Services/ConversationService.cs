@@ -1,6 +1,8 @@
 using System.Net.Http.Json;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Models;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
+
 namespace FrontBlazor.Services;
 
 public class ConversationService: WritableService<Conversation>, IConversationService<Conversation>
@@ -14,14 +16,45 @@ public class ConversationService: WritableService<Conversation>, IConversationSe
 
     public async Task<Conversation?> GetConversationDetailById(int id)
     {
-        return await _httpClient.GetFromJsonAsync<Conversation?>(
-       $"Conversation/conversation/{id}"
-   );
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "Login/me");
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await _httpClient.GetFromJsonAsync<Conversation?>(
+                $"Conversation/conversation/{id}");
+        }
+        catch
+        {
+            return null;
+        }
+        
     }
     public async Task<List<Conversation?>> GetConversationsByUserId(int id)
     {
-        return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
-       $"Conversation/utilisateur/{id}"
-   );
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "Login/me");
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
+                $"Conversation/utilisateur/{id}"
+            );
+        }
+        catch
+        {
+            return null;
+        }
+        
     }
 }

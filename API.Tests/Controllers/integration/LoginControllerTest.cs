@@ -413,25 +413,22 @@ public class LoginControllerTest
     }
 
     [TestMethod]
-    public async Task ShouldGetCurrentUser()
+    public void ShouldGetCurrentUser()
     {
         //Arrange
         _context.Utilisateurs.Add(_default1);
         _context.SaveChanges();
         // Simuler un utilisateur authentifié
-        var claims = new List<Claim>
+        var realId = _default1.UtilisateurId;
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {
-            new Claim("userId", _default1.UtilisateurId.ToString()),
-            new Claim("login", _default1.Login)
-        };
+            new Claim("userId", realId.ToString()),
+        }, "TestAuthentication"));
 
-        var identity = new ClaimsIdentity(claims, "TestAuth");
-        var principal = new ClaimsPrincipal(identity);
+        _controller.ControllerContext.HttpContext.User = user;
 
-        _controller.ControllerContext.HttpContext.User = principal;
-        
         //Act
-        var result = await _controller.GetCurrentUser();
+        var result = _controller.GetCurrentUser().GetAwaiter().GetResult();
         
         //Assert
         Assert.IsNotNull(result);

@@ -103,6 +103,7 @@
     protected override async Task OnInitializedAsync()
     {
         await VM_Messagerie.Load(); // user courant
+        StateHasChanged();
     }
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
