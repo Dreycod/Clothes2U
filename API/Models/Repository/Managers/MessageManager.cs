@@ -18,7 +18,7 @@ public class MessageManager :  GenericCRUDManager<Message>
 
     public async Task<Conversation?> GetByIdAsync(int id)
     {
-        return await _context.Conversations
+        var conversation = await _context.Conversations
             .Include(c => c.Vendeur).ThenInclude(v => v.UtilisateurVendeur)
             .Include(c => c.Acheteur).ThenInclude(a => a.UtilisateurAcheteur)
             .Include(c => c.LAnnonce)
@@ -28,10 +28,25 @@ public class MessageManager :  GenericCRUDManager<Message>
             .ThenInclude(m => m.MessageTexte)
             .ThenInclude(mt => mt.Photos)
             .Include(c => c.Messages)
-            .ThenInclude(m => m.MessageDemande)
+            .ThenInclude(m => m.MessageDemande)  // ✅ Vérifiez que ceci est bien présent
+            .ThenInclude(md => md.Offre)      // Si vous en avez besoin
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageValidation)
+            .ThenInclude(mv => mv.PropositionValidee)  // ✅ Important pour MessageValidation
+            .AsSplitQuery()  // ✅ Recommandé pour éviter les cartesian explosions
             .FirstOrDefaultAsync(c => c.ConversationId == id);
+        if (conversation != null)
+        {
+            foreach (var msg in conversation.Messages)
+            {
+                Console.WriteLine($"Message {msg.MessageId}:");
+                Console.WriteLine($"  - MessageTexte: {(msg.MessageTexte != null ? "✓" : "✗")}");
+                Console.WriteLine($"  - MessageDemande: {(msg.MessageDemande != null ? "✓" : "✗")}");
+                Console.WriteLine($"  - MessageValidation: {(msg.MessageValidation != null ? "✓" : "✗")}");
+            }
+        }
+    
+        return conversation;
     }
 }
 
