@@ -5,7 +5,8 @@ public class Message: IEntity
     public DateTime? Date { get; set; }
     public bool? Lu { get; set; }
     public string? Contenu { get; set; }
-    public string? Utilisateur { get; set; }
+    public Utilisateur? Utilisateur { get; set; }
+    public int ConversationId { get; set; }
     public int GetId()
     {
         return int.TryParse(MessageId, out int id) ? id : 0;

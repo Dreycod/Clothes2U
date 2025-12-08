@@ -40,10 +40,11 @@ builder.Services.AddScoped<LoginViewModel>();
 builder.Services.AddScoped<SearchAnnonceViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
-builder.Services.AddScoped<ConversationViewModel>();
+//builder.Services.AddScoped<ConversationViewModel>();
+builder.Services.AddScoped<MessagerieViewModel>();
 builder.Services.AddScoped<DetailAnnonceViewModel>();
 builder.Services.AddScoped<DetailAnnonceViewModel>();
-builder.Services.AddScoped<MessageViewModel>();
+//builder.Services.AddScoped<MessageViewModel>();
 builder.Services.AddScoped<CreationAnnonceViewModel>();
 
 // HttpClient AVEC CREDENTIALS (cookies)
