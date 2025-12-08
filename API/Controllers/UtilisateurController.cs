@@ -13,45 +13,66 @@ namespace API.Controllers;
 public class UtilisateurController :  ControllerBase
 {
     private readonly IUtilisateurRepository _utilisateurManager;
+    private readonly IAbonnementRepository<Abonnement, int>  _abonnementManager; 
     private readonly IMapper _mapper;
 
-    public UtilisateurController(IUtilisateurRepository utilisateurManager, IMapper mapper)
+    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,IMapper mapper)
     {
+        _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
     }
-   
+    private int? GetConnectedUserId()
+    {
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
 
-    [HttpGet("utilisateur/{id}")]
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+            {
+                return id;
+            }
+        }
+        return null;
+    }
+
+    private async Task<bool> IsFollowedByCurrentUser(int suivisId)
+    {
+        int? userId = GetConnectedUserId();
+        if (userId == null)
+        {
+            return false;
+        }
+        return await _abonnementManager.Exists((int)userId, suivisId);
+    }
+
+    [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
     {
         Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateur == null)
+        {
+            return NotFound();
+        }
         UtilisateurViewDTO utiliateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        utiliateurDTO.followeddByCurrentUser = await IsFollowedByCurrentUser(id);
         return Ok(utiliateurDTO);
     }
 
-    [HttpPut("utilisateur/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> PutUtilisateur(int id, [FromBody] UtilisateurPutDTO utilisateurDTO)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
         Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
         if (utilisateurToUpdate == null)
             return NotFound();
-
-        // IMPORTANT : mapper dans le même objet
         _mapper.Map(utilisateurDTO, utilisateurToUpdate);
-
-        // IMPORTANT : passer le même objet 2 fois
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
-
         return NoContent();
     }
 
-    
-
-    [HttpDelete("id/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {
         Utilisateur utilisateur = await _utilisateurManager.GetByIdAsync(id);

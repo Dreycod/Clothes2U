@@ -148,22 +148,36 @@ public class GenericProfile : Profile
                     .Select(m => m.MessageDate)
                     .FirstOrDefault()))
 
-            .ForMember(dest => dest.Acheteur,
-                opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
-
-            .ForMember(dest => dest.Vendeur,
-                opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
-
-            .ForMember(dest => dest.Annonce,
-                opt => opt.MapFrom(src => src.LAnnonce.Title));
+            .ForMember(dest => dest.Interlocuteur, 
+                opt => opt.MapFrom((src, dest, _, context) =>
+                    (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                    ? src.Vendeur.UtilisateurVendeur.Login
+                    : src.Acheteur.UtilisateurAcheteur.Login
+                    ))
+            .ForMember(dest => dest.PhotoInterlocuteurId,
+                opt => opt.MapFrom((src, dest, _, context) =>
+                    (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                    ? src.Vendeur.UtilisateurVendeur.PhotoProfil.PhotoId
+                    : src.Acheteur.UtilisateurAcheteur.PhotoProfil.PhotoId));
+        
 
         CreateMap<Conversation, ConversationDetailDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.ListMessages, opt => opt.MapFrom(src => src.Messages.OrderBy(m => m.MessageDate)))
-            .ForMember(dest => dest.Vendeur, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
-            .ForMember(dest => dest.Acheteur, opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
-            .ForMember(dest => dest.Annonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
-            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix));
+            // .ForMember(dest => dest.Vendeur, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeur.Login))
+            // .ForMember(dest => dest.Acheteur, opt => opt.MapFrom(src => src.Acheteur.UtilisateurAcheteur.Login))
+            .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix))
+            .ForMember(dest => dest.AnnonceId,
+                opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
+            .ForMember(dest => dest.PhotoAnnonceId,
+                opt => opt.MapFrom(src => src.LAnnonce.Photos.First().Photo.PhotoId))
+            .ForMember(dest => dest.Interlocuteur,
+                opt => opt.MapFrom((src, dest, _, context) =>
+                    (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+                    ? src.Vendeur.UtilisateurVendeur.Login
+                    : src.Acheteur.UtilisateurAcheteur.Login));
+        
         CreateMap<Message, MessageDTO>()
             .ForMember(dest=> dest.MessageId, opt=> opt.MapFrom(src=>src.MessageId))
             .ForMember(dest=> dest.Date, opt=> opt.MapFrom(src=>src.MessageDate))

@@ -10,6 +10,6 @@ public interface IAnnonceService<TEntity> : IReadableService<TEntity>, IWritable
     Task<TEntity> GetAnnonceDetailById(int id);
     Task<List<TEntity>?> GetAnnoncesByUserIdAsync(int id);
     Task<List<TEntity>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 30);
-
+    Task<List<TEntity>?> GetByFavorisUtilisateur();
 
 }

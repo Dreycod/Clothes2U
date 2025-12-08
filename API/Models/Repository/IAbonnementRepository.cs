@@ -10,6 +10,5 @@ namespace API.Models.Repository
 
         Task<bool> Exists(int suiveurId, int suiviId);
         Task<TEntity> FindAbonnement(int suiveurId, int suiviId);
-
     }
 }
