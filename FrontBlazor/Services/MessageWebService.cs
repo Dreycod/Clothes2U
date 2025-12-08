@@ -5,9 +5,9 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services;
 
-public class MessageService : WritableService<Message>, IMessageService<Message>
+public class MessageWebService : WritableService<Message>, IMessageService<Message>
 {
-    public MessageService(HttpClient httpClient) : base(httpClient) { }
+    public MessageWebService(HttpClient httpClient) : base(httpClient) { }
 
     public Task<Message> GetByIdAsync(int id)
     {

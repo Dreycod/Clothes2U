@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace FrontBlazor.Services;
 
-public class ConversationService: WritableService<Conversation>, IConversationService<Conversation>
+public class ConversationWebService: WritableService<Conversation>, IConversationService<Conversation>
 {
-    public ConversationService(HttpClient httpClient) : base(httpClient) {}
+    public ConversationWebService(HttpClient httpClient) : base(httpClient) {}
 
     public Task<Conversation> GetByIdAsync(int id)
     {

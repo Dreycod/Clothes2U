@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services
 {
-    public class UtilisateurService : ReadableService<UtilisateurView>, IReadableService<UtilisateurView>
+    public class UtilisateurWebService : ReadableService<UtilisateurView>, IReadableService<UtilisateurView>
     {
-        public UtilisateurService(HttpClient httpClient) : base(httpClient) {}
+        public UtilisateurWebService(HttpClient httpClient) : base(httpClient) {}
 
         public async Task<UtilisateurView?> GetByIdAsync(int id)
         {

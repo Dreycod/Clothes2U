@@ -4,10 +4,10 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class CategorieService : ReadableService<Categorie>, ICategorieService<Categorie>
+    public class CategorieWebService : ReadableService<Categorie>, ICategorieService<Categorie>
     {
         private readonly HttpClient _httpClient;
-        public CategorieService(HttpClient httpClient) : base(httpClient)
+        public CategorieWebService(HttpClient httpClient) : base(httpClient)
         {
             _httpClient = httpClient;
         }

@@ -11,8 +11,6 @@ public abstract class BaseGenericService
     {
         _httpClient = httpClient;
     }
-
-    // Méthode générique pour TOUTES les requêtes
     protected async Task<HttpResponseMessage> SendWithCredentialsAsync(
         HttpMethod method, 
         string url, 
@@ -28,8 +26,6 @@ public abstract class BaseGenericService
         request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
         return await _httpClient.SendAsync(request);
     }
-
-    // Méthodes d'aide spécifiques
     protected Task<HttpResponseMessage> GetWithCredentialsAsync(string url)
         => SendWithCredentialsAsync(HttpMethod.Get, url);
     protected Task<HttpResponseMessage> PostWithCredentialsAsync(string url, HttpContent content)
