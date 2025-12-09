@@ -30,7 +30,11 @@ builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
 builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
-builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
+// builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
+builder.Services.AddSingleton<ISignalRService>(sp =>
+{
+    return new SignalRWebService();
+});
 
 builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateur>, NoteUtilisateurWebService>();
 
