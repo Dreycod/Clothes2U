@@ -15,4 +15,5 @@ public class UtilisateurViewDTO
     public int PhotoProfilId { get; set; }
     public double MoyenneAvis { get; set; }
     public int NombreAvis { get; set; }
+    public string RoleUtilisateur { get; set; }
 }

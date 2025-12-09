@@ -1,4 +1,5 @@
 using API.DTO.Message;
+using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services.Notifications;
@@ -6,6 +7,7 @@ using API.Services.Notifications.Events;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace API.Controllers;
 
@@ -21,6 +23,7 @@ public class MessageController : ControllerBase
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ChatHub> _hubContext;
 
     public MessageController(
         IDataRepository<Message, int> messageManager,
@@ -29,7 +32,8 @@ public class MessageController : ControllerBase
         IDataRepository<MessageDemande, int> messageDemandeManager,
         IDataRepository<MessageValidation, int> messageValidationManager,
         INotificationService notificationMessageManager,
-        IMapper mapper)
+        IMapper mapper,
+        IHubContext<ChatHub> hubContext)
     {
         _messageManager = messageManager;
         _messageTexteManager = messageTexteManager;
@@ -38,6 +42,7 @@ public class MessageController : ControllerBase
         _messageValidationManager = messageValidationManager;
         _notificationService = notificationMessageManager;
         _mapper = mapper;
+        _hubContext = hubContext;
     }
     private int? GetConnectedUserId()
     {
@@ -94,6 +99,13 @@ public class MessageController : ControllerBase
                     MessagePreview = dto.Content.Substring(0, Math.Min(50, dto.Content.Length))
                 };
                 await _notificationService.NotifyAsync(notificationEvent);
+                
+                await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
+                    .SendAsync("ReceiveMessage", 
+                        message.ConversationId, 
+                        message.MessageTexte.Content, 
+                        message.UtilisateurId, 
+                        message.MessageDate);
             }
             else
             {

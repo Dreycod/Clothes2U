@@ -1,5 +1,7 @@
+
 using System.Collections.ObjectModel;
 using FrontBlazor.Models;
+using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using Microsoft.AspNetCore.Components;
 
@@ -10,18 +12,22 @@ public class MessagerieViewModel : ComponentBase
     private readonly IConversationService<Conversation> _conversationService;
     private readonly IAuthService _authService;
     private readonly IMessageService<Message> _messageService;
+    private readonly ChatSignalRService _signalRService;
     
     public bool IsLoading { get; set; } 
     public string? ErrorMessage { get; set; }
     public event Action? OnChange;
     
-    public MessagerieViewModel(IConversationService<Conversation> conversationService, 
+    public MessagerieViewModel(
+        IConversationService<Conversation> conversationService, 
         IAuthService authService, 
-        IMessageService<Message> messageService)
+        IMessageService<Message> messageService,
+        ChatSignalRService signalRService)
     {
         _conversationService = conversationService;
         _authService = authService;
         _messageService = messageService;
+        _signalRService = signalRService;
     }
 
     public ObservableCollection<Conversation> conversations { get; private set; } = new();
@@ -54,6 +60,8 @@ public class MessagerieViewModel : ComponentBase
                 : new ObservableCollection<Conversation>();
                 
             NotifyStateChanged();
+            _signalRService.OnMessageReceived += OnNewMessageReceived;
+            await _signalRService.StartAsync("http://localhost:5096/chatHub");
         }
         catch (Exception ex)
         {
@@ -65,13 +73,6 @@ public class MessagerieViewModel : ComponentBase
             IsLoading = false;
             NotifyStateChanged();
         }
-        // CurrentUser = await _authService.GetCurrentUserAsync();
-        // Console.WriteLine(CurrentUser.UtilisateurId);
-        // var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
-        // conversations = data != null
-        //     ? new ObservableCollection<Conversation>(data)
-        //     : new ObservableCollection<Conversation>();
-        // //StateHasChanged();
     }
 
     public async Task SelectedConversation(int id)
@@ -99,6 +100,7 @@ public class MessagerieViewModel : ComponentBase
                     conv.ListMessages = new ObservableCollection<Message>();
                 else if (conv.ListMessages is not ObservableCollection<Message>)
                     conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
+                await _signalRService.LeaveConversation(SelectedConversationId.Value);
             }
             else
             {
@@ -107,6 +109,7 @@ public class MessagerieViewModel : ComponentBase
                 { 
                     ListMessages = new ObservableCollection<Message>() 
                 };
+                await _signalRService.JoinConversation(id);
             }
             
             NotifyStateChanged();
@@ -121,21 +124,6 @@ public class MessagerieViewModel : ComponentBase
             IsLoading = false;
             NotifyStateChanged();
         }
-        // CurrentUser = await _authService.GetCurrentUserAsync();
-        //
-        // SelectedConversationId = id;
-        // var data = await _conversationService.GetConversationDetailById(id);
-        //
-        // if (data != null)
-        //     Console.WriteLine(data.ListMessages.Count);
-        // else
-        //     Console.WriteLine("Pas de messages ou conversation null");
-        //
-        // conv = data ?? new Conversation();
-        // if (conv.ListMessages == null)
-        //     conv.ListMessages = new ObservableCollection<Message>();
-        // else if (conv.ListMessages is not ObservableCollection<Message>)
-        //     conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
     }
 
     public async Task SendMessage()
@@ -159,13 +147,12 @@ public class MessagerieViewModel : ComponentBase
                 ImagesId = null,
                 ConversationId = conv.ConversationId,
                 UtilisateurId = CurrentUser.UtilisateurId,
-                Date = DateTime.Now, // Ajouter la date pour l'affichage immédiat
-                SentbyCurrentUser = true // Pour l'affichage correct
+                Date = DateTime.Now,
+                SentbyCurrentUser = true 
             };
 
             await _messageService.PostMessageTexte(message);
             
-            // Ajouter le message localement pour affichage immédiat
             if (conv.ListMessages is ObservableCollection<Message> observableList)
             {
                 observableList.Add(message);
@@ -178,8 +165,6 @@ public class MessagerieViewModel : ComponentBase
             NewMessage = string.Empty;
             NotifyStateChanged();
             
-            // Optionnel : recharger depuis le serveur pour synchroniser
-            // await SelectedConversation(conv.ConversationId);
         }
         catch (Exception ex)
         {
@@ -191,25 +176,21 @@ public class MessagerieViewModel : ComponentBase
             IsLoading = false;
             NotifyStateChanged();
         }
-        // await _authService.GetCurrentUserAsync();
-        //
-        // if (string.IsNullOrWhiteSpace(NewMessage)) return;
-        //
-        // Message message = new Message
-        // {
-        //     Content = NewMessage,
-        //     ImagesId = null,
-        //     ConversationId = conv.ConversationId,
-        //     UtilisateurId = CurrentUser.UtilisateurId
-        // };
-        //
-        // var success = await _messageService.PostMessageTexte(message);
-        // Console.WriteLine("hahhahhahah"+success);
-        // if (success. == true)
-        // {
-        //     // Recharger la conversation complète depuis le serveur
-        //     await SelectedConversation(conv.ConversationId);
-        //     NewMessage = string.Empty;
-        // }
+    }
+    private void OnNewMessageReceived(int conversationId, Message message)
+    {
+        if (SelectedConversationId == conversationId && conv?.ListMessages != null)
+        {
+            if (conv.ListMessages is ObservableCollection<Message> observableList)
+            {
+                observableList.Add(message);
+            }
+            else
+            {
+                conv.ListMessages.Add(message);
+            }
+            
+            NotifyStateChanged();
+        }
     }
 }

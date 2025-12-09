@@ -22,7 +22,6 @@ public class NotificationController : ControllerBase
         _currentUserService = currentUserService;
         _mapper = mapper;
     }
-
     [HttpGet("notificationCount")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -36,8 +35,6 @@ public class NotificationController : ControllerBase
         int count = await _notificationManager.GetNotificationsUnreadCountByUserId((int)userId);
         return count;
     }
-
-    // Dans votre controller
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetUserNotifications(int userId)
     {
@@ -46,7 +43,6 @@ public class NotificationController : ControllerBase
     
         return Ok(notificationDtos);
     }
-
     [HttpPut("markAsRead")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -61,7 +57,6 @@ public class NotificationController : ControllerBase
         await _notificationManager.MarkAsRead((int)userId);
         return NoContent();
     }
-
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
