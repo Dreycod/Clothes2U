@@ -40,7 +40,7 @@ public class MediasControllerTest
         
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<GenericProfile>();
+            //cfg.AddProfile<GenericProfile>();
         });
         
         _mapper = config.CreateMapper();
