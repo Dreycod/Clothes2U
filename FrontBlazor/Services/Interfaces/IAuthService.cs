@@ -8,7 +8,7 @@ namespace FrontBlazor.Services.GenericIServices;
 public interface IAuthService
 {
     public Task<HttpStatusCode> LoginAsync(LoginRequest compte);
-    public Task<AuthResult> SignUpAsync(LoginRequest compte);
+    public Task<AuthResult> SignUpAsync(RegisterRequest compte);
     public Task LogoutAsync();
     public Task<Utilisateur?> GetCurrentUserAsync();
 }

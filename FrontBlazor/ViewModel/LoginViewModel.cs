@@ -27,7 +27,7 @@ public class LoginViewModel
 
         try
         {
-            LoginRequest loginRequest = new LoginRequest()
+            RegisterRequest registerRequest = new RegisterRequest()
             {
                 Login = RegisterUsername,
                 Email = RegisterEmail,
@@ -37,15 +37,15 @@ public class LoginViewModel
             };
 
             var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(loginRequest, null, null);
-            bool isValid = Validator.TryValidateObject(loginRequest, validationContext, validationResults, false);
-
+            var validationContext = new ValidationContext(registerRequest, null, null);
+            bool isValid = Validator.TryValidateObject(registerRequest, validationContext, validationResults, true);
+            
             if (!isValid)
             {
                 return validationResults.Select(vr => vr.ErrorMessage).First() ?? "Vérifiez votre saisie";
             }
-
-            var result = await _authService.SignUpAsync(loginRequest);
+            
+            var result = await _authService.SignUpAsync(registerRequest);
 
             if (result.Success)
             {
@@ -75,7 +75,6 @@ public class LoginViewModel
             LoginRequest requestAuth = new LoginRequest()
             {
                 Login = LoginEmail,
-                Email = LoginEmail,
                 Password = LoginPassword
             };
             var result = await _authService.LoginAsync(requestAuth);

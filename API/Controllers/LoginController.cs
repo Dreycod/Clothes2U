@@ -113,27 +113,10 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> SignUp([FromBody] RegisterRequest request)
     {
-        if (request == null)
-            return BadRequest("Données invalides.");
-        
-        if (string.IsNullOrEmpty(request.Login))
+        if (!ModelState.IsValid)
         {
-            return BadRequest("Login obligatoires.");
+            return BadRequest(ModelState);
         }
-
-        if (string.IsNullOrEmpty(request.Email))
-        {
-            return BadRequest("Email obligatoire.");
-        }
-        
-        
-        if (string.IsNullOrEmpty(request.PasswordConfirm))
-        {
-            return BadRequest("Confirmation de mot de passe obligatoire.");
-        }
-        
-        if (request.Password != request.PasswordConfirm)
-            return BadRequest("Les mots de passe ne correspondent pas");
 
         var existingUsers = await _utilisateurManager.GetAllAsync();
         
