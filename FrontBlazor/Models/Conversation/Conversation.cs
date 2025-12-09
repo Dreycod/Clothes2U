@@ -13,6 +13,7 @@ public class Conversation : IEntity
     public int? AnnonceId { get; set; }
     public int? PhotoAnnonceId { get; set; }
     public double? Prix { get; set; }
+    public bool? HasNewMessages { get; set; }
     public int GetId()
     {
         return ConversationId;

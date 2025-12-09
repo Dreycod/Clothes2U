@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using API.Models.Repository.Managers;
 using System.Text.Json.Serialization;
 using API.DTO;
+using API.Hubs;
 using API.Services;
 using API.Services.Email;
 using API.Services.Notifications;
@@ -143,7 +144,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5281")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials());
+            .AllowCredentials()
+            .SetIsOriginAllowed(_ => true));
 });
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -173,6 +175,7 @@ builder.Services.AddScoped<ITailleRepository, TailleManager>();
 builder.Services.AddScoped<IEtatArticleRepository, EtatArticleManager>();
 builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
+builder.Services.AddSignalR();
 
 
 //services
@@ -256,5 +259,7 @@ app.UseAuthentication();  // DOIT être avant UseAuthorization
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

@@ -29,6 +29,12 @@
                 {
                     @foreach (var conversation in VM_Messagerie.conversations)
                     {
+                        @if (conversation.HasNewMessages == true)
+                        {
+                            <div class="new-message-indicator">
+                                <i class="bi bi-arrow-down-circle"></i> Nouveaux messages
+                            </div>
+                        }
                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "")"
                              @onclick="() => OnSelectConversation(conversation.ConversationId)">
                             <div class="conversation-avatar"></div>
