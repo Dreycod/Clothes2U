@@ -21,7 +21,13 @@ public class CommercialCategoriesViewModel
     }
     public async Task LoadAsync()
     {
-        await VM_Categorie.LoadAsync();
+        await VM_Categorie.LoadWithDetailsAsync();
+        Console.WriteLine("Categories loaded: " + VM_Categorie.Items.Count);
+        // Print nombre produits de chaque 
+        foreach (var categorie in VM_Categorie.Items)
+        {
+            Console.WriteLine($"Catégorie: {categorie.LibelleCategorie}, Nombre de sous-catégories: {categorie.SousCategories?.Count ?? 0}, Nombre de articles: {categorie.NombreProduits}");
+        }
     }
 
     public void ShowAddModal()
@@ -118,12 +124,6 @@ public class CommercialCategoriesViewModel
             errorMessage = $"Erreur: {ex.Message}";
             CloseDeleteModal();
         }
-    }
-
-    public int GetArticleCount(int categorieId)
-    {
-        // TODO: Get actual article count from API
-        return new Random(categorieId).Next(50, 200);
     }
 }
 

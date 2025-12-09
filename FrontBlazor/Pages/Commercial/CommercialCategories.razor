@@ -104,7 +104,7 @@
                                             @(categorie.SousCategories?.Count ?? 0) sous-catégories
                                         </span>
                                     </td>
-                                    <td>@VM_CommercialCategories.GetArticleCount(categorie.IdCategorie) articles</td>
+                                    <td>@categorie.NombreProduits articles</td>
                                     <td>
                                         <div class="table-actions">
                                             <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCategories.ShowEditModal(categorie)">
