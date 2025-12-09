@@ -9,6 +9,7 @@ public class ModerationBoardViewModel
     private readonly IAuthService _authService;
     private readonly NavigationManager _nav;
     private readonly ISignalementService  _signalementService;
+    public bool IsLoading { get; set; }
 
     public ModerationBoardViewModel(ISignalementService signalementService, IAuthService authService,  NavigationManager nav)
     {
@@ -19,12 +20,12 @@ public class ModerationBoardViewModel
 
     public async Task LoadAsync()
     {
+        IsLoading = true;
         Utilisateur user = await _authService.GetCurrentUserAsync();
-        Console.WriteLine(user.RoleUtilisateur);
-        if (user == null || user.RoleUtilisateur != "")
+        if (user == null || user.RoleUtilisateur != "Admin" && user.RoleUtilisateur != "Modérateur")
         {
             _nav.NavigateTo("/");
         }
-        Console.WriteLine("ET OUIIII");
+        IsLoading = false;
     }
 }

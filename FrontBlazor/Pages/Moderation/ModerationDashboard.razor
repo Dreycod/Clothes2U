@@ -1,11 +1,17 @@
 ﻿@page "/moderation"
-
+@inject ModerationBoardViewModel moderationViewModel
 
 <PageTitle>Modération - Clothes2U</PageTitle>
 
 <link rel="stylesheet" href="/css/moderation-shared.css" />
 
-<div class="moderation-page">
+@if (moderationViewModel.IsLoading)
+{
+    
+}
+else
+{
+    <div class="moderation-page">
     <div class="moderation-container">
         <!-- Sidebar -->
         <aside class="mod-sidebar">
@@ -182,7 +188,13 @@
         </main>
     </div>
 </div>
+}
+
 
 @code {
     private string currentPage = "home";
+    protected override async Task OnInitializedAsync()
+    {
+        await moderationViewModel.LoadAsync();
+    }
 }

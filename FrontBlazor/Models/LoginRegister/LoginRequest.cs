@@ -4,15 +4,34 @@ namespace FrontBlazor.Models.LoginRegister;
 
 public class LoginRequest
 {
-    [Required(ErrorMessage = "Le login est requis")]
+    [Required(ErrorMessage = "Email ou Login obligatoire")]
     public string? Login { get; set; }
-    [Required(ErrorMessage = "L'email est requis")]
-    [EmailAddress(ErrorMessage = "Format d'email invalide")]
-    public string? Email { get; set; }
+
     [Required(ErrorMessage = "Mot de passe obligatoire.")]
-    public string Password { get; set; }
-    [Required(ErrorMessage = "Veuillez confirmer votre mot de passe")]
-    [Compare(nameof(Password), ErrorMessage = "Les mots de passe ne correspondent pas")]
+    [DataType(DataType.Password)]
+    public string? Password { get; set; }
+}
+
+public class RegisterRequest
+{
+    [Required(ErrorMessage = "Login obligatoire.")]
+    public string? Login { get; set; }
+
+    [Required(ErrorMessage = "Email obligatoire.")]
+    [EmailAddress(ErrorMessage = "Email invalide.")]
+    public string? Email { get; set; }
+
+    [Required(ErrorMessage = "Mot de passe obligatoire.")]
+    [DataType(DataType.Password)]
+    [RegularExpression(
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+        ErrorMessage = "Mot de passe non conforme."
+    )]
+    public string? Password { get; set; }
+
+    [Required(ErrorMessage = "Veuillez confirmer votre mot de passe.")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Les mots de passe ne correspondent pas.")]
     public string? PasswordConfirm { get; set; }
 }
 

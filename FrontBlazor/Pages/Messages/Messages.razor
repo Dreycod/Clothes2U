@@ -129,12 +129,26 @@
     protected override async Task OnInitializedAsync()
     {
         VM_Messagerie.OnChange += StateHasChanged;
+
+        VM_Messagerie.OnMessageReceivedUI += async () =>
+        {
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("ScrollHelper", messagesContainer);
+        };
+
         await VM_Messagerie.LoadConversationsAsync();
+
+        // ← si une conversation est déjà sélectionnée, re-rejoindre
+        if (VM_Messagerie.SelectedConversationId.HasValue)
+        {
+            await VM_Messagerie.SelectConversationAsync(VM_Messagerie.SelectedConversationId.Value);
+        }
     }
 
     public void Dispose()
     {
         VM_Messagerie.OnChange -= StateHasChanged;
+        VM_Messagerie.OnMessageReceivedUI -= null;
     }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)

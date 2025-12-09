@@ -34,7 +34,7 @@ public class ConversationController : ControllerBase
         var conversation = await _conversationManager.GetByIdAsync(id);
         if (conversation == null) return NotFound();
 
-        var currentUserId = _currentUserService.GetUserId();
+        var currentUserId = await _currentUserService.GetUserId();
 
         var conversationDTO = _mapper.Map<ConversationDetailDTO>(conversation, opts =>
         {
@@ -49,11 +49,12 @@ public class ConversationController : ControllerBase
     public async Task<ActionResult<IEnumerable<ConversationDTO>>> GetByUtilisateurId(int id)
     {
         var conversations = await _conversationManager.GetAllAsyncByUser(id);
+        var currentUserId = await _currentUserService.GetUserId();
+
         IEnumerable<ConversationDTO> conversationsDTO = _mapper.Map<IEnumerable<ConversationDTO>>(conversations, opt =>
-            {
-                opt.Items["CurrentUserId"] = _currentUserService.GetUserId();
-            })
-            ;
+        {
+            opt.Items["CurrentUserId"] = currentUserId;
+        });
         
         return Ok(conversationsDTO.OrderByDescending(c => c.LastMessageDate));
     }

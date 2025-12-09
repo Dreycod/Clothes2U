@@ -14,6 +14,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private readonly IAuthService _authService;
     private readonly IMessageService<Message> _messageService;
     private readonly ISignalRService _signalRService;
+    private readonly Func<Task>? _refreshUi;
 
     public ObservableCollection<Conversation> Conversations { get; private set; } = new();
     public Conversation? SelectedConversation { get; private set; }
@@ -21,13 +22,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public Utilisateur? CurrentUser { get; private set; }
 
     public string NewMessage { get; set; } = "";
-    public List<IBrowserFile> SelectedFiles { get; set; } = new();
-    public bool IsUploadingFiles { get; private set; } = false;
     public bool IsLoading { get; private set; } = false;
     public bool IsTyping { get; private set; } = false;
 
     public ElementReference MessagesContainer;
     public event Action? OnChange;
+    
+    public event Action? OnMessageReceivedUI; 
 
     private System.Threading.Timer? _typingTimer;
     private bool _typingNotified = false;
@@ -36,12 +37,14 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IConversationService<Conversation> conversationService,
         IAuthService authService,
         IMessageService<Message> messageService,
-        ISignalRService signalRService)
+        ISignalRService signalRService,
+        Func<Task>? refreshUi = null)
     {
         _conversationService = conversationService;
         _authService = authService;
         _messageService = messageService;
         _signalRService = signalRService;
+        _refreshUi = refreshUi;
 
         _signalRService.OnMessageReceived += HandleMessageReceived;
         _signalRService.OnUserTyping += HandleUserTyping;
@@ -78,6 +81,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         if (CurrentUser == null)
             CurrentUser = await _authService.GetCurrentUserAsync();
 
+        // Quitter l'ancienne conversation si elle existe
+        if (SelectedConversationId.HasValue)
+        {
+            await _signalRService.LeaveConversation(SelectedConversationId.Value);
+            Console.WriteLine($"[VM] Left conversation {SelectedConversationId.Value}");
+        }
+
         SelectedConversationId = conversationId;
         var conv = await _conversationService.GetConversationDetailById(conversationId);
 
@@ -88,55 +98,48 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                 conv.ListMessages = new ObservableCollection<Message>();
             else if (conv.ListMessages is not ObservableCollection<Message>)
                 conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
-
-            await _signalRService.LeaveConversation(conversationId);
         }
         else
         {
             SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
-            await _signalRService.JoinConversation(conversationId);
         }
+
+        // Rejoindre la nouvelle conversation
+        await _signalRService.JoinConversation(conversationId);
+        Console.WriteLine($"[VM] Joined conversation {conversationId}");
 
         NotifyStateChanged();
     }
 
     public async Task SendMessageAsync()
     {
-        if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage) && !SelectedFiles.Any())
+        
+        if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage))
             return;
-
+        
         var content = NewMessage.Trim();
-        var filesToUpload = new List<IBrowserFile>(SelectedFiles);
-
+        //var filesToUpload = new List<IBrowserFile>(SelectedFiles);
+        
         NewMessage = "";
-        SelectedFiles.Clear();
+        //SelectedFiles.Clear();
         NotifyStateChanged();
-
-        IsUploadingFiles = true;
-
+        
+        //IsUploadingFiles = true;
+        
         try
         {
             var message = new Message
             {
-                Content = string.IsNullOrWhiteSpace(content) ? "[Fichier(s) joint(s)]" : content,
+                Content = content,
                 ConversationId = SelectedConversation.ConversationId,
                 UtilisateurId = CurrentUser!.UtilisateurId,
                 Date = DateTime.Now,
                 SentbyCurrentUser = true
             };
-
+        
             await _messageService.PostMessageTexte(message);
             SelectedConversation.ListMessages.Add(message);
-
-            if (filesToUpload.Any())
-            {
-                _ = Task.Run(async () =>
-                {
-                    // Implémenter upload fichiers si nécessaire
-                    await Task.Delay(500); // Placeholder
-                    NotifyStateChanged();
-                });
-            }
+        
         }
         catch (Exception ex)
         {
@@ -144,35 +147,67 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
         finally
         {
-            IsUploadingFiles = false;
+            //IsUploadingFiles = false;
             NotifyStateChanged();
         }
     }
 
-    private void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
+    private async void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
     {
-        if (SelectedConversationId != conversationId || SelectedConversation == null)
-            return;
-
-        // Vérifier doublon
-        var exists = SelectedConversation.ListMessages.Any(m =>
-            m.UtilisateurId == senderId &&
-            m.Content == message &&
-            m.Date.HasValue && // ✅ vérifier que Date n'est pas null
-            Math.Abs((m.Date.Value - date).TotalSeconds) < 2
-        );
-
-        if (!exists)
+        Console.WriteLine($"[VM] HandleMessageReceived: conv={conversationId}, sender={senderId}, current={SelectedConversationId}");
+    
+        // Si c'est la conversation actuelle, ajouter le message
+        if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
         {
-            SelectedConversation.ListMessages.Add(new Message
+            // Vérifier si le message n'existe pas déjà (éviter les doublons)
+            var exists = SelectedConversation.ListMessages?.Any(m =>
+                m.UtilisateurId == senderId &&
+                m.Content == message &&
+                m.Date.HasValue &&
+                Math.Abs((m.Date.Value - date).TotalSeconds) < 2
+            ) ?? false;
+
+            if (!exists)
             {
-                UtilisateurId = senderId,
-                Content = message,
-                Date = date,
-                SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId
-            });
+                var newMessage = new Message
+                {
+                    Content = message,
+                    UtilisateurId = senderId, // ← Utiliser UtilisateurId, pas SenderId
+                    Date = date,
+                    ConversationId = conversationId,
+                    SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId
+                };
+
+                SelectedConversation.ListMessages?.Add(newMessage);
+                Console.WriteLine($"[VM] Message added to current conversation. Total: {SelectedConversation.ListMessages?.Count}");
+            
+                // 🔥 CRITIQUE : Notifier le changement
+                NotifyStateChanged();
+            }
+            else
+            {
+                Console.WriteLine("[VM] Message already exists, skipping");
+            }
+
+            NotifyStateChanged();
+            OnMessageReceivedUI?.Invoke();
+            
+                
+        }
+        else
+        {
+            // Message dans une autre conversation - marquer comme nouveau
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.HasNewMessages = true;
+                conv.LastMessage = conv.LastMessage;
+                Console.WriteLine($"[VM] Marked conversation {conversationId} as having new messages");
+            }
+        
             NotifyStateChanged();
         }
+        
     }
 
     private void HandleMessagesRead(int conversationId, int userId)
@@ -242,7 +277,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 //     private readonly IConversationService<Conversation> _conversationService;
 //     private readonly IAuthService _authService;
 //     private readonly IMessageService<Message> _messageService;
-//     private readonly ChatSignalRService _signalRService;
+//     private readonly SignalRWebService _signalRService;
 //     
 //     public bool IsLoading { get; set; } 
 //     public string? ErrorMessage { get; set; }
@@ -252,7 +287,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 //         IConversationService<Conversation> conversationService, 
 //         IAuthService authService, 
 //         IMessageService<Message> messageService,
-//         ChatSignalRService signalRService)
+//         SignalRWebService signalRService)
 //     {
 //         _conversationService = conversationService;
 //         _authService = authService;
@@ -423,4 +458,4 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 //             NotifyStateChanged();
 //         }
 //     }
-// }
+//}

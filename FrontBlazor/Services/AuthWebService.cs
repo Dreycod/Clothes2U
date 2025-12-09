@@ -33,7 +33,7 @@ public class AuthWebService : BaseGenericService, IAuthService
         }
     }
 
-    public async Task<AuthResult> SignUpAsync(LoginRequest compte)
+    public async Task<AuthResult> SignUpAsync(RegisterRequest compte)
     {
         try
         {

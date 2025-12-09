@@ -26,6 +26,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<MessageDemande> MessageDemandes { get; set; }
     public DbSet<MessageTexte> MessageTextes { get; set; }
     public DbSet<MessageValidation> MessageValidations { get; set; }
+    public DbSet<MotInterdit> MotsInterdits { get; set; }
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<NotificationAdmin> NotificationAdmins { get; set; }
@@ -539,6 +540,11 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(); // La validation doit obligatoirement pointer vers une proposition
+        });
+
+        modelBuilder.Entity<MotInterdit>(entity =>
+        {
+            entity.HasKey(e => e.MotinterditId);
         });
 
         modelBuilder.Entity<NoteUtilisateur>(entity =>

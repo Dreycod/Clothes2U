@@ -1,15 +1,20 @@
+using API.Models.EntityFramework;
+using API.Models.Repository;
+
 namespace API.Services;
 
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IUtilisateurRepository _utilisateurManager;
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    public CurrentUserService(IHttpContextAccessor httpContextAccessor, IUtilisateurRepository  utilisateurManager)
     {
         _httpContextAccessor = httpContextAccessor;
+        _utilisateurManager = utilisateurManager;
     }
 
-    public int? GetUserId()
+    public async Task<int?> GetUserId()
     {
         var user = _httpContextAccessor.HttpContext?.User;
         
@@ -24,5 +29,16 @@ public class CurrentUserService : ICurrentUserService
         }
         
         return null;
+    }
+
+    public async  Task<Utilisateur?> GetUser()
+    {
+        int? userId = await GetUserId();
+        if (userId == null)
+        {
+            return null;
+        }
+        Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
+        return user;
     }
 }
