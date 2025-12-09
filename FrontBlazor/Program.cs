@@ -39,12 +39,16 @@ builder.Services.AddScoped<LoginViewModel>();
 builder.Services.AddScoped<SearchAnnonceViewModel>();
 builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
-//builder.Services.AddScoped<ConversationViewModel>();
 builder.Services.AddScoped<MessagerieViewModel>();
 builder.Services.AddScoped<DetailAnnonceViewModel>();
-builder.Services.AddScoped<DetailAnnonceViewModel>();
-//builder.Services.AddScoped<MessageViewModel>();
 builder.Services.AddScoped<CreationAnnonceViewModel>();
+builder.Services.AddScoped<CommercialCategoriesViewModel>();
+builder.Services.AddScoped<CommercialCouleursViewModel>();
+builder.Services.AddScoped<CommercialMarquesViewModel>();
+builder.Services.AddScoped<CommercialSousCategoriesViewModel>();
+builder.Services.AddScoped<CommercialTaillesViewModel>();
+builder.Services.AddScoped<CommercialViewModel>();
+
 
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });

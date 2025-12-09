@@ -1,0 +1,114 @@
+﻿@page "/messages"
+@using System.Collections.ObjectModel
+@inject MessagerieViewModel VM_Messagerie
+
+
+<PageTitle>Messages - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="messages-page">
+    <div class="messages-container">
+        <!-- Left Sidebar - Conversations List -->
+        <aside class="conversations-sidebar">
+            <h2 class="sidebar-title">Messages</h2>
+            
+            <div class="conversations-list">
+                @if (VM_Messagerie.conversations != null)
+                {
+                    @foreach (var conversation in VM_Messagerie.conversations)
+                    {
+                        <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "")"
+                             @onclick="() => VM_Messagerie.SelectedConversation(conversation.ConversationId)">
+                            <div class="conversation-avatar"></div>
+                            <div class="conversation-info">
+                                <h3 class="conversation-name">@conversation.Interlocuteur</h3>
+                                <p class="conversation-preview">@conversation.LastMessage</p>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>Vous n'avez pas de conversations</p>
+                }
+                
+            </div>
+        </aside>
+
+        <!-- Right Side - Chat Area -->
+        <div class="chat-area">
+            @if (VM_Messagerie.SelectedConversationId != null)
+            {
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-product-info">
+                        <div class="product-thumbnail"></div>
+                        <div>
+                            <h3 class="product-name">@VM_Messagerie.conv.TitreAnnonce</h3>
+                            <p class="product-price">@VM_Messagerie.conv.Prix</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="messages-area">
+                    <!-- Received Message -->
+                    
+                    @foreach (var message in VM_Messagerie.conv.ListMessages)
+                    {
+                        <div class="message @(message.Utilisateur.UtilisateurId == VM_Messagerie.CurrentUser.UtilisateurId ? "sent" : "received")">
+                            <p>@message.Contenu</p>
+                            <span>@message.Date</span>
+                        </div>
+                    }
+                    
+                    @* <div class="message received"> *@
+                    @*     <p class="message-text">Bonjour, j'aime trop le t-shirt que vous vendez</p> *@
+                    @*     <span class="message-time">14:30</span> *@
+                    @* </div> *@
+                    @* *@
+                    @* <!-- Sent Message --> *@
+                    @* <div class="message sent"> *@
+                    @*     <p class="message-text">Je vois, vous pouvez l'acheter.</p> *@
+                    @*     <span class="message-time">18:29</span> *@
+                    @* </div> *@
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-area">
+                    <input type="text" 
+                           class="message-input" 
+                           placeholder="Ecrivez votre message ici..." 
+                           @bind="VM_Messagerie.NewMessage" *
+                           @onkeydown="HandleKeyPress" /> 
+                    <button class="send-btn" @onclick="VM_Messagerie.SendMessage">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="no-conversation">
+                    <p>Sélectionnez une conversation pour commencer</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_Messagerie.Load(); // user courant
+    }
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await VM_Messagerie.SendMessage();
+    }
+
+   
+}

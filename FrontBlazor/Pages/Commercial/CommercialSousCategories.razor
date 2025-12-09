@@ -1,0 +1,199 @@
+@page "/commercial/sous-categories"
+
+<PageTitle>Gestion des Sous-catégories - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/commercial-shared.css" />
+
+<div class="commercial-page">
+    <div class="commercial-container">
+        <!-- Sidebar -->
+        <aside class="commercial-sidebar">
+            <div class="commercial-header">
+                <div class="commercial-logo">
+                    <i class="bi bi-shop"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Équipe Commerciale</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="commercial-nav">
+                <a href="/commercial" class="commercial-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/commercial/marques" class="commercial-nav-item">
+                    <i class="bi bi-tag"></i>
+                    <span>Marques</span>
+                </a>
+                <a href="/commercial/categories" class="commercial-nav-item">
+                    <i class="bi bi-grid"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="/commercial/sous-categories" class="commercial-nav-item active">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Sous-catégories</span>
+                </a>
+                <a href="/commercial/couleurs" class="commercial-nav-item">
+                    <i class="bi bi-palette"></i>
+                    <span>Couleurs</span>
+                </a>
+                <a href="/commercial/tailles" class="commercial-nav-item">
+                    <i class="bi bi-rulers"></i>
+                    <span>Tailles</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="commercial-content">
+            <div class="page-header">
+                <h1 class="commercial-page-title">Gestion des Sous-catégories</h1>
+                <button class="btn-primary" @onclick="VM_CommercialSousCategories.ShowAddModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Ajouter une sous-catégorie
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(VM_CommercialSousCategories.successMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@VM_CommercialSousCategories.successMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(VM_CommercialSousCategories.errorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>@VM_CommercialSousCategories.errorMessage</span>
+                </div>
+            }
+
+            <!-- Subcategories Table -->
+            <div class="table-container">
+                @if (VM_Categorie.IsLoading)
+                {
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Chargement des sous-catégories...</p>
+                    </div>
+                }
+                else if (VM_CommercialSousCategories.allSubcategories.Any())
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom de la sous-catégorie</th>
+                                <th>Catégorie parente</th>
+                                <th>Nombre d'articles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in VM_CommercialSousCategories.allSubcategories)
+                            {
+                                <tr>
+                                    <td>#@item.Subcategory.SousCategorieId</td>
+                                    <td><strong>@item.Subcategory.LibelleSousCategorie</strong></td>
+                                    <td>
+                                        <span class="badge badge-success">
+                                            @item.ParentCategory.LibelleCategorie
+                                        </span>
+                                    </td>
+                                    <td>@VM_CommercialSousCategories.GetArticleCount(item.Subcategory.SousCategorieId) articles</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialSousCategories.ShowEditModal(item.Subcategory, item.ParentCategory)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialSousCategories.ShowDeleteModal(item.Subcategory)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-diagram-3"></i>
+                        <h3>Aucune sous-catégorie</h3>
+                        <p>Commencez par ajouter votre première sous-catégorie</p>
+                        <button class="btn-primary" @onclick="VM_CommercialSousCategories.ShowAddModal">
+                            <i class="bi bi-plus-circle"></i>
+                            Ajouter une sous-catégorie
+                        </button>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+@if (VM_CommercialSousCategories.showModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialSousCategories.CloseModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>@(VM_CommercialSousCategories.isEditing ? "Modifier" : "Ajouter") une sous-catégorie</h3>
+
+            <div class="form-group">
+                <label class="form-label">Catégorie parente</label>
+                <select class="form-select" @bind="VM_CommercialSousCategories.selectedCategorieId">
+                    <option value="0">-- Sélectionnez une catégorie --</option>
+                    @if (VM_Categorie.Items != null)
+                    {
+                        @foreach (var cat in VM_Categorie.Items)
+                        {
+                            <option value="@cat.IdCategorie">@cat.LibelleCategorie</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nom de la sous-catégorie</label>
+                <input type="text" class="form-input" placeholder="Ex: T-shirts, Pantalons..." @bind="VM_CommercialSousCategories.currentSousCategorie.LibelleSousCategorie" />
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialSousCategories.CloseModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_CommercialSousCategories.SaveSousCategorie">
+                    @(VM_CommercialSousCategories.isEditing ? "Modifier" : "Ajouter")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Modal -->
+@if (VM_CommercialSousCategories.showDeleteModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialSousCategories.CloseDeleteModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>Supprimer la sous-catégorie</h3>
+            <p>Êtes-vous sûr de vouloir supprimer la sous-catégorie <strong>@VM_CommercialSousCategories.currentSousCategorie.LibelleSousCategorie</strong> ?</p>
+            <p style="color: #ef4444; font-size: 0.9rem;">Cette action est irréversible.</p>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialSousCategories.CloseDeleteModal">Annuler</button>
+                <button class="btn-danger" @onclick="VM_CommercialSousCategories.DeleteSousCategorie">Supprimer</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_CommercialSousCategories.LoadAsync();
+    }
+}

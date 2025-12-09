@@ -1,0 +1,164 @@
+﻿using FrontBlazor.Models;
+using FrontBlazor.Services;
+using FrontBlazor.Services.GenericIServices;
+
+namespace FrontBlazor.ViewModel;
+public class CommercialSousCategoriesViewModel
+{
+    public bool showModal = false;
+    public bool showDeleteModal = false;
+    public bool isEditing = false;
+    public SousCategorie currentSousCategorie = new SousCategorie();
+    public int selectedCategorieId = 0;
+    public string successMessage = string.Empty;
+    public string errorMessage = string.Empty;
+
+    public List<(SousCategorie Subcategory, Categorie ParentCategory)> allSubcategories = new();
+    private ListableViewModel<Categorie> VM_Categorie;
+
+
+    public event Action? OnStateChange;
+    public CommercialSousCategoriesViewModel(ListableViewModel<Categorie> categorieService)
+    {
+        VM_Categorie = categorieService;
+    }
+    public async Task LoadAsync()
+    {
+        await VM_Categorie.LoadAsync();
+        LoadAllSubcategories();
+    }
+
+    public void LoadAllSubcategories()
+    {
+        allSubcategories.Clear();
+        if (VM_Categorie.Items != null)
+        {
+            foreach (var category in VM_Categorie.Items)
+            {
+                if (category.SousCategories != null)
+                {
+                    foreach (var subcat in category.SousCategories)
+                    {
+                        allSubcategories.Add((subcat, category));
+                    }
+                }
+            }
+        }
+    }
+
+    public void ShowAddModal()
+    {
+        isEditing = false;
+        currentSousCategorie = new SousCategorie();
+        selectedCategorieId = 0;
+        showModal = true;
+    }
+
+    public void ShowEditModal(SousCategorie sousCategorie, Categorie parentCategory)
+    {
+        isEditing = true;
+        currentSousCategorie = new SousCategorie
+        {
+            SousCategorieId = sousCategorie.SousCategorieId,
+            LibelleSousCategorie = sousCategorie.LibelleSousCategorie,
+            Categorie = parentCategory.LibelleCategorie
+        };
+        selectedCategorieId = parentCategory.IdCategorie;
+        showModal = true;
+    }
+
+    public void ShowDeleteModal(SousCategorie sousCategorie)
+    {
+        currentSousCategorie = sousCategorie;
+        showDeleteModal = true;
+    }
+
+    public void CloseModal()
+    {
+        showModal = false;
+        currentSousCategorie = new SousCategorie();
+        selectedCategorieId = 0;
+        errorMessage = string.Empty;
+    }
+
+    public void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        currentSousCategorie = new SousCategorie();
+    }
+
+    public async Task SaveSousCategorie()
+    {
+        if (string.IsNullOrWhiteSpace(currentSousCategorie.LibelleSousCategorie))
+        {
+            errorMessage = "Le nom de la sous-catégorie est requis";
+            return;
+        }
+
+        if (selectedCategorieId == 0)
+        {
+            errorMessage = "Veuillez sélectionner une catégorie parente";
+            return;
+        }
+
+        try
+        {
+            //currentSousCategorie.LibelleSousCategorie = selectedCategorieId;
+
+            if (isEditing)
+            {
+                // TODO: Update sous-categorie via API
+                successMessage = "Sous-catégorie modifiée avec succès";
+            }
+            else
+            {
+                // TODO: Create sous-categorie via API
+                successMessage = "Sous-catégorie ajoutée avec succès";
+            }
+
+            CloseModal();
+            await VM_Categorie.LoadAsync();
+            LoadAllSubcategories();
+            OnStateChange?.Invoke();
+
+            // Clear success message after 3 seconds
+            await Task.Delay(3000);
+            successMessage = string.Empty;
+            OnStateChange?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+    }
+
+    public async Task DeleteSousCategorie()
+    {
+        try
+        {
+            // TODO: Delete sous-categorie via API
+            successMessage = $"Sous-catégorie {currentSousCategorie.LibelleSousCategorie} supprimée avec succès";
+            CloseDeleteModal();
+            await VM_Categorie.LoadAsync();
+            LoadAllSubcategories();
+            OnStateChange?.Invoke();
+
+            // Clear success message after 3 seconds
+            await Task.Delay(3000);
+            successMessage = string.Empty;
+            OnStateChange?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erreur: {ex.Message}";
+            CloseDeleteModal();
+        }
+    }
+
+    public int GetArticleCount(int sousCategorieId)
+    {
+        // TODO: Get actual article count from API
+        return new Random(sousCategorieId).Next(10, 80);
+    }
+}
+
