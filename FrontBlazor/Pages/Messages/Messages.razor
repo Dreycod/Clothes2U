@@ -4,10 +4,8 @@
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
-
 <PageTitle>Messages - Clothes2U</PageTitle>
 
-<!-- Navigation Bar -->
 <NavBar />
 
 <div class="messages-page">
@@ -21,13 +19,13 @@
                 {
                     <p>Chargement...</p>
                 }
-                else if (VM_Messagerie.ErrorMessage != null)
+                @* else if (VM_Messagerie.ErrorMessage != null) *@
+                @* { *@
+                @*     <p class="error">@VM_Messagerie.ErrorMessage</p> *@
+                @* } *@
+                else if (VM_Messagerie.Conversations != null && VM_Messagerie.Conversations.Any())
                 {
-                    <p class="error">@VM_Messagerie.ErrorMessage</p>
-                }
-                else if (VM_Messagerie.conversations != null && VM_Messagerie.conversations.Any())
-                {
-                    @foreach (var conversation in VM_Messagerie.conversations)
+                    @foreach (var conversation in VM_Messagerie.Conversations)
                     {
                         @if (conversation.HasNewMessages == true)
                         {
@@ -54,32 +52,33 @@
 
         <!-- Right Side - Chat Area -->
         <div class="chat-area">
-            @if (VM_Messagerie.SelectedConversationId != null && VM_Messagerie.conv != null)
+            @if (VM_Messagerie.SelectedConversation != null)
             {
                 <!-- Chat Header -->
                 <div class="chat-header">
                     <div class="chat-product-info">
                         <div class="product-thumbnail"></div>
                         <div>
-                            <NavLink href="@($"/product/{VM_Messagerie.conv?.AnnonceId}")" class="product-link">
+                            <NavLink href="@($"/product/{VM_Messagerie.SelectedConversation.AnnonceId}")" class="product-link">
                                 <h3 class="product-name">
-                                    @VM_Messagerie.conv?.TitreAnnonce
+                                    @VM_Messagerie.SelectedConversation.TitreAnnonce
                                 </h3>
                             </NavLink> 
-                            <p class="product-price">@VM_Messagerie.conv?.Prix €</p>
+                            <p class="product-price">@VM_Messagerie.SelectedConversation.Prix €</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Messages Area -->
                 <div class="messages-area" @ref="messagesContainer">
-                    @if (VM_Messagerie.conv.ListMessages != null && VM_Messagerie.conv.ListMessages.Any())
+                    @if (VM_Messagerie.SelectedConversation.ListMessages != null &&
+                         VM_Messagerie.SelectedConversation.ListMessages.Any())
                     {
-                        @foreach (var message in VM_Messagerie.conv.ListMessages)
+                        @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages)
                         {
                             <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
                                 <p class="message-text">@message.Content</p>
-                                <span class="message-time">@message.Date?.ToString("HH:mm")</span>
+                                <span class="message-time">@message.Date</span>
                             </div>
                         }
                     }
@@ -117,7 +116,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (VM_Messagerie.conv?.ListMessages != null && VM_Messagerie.conv.ListMessages.Any())
+        if (VM_Messagerie.SelectedConversation?.ListMessages != null &&
+            VM_Messagerie.SelectedConversation.ListMessages.Any())
         {
             if (messagesContainer.Context != null)
             {
@@ -129,7 +129,7 @@
     protected override async Task OnInitializedAsync()
     {
         VM_Messagerie.OnChange += StateHasChanged;
-        await VM_Messagerie.Load();
+        await VM_Messagerie.LoadConversationsAsync();
     }
 
     public void Dispose()
@@ -141,7 +141,7 @@
     {
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage))
         {
-            await VM_Messagerie.SendMessage();
+            await VM_Messagerie.SendMessageAsync();
             StateHasChanged();
         }
     }
@@ -150,15 +150,178 @@
     {
         if (!string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage))
         {
-            await VM_Messagerie.SendMessage();
+            await VM_Messagerie.SendMessageAsync();
             StateHasChanged();
         }
     }
 
     private async Task OnSelectConversation(int id)
     {
-        await VM_Messagerie.SelectedConversation(id);
-        Console.WriteLine(VM_Messagerie.conv.AnnonceId.Value);
+        await VM_Messagerie.SelectConversationAsync(id);
         StateHasChanged();
     }
 }
+@* @page "/messages" *@
+@* @using System.Collections.ObjectModel *@
+@* @inject MessagerieViewModel VM_Messagerie *@
+@* @inject IJSRuntime JSRuntime *@
+@* @implements IDisposable *@
+@* *@
+@* *@
+@* <PageTitle>Messages - Clothes2U</PageTitle> *@
+@* *@
+@* <!-- Navigation Bar --> *@
+@* <NavBar /> *@
+@* *@
+@* <div class="messages-page"> *@
+@*     <div class="messages-container"> *@
+@*         <!-- Left Sidebar - Conversations List --> *@
+@*         <aside class="conversations-sidebar"> *@
+@*             <h2 class="sidebar-title">Messages</h2> *@
+@*              *@
+@*             <div class="conversations-list"> *@
+@*                 @if (VM_Messagerie.IsLoading) *@
+@*                 { *@
+@*                     <p>Chargement...</p> *@
+@*                 } *@
+@*                 else if (VM_Messagerie.ErrorMessage != null) *@
+@*                 { *@
+@*                     <p class="error">@VM_Messagerie.ErrorMessage</p> *@
+@*                 } *@
+@*                 else if (VM_Messagerie.conversations != null && VM_Messagerie.conversations.Any()) *@
+@*                 { *@
+@*                     @foreach (var conversation in VM_Messagerie.conversations) *@
+@*                     { *@
+@*                         @if (conversation.HasNewMessages == true) *@
+@*                         { *@
+@*                             <div class="new-message-indicator"> *@
+@*                                 <i class="bi bi-arrow-down-circle"></i> Nouveaux messages *@
+@*                             </div> *@
+@*                         } *@
+@*                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "")" *@
+@*                              @onclick="() => OnSelectConversation(conversation.ConversationId)"> *@
+@*                             <div class="conversation-avatar"></div> *@
+@*                             <div class="conversation-info"> *@
+@*                                 <h3 class="conversation-name">@conversation.Interlocuteur</h3> *@
+@*                                 <p class="conversation-preview">@conversation.LastMessage</p> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     } *@
+@*                 } *@
+@*                 else *@
+@*                 { *@
+@*                     <p>Vous n'avez pas de conversations</p> *@
+@*                 } *@
+@*             </div> *@
+@*         </aside> *@
+@* *@
+@*         <!-- Right Side - Chat Area --> *@
+@*         <div class="chat-area"> *@
+@*             @if (VM_Messagerie.SelectedConversationId != null && VM_Messagerie.conv != null) *@
+@*             { *@
+@*                 <!-- Chat Header --> *@
+@*                 <div class="chat-header"> *@
+@*                     <div class="chat-product-info"> *@
+@*                         <div class="product-thumbnail"></div> *@
+@*                         <div> *@
+@*                             <NavLink href="@($"/product/{VM_Messagerie.conv?.AnnonceId}")" class="product-link"> *@
+@*                                 <h3 class="product-name"> *@
+@*                                     @VM_Messagerie.conv?.TitreAnnonce *@
+@*                                 </h3> *@
+@*                             </NavLink>  *@
+@*                             <p class="product-price">@VM_Messagerie.conv?.Prix €</p> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@* *@
+@*                 <!-- Messages Area --> *@
+@*                 <div class="messages-area" @ref="messagesContainer"> *@
+@*                     @if (VM_Messagerie.conv.ListMessages != null && VM_Messagerie.conv.ListMessages.Any()) *@
+@*                     { *@
+@*                         @foreach (var message in VM_Messagerie.conv.ListMessages) *@
+@*                         { *@
+@*                             <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")"> *@
+@*                                 <p class="message-text">@message.Content</p> *@
+@*                                 <span class="message-time">@message.Date?.ToString("HH:mm")</span> *@
+@*                             </div> *@
+@*                         } *@
+@*                     } *@
+@*                     else *@
+@*                     { *@
+@*                         <p class="no-messages">Aucun message dans cette conversation</p> *@
+@*                     } *@
+@*                 </div> *@
+@* *@
+@*                 <!-- Message Input --> *@
+@*                 <div class="message-input-area"> *@
+@*                     <input type="text"  *@
+@*                            class="message-input"  *@
+@*                            placeholder="Ecrivez votre message ici..."  *@
+@*                            @bind="VM_Messagerie.NewMessage" *@
+@*                            @bind:event="oninput" *@
+@*                            @onkeydown="HandleKeyPress" /> *@
+@*                     <button class="send-btn" @onclick="OnSendClick"> *@
+@*                         <i class="bi bi-send"></i> *@
+@*                     </button> *@
+@*                 </div> *@
+@*             } *@
+@*             else *@
+@*             { *@
+@*                 <div class="no-conversation"> *@
+@*                     <p>Sélectionnez une conversation pour commencer</p> *@
+@*                 </div> *@
+@*             } *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+@* *@
+@* @code { *@
+@*     private ElementReference messagesContainer; *@
+@* *@
+@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*     { *@
+@*         if (VM_Messagerie.conv?.ListMessages != null && VM_Messagerie.conv.ListMessages.Any()) *@
+@*         { *@
+@*             if (messagesContainer.Context != null) *@
+@*             { *@
+@*                 await JSRuntime.InvokeVoidAsync("ScrollHelper", messagesContainer); *@
+@*             } *@
+@*         } *@
+@*     } *@
+@* *@
+@*     protected override async Task OnInitializedAsync() *@
+@*     { *@
+@*         VM_Messagerie.OnChange += StateHasChanged; *@
+@*         await VM_Messagerie.Load(); *@
+@*     } *@
+@* *@
+@*     public void Dispose() *@
+@*     { *@
+@*         VM_Messagerie.OnChange -= StateHasChanged; *@
+@*     } *@
+@* *@
+@*     private async Task HandleKeyPress(KeyboardEventArgs e) *@
+@*     { *@
+@*         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage)) *@
+@*         { *@
+@*             await VM_Messagerie.SendMessage(); *@
+@*             StateHasChanged(); *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task OnSendClick() *@
+@*     { *@
+@*         if (!string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage)) *@
+@*         { *@
+@*             await VM_Messagerie.SendMessage(); *@
+@*             StateHasChanged(); *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task OnSelectConversation(int id) *@
+@*     { *@
+@*         await VM_Messagerie.SelectedConversation(id); *@
+@*         Console.WriteLine(VM_Messagerie.conv.AnnonceId.Value); *@
+@*         StateHasChanged(); *@
+@*     } *@
+@* } *@

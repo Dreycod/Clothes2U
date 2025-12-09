@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "typeMessage")]
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeMessage")]
 [JsonDerivedType(typeof(MessageTextDTO), "Texte")]
 [JsonDerivedType(typeof(MessagePropositionDTO), "Proposition")]
 [JsonDerivedType(typeof(MessageValidationDTO), "Validation")]

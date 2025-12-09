@@ -177,7 +177,7 @@ builder.Services.AddScoped<ITailleRepository, TailleManager>();
 builder.Services.AddScoped<IEtatArticleRepository, EtatArticleManager>();
 builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
-builder.Services.AddSignalR();
+
 
 
 //services
@@ -202,7 +202,7 @@ builder.Services.AddSingleton<INotificationService, NotificationService>();
 builder.Services.AddScoped<MessageNotificationObserver>();
 builder.Services.AddScoped<NouvelleAnnonceNotificationObserver>();
 builder.Services.AddScoped<ModificationAnnonceNotificationObserver>();
-
+builder.Services.AddSignalR();
 
 
 

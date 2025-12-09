@@ -1,196 +1,426 @@
-
 using System.Collections.ObjectModel;
 using FrontBlazor.Models;
-using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace FrontBlazor.ViewModel;
 
-public class MessagerieViewModel : ComponentBase
+public class MessagerieViewModel : ComponentBase, IDisposable
 {
     private readonly IConversationService<Conversation> _conversationService;
     private readonly IAuthService _authService;
     private readonly IMessageService<Message> _messageService;
-    private readonly ChatSignalRService _signalRService;
-    
-    public bool IsLoading { get; set; } 
-    public string? ErrorMessage { get; set; }
+    private readonly ISignalRService _signalRService;
+
+    public ObservableCollection<Conversation> Conversations { get; private set; } = new();
+    public Conversation? SelectedConversation { get; private set; }
+    public int? SelectedConversationId { get; private set; }
+    public Utilisateur? CurrentUser { get; private set; }
+
+    public string NewMessage { get; set; } = "";
+    public List<IBrowserFile> SelectedFiles { get; set; } = new();
+    public bool IsUploadingFiles { get; private set; } = false;
+    public bool IsLoading { get; private set; } = false;
+    public bool IsTyping { get; private set; } = false;
+
+    public ElementReference MessagesContainer;
     public event Action? OnChange;
-    
+
+    private System.Threading.Timer? _typingTimer;
+    private bool _typingNotified = false;
+
     public MessagerieViewModel(
-        IConversationService<Conversation> conversationService, 
-        IAuthService authService, 
+        IConversationService<Conversation> conversationService,
+        IAuthService authService,
         IMessageService<Message> messageService,
-        ChatSignalRService signalRService)
+        ISignalRService signalRService)
     {
         _conversationService = conversationService;
         _authService = authService;
         _messageService = messageService;
         _signalRService = signalRService;
+
+        _signalRService.OnMessageReceived += HandleMessageReceived;
+        _signalRService.OnUserTyping += HandleUserTyping;
+        _signalRService.OnMessagesRead += HandleMessagesRead;
     }
 
-    public ObservableCollection<Conversation> conversations { get; private set; } = new();
-    public Conversation? conv { get; private set; }
-    public int? SelectedConversationId { get; private set; }
-    public string NewMessage { get; set; } = string.Empty;
-    public Utilisateur? CurrentUser { get; private set; }
-    
     private void NotifyStateChanged() => OnChange?.Invoke();
-    
-    public async Task Load()
+
+    public async Task LoadConversationsAsync()
     {
         IsLoading = true;
-        ErrorMessage = null;
-        
-        try
-        {
-            CurrentUser = await _authService.GetCurrentUserAsync();
-            if (CurrentUser == null)
-            {
-                ErrorMessage = "Utilisateur non connecté";
-                return;
-            }
-            
-            Console.WriteLine($"Loading conversations for user: {CurrentUser.UtilisateurId}");
-            var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
-            
-            conversations = data != null
-                ? new ObservableCollection<Conversation>(data)
-                : new ObservableCollection<Conversation>();
-                
-            NotifyStateChanged();
-            _signalRService.OnMessageReceived += OnNewMessageReceived;
-            await _signalRService.StartAsync("http://localhost:5096/chatHub");
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Erreur lors du chargement: {ex.Message}";
-            Console.WriteLine($"Error in Load: {ex}");
-        }
-        finally
-        {
-            IsLoading = false;
-            NotifyStateChanged();
-        }
-    }
+        NotifyStateChanged();
 
-    public async Task SelectedConversation(int id)
-    {
-        IsLoading = true;
-        ErrorMessage = null;
-        
-        try
-        {
-            if (CurrentUser == null)
-            {
-                CurrentUser = await _authService.GetCurrentUserAsync();
-            }
-            
-            SelectedConversationId = id;
-            var data = await _conversationService.GetConversationDetailById(id);
-
-            if (data != null)
-            {
-                Console.WriteLine($"Loaded {data.ListMessages?.Count ?? 0} messages");
-                conv = data;
-                
-                // S'assurer que ListMessages est une ObservableCollection
-                if (conv.ListMessages == null)
-                    conv.ListMessages = new ObservableCollection<Message>();
-                else if (conv.ListMessages is not ObservableCollection<Message>)
-                    conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
-                await _signalRService.LeaveConversation(SelectedConversationId.Value);
-            }
-            else
-            {
-                Console.WriteLine("Pas de messages ou conversation null");
-                conv = new Conversation 
-                { 
-                    ListMessages = new ObservableCollection<Message>() 
-                };
-                await _signalRService.JoinConversation(id);
-            }
-            
-            NotifyStateChanged();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Erreur lors du chargement de la conversation: {ex.Message}";
-            Console.WriteLine($"Error in SelectedConversation: {ex}");
-        }
-        finally
-        {
-            IsLoading = false;
-            NotifyStateChanged();
-        }
-    }
-
-    public async Task SendMessage()
-    {
+        CurrentUser = await _authService.GetCurrentUserAsync();
         if (CurrentUser == null)
         {
-            CurrentUser = await _authService.GetCurrentUserAsync();
+            IsLoading = false;
+            NotifyStateChanged();
+            return;
         }
-        
-        if (string.IsNullOrWhiteSpace(NewMessage)) return;
-        if (conv == null || SelectedConversationId == null) return;
-        
-        IsLoading = true;
-        ErrorMessage = null;
-        
+
+        var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
+        Conversations = data != null ? new ObservableCollection<Conversation>(data) : new ObservableCollection<Conversation>();
+
+        await _signalRService.StartAsync();
+        NotifyStateChanged();
+
+        IsLoading = false;
+        NotifyStateChanged();
+    }
+
+    public async Task SelectConversationAsync(int conversationId)
+    {
+        if (CurrentUser == null)
+            CurrentUser = await _authService.GetCurrentUserAsync();
+
+        SelectedConversationId = conversationId;
+        var conv = await _conversationService.GetConversationDetailById(conversationId);
+
+        if (conv != null)
+        {
+            SelectedConversation = conv;
+            if (conv.ListMessages == null)
+                conv.ListMessages = new ObservableCollection<Message>();
+            else if (conv.ListMessages is not ObservableCollection<Message>)
+                conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
+
+            await _signalRService.LeaveConversation(conversationId);
+        }
+        else
+        {
+            SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
+            await _signalRService.JoinConversation(conversationId);
+        }
+
+        NotifyStateChanged();
+    }
+
+    public async Task SendMessageAsync()
+    {
+        if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage) && !SelectedFiles.Any())
+            return;
+
+        var content = NewMessage.Trim();
+        var filesToUpload = new List<IBrowserFile>(SelectedFiles);
+
+        NewMessage = "";
+        SelectedFiles.Clear();
+        NotifyStateChanged();
+
+        IsUploadingFiles = true;
+
         try
         {
-            Message message = new Message
+            var message = new Message
             {
-                Content = NewMessage,
-                ImagesId = null,
-                ConversationId = conv.ConversationId,
-                UtilisateurId = CurrentUser.UtilisateurId,
+                Content = string.IsNullOrWhiteSpace(content) ? "[Fichier(s) joint(s)]" : content,
+                ConversationId = SelectedConversation.ConversationId,
+                UtilisateurId = CurrentUser!.UtilisateurId,
                 Date = DateTime.Now,
-                SentbyCurrentUser = true 
+                SentbyCurrentUser = true
             };
 
             await _messageService.PostMessageTexte(message);
-            
-            if (conv.ListMessages is ObservableCollection<Message> observableList)
+            SelectedConversation.ListMessages.Add(message);
+
+            if (filesToUpload.Any())
             {
-                observableList.Add(message);
+                _ = Task.Run(async () =>
+                {
+                    // Implémenter upload fichiers si nécessaire
+                    await Task.Delay(500); // Placeholder
+                    NotifyStateChanged();
+                });
             }
-            else
-            {
-                conv.ListMessages.Add(message);
-            }
-            
-            NewMessage = string.Empty;
-            NotifyStateChanged();
-            
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Erreur lors de l'envoi: {ex.Message}";
-            Console.WriteLine($"Error in SendMessage: {ex}");
+            Console.WriteLine($"Erreur envoi message: {ex.Message}");
         }
         finally
         {
-            IsLoading = false;
+            IsUploadingFiles = false;
             NotifyStateChanged();
         }
     }
-    private void OnNewMessageReceived(int conversationId, Message message)
+
+    private void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
     {
-        if (SelectedConversationId == conversationId && conv?.ListMessages != null)
+        if (SelectedConversationId != conversationId || SelectedConversation == null)
+            return;
+
+        // Vérifier doublon
+        var exists = SelectedConversation.ListMessages.Any(m =>
+            m.UtilisateurId == senderId &&
+            m.Content == message &&
+            m.Date.HasValue && // ✅ vérifier que Date n'est pas null
+            Math.Abs((m.Date.Value - date).TotalSeconds) < 2
+        );
+
+        if (!exists)
         {
-            if (conv.ListMessages is ObservableCollection<Message> observableList)
+            SelectedConversation.ListMessages.Add(new Message
             {
-                observableList.Add(message);
-            }
-            else
-            {
-                conv.ListMessages.Add(message);
-            }
-            
+                UtilisateurId = senderId,
+                Content = message,
+                Date = date,
+                SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId
+            });
             NotifyStateChanged();
         }
+    }
+
+    private void HandleMessagesRead(int conversationId, int userId)
+    {
+        if (userId == CurrentUser?.UtilisateurId && SelectedConversationId == conversationId)
+        {
+            foreach (var msg in SelectedConversation!.ListMessages.Where(m => m.UtilisateurId != userId))
+            {
+                msg.SentbyCurrentUser = true; // Marque comme lu
+            }
+            NotifyStateChanged();
+        }
+    }
+
+    private void HandleUserTyping(int conversationId, int userId, string userName)
+    {
+        if (SelectedConversationId != conversationId || userId == CurrentUser?.UtilisateurId)
+            return;
+
+        IsTyping = true;
+        NotifyStateChanged();
+
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            IsTyping = false;
+            NotifyStateChanged();
+        });
+    }
+
+    public void HandleTyping(KeyboardEventArgs e)
+    {
+        if (SelectedConversation == null)
+            return;
+
+        _typingTimer?.Dispose();
+        _typingTimer = new System.Threading.Timer(_ =>
+        {
+            _typingNotified = false;
+        }, null, 2000, Timeout.Infinite);
+
+        if (_typingNotified)
+            return;
+
+        _typingNotified = true;
+        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser!.UtilisateurId, "User");
+    }
+
+    public void Dispose()
+    {
+        _signalRService.OnMessageReceived -= HandleMessageReceived;
+        _signalRService.OnUserTyping -= HandleUserTyping;
+        _signalRService.OnMessagesRead -= HandleMessagesRead;
+        _typingTimer?.Dispose();
     }
 }
+//
+// using System.Collections.ObjectModel;
+// using FrontBlazor.Models;
+// using FrontBlazor.Services;
+// using FrontBlazor.Services.GenericIServices;
+// using Microsoft.AspNetCore.Components;
+//
+// namespace FrontBlazor.ViewModel;
+//
+// public class MessagerieViewModel : ComponentBase
+// {
+//     private readonly IConversationService<Conversation> _conversationService;
+//     private readonly IAuthService _authService;
+//     private readonly IMessageService<Message> _messageService;
+//     private readonly ChatSignalRService _signalRService;
+//     
+//     public bool IsLoading { get; set; } 
+//     public string? ErrorMessage { get; set; }
+//     public event Action? OnChange;
+//     
+//     public MessagerieViewModel(
+//         IConversationService<Conversation> conversationService, 
+//         IAuthService authService, 
+//         IMessageService<Message> messageService,
+//         ChatSignalRService signalRService)
+//     {
+//         _conversationService = conversationService;
+//         _authService = authService;
+//         _messageService = messageService;
+//         _signalRService = signalRService;
+//     }
+//
+//     public ObservableCollection<Conversation> conversations { get; private set; } = new();
+//     public Conversation? conv { get; private set; }
+//     public int? SelectedConversationId { get; private set; }
+//     public string NewMessage { get; set; } = string.Empty;
+//     public Utilisateur? CurrentUser { get; private set; }
+//     
+//     private void NotifyStateChanged() => OnChange?.Invoke();
+//     
+//     public async Task Load()
+//     {
+//         IsLoading = true;
+//         ErrorMessage = null;
+//         
+//         try
+//         {
+//             CurrentUser = await _authService.GetCurrentUserAsync();
+//             if (CurrentUser == null)
+//             {
+//                 ErrorMessage = "Utilisateur non connecté";
+//                 return;
+//             }
+//             
+//             Console.WriteLine($"Loading conversations for user: {CurrentUser.UtilisateurId}");
+//             var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
+//             
+//             conversations = data != null
+//                 ? new ObservableCollection<Conversation>(data)
+//                 : new ObservableCollection<Conversation>();
+//                 
+//             NotifyStateChanged();
+//             _signalRService.OnMessageReceived += OnNewMessageReceived;
+//             await _signalRService.StartAsync("http://localhost:5096/chatHub");
+//         }
+//         catch (Exception ex)
+//         {
+//             ErrorMessage = $"Erreur lors du chargement: {ex.Message}";
+//             Console.WriteLine($"Error in Load: {ex}");
+//         }
+//         finally
+//         {
+//             IsLoading = false;
+//             NotifyStateChanged();
+//         }
+//     }
+//
+//     public async Task SelectedConversation(int id)
+//     {
+//         IsLoading = true;
+//         ErrorMessage = null;
+//         
+//         try
+//         {
+//             if (CurrentUser == null)
+//             {
+//                 CurrentUser = await _authService.GetCurrentUserAsync();
+//             }
+//             
+//             SelectedConversationId = id;
+//             var data = await _conversationService.GetConversationDetailById(id);
+//
+//             if (data != null)
+//             {
+//                 Console.WriteLine($"Loaded {data.ListMessages?.Count ?? 0} messages");
+//                 conv = data;
+//                 
+//                 // S'assurer que ListMessages est une ObservableCollection
+//                 if (conv.ListMessages == null)
+//                     conv.ListMessages = new ObservableCollection<Message>();
+//                 else if (conv.ListMessages is not ObservableCollection<Message>)
+//                     conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
+//                 await _signalRService.LeaveConversation(SelectedConversationId.Value);
+//             }
+//             else
+//             {
+//                 Console.WriteLine("Pas de messages ou conversation null");
+//                 conv = new Conversation 
+//                 { 
+//                     ListMessages = new ObservableCollection<Message>() 
+//                 };
+//                 await _signalRService.JoinConversation(id);
+//             }
+//             
+//             NotifyStateChanged();
+//         }
+//         catch (Exception ex)
+//         {
+//             ErrorMessage = $"Erreur lors du chargement de la conversation: {ex.Message}";
+//             Console.WriteLine($"Error in SelectedConversation: {ex}");
+//         }
+//         finally
+//         {
+//             IsLoading = false;
+//             NotifyStateChanged();
+//         }
+//     }
+//
+//     public async Task SendMessage()
+//     {
+//         if (CurrentUser == null)
+//         {
+//             CurrentUser = await _authService.GetCurrentUserAsync();
+//         }
+//         
+//         if (string.IsNullOrWhiteSpace(NewMessage)) return;
+//         if (conv == null || SelectedConversationId == null) return;
+//         
+//         IsLoading = true;
+//         ErrorMessage = null;
+//         
+//         try
+//         {
+//             Message message = new Message
+//             {
+//                 Content = NewMessage,
+//                 ImagesId = null,
+//                 ConversationId = conv.ConversationId,
+//                 UtilisateurId = CurrentUser.UtilisateurId,
+//                 Date = DateTime.Now,
+//                 SentbyCurrentUser = true 
+//             };
+//
+//             await _messageService.PostMessageTexte(message);
+//             
+//             if (conv.ListMessages is ObservableCollection<Message> observableList)
+//             {
+//                 observableList.Add(message);
+//             }
+//             else
+//             {
+//                 conv.ListMessages.Add(message);
+//             }
+//             
+//             NewMessage = string.Empty;
+//             NotifyStateChanged();
+//             
+//         }
+//         catch (Exception ex)
+//         {
+//             ErrorMessage = $"Erreur lors de l'envoi: {ex.Message}";
+//             Console.WriteLine($"Error in SendMessage: {ex}");
+//         }
+//         finally
+//         {
+//             IsLoading = false;
+//             NotifyStateChanged();
+//         }
+//     }
+//     private void OnNewMessageReceived(int conversationId, Message message)
+//     {
+//         if (SelectedConversationId == conversationId && conv?.ListMessages != null)
+//         {
+//             if (conv.ListMessages is ObservableCollection<Message> observableList)
+//             {
+//                 observableList.Add(message);
+//             }
+//             else
+//             {
+//                 conv.ListMessages.Add(message);
+//             }
+//             
+//             NotifyStateChanged();
+//         }
+//     }
+// }

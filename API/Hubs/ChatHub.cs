@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace API.Hubs;
 
-[Authorize] // Optionnel : si vous voulez sécuriser le hub
+//[Authorize] // Optionnel : si vous voulez sécuriser le hub
 public class ChatHub : Hub
 {
     public async Task SendMessageToConversation(int conversationId, string messageContent, int userId, DateTime date)

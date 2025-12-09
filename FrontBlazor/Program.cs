@@ -6,6 +6,7 @@ using FrontBlazor.Models;
 using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel;
 using Microsoft.AspNetCore.Components;
 
@@ -29,7 +30,7 @@ builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
 builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
-builder.Services.AddScoped<ChatSignalRService>();
+builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 
 builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateur>, NoteUtilisateurWebService>();
 
