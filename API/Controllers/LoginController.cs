@@ -184,7 +184,7 @@ public class LoginController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
-        int? userId =  _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -208,7 +208,7 @@ public class LoginController : ControllerBase
         [FromQuery] string newPassword,
         [FromQuery] string confirmNewPassword)
     {
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();

@@ -54,7 +54,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<AbonnementDTO>> Create(int idUtilisateur)
         {
-            int? connectedUserId = _currentUserService.GetUserId();
+            int? connectedUserId = await _currentUserService.GetUserId();
             if (connectedUserId == null)
             {
                 return Unauthorized();
@@ -76,7 +76,7 @@ namespace API.Controllers
         [HttpDelete("{idUtilisateur}")]
         public async Task<IActionResult> Delete(int idUtilisateur)
         {
-            int? connectedUserId = _currentUserService.GetUserId();
+            int? connectedUserId = await _currentUserService.GetUserId();
             if (connectedUserId == null)
             {
                 return Unauthorized();

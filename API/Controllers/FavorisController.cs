@@ -53,7 +53,7 @@ public class FavorisController :  ControllerBase
         {
             return NotFound("L'annonce n'existe pas");
         }
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized("Vous devez être connecté pour ajouter un favori");
@@ -80,7 +80,7 @@ public class FavorisController :  ControllerBase
     public async Task<IActionResult> DeleteFavoris(int annonceId)
     {
        
-       int? userId = _currentUserService.GetUserId();
+       int? userId = await _currentUserService.GetUserId();
        if (userId == null)
        {
            return Unauthorized();

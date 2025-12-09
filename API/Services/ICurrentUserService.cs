@@ -1,6 +1,9 @@
+using API.Models.EntityFramework;
+
 namespace API.Services;
 
 public interface ICurrentUserService
 {
-    int? GetUserId();
+    Task<int?> GetUserId();
+    Task<Utilisateur?> GetUser();
 }
