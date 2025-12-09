@@ -100,11 +100,12 @@ public class MessageController : ControllerBase
                 };
                 await _notificationService.NotifyAsync(notificationEvent);
                 
-                await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
+                await _hubContext.Clients
+                    .Group($"conversation_{message.ConversationId}")
                     .SendAsync("ReceiveMessage", 
                         message.ConversationId, 
-                        message.MessageTexte.Content, 
                         message.UtilisateurId, 
+                        dto.Content, 
                         message.MessageDate);
             }
             else

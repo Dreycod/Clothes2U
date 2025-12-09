@@ -27,6 +27,6 @@ public class MessageWebService : WritableService<Message>, IMessageService<Messa
     public async Task<HttpResponseMessage> PostMessageTexte(Message message)
     {
         var body = JsonContent.Create(message);
-        return await PostWithCredentialsAsync($"Message/texte/",body);
+        return await PostWithCredentialsAsync($"Message/texte",body);
     }
 }

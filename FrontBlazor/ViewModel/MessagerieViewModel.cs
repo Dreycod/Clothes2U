@@ -14,6 +14,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private readonly IAuthService _authService;
     private readonly IMessageService<Message> _messageService;
     private readonly ISignalRService _signalRService;
+    private readonly Func<Task>? _refreshUi;
 
     public ObservableCollection<Conversation> Conversations { get; private set; } = new();
     public Conversation? SelectedConversation { get; private set; }
@@ -21,13 +22,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public Utilisateur? CurrentUser { get; private set; }
 
     public string NewMessage { get; set; } = "";
-    public List<IBrowserFile> SelectedFiles { get; set; } = new();
-    public bool IsUploadingFiles { get; private set; } = false;
     public bool IsLoading { get; private set; } = false;
     public bool IsTyping { get; private set; } = false;
 
     public ElementReference MessagesContainer;
     public event Action? OnChange;
+    
+    public event Action? OnMessageReceivedUI; 
 
     private System.Threading.Timer? _typingTimer;
     private bool _typingNotified = false;
@@ -36,12 +37,14 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IConversationService<Conversation> conversationService,
         IAuthService authService,
         IMessageService<Message> messageService,
-        ISignalRService signalRService)
+        ISignalRService signalRService,
+        Func<Task>? refreshUi = null)
     {
         _conversationService = conversationService;
         _authService = authService;
         _messageService = messageService;
         _signalRService = signalRService;
+        _refreshUi = refreshUi;
 
         _signalRService.OnMessageReceived += HandleMessageReceived;
         _signalRService.OnUserTyping += HandleUserTyping;
@@ -110,41 +113,33 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
     public async Task SendMessageAsync()
     {
-        if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage) && !SelectedFiles.Any())
+        
+        if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage))
             return;
-
+        
         var content = NewMessage.Trim();
-        var filesToUpload = new List<IBrowserFile>(SelectedFiles);
-
+        //var filesToUpload = new List<IBrowserFile>(SelectedFiles);
+        
         NewMessage = "";
-        SelectedFiles.Clear();
+        //SelectedFiles.Clear();
         NotifyStateChanged();
-
-        IsUploadingFiles = true;
-
+        
+        //IsUploadingFiles = true;
+        
         try
         {
             var message = new Message
             {
-                Content = string.IsNullOrWhiteSpace(content) ? "[Fichier(s) joint(s)]" : content,
+                Content = content,
                 ConversationId = SelectedConversation.ConversationId,
                 UtilisateurId = CurrentUser!.UtilisateurId,
                 Date = DateTime.Now,
                 SentbyCurrentUser = true
             };
-
+        
             await _messageService.PostMessageTexte(message);
             SelectedConversation.ListMessages.Add(message);
-
-            if (filesToUpload.Any())
-            {
-                _ = Task.Run(async () =>
-                {
-                    // Implémenter upload fichiers si nécessaire
-                    await Task.Delay(500); // Placeholder
-                    NotifyStateChanged();
-                });
-            }
+        
         }
         catch (Exception ex)
         {
@@ -152,12 +147,12 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
         finally
         {
-            IsUploadingFiles = false;
+            //IsUploadingFiles = false;
             NotifyStateChanged();
         }
     }
 
-    private void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
+    private async void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
     {
         Console.WriteLine($"[VM] HandleMessageReceived: conv={conversationId}, sender={senderId}, current={SelectedConversationId}");
     
@@ -193,6 +188,11 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             {
                 Console.WriteLine("[VM] Message already exists, skipping");
             }
+
+            NotifyStateChanged();
+            OnMessageReceivedUI?.Invoke();
+            
+                
         }
         else
         {
@@ -207,6 +207,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         
             NotifyStateChanged();
         }
+        
     }
 
     private void HandleMessagesRead(int conversationId, int userId)
@@ -276,7 +277,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 //     private readonly IConversationService<Conversation> _conversationService;
 //     private readonly IAuthService _authService;
 //     private readonly IMessageService<Message> _messageService;
-//     private readonly ChatSignalRService _signalRService;
+//     private readonly SignalRWebService _signalRService;
 //     
 //     public bool IsLoading { get; set; } 
 //     public string? ErrorMessage { get; set; }
@@ -286,7 +287,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 //         IConversationService<Conversation> conversationService, 
 //         IAuthService authService, 
 //         IMessageService<Message> messageService,
-//         ChatSignalRService signalRService)
+//         SignalRWebService signalRService)
 //     {
 //         _conversationService = conversationService;
 //         _authService = authService;
@@ -457,4 +458,4 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 //             NotifyStateChanged();
 //         }
 //     }
-// }
+//}
