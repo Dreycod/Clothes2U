@@ -35,7 +35,7 @@ public class CategorieController : ControllerBase
     }
 
     [HttpGet("details")]
-    [ProducesResponseType(typeof(IEnumerable<MarqueDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<CategorieDetailDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CategorieDetailDTO>> GetAllCategoriesWithDetails()
     {
