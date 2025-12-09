@@ -138,7 +138,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             };
         
             await _messageService.PostMessageTexte(message);
-            SelectedConversation.ListMessages.Add(message);
+            //SelectedConversation.ListMessages.Add(message);
         
         }
         catch (Exception ex)
