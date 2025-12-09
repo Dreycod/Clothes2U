@@ -15,8 +15,20 @@ namespace API.Controllers;
 
 public class LoginRequest
 {
+    [Required(ErrorMessage = "Email ou Login obligatoire")]
     public string? Login { get; set; }
     
+    [Required(ErrorMessage = "Mot de passe obligatoire.")]
+    [DataType(DataType.Password)]
+    public string? Password { get; set; }
+}
+
+public class RegisterRequest
+{
+    [Required(ErrorMessage = "Login obligatoire.")]
+    public string? Login { get; set; }
+    
+    [Required(ErrorMessage = "Email obligatoire.")]
     [EmailAddress(ErrorMessage = "Email invalide.")]
     public string? Email { get; set; }
     
@@ -26,8 +38,11 @@ public class LoginRequest
         @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
         ErrorMessage = "Mot de passe non conforme."
     )]
-    public string Password { get; set; }
+    public string? Password { get; set; }
     
+    [Required(ErrorMessage = "Veuillez confirmer votre mot de passe.")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Les mots de passe ne correspondent pas.")]
     public string? PasswordConfirm { get; set; }
 }
 
@@ -58,12 +73,12 @@ public class LoginController : ControllerBase
         var utilisateurs = await _utilisateurManager.GetAllAsync();
         var usersList = utilisateurs?.ToList();
         
-        if (string.IsNullOrEmpty(request.Login) && string.IsNullOrEmpty(request.Email))
+        if (string.IsNullOrEmpty(request.Login))
         {
             return BadRequest("Email ou login obligatoires.");
         }
 
-        var loginOrEmail = string.IsNullOrEmpty(request.Login) ? request.Email : request.Login;
+        var loginOrEmail = request.Login;
         var auth = _loginService.AuthenticateUtilisateur(loginOrEmail!, request.Password, usersList);;
 
         if (auth.result != AuthResult.Success)
@@ -95,7 +110,7 @@ public class LoginController : ControllerBase
 
     [HttpPost("signup")]
     [AllowAnonymous]
-    public async Task<IActionResult> SignUp([FromBody] LoginRequest request)
+    public async Task<IActionResult> SignUp([FromBody] RegisterRequest request)
     {
         if (request == null)
             return BadRequest("Données invalides.");

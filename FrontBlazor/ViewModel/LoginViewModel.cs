@@ -1,9 +1,10 @@
-using System.Net;
 using FrontBlazor.Models;
 using FrontBlazor.Models.LoginRegister;
 using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace FrontBlazor.ViewModel;
 
@@ -18,6 +19,7 @@ public class LoginViewModel
 
     public async Task<string> HandleRegister(string RegisterUsername, string RegisterEmail, string RegisterPassword, string RegisterConfirmPassword, bool AcceptTerms)
     {
+        
         if (!AcceptTerms)
         {
             return "Vous devez accepter les conditions d'utilisation.";
@@ -33,6 +35,16 @@ public class LoginViewModel
                 PasswordConfirm = RegisterConfirmPassword
                 
             };
+
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(loginRequest, null, null);
+            bool isValid = Validator.TryValidateObject(loginRequest, validationContext, validationResults, false);
+
+            if (!isValid)
+            {
+                return validationResults.Select(vr => vr.ErrorMessage).First() ?? "Vérifiez votre saisie";
+            }
+
             var result = await _authService.SignUpAsync(loginRequest);
 
             if (result.Success)
@@ -74,7 +86,13 @@ public class LoginViewModel
                     return "Success";
                 
                 case HttpStatusCode.Unauthorized:
-                    return "Erreur lors de la connexion";
+                    return "Email, Login ou mot de passe incorrect.";
+                
+                case HttpStatusCode.BadRequest:
+                    return "Requête invalide. Vérifiez vos informations.";
+                
+                default:
+                    return "Erreur lors de la connexion.";
             }
         }
         catch (Exception ex)
