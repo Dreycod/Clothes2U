@@ -12,7 +12,7 @@ public class ChatHub : Hub
         
         // Envoyer à tous les membres du groupe de cette conversation
         await Clients.Group($"conversation_{conversationId}")
-            .SendAsync("ReceiveMessage", conversationId, messageContent, userId, date);
+            .SendAsync("ReceiveMessage", conversationId, userId, messageContent, date);
     }
 
     public async Task JoinConversation(int conversationId)

@@ -78,6 +78,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         if (CurrentUser == null)
             CurrentUser = await _authService.GetCurrentUserAsync();
 
+        // Quitter l'ancienne conversation si elle existe
+        if (SelectedConversationId.HasValue)
+        {
+            await _signalRService.LeaveConversation(SelectedConversationId.Value);
+            Console.WriteLine($"[VM] Left conversation {SelectedConversationId.Value}");
+        }
+
         SelectedConversationId = conversationId;
         var conv = await _conversationService.GetConversationDetailById(conversationId);
 
@@ -88,14 +95,15 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                 conv.ListMessages = new ObservableCollection<Message>();
             else if (conv.ListMessages is not ObservableCollection<Message>)
                 conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
-
-            await _signalRService.LeaveConversation(conversationId);
         }
         else
         {
             SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
-            await _signalRService.JoinConversation(conversationId);
         }
+
+        // Rejoindre la nouvelle conversation
+        await _signalRService.JoinConversation(conversationId);
+        Console.WriteLine($"[VM] Joined conversation {conversationId}");
 
         NotifyStateChanged();
     }
@@ -151,26 +159,52 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
     private void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
     {
-        if (SelectedConversationId != conversationId || SelectedConversation == null)
-            return;
-
-        // Vérifier doublon
-        var exists = SelectedConversation.ListMessages.Any(m =>
-            m.UtilisateurId == senderId &&
-            m.Content == message &&
-            m.Date.HasValue && // ✅ vérifier que Date n'est pas null
-            Math.Abs((m.Date.Value - date).TotalSeconds) < 2
-        );
-
-        if (!exists)
+        Console.WriteLine($"[VM] HandleMessageReceived: conv={conversationId}, sender={senderId}, current={SelectedConversationId}");
+    
+        // Si c'est la conversation actuelle, ajouter le message
+        if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
         {
-            SelectedConversation.ListMessages.Add(new Message
+            // Vérifier si le message n'existe pas déjà (éviter les doublons)
+            var exists = SelectedConversation.ListMessages?.Any(m =>
+                m.UtilisateurId == senderId &&
+                m.Content == message &&
+                m.Date.HasValue &&
+                Math.Abs((m.Date.Value - date).TotalSeconds) < 2
+            ) ?? false;
+
+            if (!exists)
             {
-                UtilisateurId = senderId,
-                Content = message,
-                Date = date,
-                SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId
-            });
+                var newMessage = new Message
+                {
+                    Content = message,
+                    UtilisateurId = senderId, // ← Utiliser UtilisateurId, pas SenderId
+                    Date = date,
+                    ConversationId = conversationId,
+                    SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId
+                };
+
+                SelectedConversation.ListMessages?.Add(newMessage);
+                Console.WriteLine($"[VM] Message added to current conversation. Total: {SelectedConversation.ListMessages?.Count}");
+            
+                // 🔥 CRITIQUE : Notifier le changement
+                NotifyStateChanged();
+            }
+            else
+            {
+                Console.WriteLine("[VM] Message already exists, skipping");
+            }
+        }
+        else
+        {
+            // Message dans une autre conversation - marquer comme nouveau
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.HasNewMessages = true;
+                conv.LastMessage = conv.LastMessage;
+                Console.WriteLine($"[VM] Marked conversation {conversationId} as having new messages");
+            }
+        
             NotifyStateChanged();
         }
     }
