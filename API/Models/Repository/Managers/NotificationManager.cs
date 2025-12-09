@@ -8,32 +8,45 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
     public NotificationManager(Clothes2UDbContext context) : base(context)
     {
     }
-
-    /// <summary>
-    /// Base query avec toutes les relations nécessaires pour AutoMapper
-    /// </summary>
     private IQueryable<Notification> BaseNotificationQuery()
     {
         return _context.Notifications
             .Include(n => n.NotificationType)
+            
+            // NotificationAdmin
             .Include(n => n.NotificationAdmins)
+            
+            // NotificationAvertissement
             .Include(n => n.NotificationAvertissements)
+            
+            // NotificationMessage avec Message et Utilisateur (pour avoir l'auteur)
             .Include(n => n.NotificationMessages)
-            .ThenInclude(nm => nm.Message)
-            .ThenInclude(m => m.Utilisateur)  // <-- essentiel pour récupérer l'auteur
+                .ThenInclude(nm => nm.Message)
+                    .ThenInclude(m => m.Conversation)  // Si vous en avez besoin
+            .Include(n => n.NotificationMessages)
+                .ThenInclude(nm => nm.Message)
+                    .ThenInclude(m => m.Utilisateur)
+            
+            // NotificationNouvelleAnnonce avec Annonce et Utilisateur
             .Include(n => n.NotificationNouvellesAnnonces)
-            .ThenInclude(nna => nna.Annonce)
-            .ThenInclude(a => a.Utilisateur)
+                .ThenInclude(nna => nna.Annonce)
+                    .ThenInclude(a => a.Utilisateur)
+            .Include(n => n.NotificationNouvellesAnnonces)
+                .ThenInclude(nna => nna.Annonce)
+                    .ThenInclude(a => a.Photos)
+                        .ThenInclude(p => p.Photo)
+            
+            // NotificationModificationAnnonce avec Annonce et Utilisateur
             .Include(n => n.NotificationModifications)
-            .ThenInclude(nm => nm.Annonce)
-            .ThenInclude(a => a.Utilisateur)
+                .ThenInclude(nm => nm.Annonce)
+                    .ThenInclude(a => a.Utilisateur)
+            .Include(n => n.NotificationModifications)
+                .ThenInclude(nm => nm.Annonce)
+                    .ThenInclude(a => a.Photos)
+                        .ThenInclude(p => p.Photo)
+            
             .AsSplitQuery();
     }
-
-
-    /// <summary>
-    /// Récupère toutes les notifications d’un utilisateur
-    /// </summary>
     public async Task<IEnumerable<Notification>> GetByUserId(int userId)
     {
         return await BaseNotificationQuery()
@@ -41,21 +54,23 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
             .OrderByDescending(n => n.DateCreation)
             .ToListAsync();
     }
-
-    public Task<int> GetNotificationsUnreadCountByUserId(int userId)
+    public async Task<int> GetNotificationsUnreadCountByUserId(int userId)
     {
-        return BaseNotificationQuery()
+        return await _context.Notifications
             .Where(n => n.EstLu == false && n.UtilisateurId == userId)
             .CountAsync();
     }
-
     public async Task MarkAsRead(int userId)
     {
-        var notifications = BaseNotificationQuery();
+        var notifications = await _context.Notifications
+            .Where(n => n.UtilisateurId == userId && n.EstLu == false)
+            .ToListAsync();
+        
         foreach (var notification in notifications)
         {
             notification.EstLu = true;
-            await _context.SaveChangesAsync();
         }
+        
+        await _context.SaveChangesAsync();
     }
 }

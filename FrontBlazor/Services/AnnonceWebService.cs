@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace FrontBlazor.Services;
 
-public class AnnonceService : WritableService<Annonce>, IAnnonceService<Annonce>
+public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annonce>
 {
-    public AnnonceService(HttpClient httpClient) : base(httpClient) { }
+    public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
 
     public async Task<List<Annonce>> GetActiveAnnonces()
     {

@@ -2,6 +2,7 @@
 using API.DTO.Bloque;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,24 +15,13 @@ namespace API.Controllers
     {
         private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AbonnementController(IAbonnementRepository<Abonnement, int> repo, IMapper mapper)
+        public AbonnementController(IAbonnementRepository<Abonnement, int> repo, IMapper mapper, ICurrentUserService currentUserService)
         {
             _abonnementRepo = repo;
             _mapper = mapper;
-        }
-        private int? GetConnectedUserId()
-        {
-            if (User?.Identity?.IsAuthenticated == true)
-            {
-                var userIdClaim = User.FindFirst("userId")?.Value;
-
-                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-                {
-                    return id;
-                }
-            }
-            return null;
+            _currentUserService = currentUserService;
         }
 
         /// <summary>
@@ -64,7 +54,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<AbonnementDTO>> Create(int idUtilisateur)
         {
-            int? connectedUserId = GetConnectedUserId();
+            int? connectedUserId = _currentUserService.GetUserId();
             if (connectedUserId == null)
             {
                 return Unauthorized();
@@ -86,7 +76,7 @@ namespace API.Controllers
         [HttpDelete("{idUtilisateur}")]
         public async Task<IActionResult> Delete(int idUtilisateur)
         {
-            int? connectedUserId = GetConnectedUserId();
+            int? connectedUserId = _currentUserService.GetUserId();
             if (connectedUserId == null)
             {
                 return Unauthorized();

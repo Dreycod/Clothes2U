@@ -3,9 +3,9 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class AbonnementService : ReadableService<Abonnement>, IAbonnementService<Abonnement>
+    public class AbonnementWebService : ReadableService<Abonnement>, IAbonnementService<Abonnement>
     {
-        public AbonnementService(HttpClient httpClient) : base(httpClient) { }
+        public AbonnementWebService(HttpClient httpClient) : base(httpClient) { }
         public Task AddAbonnement(int utilisateurId)
         {
             

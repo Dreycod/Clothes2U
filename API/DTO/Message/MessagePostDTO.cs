@@ -9,8 +9,8 @@ public abstract class MessagePostDTO
 // DTOs spécialisés
 public class MessageTextePostDTO : MessagePostDTO
 {
-    public string ContenuMessage { get; set; }
-    public List<int>? PhotoIds { get; set; }
+    public string Content { get; set; }
+    public List<int>? ImageId { get; set; }
 }
 
 public class MessageDemandePostDTO : MessagePostDTO

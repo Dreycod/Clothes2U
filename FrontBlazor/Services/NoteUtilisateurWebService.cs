@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services
 {
-    public class NoteUtilisateurService : WritableService<NoteUtilisateur>, INoteUtilisateurService<NoteUtilisateur>
+    public class NoteUtilisateurWebService : WritableService<NoteUtilisateur>, INoteUtilisateurService<NoteUtilisateur>
     {
-        public NoteUtilisateurService(HttpClient httpClient) : base(httpClient) {}
+        public NoteUtilisateurWebService(HttpClient httpClient) : base(httpClient) {}
 
         public async Task AddNoteUtilisateur(NoteUtilisateurCreate noteUtilisateurCreate)
         {

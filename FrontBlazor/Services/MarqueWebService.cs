@@ -4,10 +4,10 @@ using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class MarqueService : ReadableService<Marque>, IMarqueService<Marque>
+    public class MarqueWebService : ReadableService<Marque>, IMarqueService<Marque>
     {
         private readonly HttpClient _httpClient;
-        public MarqueService(HttpClient httpClient) : base(httpClient)
+        public MarqueWebService(HttpClient httpClient) : base(httpClient)
         {
             _httpClient = httpClient;
         }

@@ -19,19 +19,19 @@ builder.Services.AddScoped(typeof(IReadableService<>), typeof(ReadableService<>)
 builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>));
 
 // Services
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ICategorieService<Categorie>, CategorieService>();
-builder.Services.AddScoped<IConversationService<Conversation>, ConversationService>();
-builder.Services.AddScoped<IMessageService<Message>, MessageService>();
-builder.Services.AddScoped<IMarqueService<Marque>, MarqueService>();
-builder.Services.AddScoped<ICouleurService<Couleur>, CouleurService>();
-builder.Services.AddScoped<IFavorisService<Favoris>, FavorisService>();
-builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceService>();
-builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurService>();
-builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementService>();
+builder.Services.AddScoped<IAuthService, AuthWebService>();
+builder.Services.AddScoped<ICategorieService<Categorie>, CategorieWebService>();
+builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebService>();
+builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();
+builder.Services.AddScoped<IMarqueService<Marque>, MarqueWebService>();
+builder.Services.AddScoped<ICouleurService<Couleur>, CouleurWebService>();
+builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
+builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
+builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
+builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
+builder.Services.AddScoped<ChatSignalRService>();
 
-builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateur>, NoteUtilisateurService>();
-builder.Services.AddScoped<CredentialHttpClient>();
+builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateur>, NoteUtilisateurWebService>();
 
 builder.Services.AddScoped(typeof(ListableViewModel<>));
 // ViewModels

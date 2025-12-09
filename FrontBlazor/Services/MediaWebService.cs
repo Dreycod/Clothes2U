@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace FrontBlazor.Services;
 
-public class MediaService : WritableService<Photo>, IMediasService<Photo>
+public class MediaWebService : WritableService<Photo>, IMediasService<Photo>
 {
-    public MediaService(HttpClient httpClient) : base(httpClient) { }
+    public MediaWebService(HttpClient httpClient) : base(httpClient) { }
 
     public async Task<Photo> GetPhotoAsync(int id)
     {

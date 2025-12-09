@@ -1,11 +1,11 @@
 using API.DTO.Notification;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
-
 
 [Microsoft.AspNetCore.Components.Route("api/[controller]")]
 [ApiController]
@@ -13,25 +13,14 @@ namespace API.Controllers;
 public class NotificationController : ControllerBase
 {
     private readonly INotificationRepository _notificationManager;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public NotificationController(INotificationRepository notificationManager, IMapper mapper)
+    public NotificationController(INotificationRepository notificationManager, IMapper mapper, ICurrentUserService currentUserService)
     {
         _notificationManager = notificationManager;
+        _currentUserService = currentUserService;
         _mapper = mapper;
-    }
-    private int? GetConnectedUserId()
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-            {
-                return id;
-            }
-        }
-        return null;
     }
 
     [HttpGet("notificationCount")]
@@ -39,7 +28,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<int>> GetNotificationsUnreadCountByUser()
     {
-        int? userId =  GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -48,13 +37,13 @@ public class NotificationController : ControllerBase
         return count;
     }
 
-    [HttpGet("byUserId/{userId}")]
-    [ProducesResponseType(typeof(IEnumerable<NotificationDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetNotificationsByUserId(int userId)
+    // Dans votre controller
+    [HttpGet("user/{userId}")]
+    public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetUserNotifications(int userId)
     {
-        IEnumerable<Notification> notifications = await _notificationManager.GetByUserId(userId);
-        IEnumerable<NotificationDTO> notificationDtos = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
+        var notifications = await _notificationManager.GetByUserId(userId);
+        var notificationDtos = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
+    
         return Ok(notificationDtos);
     }
 
@@ -64,16 +53,14 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkAsRead()
     {
-        int? userId = GetConnectedUserId();
+        int? userId = _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
-        await  _notificationManager.MarkAsRead((int)userId);
+        await _notificationManager.MarkAsRead((int)userId);
         return NoContent();
     }
-    
-    
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

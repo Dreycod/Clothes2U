@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services
 {
-    public class FavorisService : WritableService<Favoris>, IFavorisService<Favoris>
+    public class FavorisWebService : WritableService<Favoris>, IFavorisService<Favoris>
     {
-        public FavorisService(HttpClient httpClient) : base(httpClient) { }
+        public FavorisWebService(HttpClient httpClient) : base(httpClient) { }
 
         public Task<Favoris> GetByIdAsync(int id)
         {

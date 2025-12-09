@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace FrontBlazor.Services;
 
-public class AuthService : BaseGenericService, IAuthService
+public class AuthWebService : BaseGenericService, IAuthService
 {
-    public AuthService(HttpClient httpClient) : base(httpClient)
+    public AuthWebService(HttpClient httpClient) : base(httpClient)
     {
     }
 
