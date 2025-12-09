@@ -43,7 +43,7 @@ public class CategorieControllerTest
 
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<GenericProfile>();
+            //cfg.AddProfile<GenericProfile>();
         });
         IMapper mapper = config.CreateMapper();
         _mapper = config.CreateMapper();
