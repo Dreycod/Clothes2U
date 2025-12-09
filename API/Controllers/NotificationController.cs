@@ -27,7 +27,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<int>> GetNotificationsUnreadCountByUser()
     {
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -49,7 +49,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkAsRead()
     {
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();

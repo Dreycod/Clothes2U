@@ -54,7 +54,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<ActionResult<NoteUtilisateurDTO>> AddNote(NoteUtilisateurCreateDTO dto)
         {
-            int? userId = _currentUserService.GetUserId();
+            int? userId = await _currentUserService.GetUserId();
             if (userId == null)
             {
                 return Unauthorized();

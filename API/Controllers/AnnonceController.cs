@@ -33,7 +33,7 @@ public class AnnonceController : ControllerBase
 
     private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
     {
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (!userId.HasValue)
             return annoncesDTO;
 
@@ -87,7 +87,7 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId != null)
         {
             if (await _favorisRepository.CheckIfLiked((int)userId, id))
@@ -112,7 +112,7 @@ public class AnnonceController : ControllerBase
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
 
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -136,7 +136,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest();
         }
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null || userId != annonceDTO.UtilisateurId)
         {
             return Unauthorized();
@@ -169,7 +169,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        int? userId = _currentUserService.GetUserId();
+        int? userId = await _currentUserService.GetUserId();
         if (userId == null || userId != annonceDto.UtilisateurId)
         {
             return Unauthorized();

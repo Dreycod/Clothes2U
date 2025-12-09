@@ -1,0 +1,102 @@
+﻿@page "/moderation/images"
+
+
+<PageTitle>Validation d'images - Modération</PageTitle>
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+
+<div class="moderation-page">
+    <div class="moderation-container">
+        <!-- Sidebar -->
+        <aside class="mod-sidebar">
+            <div class="mod-header">
+                <div class="mod-logo">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Moderation Board</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mod-nav">
+                <a href="/moderation" class="mod-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/moderation/signalements" class="mod-nav-item">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>Signalements</span>
+                </a>
+                <a href="/moderation/images" class="mod-nav-item active">
+                    <i class="bi bi-image"></i>
+                    <span>Images</span>
+                </a>
+                <a href="/moderation/restauration" class="mod-nav-item">
+                    <i class="bi bi-person-check"></i>
+                    <span>Restauration</span>
+                </a>
+                <a href="/moderation/sanctions" class="mod-nav-item">
+                    <i class="bi bi-person-x"></i>
+                    <span>Sanctions</span>
+                </a>
+                <a href="/moderation/mots-interdits" class="mod-nav-item">
+                    <i class="bi bi-chat-square-text"></i>
+                    <span>Mots interdits</span>
+                </a>
+                <a href="/moderation/support" class="mod-nav-item">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="mod-content">
+            <h1 class="mod-page-title">Validation d'images</h1>
+
+            <!-- Images Grid -->
+            <div class="images-grid">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="image-card">
+                        <div class="image-preview"></div>
+
+                        <div class="image-info">
+                            <div class="image-user">
+                                <div class="user-avatar-small"></div>
+                                <div>
+                                    <h4>User @(i + 1)</h4>
+                                    <p>Il y a @(i + 1) heures</p>
+                                </div>
+                            </div>
+
+                            <div class="image-actions">
+                                <button class="btn-approve" @onclick="() => ApproveImage(i)">
+                                    <i class="bi bi-check-lg"></i>
+                                    Approuver
+                                </button>
+                                <button class="btn-reject" @onclick="() => RejectImage(i)">
+                                    <i class="bi bi-x-lg"></i>
+                                    Refuser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    private void ApproveImage(int imageId)
+    {
+        // TODO: Approve image
+    }
+
+    private void RejectImage(int imageId)
+    {
+        // TODO: Reject image
+    }
+}
