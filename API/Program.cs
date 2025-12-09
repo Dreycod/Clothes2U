@@ -177,7 +177,7 @@ builder.Services.AddScoped<ITailleRepository, TailleManager>();
 builder.Services.AddScoped<IEtatArticleRepository, EtatArticleManager>();
 builder.Services.AddScoped<IDataRepository<Marque, int>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
-builder.Services.AddScoped<IDataRepository<MotInterdit, int>, MotInterditManager>();
+builder.Services.AddScoped<IMotInterditRepository, MotInterditManager>();
 
 
 //services
