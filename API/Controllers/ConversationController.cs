@@ -54,7 +54,8 @@ public class ConversationController : ControllerBase
                 opt.Items["CurrentUserId"] = _currentUserService.GetUserId();
             })
             ;
-        return Ok(conversationsDTO);
+        
+        return Ok(conversationsDTO.OrderByDescending(c => c.LastMessageDate));
     }
     
 }

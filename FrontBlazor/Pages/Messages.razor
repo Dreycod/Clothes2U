@@ -4,7 +4,6 @@
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
-<script src="js/scrollHelper.js"></script>
 
 <PageTitle>Messages - Clothes2U</PageTitle>
 
@@ -67,7 +66,7 @@
                 </div>
 
                 <!-- Messages Area -->
-                <div class="messages-area">
+                <div class="messages-area" @ref="messagesContainer">
                     @if (VM_Messagerie.conv.ListMessages != null && VM_Messagerie.conv.ListMessages.Any())
                     {
                         @foreach (var message in VM_Messagerie.conv.ListMessages)
@@ -108,6 +107,19 @@
 </div>
 
 @code {
+    private ElementReference messagesContainer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (VM_Messagerie.conv?.ListMessages != null && VM_Messagerie.conv.ListMessages.Any())
+        {
+            if (messagesContainer.Context != null)
+            {
+                await JSRuntime.InvokeVoidAsync("ScrollHelper", messagesContainer);
+            }
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         VM_Messagerie.OnChange += StateHasChanged;
