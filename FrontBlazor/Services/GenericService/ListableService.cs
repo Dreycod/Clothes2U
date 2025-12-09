@@ -11,4 +11,8 @@ public class ListableService<T >: BaseGenericService, IListableService<T> where 
     {
         return await _httpClient.GetFromJsonAsync<List<T>>($"{typeof(T).Name}");
     }
+    public virtual async Task<List<T>?> GetAllWithDetailsAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<T>>($"{typeof(T).Name}/details");
+    }
 }

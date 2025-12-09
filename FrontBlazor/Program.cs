@@ -24,7 +24,6 @@ builder.Services.AddScoped<IAuthService, AuthWebService>();
 builder.Services.AddScoped<ICategorieService<Categorie>, CategorieWebService>();
 builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebService>();
 builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();
-builder.Services.AddScoped<IMarqueService<Marque>, MarqueWebService>();
 builder.Services.AddScoped<ICouleurService<Couleur>, CouleurWebService>();
 builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
@@ -39,6 +38,7 @@ builder.Services.AddSingleton<ISignalRService>(sp =>
 builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateur>, NoteUtilisateurWebService>();
 
 builder.Services.AddScoped(typeof(ListableViewModel<>));
+builder.Services.AddScoped(typeof(WritableService<>));
 // ViewModels
 builder.Services.AddScoped<LoginViewModel>();
 builder.Services.AddScoped<SearchAnnonceViewModel>();

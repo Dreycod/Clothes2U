@@ -29,11 +29,14 @@ public class WritableService<T> : BaseGenericService, IWritableService<T>  where
 
     public virtual async Task UpdateAsync( T updatedEntity)
     {
-        await _httpClient.PutAsJsonAsync($"/{typeof(T).Name}/id/{updatedEntity.GetId()}", updatedEntity);
+        var body = JsonContent.Create(updatedEntity);
+        var response = await PutWithCredentialsAsync($"{_httpClient.BaseAddress}{typeof(T).Name}/id/{updatedEntity.GetId()}", body);
+        response.EnsureSuccessStatusCode();
     }
 
     public virtual async Task DeleteAsync(int id)
     {
-        await _httpClient.DeleteAsync($"/{typeof(T).Name}/id/{id}");
+        var response = await DeleteWithCredentialsAsync($"{_httpClient.BaseAddress}{typeof(T).Name}/id/{id}");
+        response.EnsureSuccessStatusCode();
     }
 }

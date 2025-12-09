@@ -89,7 +89,6 @@
                                 <th>ID</th>
                                 <th>Nom de la marque</th>
                                 <th>Nombre d'articles</th>
-                                <th>Date de création</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -99,8 +98,7 @@
                                 <tr>
                                     <td>#@marque.MarqueId</td>
                                     <td><strong>@marque.NomMarque</strong></td>
-                                    <td>@VM_CommercialMarques.GetArticleCount(marque.MarqueId) articles</td>
-                                    <td>@DateTime.Now.AddDays(-marque.MarqueId * 5).ToString("dd/MM/yyyy")</td>
+                                    <td>@marque.NombreProduits articles</td>
                                     <td>
                                         <div class="table-actions">
                                             <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialMarques.ShowEditModal(marque)">

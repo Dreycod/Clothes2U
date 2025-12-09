@@ -13,16 +13,19 @@ public class CommercialMarquesViewModel
     public string errorMessage = string.Empty;
 
     public ListableViewModel<Marque> VM_Marque { get; set; }
+    public WritableService<Marque> MarqueService { get; set; }  
     public event Action? OnStateChange;
 
-    public CommercialMarquesViewModel(ListableViewModel<Marque> _MarqueViewModel)
+
+    public CommercialMarquesViewModel(ListableViewModel<Marque> _MarqueViewModel, WritableService<Marque> marqueService)
     {
         VM_Marque = _MarqueViewModel;
+        MarqueService = marqueService;
     }
 
     public async Task LoadAsync()
     {
-        await VM_Marque.LoadAsync();
+        await VM_Marque.LoadWithDetailsAsync();
     }
 
     public void ShowAddModal()
@@ -72,14 +75,21 @@ public class CommercialMarquesViewModel
 
         try
         {
+            Marque marqueToSave = new Marque
+            {
+                MarqueId = currentMarque.MarqueId,
+                NomMarque = currentMarque.NomMarque
+            };
+
             if (isEditing)
             {
-                // TODO: Update marque via API
+
+                await MarqueService.UpdateAsync(marqueToSave);
                 successMessage = "Marque modifiée avec succès";
             }
             else
             {
-                // TODO: Create marque via API
+                await MarqueService.AddAsync(marqueToSave);
                 successMessage = "Marque ajoutée avec succès";
             }
 
@@ -103,6 +113,7 @@ public class CommercialMarquesViewModel
         try
         {
             // TODO: Delete marque via API
+            await MarqueService.DeleteAsync(currentMarque.MarqueId);
             successMessage = $"Marque {currentMarque.NomMarque} supprimée avec succès";
             CloseDeleteModal();
             await VM_Marque.LoadAsync();

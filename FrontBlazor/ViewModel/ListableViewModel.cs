@@ -33,5 +33,23 @@ namespace FrontBlazor.ViewModel
             }
         }
 
+        public async Task LoadWithDetailsAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                ErrorMessage = null;
+                Items = await _listableService.GetAllWithDetailsAsync() ?? new List<T>();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Impossible de charger les {typeof(T).Name}s";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
     }
 }

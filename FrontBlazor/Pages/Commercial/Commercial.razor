@@ -63,7 +63,7 @@
 
                 <div class="stat-card">
                     <div class="stat-icon emerald">
-                        <i class="bi bi-grid"></i>
+                        <i class="bi bi-rulers"></i>
                     </div>
                     <div class="stat-info">
                         <h3>@VM_Commercial.totalCategories</h3>
@@ -88,6 +88,15 @@
                     <div class="stat-info">
                         <h3>@VM_Commercial.totalCouleurs</h3>
                         <p>Couleurs disponibles</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon lime">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@VM_Commercial.totalTailles</h3>
+                        <p>Tailles disponibles</p>
                     </div>
                 </div>
             </div>
@@ -136,86 +145,15 @@
                             <p>Créer une nouvelle couleur</p>
                         </div>
                     </button>
-                </div>
-            </div>
-
-            <!-- Recent Activity Section -->
-            <div class="recent-section">
-                <h2 class="section-title">Activité récente</h2>
-
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon green">
-                            <i class="bi bi-tag"></i>
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/tailles"))">
+                        <div class="action-icon lime">
+                            <i class="bi bi-plus-circle"></i>
                         </div>
-                        <div class="activity-content">
-                            <p><strong>Nouvelle marque:</strong> Nike ajoutée</p>
-                            <span class="activity-time">Il y a 15 minutes</span>
+                        <div class="action-info">
+                            <h3>Ajouter une taille</h3>
+                            <p>Créer une nouvelle taille</p>
                         </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon emerald">
-                            <i class="bi bi-grid"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Catégorie modifiée:</strong> Vêtements de sport</p>
-                            <span class="activity-time">Il y a 2 heures</span>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon teal">
-                            <i class="bi bi-diagram-3"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Sous-catégorie ajoutée:</strong> Chaussures de running</p>
-                            <span class="activity-time">Il y a 4 heures</span>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon lime">
-                            <i class="bi bi-palette"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Nouvelle couleur:</strong> Bleu marine</p>
-                            <span class="activity-time">Il y a 6 heures</span>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon green">
-                            <i class="bi bi-rulers"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Taille ajoutée:</strong> 3XL pour Homme</p>
-                            <span class="activity-time">Il y a 8 heures</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Statistics -->
-            <div class="statistics-section">
-                <h2 class="section-title">Statistiques</h2>
-
-                <div class="statistics-grid">
-                    <div class="stat-detail">
-                        <h4>Cette semaine</h4>
-                        <p>5 marques ajoutées</p>
-                        <p>2 catégories créées</p>
-                    </div>
-                    <div class="stat-detail">
-                        <h4>Ce mois</h4>
-                        <p>18 marques ajoutées</p>
-                        <p>7 catégories créées</p>
-                    </div>
-                    <div class="stat-detail">
-                        <h4>Total</h4>
-                        <p>@VM_Commercial.totalMarques marques</p>
-                        <p>@VM_Commercial.totalCategories catégories</p>
-                    </div>
+                    </button>
                 </div>
             </div>
         </main>
@@ -227,5 +165,6 @@
     protected override async Task OnInitializedAsync()
     {
         await VM_Commercial.LoadAsync();
+        VM_Commercial.OnStateChange += StateHasChanged;
     }
 }

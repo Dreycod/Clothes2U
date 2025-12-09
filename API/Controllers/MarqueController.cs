@@ -3,6 +3,7 @@ using API.DTO.Taille;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -13,17 +14,17 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class MarqueController : ControllerBase
 {
-    private readonly IDataRepository<Marque, int> _marqueManager;
+    private readonly ICaracteristiquesRepository<Marque> _marqueManager;
     private readonly IMapper _mapper;
 
-    public MarqueController(IDataRepository<Marque, int> manager, IMapper mapper)
+    public MarqueController(ICaracteristiquesRepository<Marque> manager, IMapper mapper)
     {
         _marqueManager= manager;
         _mapper = mapper;
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Marque>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<MarqueDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<MarqueDTO>> GetAllMarques()
     {
@@ -31,6 +32,17 @@ public class MarqueController : ControllerBase
         IEnumerable<MarqueDTO> marquesDTO = _mapper.Map<IEnumerable<MarqueDTO>>(marques);
         return Ok(marquesDTO);
     }
+
+    [HttpGet("details")]
+    [ProducesResponseType(typeof(IEnumerable<MarqueDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<MarqueDetailDTO>> GetAllMarquesWithDetails()
+    {
+        IEnumerable<Marque> marques = await _marqueManager.GetAllWithDetailsAsync();
+        IEnumerable<MarqueDetailDTO> marquesDetailDTO = _mapper.Map<IEnumerable<MarqueDetailDTO>>(marques);
+        return Ok(marquesDetailDTO  );
+    }
+
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(Marque),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,14 +59,16 @@ public class MarqueController : ControllerBase
     [ProducesResponseType(typeof(Marque), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Marque>> AddMarque(Marque marque)
+    public async Task<ActionResult<Marque>> AddMarque([FromBody] MarqueDTO marque)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        await _marqueManager.AddAsync(marque);
-        return CreatedAtAction( nameof(GetById), new { id = marque.MarqueId }, marque);
+        Marque _marque = _mapper.Map<Marque>(marque);
+
+        await _marqueManager.AddAsync(_marque);
+        return CreatedAtAction( nameof(GetById), new { id = _marque.MarqueId }, _marque);
     }
     [HttpDelete("id/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -74,9 +88,9 @@ public class MarqueController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PutMarque(int id, [FromBody] Marque brand)
+    public async Task<IActionResult> PutMarque(int id, [FromBody] MarqueDTO brand)
     {
-        if (id != brand.MarqueId)
+        if (id != brand.MarqueID)
         {
             return BadRequest();
         }
@@ -86,7 +100,9 @@ public class MarqueController : ControllerBase
         {
             return NotFound();
         }
-        await _marqueManager.UpdateAsync(brandToUpdate.Value, brand);
+        Marque updatedBrand = _mapper.Map<Marque>(brand);
+
+        await _marqueManager.UpdateAsync(brandToUpdate.Value, updatedBrand);
         return NoContent();
     }
 }
