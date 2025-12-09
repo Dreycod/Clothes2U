@@ -1,0 +1,12 @@
+@page "/ModerationBoard"
+@inject ModerationBoardViewModel moderationViewModel
+
+
+<h3>ModerationBoard</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await moderationViewModel.LoadAsync();
+    }
+}

@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
+using API.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
@@ -176,8 +177,9 @@ public class LoginController : ControllerBase
         var utilisateur = await _utilisateurManager.GetByIdAsync((int)userId);
         if (utilisateur == null)
             return NotFound();
-
-        return Ok(utilisateur);
+        
+        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        return Ok(utilisateurDTO);
     }
 
     [HttpPut("modificationMotDePasse")]

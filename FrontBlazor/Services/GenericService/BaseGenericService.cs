@@ -18,7 +18,7 @@ public abstract class BaseGenericService
     {
         var request = new HttpRequestMessage(method, url);
         
-        if (content != null)
+        if (content != null)    
         {
             request.Content = content;
         }
@@ -33,6 +33,8 @@ public abstract class BaseGenericService
 
     protected Task<HttpResponseMessage> PutWithCredentialsAsync(string url, HttpContent content)
         => SendWithCredentialsAsync(HttpMethod.Put, url, content);
+    protected Task<HttpResponseMessage> PutWithCredentialsAsync(string url)
+        => SendWithCredentialsAsync(HttpMethod.Put, url, null);
 
     protected Task<HttpResponseMessage> DeleteWithCredentialsAsync(string url)
         => SendWithCredentialsAsync(HttpMethod.Delete, url);

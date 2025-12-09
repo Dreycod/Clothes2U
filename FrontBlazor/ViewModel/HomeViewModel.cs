@@ -1,6 +1,7 @@
 using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.ViewModel
 {

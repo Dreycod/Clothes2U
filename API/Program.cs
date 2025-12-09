@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
 using API.Models;
 using API.Models.EntityFramework;
@@ -147,8 +148,9 @@ builder.Services.AddCors(options =>
             .AllowCredentials()
             .SetIsOriginAllowed(_ => true));
 });
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(cfg => {
+    cfg.AllowNullCollections = true;
+}, Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IDataRepository<Categorie, int>, CategorieManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();

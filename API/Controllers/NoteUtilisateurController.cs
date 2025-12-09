@@ -1,6 +1,7 @@
 ﻿using API.DTO.NoteUtilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ namespace API.Controllers
     public class NoteUtilisateurController : ControllerBase
     {
         private readonly INoteUtilisateurRepository _noteUtilisateurManager;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
-        public NoteUtilisateurController(INoteUtilisateurRepository repo, IMapper mapper)
+        public NoteUtilisateurController(INoteUtilisateurRepository noteUtilisateurRepository, ICurrentUserService currentUserService, IMapper mapper)
         {
-            _noteUtilisateurManager = repo;
+            _noteUtilisateurManager = noteUtilisateurRepository;
+            _currentUserService = currentUserService;
             _mapper = mapper;
         }
 
@@ -47,24 +50,11 @@ namespace API.Controllers
 
             return Ok(_mapper.Map<NoteUtilisateurDetailDTO>(note));
         }
-        private int? GetConnectedUserId()
-        {
-            if (User?.Identity?.IsAuthenticated == true)
-            {
-                var userIdClaim = User.FindFirst("userId")?.Value;
-
-                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-                {
-                    return id;
-                }
-            }
-            return null;
-        }
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<NoteUtilisateurDTO>> AddNote(NoteUtilisateurCreateDTO dto)
         {
-            int? userId = GetConnectedUserId();
+            int? userId = _currentUserService.GetUserId();
             if (userId == null)
             {
                 return Unauthorized();

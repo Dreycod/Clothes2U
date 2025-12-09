@@ -9,5 +9,5 @@ public class Utilisateur
     public string? Description { get; set; }
     public int? StatutId { get; set; }
     public int? AdresseId { get; set; }
-  
+    public string RoleUtilisateur { get; set; }
 }

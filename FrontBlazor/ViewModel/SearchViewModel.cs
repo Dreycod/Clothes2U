@@ -1,6 +1,9 @@
+using System.Collections.ObjectModel;
 using FrontBlazor.Models;
+using FrontBlazor.Models.Notification;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel
@@ -9,7 +12,6 @@ namespace FrontBlazor.ViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
-
         public List<Annonce> Annonces { get; set; } = new List<Annonce>();
         FilterDTO filterRequest = new FilterDTO();
         public string? ErrorMessage { get; set; }
@@ -318,7 +320,7 @@ namespace FrontBlazor.ViewModel
                 PrixMin = 0
             };
 
-            Console.WriteLine(filterRequest.MotCle+" Is the mot clé");    
+            Console.WriteLine(filterRequest.MotCle+" Is the mot clï¿½");    
 
             CurrentPage = 1;
             await LoadAnnonces();

@@ -1,30 +1,73 @@
-namespace FrontBlazor.Models;
-public class Notification
+using System.Text.Json.Serialization;
+
+namespace FrontBlazor.Models.Notification;
+public abstract class Notification
 {
-    public int NotificationTypeId { get; set; }
+    public int NotificationId { get; set; }
+    public DateTime DateCreation { get; set; }
+    public abstract string LibelleType { get; }
+    public bool EstLu { get; set; }
     
+    // Constructeur sans paramètres - OBLIGATOIRE
+    protected Notification() 
+    { 
+    }
+}
+
+public class NotificationAdmin : Notification
+{
+    public override string LibelleType => "Administration";
+    public string? AdminText { get; set; }
     
-    //message administrateur
-    public String? AdminText { get; set; }
+    // Constructeur sans paramètres - OBLIGATOIRE
+    public NotificationAdmin() 
+    { 
+    }
+}
+
+public class NotificationAvertissement : Notification
+{
+    public override string LibelleType => "Avertissement";
+    public string? MessageAvertissement { get; set; }
     
+    // Constructeur sans paramètres - OBLIGATOIRE
+    public NotificationAvertissement() 
+    { 
+    }
+}
+
+public class NotificationMessage : Notification
+{
+    public override string LibelleType => "Message";
+    public int? ConversationId { get; set; }
+    public string? MessagePreview { get; set; }
     
-    //avertissement
-    public string? MessageAvertissement  { get; set; } = null!;
-    
-    //Nouveau message
-    public int? MessageId { get; set; }
-    
-    //modification annonce
+    // Constructeur sans paramètres - OBLIGATOIRE
+    public NotificationMessage() 
+    { 
+    }
+}
+
+public class NotificationModificationAnnonce : Notification
+{
+    public override string LibelleType => "Modification annonce";
     public int? ModificationAnnonceId { get; set; }
+    public string? NomAuteur { get; set; }
+    public string? Title { get; set; }
     
-    //nouvelle annonce
+    // Constructeur sans paramètres - OBLIGATOIRE
+    public NotificationModificationAnnonce() 
+    { 
+    }
+}
+
+public class NotificationNouvelleAnnonce : Notification
+{
+    public override string LibelleType => "Nouvelle annonce";
     public int? NouvelleAnnonceId { get; set; }
     
-    //type d'annonce 
-    public string TypeAnnonce  { get; set; } = null!;
-
-    public int GetId()
-    {
-        return NotificationTypeId;
+    // Constructeur sans paramètres - OBLIGATOIRE
+    public NotificationNouvelleAnnonce() 
+    { 
     }
 }
