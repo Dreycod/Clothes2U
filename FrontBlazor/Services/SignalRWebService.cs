@@ -162,18 +162,22 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
         if (_hubConnection == null || !IsConnected)
         {
             Console.WriteLine($"[SignalR] ❌ Cannot join conversation {conversationId}: not connected");
+            Console.WriteLine($"[SignalR]    _hubConnection is null: {_hubConnection == null}");
+            Console.WriteLine($"[SignalR]    IsConnected: {IsConnected}");
             return;
         }
 
         try
         {
-            Console.WriteLine($"[SignalR] Joining conversation {conversationId}...");
+            Console.WriteLine($"[SignalR] 🚀 Attempting to join conversation {conversationId}...");
             await _hubConnection.InvokeAsync("JoinConversation", conversationId);
             Console.WriteLine($"[SignalR] ✅ Successfully joined conversation {conversationId}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SignalR] ❌ Error joining conversation {conversationId}: {ex.Message}");
+            Console.WriteLine($"[SignalR] ❌ Error joining conversation {conversationId}:");
+            Console.WriteLine($"[SignalR]    Message: {ex.Message}");
+            Console.WriteLine($"[SignalR]    StackTrace: {ex.StackTrace}");
             throw;
         }
     }
