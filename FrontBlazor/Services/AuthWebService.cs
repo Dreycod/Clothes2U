@@ -108,6 +108,11 @@ public class AuthWebService : BaseGenericService, IAuthService
         }
         catch { }
     }
+    public string GetGoogleLoginUrl(string returnUrl = "/")
+    {
+        var baseUrl = _httpClient.BaseAddress?.ToString().TrimEnd('/');
+        return $"{baseUrl}/Login/google-login?returnUrl={Uri.EscapeDataString(returnUrl)}";
+    }
 }
 
 public class LoginResponse

@@ -18,6 +18,7 @@ using API.Services.Verification;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +35,7 @@ Console.WriteLine($"   Key length: {jwtKey?.Length ?? 0} caractères");
 Console.WriteLine($"   Issuer: {jwtIssuer}");
 Console.WriteLine($"   Audience: {jwtAudience}");
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.SaveToken = true;
@@ -93,7 +94,114 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             }
         };
-    });
+    });*/
+// Configuration de l'authentification (JWT + Google OAuth)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // ⬅️ GARDEZ cette ligne
+})
+.AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.TryGetValue("authToken", out var token))
+            {
+                token = token.Trim();
+                context.Request.Headers.Remove("Authorization");
+                context.Request.Headers.Append("Authorization", $"Bearer {token}");
+                Console.WriteLine($"✅ [OnMessageReceived] Token ajouté au header Authorization");
+            }
+            return Task.CompletedTask;
+        },
+
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"❌ [OnAuthenticationFailed] {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+
+        OnTokenValidated = context =>
+        {
+            var userId = context.Principal?.FindFirst("userId")?.Value;
+            var email = context.Principal?.FindFirst("sub")?.Value;
+            Console.WriteLine($"✅✅✅ [OnTokenValidated] Email: {email}, UserId: {userId}");
+            return Task.CompletedTask;
+        }
+    };
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.Cookie.Name = "TempAuthCookie";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Path = "/";
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/api/Login/google-callback";
+    options.SaveTokens = true;
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // ⬅️ GARDEZ cette ligne
+
+    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.CorrelationCookie.HttpOnly = true;
+    options.CorrelationCookie.IsEssential = true;
+    options.CorrelationCookie.Path = "/";
+
+    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            Console.WriteLine($"❌ Google OAuth Remote Failure: {context.Failure?.Message}");
+            var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5281";
+            context.Response.Redirect($"{frontendUrl}/login?error={Uri.EscapeDataString(context.Failure?.Message ?? "unknown")}");
+            context.HandleResponse();
+            return Task.CompletedTask;
+        },
+        OnTicketReceived = context =>
+        {
+            Console.WriteLine($"✅ Google OAuth Ticket Received");
+            // 🔧 NE PAS mettre RedirectUri à null ici
+            return Task.CompletedTask;
+        },
+        OnCreatingTicket = context =>
+        {
+            Console.WriteLine($"🎫 Creating ticket for: {context.Principal?.Identity?.Name}");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
@@ -209,6 +317,24 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/Login/google-callback"))
+    {
+        Console.WriteLine("\n🔍 ========== GOOGLE CALLBACK DEBUG ==========");
+        Console.WriteLine($"📍 Path: {context.Request.Path}");
+        Console.WriteLine($"🔗 Query: {context.Request.QueryString}");
+        Console.WriteLine($"🍪 Cookies reçus:");
+        foreach (var cookie in context.Request.Cookies)
+        {
+            Console.WriteLine($"   - {cookie.Key}: {cookie.Value.Substring(0, Math.Min(50, cookie.Value.Length))}...");
+        }
+        Console.WriteLine("============================================\n");
+    }
+
+    await next();
+});
+
 
 var notificationService = app.Services.GetRequiredService<INotificationService>();
 notificationService.Subscribe<MessageNotificationObserver>();
@@ -258,6 +384,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // Ordre CRITIQUE des middlewares
+app.UseRouting();
+app.UseSession();
 app.UseAuthentication();  // DOIT être avant UseAuthorization
 app.UseAuthorization();
 
