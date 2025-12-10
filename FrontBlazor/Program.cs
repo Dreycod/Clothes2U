@@ -32,6 +32,7 @@ builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
 builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
+builder.Services.AddScoped<VerificationService>();
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>
 {
@@ -58,6 +59,7 @@ builder.Services.AddScoped<CommercialTaillesViewModel>();
 builder.Services.AddScoped<CommercialViewModel>();
 builder.Services.AddScoped<ModerationBoardViewModel>();
 builder.Services.AddScoped<MotsInterditsViewModel>();
+builder.Services.AddScoped<VerificationViewModel>();
 
 
 // HttpClient AVEC CREDENTIALS (cookies)

@@ -5,6 +5,8 @@ namespace API.DTO.Verification;
 public class SendVerificationCodeRequest
 {
     public VerificationType Type { get; set; }
+    public string? PhoneNumber { get; set; }
+
 }
 
 public class VerifyCodeRequest

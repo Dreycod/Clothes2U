@@ -59,62 +59,79 @@ public class MessageController : ControllerBase
     }
     
     [Authorize]
-    [HttpPost("texte")]
-    [ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
+[HttpPost("texte")]
+[ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
+{
+    Console.WriteLine($"[MessageController] 📨 PostMessageTexte called:");
+    Console.WriteLine($"  - ConversationId: {dto.ConversationId}");
+    Console.WriteLine($"  - UserId: {dto.UtilisateurId}");
+    Console.WriteLine($"  - Content: {dto.Content}");
+    
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    var message = new Message
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        MessageDate = DateTime.UtcNow,
+        MessageLu = false,
+        UtilisateurId = dto.UtilisateurId,
+        ConversationId = dto.ConversationId
+    };
+    
+    await _messageManager.AddAsync(message);
 
-        var message = new Message
+    var messageTexte = new MessageTexte
+    {
+        MessageId = message.MessageId,
+        Content = dto.Content
+    };
+    
+    await _messageTexteManager.AddAsync(messageTexte);
+    
+    var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+    if (conversation != null)
+    {
+        int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+        if (targetUserId != null)
         {
-            MessageDate = DateTime.UtcNow,
-            MessageLu = false,
-            UtilisateurId = dto.UtilisateurId,
-            ConversationId = dto.ConversationId
-        };
-        
-        await _messageManager.AddAsync(message);
-
-        var messageTexte = new MessageTexte
-        {
-            MessageId = message.MessageId,
-            Content = dto.Content
-        };
-        
-        await _messageTexteManager.AddAsync(messageTexte);
-        
-        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
-        if (conversation != null)
-        {
-            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
-            if (targetUserId != null)
+            var notificationEvent = new NewMessageEvent
             {
-                var notificationEvent = new NewMessageEvent
-                {
-                    TargetUserId = (int)targetUserId,
-                    MessageId = message.MessageId,
-                    SenderId = dto.UtilisateurId,
-                    MessagePreview = dto.Content.Substring(0, Math.Min(50, dto.Content.Length))
-                };
-                await _notificationService.NotifyAsync(notificationEvent);
-                
-                await _hubContext.Clients
-                    .Group($"conversation_{message.ConversationId}")
-                    .SendAsync("ReceiveMessage", 
-                        message.ConversationId, 
-                        message.UtilisateurId, 
-                        dto.Content, 
-                        message.MessageDate);
-            }
-            else
-            {
-                return BadRequest("Utilisateur non autorisé pour cette conversation");
-            }
+                TargetUserId = (int)targetUserId,
+                MessageId = message.MessageId,
+                SenderId = dto.UtilisateurId,
+                MessagePreview = dto.Content.Substring(0, Math.Min(50, dto.Content.Length))
+            };
+            await _notificationService.NotifyAsync(notificationEvent);
+            
+            // 🔥 BROADCASTER VIA SIGNALR
+            Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
+            
+            await _hubContext.Clients
+                .Group($"conversation_{message.ConversationId}")
+                .SendAsync("ReceiveMessage", 
+                    message.ConversationId, 
+                    message.UtilisateurId, 
+                    dto.Content, 
+                    message.MessageDate);
+            
+            Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
         }
-        return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+        else
+        {
+            Console.WriteLine($"[MessageController] ❌ Target user not found");
+            return BadRequest("Utilisateur non autorisé pour cette conversation");
+        }
     }
+    else
+    {
+        Console.WriteLine($"[MessageController] ❌ Conversation {dto.ConversationId} not found");
+        return BadRequest("Conversation introuvable");
+    }
+    
+    return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+}
 
     [HttpPost("demande")]
     [ProducesResponseType(typeof(MessageDemandePostDTO), StatusCodes.Status201Created)]
