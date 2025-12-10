@@ -15,8 +15,7 @@ namespace FrontBlazor.Services
         public async Task AddFavoris(int annonceId)
         {
             var body = JsonContent.Create(annonceId);
-
-            var response = await PostWithCredentialsAsync("Favoris", body);
+            await PostWithCredentialsAsync("Favoris", body);
         }
         public async Task DeleteFavoris(int annonceId)
         {

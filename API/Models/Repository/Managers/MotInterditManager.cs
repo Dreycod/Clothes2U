@@ -12,4 +12,10 @@ public class MotInterditManager : GenericCRUDManager<MotInterdit>, IMotInterditR
         MotInterdit? motInterdit = await _context.MotsInterdits.FirstOrDefaultAsync(m => m.LibelleMot == mot);
         return motInterdit != null;
     }
+    public async Task<List<string>> GetAllLibellesAsync()
+    {
+        return await _context.MotsInterdits
+            .Select(m => m.LibelleMot)
+            .ToListAsync();
+    }
 }

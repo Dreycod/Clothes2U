@@ -185,6 +185,7 @@ builder.Services.AddScoped<IVerificationService, VerificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
+builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddHttpContextAccessor();
 
 
