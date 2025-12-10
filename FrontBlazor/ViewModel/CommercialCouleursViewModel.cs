@@ -19,7 +19,7 @@ public class CommercialCouleursViewModel
     {
         VM_Couleur = _CouleurViewModel;
     }
-    public async void LoadAsync()
+    public async Task LoadAsync()
     {
         await VM_Couleur.LoadAsync();
     }

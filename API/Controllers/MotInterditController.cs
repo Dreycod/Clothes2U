@@ -30,9 +30,9 @@ public class MotInterditController : ControllerBase
     
     [HttpGet]
     [Authorize]
-    [ProducesResponseType(typeof(IEnumerable<MotInterdit>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<MotInterditDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<MotInterdit>>> GetMotInterdit()
+    public async Task<ActionResult<IEnumerable<MotInterditDTO>>> GetMotInterdit()
     {
         int? currentUserId = await _currentUserService.GetUserId();
         if (currentUserId == null)
@@ -44,8 +44,9 @@ public class MotInterditController : ControllerBase
         {
             return Unauthorized("vous n'avez pas le bon role");
         }
-
-        return Ok(await _motInterditRepository.GetAllAsync());
+        IEnumerable<MotInterdit> mots = await _motInterditRepository.GetAllAsync();
+        IEnumerable<MotInterditDTO> motsDTO = _mapper.Map<List<MotInterditDTO>>(mots);
+        return Ok(motsDTO);
     }
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(MotInterditDTO),StatusCodes.Status200OK)]

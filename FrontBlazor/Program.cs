@@ -21,6 +21,7 @@ builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>)
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthWebService>();
+builder.Services.AddScoped<ISignalementService, SignalementWebService>();
 builder.Services.AddScoped<ICategorieService<Categorie>, CategorieWebService>();
 builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebService>();
 builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
 builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
+builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
+builder.Services.AddScoped<VerificationService>();
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>
 {
@@ -53,6 +56,9 @@ builder.Services.AddScoped<CommercialMarquesViewModel>();
 builder.Services.AddScoped<CommercialSousCategoriesViewModel>();
 builder.Services.AddScoped<CommercialTaillesViewModel>();
 builder.Services.AddScoped<CommercialViewModel>();
+builder.Services.AddScoped<ModerationBoardViewModel>();
+builder.Services.AddScoped<MotsInterditsViewModel>();
+builder.Services.AddScoped<VerificationViewModel>();
 
 
 // HttpClient AVEC CREDENTIALS (cookies)

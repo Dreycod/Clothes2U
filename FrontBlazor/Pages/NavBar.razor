@@ -1,4 +1,4 @@
-﻿﻿
+﻿@inject IAuthService AuthService﻿
 
 <nav class="main-navbar">
     <div class="navbar-container">
@@ -49,10 +49,10 @@
                     @if (showDropdown)
                     {
                         <div class="profile-dropdown">
-                            <a href="/profile/@username" class="dropdown-item" @onclick="CloseDropdown">
+                            <button class="dropdown-item" @onclick="GoToMyProfile">
                                 <i class="bi bi-person"></i>
                                 <span>Profil du compte</span>
-                            </a>
+                            </button>
                             <a href="/settings" class="dropdown-item" @onclick="CloseDropdown">
                                 <i class="bi bi-gear"></i>
                                 <span>Paramètres</span>
@@ -81,6 +81,8 @@
     private string username = "";
     private bool isLoggedIn = false;
     private bool showDropdown = false;
+    private int? currentUserId;
+
 
     private void NavigateToSearch()
     {
@@ -124,6 +126,16 @@
     {
         await CheckLoginStatus();
 
+        if (isLoggedIn)
+        {
+            var user = await AuthService.GetCurrentUserAsync();
+            if (user != null)
+            {
+                currentUserId = user.UtilisateurId;
+                username = user.Login;
+            }
+        }
+
     }
     public async Task CheckLoginStatus()
     {
@@ -132,6 +144,20 @@
         {
             isLoggedIn = loginStatus;
             StateHasChanged();
+        }
+    }
+
+    private void GoToMyProfile()
+    {
+        showDropdown = false;
+
+        if (currentUserId is not null)
+        {
+            navigationManager.NavigateTo($"/profile/{currentUserId}");
+        }
+        else
+        {
+            navigationManager.NavigateTo("/login");
         }
     }
 }
