@@ -421,6 +421,9 @@
         font-size: 1.1rem;
         color: #666;
     }
+    .wishlist-btn .bi-heart-fill {
+        color: #ff6b6b;
+    }
 
 .product-card-info {
     padding: 1rem;

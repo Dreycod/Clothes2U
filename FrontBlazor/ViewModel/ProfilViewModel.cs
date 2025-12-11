@@ -2,30 +2,59 @@ using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using Microsoft.AspNetCore.Components;
+using System.Xml.Linq;
 
 namespace FrontBlazor.ViewModel
 {
     public class ProfilViewModel
     {
-        public UtilisateurView? ViewingUser = null;
-        public List<Annonce>? Annonces = null;
-        public List<NoteUtilisateur>? Avis = null;
-        public List<Annonce>? FavorisAnnonce = null;
+        #region Variables
+        public UtilisateurView? ViewingUser { get; set; } = null;
+        public List<Annonce>? Annonces { get; set; } = null;
+        public List<NoteUtilisateur>? Avis { get; set; } = null;
+        public List<Annonce>? FavorisAnnonce { get; set; } = null;
 
-        public int AvisCount = 0;
+        public int AvisCount { get; set; } = 0;
+        public bool IsSameUser { get; set; } = false;
 
         private readonly IReadableService<UtilisateurView> _utilisateurService;
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
         private readonly IAuthService _authService;
-        private readonly IWritableService<Abonnement> _abonnementService;
+        private readonly IAbonnementService<Abonnement> _abonnementService;
+        private readonly NavigationManager _navigationManager;
 
-        public string activeTab = "articles";
+        public string ActiveTab { get; set; } = "articles";
 
-        public ProfilViewModel(IReadableService<UtilisateurView> utilisateurService, IAnnonceService<Annonce> annonceService, 
-            IFavorisService<Favoris> favorisService, INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService, 
-            IAuthService authService, IWritableService<Abonnement> abonnementService)
+        public bool IsLoading { get; set; } = true;
+        public bool IsLoadingArticles { get; set; } = false;
+        public bool IsLoadingFavoris { get; set; } = false;
+        public bool IsLoadingAvis { get; set; } = false;
+        public bool UserNotFound { get; set; } = false;
+        public bool UserSuspended { get; set; } = false;
+
+        public bool ShowAddReviewModal { get; set; } = false;
+        public int SelectedRating { get; set; } = 0;
+        public string ReviewComment { get; set; } = string.Empty;
+        public string ReviewErrorMessage { get; set; } = string.Empty;
+        public bool IsSubmittingReview { get; set; } = false;
+
+        public bool IsFollowing = true;
+        public string FollowButtonText => IsFollowing ? "Se désabonner" : "Suivre";
+
+        public event Action? OnStateChanged;
+        #endregion
+
+        public ProfilViewModel(
+            IReadableService<UtilisateurView> utilisateurService,
+            IAnnonceService<Annonce> annonceService,
+            IFavorisService<Favoris> favorisService,
+            INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+            IAuthService authService,
+            IAbonnementService<Abonnement> abonnementService,
+            NavigationManager navigationManager,
+            LoginViewModel connexionViewModel)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -33,42 +62,270 @@ namespace FrontBlazor.ViewModel
             _noteUtilisateurService = noteUtilisateurService;
             _authService = authService;
             _abonnementService = abonnementService;
+            _navigationManager = navigationManager;
         }
+
+        private void NotifyStateChanged() => OnStateChanged?.Invoke();
 
         public async Task LoadUserProfile(int id)
         {
-            ViewingUser = await _utilisateurService.GetByIdAsync(id) ?? null;
-            Annonces = await _annonceService.GetAnnoncesByUserIdAsync(id) ?? null;
-            Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(id) ?? null;
-            AvisCount = Avis.Count;
-            Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
-            if (utilisateur != null)
+            IsLoading = true;
+            UserNotFound = false;
+            UserSuspended = false;
+
+            try
             {
-                FavorisAnnonce = await _annonceService.GetByFavorisUtilisateur();
+                ViewingUser = await _utilisateurService.GetByIdAsync(id);
+
+                if (ViewingUser == null)
+                {
+                    UserNotFound = true;
+                    IsLoading = false;
+                    NotifyStateChanged();
+                    return;
+                }
+
+                if (ViewingUser.Statut == "Suspendu")
+                {
+                    UserSuspended = true;
+                    IsLoading = false;
+                    NotifyStateChanged();
+                    return;
+                }
+
+                IsLoadingArticles = true;
+                IsLoadingAvis = true;
+
+                IsFollowing = ViewingUser.followeddByCurrentUser;
+
+                var tasks = new List<Task>
+             {
+                 Task.Run(async () => {
+                     Annonces = await _annonceService.GetAnnoncesByUserIdAsync(id);
+                     IsLoadingArticles = false;
+                     NotifyStateChanged();
+                 }),
+                 Task.Run(async () => {
+                     Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(id);
+                     AvisCount = Avis?.Count ?? 0;
+                     IsLoadingAvis = false;
+                     NotifyStateChanged();
+                 })
+             };
+
+                Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+                if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
+                {
+                    IsSameUser = true;
+                    IsLoadingFavoris = true;
+                    FavorisAnnonce = await _annonceService.GetByFavorisUtilisateur();
+                    IsLoadingFavoris = false;
+                }
+                else
+                {
+                    IsSameUser = false;
+                }
+
+                await Task.WhenAll(tasks);
+            }
+            catch
+            {
+                UserNotFound = true;
+            }
+            finally
+            {
+                IsLoading = false;
+                NotifyStateChanged();
             }
         }
 
         public void SetActiveTab(string tab)
         {
-            activeTab = tab;
+            ActiveTab = tab;
+            NotifyStateChanged();
         }
 
-        public async Task ToggleFavorite(int annonceId)
+        public async Task ToggleFavorite(Annonce annonce)
         {
-            Annonce annonce = Annonces.First(a => a.AnnonceId == annonceId);
+            if (CheckLoginStatus == null)
+            {
+                _navigationManager.NavigateTo("/login");
+                return;
+            }
 
-            if (!annonce.IsLikedByCurrentUser)
-                await _favorisService.AddFavoris(annonceId);
-            else
-                await _favorisService.DeleteFavoris(annonceId);
-
+            bool isFavorite = annonce.IsLikedByCurrentUser;
             annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
+
+            try
+            {
+                if (!isFavorite)
+                {
+                    await _favorisService.AddFavoris(annonce.AnnonceId);
+                }
+                else
+                {
+                    FavorisAnnonce?.Remove(annonce);
+                    await _favorisService.DeleteFavoris(annonce.AnnonceId);
+                }
+                NotifyStateChanged();
+            }
+            catch
+            {
+                annonce.IsLikedByCurrentUser = isFavorite;
+                NotifyStateChanged();
+            }
         }
 
-        public async Task ToggleAbonnement(int userId)
+        public async Task ToggleAbonnement()
         {
-            await _abonnementService.AddAsync(new Abonnement{AbonnementId = userId});
+            if (ViewingUser == null) 
+                return;
 
+            bool wasFollowing = ViewingUser.followeddByCurrentUser;
+            ViewingUser.followeddByCurrentUser = !ViewingUser.followeddByCurrentUser;
+
+            if (!wasFollowing)
+            {
+                ViewingUser.Abonnes += 1;
+            }
+            else
+            {
+                ViewingUser.Abonnes -= 1;
+            }
+
+            NotifyStateChanged();
+
+            try
+            {
+                if (!wasFollowing)
+                {
+                    await _abonnementService.AddAbonnement(ViewingUser.UtilisateurId);
+                }
+                else
+                {
+                    await _abonnementService.DeleteAbonnement(ViewingUser.UtilisateurId);
+                }
+            }
+            catch
+            {
+                ViewingUser.followeddByCurrentUser = wasFollowing;
+                if (!wasFollowing)
+                {
+                    ViewingUser.Abonnes -= 1;
+                }
+                else
+                {
+                    ViewingUser.Abonnes += 1;
+                }
+                NotifyStateChanged();
+            }
+        }
+
+        public void ShowAddReview()
+        {
+            ShowAddReviewModal = true;
+            SelectedRating = 0;
+            ReviewComment = string.Empty;
+            ReviewErrorMessage = string.Empty;
+            NotifyStateChanged();
+        }
+
+        public void CloseAddReview()
+        {
+            ShowAddReviewModal = false;
+            SelectedRating = 0;
+            ReviewComment = string.Empty;
+            ReviewErrorMessage = string.Empty;
+            NotifyStateChanged();
+        }
+
+        public void SetRating(int rating)
+        {
+            SelectedRating = rating;
+            ReviewErrorMessage = string.Empty;
+            NotifyStateChanged();
+        }
+
+        public async Task SubmitReview()
+        {
+            // check if message transaction exists
+            if (ViewingUser == null) return;
+
+            ReviewErrorMessage = string.Empty;
+
+            if (SelectedRating == 0)
+            {
+                ReviewErrorMessage = "Veuillez sélectionner une note";
+                NotifyStateChanged();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(ReviewComment))
+            {
+                ReviewErrorMessage = "Veuillez entrer un commentaire";
+                NotifyStateChanged();
+                return;
+            }
+
+            if (ReviewComment.Length < 10)
+            {
+                ReviewErrorMessage = "Le commentaire doit contenir au moins 10 caractères";
+                NotifyStateChanged();
+                return;
+            }
+
+            IsSubmittingReview = true;
+            NotifyStateChanged();
+
+            try
+            {
+                NoteUtilisateurCreate newReview = new NoteUtilisateurCreate
+                {
+                    CibleId = ViewingUser.UtilisateurId,
+                    Note = SelectedRating,
+                    Commentaire = ReviewComment
+                };
+
+                var result = await _noteUtilisateurService.AddNoteUtilisateur(newReview);
+                if (result != null)
+                {
+                    Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(ViewingUser.UtilisateurId);
+                    AvisCount = Avis?.Count ?? 0;
+                }
+                CloseAddReview();
+            }
+            catch (Exception ex)
+            {
+                ReviewErrorMessage = $"Erreur lors de la publication de l'avis: {ex.Message}";
+            }
+            finally
+            {
+                IsSubmittingReview = false;
+                NotifyStateChanged();
+            }
+        }
+        public async Task<bool> CheckLoginStatus()
+        {
+            if (await _authService.GetCurrentUserAsync() != null)
+                return true;
+            return false;
+        }
+        public void NavigateToProductDetail(int? productId)
+        {
+            if (productId.HasValue)
+            {
+                _navigationManager.NavigateTo($"/product/{productId}");
+            }
+        }
+
+        public void NavigateToAddArticle()
+        {
+            _navigationManager.NavigateTo("/add-article");
+        }
+
+        public void NavigateToHome()
+        {
+            _navigationManager.NavigateTo("/");
         }
     }
 }
