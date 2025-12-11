@@ -143,53 +143,6 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
-})
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-{
-    options.Cookie.Name = "TempAuthCookie";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.Cookie.IsEssential = true;
-    options.Cookie.Path = "/";
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CallbackPath = "/api/Login/google-callback";
-    options.SaveTokens = true;
-    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // ⬅️ GARDEZ cette ligne
-
-    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.CorrelationCookie.HttpOnly = true;
-    options.CorrelationCookie.IsEssential = true;
-    options.CorrelationCookie.Path = "/";
-
-    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
-    {
-        OnRemoteFailure = context =>
-        {
-            Console.WriteLine($"❌ Google OAuth Remote Failure: {context.Failure?.Message}");
-            var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5281";
-            context.Response.Redirect($"{frontendUrl}/login?error={Uri.EscapeDataString(context.Failure?.Message ?? "unknown")}");
-            context.HandleResponse();
-            return Task.CompletedTask;
-        },
-        OnTicketReceived = context =>
-        {
-            Console.WriteLine($"✅ Google OAuth Ticket Received");
-            // 🔧 NE PAS mettre RedirectUri à null ici
-            return Task.CompletedTask;
-        },
-        OnCreatingTicket = context =>
-        {
-            Console.WriteLine($"🎫 Creating ticket for: {context.Principal?.Identity?.Name}");
-            return Task.CompletedTask;
-        }
-    };
 });
 
 builder.Services.AddDistributedMemoryCache();

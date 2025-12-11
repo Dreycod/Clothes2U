@@ -231,7 +231,7 @@
 
     private void OnGoogleClicked()
     {
-        var googleUrl = AuthService.GetGoogleLoginUrl("/dashboard");
+        var googleUrl = AuthService.GetGoogleLoginUrl("/");
         Navigation.NavigateTo(googleUrl, forceLoad: true);
     }
 }

@@ -1,19 +1,21 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
 using API.DTO.Utilisateur;
+using API.Models.Entity;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
-using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace API.Controllers;
 
@@ -261,104 +263,154 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public IActionResult GoogleLogin(string returnUrl = "/")
     {
-        Console.WriteLine($"🚀 Démarrage Google Login, returnUrl: {returnUrl}");
+        var clientId = _config["Authentication:Google:ClientId"];
+        var redirectUri = _config["Authentication:Google:RedirectUri"];
+        var scope = "openid profile email";
 
-        var properties = new AuthenticationProperties
-        {
-            RedirectUri = Url.Action(nameof(GoogleCallback), "Login", new { returnUrl }),
-            AllowRefresh = true
-        };
+        var googleAuthUrl = $"https://accounts.google.com/o/oauth2/v2/auth?" +
+            $"client_id={clientId}&" +
+            $"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
+            $"response_type=code&" +
+            $"scope={Uri.EscapeDataString(scope)}&" +
+            $"state={Uri.EscapeDataString(returnUrl)}"; // On passe le returnUrl dans state
 
-        Console.WriteLine($"🔗 RedirectUri: {properties.RedirectUri}");
+        Console.WriteLine($"🚀 Redirection vers Google : {googleAuthUrl}");
 
-        return Challenge(properties, "Google");
+        return Redirect(googleAuthUrl);
     }
 
     [HttpGet("google-callback")]
     [AllowAnonymous]
-    public async Task<IActionResult> GoogleCallback(string returnUrl = "/")
+    public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state)
     {
-        Console.WriteLine($"📥 Google Callback appelé");
-        Console.WriteLine($"   returnUrl: {returnUrl}");
+        Console.WriteLine($"🔥 Google Callback appelé avec code: {code?.Substring(0, 20)}...");
 
-        // 🔧 CHANGEMENT : Authentifier avec le Cookie scheme (où Google a signé)
-        var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        if (!authenticateResult.Succeeded)
+        if (string.IsNullOrEmpty(code))
         {
-            Console.WriteLine($"❌ Authentification échouée: {authenticateResult.Failure?.Message}");
-            return Redirect($"{_config["FrontendUrl"]}/login?error=auth_failed");
+            Console.WriteLine("❌ Code manquant");
+            return Redirect($"{_config["FrontendUrl"]}/login?error=no_code");
         }
 
-        var email = authenticateResult.Principal.FindFirst(ClaimTypes.Email)?.Value;
-        var name = authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value;
-
-        Console.WriteLine($"✅ Email: {email}, Name: {name}");
-
-        if (string.IsNullOrEmpty(email))
+        try
         {
-            return Redirect($"{_config["FrontendUrl"]}/login?error=no_email");
-        }
+            // 1. Échanger le code contre un access token
+            var tokenResponse = await ExchangeCodeForToken(code);
+            Console.WriteLine($"✅ Access token obtenu");
 
-        // Récupérer ou créer l'utilisateur
-        var existingUsers = await _utilisateurManager.GetAllAsync();
-        var utilisateur = existingUsers.FirstOrDefault(u => u.Email.ToUpper() == email.ToUpper());
+            // 2. Récupérer les infos utilisateur depuis Google
+            var userInfo = await GetGoogleUserInfo(tokenResponse.AccessToken);
+            Console.WriteLine($"✅ User info: {userInfo.Email}");
 
-        if (utilisateur == null)
-        {
-            var baseLogin = email.Split('@')[0];
-            var login = baseLogin;
-            int counter = 1;
+            // 3. Créer ou récupérer l'utilisateur
+            var utilisateur = await GetOrCreateUtilisateur(userInfo);
+            Console.WriteLine($"✅ Utilisateur: {utilisateur.Login}");
 
-            while (existingUsers.Any(u => u.Login.ToUpper() == login.ToUpper()))
+            // 4. Générer le JWT
+            var jwtToken = _loginService.GenerateJwtToken(utilisateur);
+            Console.WriteLine($"✅ JWT généré");
+
+            // 5. Créer le cookie
+            var cookieOptions = new CookieOptions
             {
-                login = $"{baseLogin}{counter}";
-                counter++;
-            }
-
-            utilisateur = new Utilisateur
-            {
-                Email = email,
-                Login = login,
-                Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
-                Description = "",
-                StatutId = 1,
-                ValidEmail = true,
-                ValidTelephone = false,
-                Dateinscription = DateTime.UtcNow,
-                RoleId = 1
+                HttpOnly = true,
+                Secure = false, // true en production
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.Now.AddMinutes(30),
+                Path = "/"
             };
+            Response.Cookies.Append("authToken", jwtToken, cookieOptions);
+            Console.WriteLine($"✅ Cookie authToken créé");
 
-            await _utilisateurManager.AddAsync(utilisateur);
-            Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
+            // 6. Rediriger vers le front
+            var returnUrl = string.IsNullOrEmpty(state) ? "/" : state;
+            var finalUrl = $"{_config["FrontendUrl"]}{returnUrl}";
+            Console.WriteLine($"🔀 Redirection vers: {finalUrl}");
+
+            return Redirect(finalUrl);
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine($"✅ Utilisateur existant: {utilisateur.Login}");
+            Console.WriteLine($"❌ Erreur: {ex.Message}");
+            return Redirect($"{_config["FrontendUrl"]}/login?error=server_error");
+        }
+    }
+
+    // Méthodes privées helper
+    private async Task<GoogleTokenResponse> ExchangeCodeForToken(string code)
+    {
+        var clientId = _config["Authentication:Google:ClientId"];
+        var clientSecret = _config["Authentication:Google:ClientSecret"];
+        var redirectUri = _config["Authentication:Google:RedirectUri"];
+
+        using var httpClient = new HttpClient();
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+    {
+        { "code", code },
+        { "client_id", clientId },
+        { "client_secret", clientSecret },
+        { "redirect_uri", redirectUri },
+        { "grant_type", "authorization_code" }
+    });
+
+        var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
+        var json = await response.Content.ReadAsStringAsync();
+
+        Console.WriteLine($"📝 Token response: {json.Substring(0, Math.Min(100, json.Length))}...");
+
+        return JsonSerializer.Deserialize<GoogleTokenResponse>(json);
+    }
+
+    private async Task<GoogleUserInfo> GetGoogleUserInfo(string accessToken)
+    {
+        using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v2/userinfo");
+        var json = await response.Content.ReadAsStringAsync();
+
+        return JsonSerializer.Deserialize<GoogleUserInfo>(json);
+    }
+
+    private async Task<Utilisateur> GetOrCreateUtilisateur(GoogleUserInfo userInfo)
+    {
+        // Cherche si un utilisateur existe déjà avec cet email
+        var existingUsers = await _utilisateurManager.GetAllAsync();
+        var utilisateur = existingUsers.FirstOrDefault(u => u.Email.ToUpper() == userInfo.Email.ToUpper());
+
+        if (utilisateur != null)
+        {
+            Console.WriteLine($"✅ Utilisateur existant trouvé: {utilisateur.Login}");
+            return utilisateur;
         }
 
-        // Générer le JWT
-        var tokenString = _loginService.GenerateJwtToken(utilisateur);
-        Console.WriteLine($"✅ JWT généré");
+        // Créer un nouveau utilisateur
+        var baseLogin = userInfo.Email.Split('@')[0];
+        var login = baseLogin;
+        int counter = 1;
 
-        // Créer le cookie JWT pour votre application
-        var cookieOptions = new CookieOptions
+        while (existingUsers.Any(u => u.Login.ToUpper() == login.ToUpper()))
         {
-            HttpOnly = true,
-            Secure = false,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTime.Now.AddMinutes(30)
+            login = $"{baseLogin}{counter}";
+            counter++;
+        }
+
+        utilisateur = new Utilisateur
+        {
+            Email = userInfo.Email,
+            Login = login,
+            Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()), // Mot de passe aléatoire
+            Description = "",
+            StatutId = 1,
+            ValidEmail = true, // Email validé par Google
+            ValidTelephone = false,
+            Dateinscription = DateTime.UtcNow,
+            RoleId = 1
         };
-        Response.Cookies.Append("authToken", tokenString, cookieOptions);
-        Console.WriteLine($"✅ Cookie authToken créé");
 
-        // 🔧 IMPORTANT : Se déconnecter du Cookie temporaire de Google
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        Console.WriteLine($"✅ Déconnexion du cookie temporaire Google");
+        await _utilisateurManager.AddAsync(utilisateur);
+        Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
 
-        var finalUrl = $"{_config["FrontendUrl"]}{returnUrl}";
-        Console.WriteLine($"🔀 Redirection vers: {finalUrl}");
-
-        return Redirect(finalUrl);
+        return utilisateur;
     }
 }
