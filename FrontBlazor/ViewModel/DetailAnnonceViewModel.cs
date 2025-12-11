@@ -14,6 +14,7 @@ public class DetailAnnonceViewModel
     private readonly IReadableService<UtilisateurView> _utilisateurService;
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
+    private readonly IMediasService<Photo> _mediaService;
 
     public Annonce? AnnonceDetail { get; set; }
     public UtilisateurView? utilisateurAnnonce { get; set; }
@@ -27,14 +28,15 @@ public class DetailAnnonceViewModel
     public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService, 
         IFavorisService<Favoris> favorisService, IAuthService authService, 
         IReadableService<UtilisateurView> utilisateurService, NavigationManager navigationManager, 
-        ClipboardService clipboardService)
+        ClipboardService clipboardService, IMediasService<Photo> mediasService)
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
         _authService = authService;
         _utilisateurService = utilisateurService;
         _navigationManager = navigationManager;
-        _clipboardService = clipboardService; 
+        _clipboardService = clipboardService;
+        _mediaService = mediasService;
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -86,11 +88,12 @@ public class DetailAnnonceViewModel
     }
     public async Task GetSimilarProductsAsync()
     {
-        // For future try to make a good filter that grabs the infos, also using GetByIds etc
-        FilterDTO filterDTO = new FilterDTO();
-        filterDTO.MotCle = AnnonceDetail.Title;
+        //// For future try to make a good filter that grabs the infos, also using GetByIds etc
+        //// For future try to make a good filter that grabs the infos, also using GetByIds etc
+        //FilterDTO filterDTO = new FilterDTO();
+        //filterDTO.MotCle = AnnonceDetail.Title;
 
-        similarProducts = await _annonceService.GetAnnonceByFilter(filterDTO, page: 1, pageSize: 3);
+        //similarProducts = await _annonceService.GetAnnonceByFilter(filterDTO, page: 1, pageSize: 3);
     }
     public async Task<bool> CheckLoginStatus()
     {
@@ -170,5 +173,15 @@ public class DetailAnnonceViewModel
     public void NavigateToProduct(int productId)
     {
          _navigationManager.NavigateTo($"/product/{productId}", forceLoad: true);
+    }
+
+    public void GotoProfile()
+    {
+        _navigationManager.NavigateTo($"/profile/" + AnnonceDetail.UtilisateurId);
+    }
+
+    public string GetPhoto(int id)
+    {
+        return _mediaService.GetPhotoUrl(id);
     }
 }

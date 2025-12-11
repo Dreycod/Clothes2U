@@ -23,7 +23,7 @@ public class Annonce: IEntity
     [IgnoreInTemplate]
     public string? Taille { get; set; } = null!;
     [IgnoreInTemplate]
-    public List<string>? Photos { get; set; } = new();
+    public List<int>? Photos { get; set; } = new();
     [IgnoreInTemplate]
     public int NombreLikes { get; set; } = 0;
     [IgnoreInTemplate]

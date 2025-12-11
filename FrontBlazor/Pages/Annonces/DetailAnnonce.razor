@@ -33,7 +33,7 @@
                 <div class="main-image">
                     @if (annonce.Photos != null && annonce.Photos.Any())
                     {
-                        <img src="@annonce.Photos.First()" alt="@annonce.Title" />
+                        <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
                     }
                 </div>
                 <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
@@ -83,8 +83,8 @@
                 </div>
 
                 <!-- Seller Info -->
-                <div class="seller-section">
-                    <div class="seller-avatar"></div>
+                <div class="seller-section" @onclick="VM_DetailAnnonce.GotoProfile">
+                    <img class="seller-avatar" src="@(VM_DetailAnnonce.GetPhoto(utilisateur.PhotoProfilId))"/>
                     <div class="seller-info"> 
                         <h3 class="seller-name">@(utilisateur.Login ?? "Vendeur")</h3>
                         <div class="seller-rating">
@@ -152,30 +152,30 @@
             <div class="similar-grid">
                 @if (VM_DetailAnnonce.similarProducts != null && VM_DetailAnnonce.similarProducts.Any())
                 {
-                     @foreach (Annonce similarAnnonce in VM_DetailAnnonce.similarProducts)
-                            {
-                                <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
-                                    <div class="product-image-container">
-                                        <div class="product-image"></div>
-                                        <button class="wishlist-btn"
-                                                @onclick:stopPropagation="true"
-                                                @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
-                                            <i class="bi bi-heart@(similarAnnonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
-                                        </button>
-                                    </div>
-                                    <div class="product-info">
-                                        <h3 class="product-title">@similarAnnonce.Title</h3>
-                                        <div class="product-meta">
-                                            <span class="product-size">Taille @similarAnnonce.Taille</span>
-                                            <span class="product-condition">@similarAnnonce.EtatArticle</span>
-                                        </div>
-                                        <div class="product-footer">
-                                            <span class="product-price">@similarAnnonce.Prix€</span>
-                                            <span class="product-seller">par @(similarAnnonce.NomAuteur ?? "Vendeur")</span>
-                                        </div>
-                                    </div>
+                    @foreach (Annonce similarAnnonce in VM_DetailAnnonce.similarProducts)
+                    {
+                        <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
+                            <div class="product-image-container">
+                                <img class="product-image" src="@(VM_DetailAnnonce.GetPhoto(similarAnnonce.Photos.First()))"/>
+                                <button class="wishlist-btn"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(similarAnnonce)">
+                                    <i class="bi bi-heart@(similarAnnonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">@similarAnnonce.Title</h3>
+                                <div class="product-meta">
+                                    <span class="product-size">Taille @similarAnnonce.Taille</span>
+                                    <span class="product-condition">@similarAnnonce.EtatArticle</span>
                                 </div>
-                            }
+                                <div class="product-footer">
+                                    <span class="product-price">@similarAnnonce.Prix€</span>
+                                    <span class="product-seller">par @(similarAnnonce.NomAuteur ?? "Vendeur")</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 }
                 else
                 {

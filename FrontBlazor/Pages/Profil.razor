@@ -1,4 +1,5 @@
 ﻿@page "/profile/{userId:int}"
+@using FrontBlazor.Components
 
 <PageTitle>Clothes2U</PageTitle>
 
@@ -43,12 +44,15 @@
         {
             <!-- Profile Header -->
             <div class="profile-header">
-                <div class="profile-avatar"></div>
+                @if (VM_Profil.ViewingUser != null)
+                {
+                    <img class="profile-avatar" src="@(VM_DetailAnnonce.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))"/>
+                }
                 <div class="profile-info">
                     <div class="profile-top-row">
                         <h1 class="profile-name">@VM_Profil.ViewingUser.Login</h1>
                         <div class="profile-actions">
-                            @if (VM_Profil.IsSameUser)
+                            @if (!VM_Profil.IsSameUser)
                             {
                                 <button class="btn-icon">
                                     <i class="bi bi-three-dots"></i>
@@ -115,29 +119,12 @@
                     else if (VM_Profil.Annonces != null && VM_Profil.Annonces.Any())
                     {
                         <div class="products-grid">
-                            @foreach (Annonce annonce in VM_Profil.Annonces)
+                            @foreach (var annonce in VM_Profil.Annonces)
                             {
-                                <div class="product-card" @onclick="() => VM_Profil.NavigateToProductDetail(annonce.AnnonceId)">
-                                    <div class="product-image-container">
-                                        <div class="product-image"></div>
-                                        <button class="wishlist-btn"
-                                                @onclick:stopPropagation="true"
-                                                @onclick="() => VM_Profil.ToggleFavorite(annonce)">
-                                            <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
-                                        </button>
-                                    </div>
-                                    <div class="product-info">
-                                        <h3 class="product-title">@annonce.Title</h3>
-                                        <div class="product-meta">
-                                            <span class="product-size">Taille @annonce.Taille</span>
-                                            <span class="product-condition">@annonce.EtatArticle</span>
-                                        </div>
-                                        <div class="product-footer">
-                                            <span class="product-price">@annonce.Prix€</span>
-                                            <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <AnnonceCard annonceComponent="annonce"
+                                            OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                            OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
+                                            />
                             }
                         </div>
                     }
@@ -172,27 +159,9 @@
                         <div class="products-grid">
                             @foreach (Annonce annonce in VM_Profil.FavorisAnnonce)
                             {
-                                <div class="product-card" @onclick="() => VM_Profil.NavigateToProductDetail(annonce.AnnonceId)">
-                                    <div class="product-image-container">
-                                        <div class="product-image"></div>
-                                        <button class="wishlist-btn"
-                                                @onclick:stopPropagation="true"
-                                                @onclick="() => VM_Profil.ToggleFavorite(annonce)">
-                                            <i class="bi bi-heart-fill"></i>
-                                        </button>
-                                    </div>
-                                    <div class="product-info">
-                                        <h3 class="product-title">@annonce.Title</h3>
-                                        <div class="product-meta">
-                                            <span class="product-size">Taille @annonce.Taille</span>
-                                            <span class="product-condition">@annonce.EtatArticle</span>
-                                        </div>
-                                        <div class="product-footer">
-                                            <span class="product-price">@annonce.Prix€</span>
-                                            <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <AnnonceCard annonceComponent="annonce"
+                                             OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                             OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
                             }
                         </div>
                     }

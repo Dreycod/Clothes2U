@@ -24,6 +24,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IAbonnementService<Abonnement> _abonnementService;
         private readonly NavigationManager _navigationManager;
+        private readonly IMediasService<Photo> _mediaService;
 
         public string ActiveTab { get; set; } = "articles";
 
@@ -54,7 +55,8 @@ namespace FrontBlazor.ViewModel
             IAuthService authService,
             IAbonnementService<Abonnement> abonnementService,
             NavigationManager navigationManager,
-            LoginViewModel connexionViewModel)
+            LoginViewModel connexionViewModel,
+            IMediasService<Photo> mediasService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -63,6 +65,7 @@ namespace FrontBlazor.ViewModel
             _authService = authService;
             _abonnementService = abonnementService;
             _navigationManager = navigationManager;
+            _mediaService = mediasService;
         }
 
         private void NotifyStateChanged() => OnStateChanged?.Invoke();
@@ -97,6 +100,7 @@ namespace FrontBlazor.ViewModel
                 IsLoadingAvis = true;
 
                 IsFollowing = ViewingUser.followeddByCurrentUser;
+
 
                 var tasks = new List<Task>
              {
@@ -178,6 +182,12 @@ namespace FrontBlazor.ViewModel
 
         public async Task ToggleAbonnement()
         {
+            if (_authService.GetCurrentUserAsync() == null)
+            {
+                _navigationManager.NavigateTo("/login");
+                return;
+            }
+
             if (ViewingUser == null) 
                 return;
 
@@ -326,6 +336,11 @@ namespace FrontBlazor.ViewModel
         public void NavigateToHome()
         {
             _navigationManager.NavigateTo("/");
+        }
+
+        public string GetPhoto(int id)
+        {
+            return _mediaService.GetPhotoUrl(id);
         }
     }
 }

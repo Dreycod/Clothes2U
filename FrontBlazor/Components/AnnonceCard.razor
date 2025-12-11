@@ -1,0 +1,45 @@
+﻿<div class="product-card" @onclick="OnClick">
+    <div class="product-image-container">
+        <img class="product-image" src="@PhotoUrl" />
+
+        <button class="wishlist-btn"
+                @onclick:stopPropagation="true"
+                @onclick="ToggleFavorite">
+            <i class="bi bi-heart@(IsFavorite ? "-fill" : "")"></i>
+        </button>
+    </div>
+
+    <div class="product-info">
+        <h3 class="product-title">@annonceComponent.Title</h3>
+
+        <div class="product-meta">
+            <span class="product-size">Taille @annonceComponent.Taille</span>
+            <span class="product-condition">@annonceComponent.EtatArticle</span>
+        </div>
+
+        <div class="product-footer">
+            <span class="product-price">@annonceComponent.Prix€</span>
+            <span class="product-seller">par @(annonceComponent.NomAuteur ?? "Vendeur")</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Annonce annonceComponent { get; set; }
+    [Parameter] public EventCallback<Annonce> OnToggleFavorite { get; set; }
+    [Parameter] public EventCallback<Annonce> OnClickAnnonce { get; set; }
+    [Inject] DetailAnnonceViewModel DetailVM { get; set; }
+
+    private string PhotoUrl => DetailVM.GetPhoto(annonceComponent.Photos.First());
+    private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
+
+    private async Task ToggleFavorite()
+    {
+        await OnToggleFavorite.InvokeAsync(annonceComponent);
+    }
+
+    private async Task OnClick()
+    {
+        await OnClickAnnonce.InvokeAsync(annonceComponent);
+    }
+}

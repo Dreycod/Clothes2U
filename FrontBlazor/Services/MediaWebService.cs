@@ -22,6 +22,13 @@ public class MediaWebService : WritableService<Photo>, IMediasService<Photo>
         return photo ?? new Photo();
     }
 
+    public string GetPhotoUrl(int photoId)
+    {
+        var baseUrl = _httpClient.BaseAddress?.ToString();
+        return $"{baseUrl}Medias/Photos/{photoId}";
+    }
+
+
     public Task<Photo> uploadPhotoCompteAsync(int compteid, Photo image)
     {
        throw new NotImplementedException();
