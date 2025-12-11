@@ -9,7 +9,7 @@ public class NoteUtilisateur : IEntity
 {
     [Key]
     [Column("notuti_id")]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // ✅ Ajoutez ceci
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
     public int NoteUtilisateurId { get; set; }
 
     [Column("notuti_note")]

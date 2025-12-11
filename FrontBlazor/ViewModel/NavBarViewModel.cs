@@ -17,8 +17,6 @@ namespace FrontBlazor.ViewModel
         public bool IsConnected { get; set; }
         public bool showDropdown;
         public string SearchQuery { get; set; } = "";
-
-        // Événement pour notifier les changements de recherche
         public event Action<string>? OnSearchQueryChanged;
 
         public NavBarViewModel(
@@ -66,8 +64,6 @@ namespace FrontBlazor.ViewModel
 
         public async Task OnSearchInputChanged()
         {
-
-            Console.WriteLine("bonjourbonour");
             if (_nav.Uri.Contains("/search") && _searchViewModel != null)
             {
                 await _searchViewModel.OnSearchInput(SearchQuery);
@@ -92,16 +88,6 @@ namespace FrontBlazor.ViewModel
             showDropdown = false;
             await _authService.LogoutAsync();
             _nav.NavigateTo(_nav.Uri, true);
-        }
-
-        public NavBarViewModel(IAuthService authService)
-        {
-            _authService = authService;
-        }
-
-        public async Task GetUserId()
-        {
-            utilisateur = await _authService.GetCurrentUserAsync();
         }
     }
 }

@@ -1,3 +1,4 @@
+using API.DTO.NoteUtilisateur;
 using API.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using AutoMapper;
@@ -8,6 +9,16 @@ public class UtilisateurMappingProfile : Profile
 {
     public UtilisateurMappingProfile()
     {
+        CreateMap<NoteUtilisateur, NoteUtilisateurDTO>()
+            .ForMember(dest => dest.NoteurId, opt => opt.MapFrom(src => src.AuteurId))
+            .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
+            .ForMember(dest => dest.PhotoProfilAuteurId, opt => opt.MapFrom(src => src.Auteur.PhotoId))
+            .ForMember(dest => dest.NoteId, opt => opt.MapFrom(src => src.CibleId));
+
+        CreateMap<NoteUtilisateur, NoteUtilisateurDetailDTO>()
+            .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
+            .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
+
         CreateMap<Utilisateur, UtilisateurViewDTO>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))

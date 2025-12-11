@@ -20,6 +20,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Include(a => a.Categorie)
             .Include(a => a.SousCategorie)
             .Include(a => a.Taille)
+            .Include(a => a.GenreAnnonce)
             .Include(a => a.Tags)
             .ThenInclude(t => t.Tag)
             .Include(a => a.Etat)
@@ -84,6 +85,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         {
             query = query.Where(p => filterDto.Marques.Contains(p.Marque.NomMarque));
         }
+        
         if (filterDto.Etats != null && filterDto.Etats.Any())
         {
             query = query.Where(p => filterDto.Etats.Contains(p.Etat.NomEtat));
@@ -102,6 +104,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         if (filterDto.Tailles != null && filterDto.Tailles.Any())
         {
             query = query.Where(p => filterDto.Tailles.Contains(p.Taille.Libelletaille));
+        }
+        
+        if (filterDto.Genre != null && filterDto.Genre.Any())
+        {
+            query = query.Where(p => filterDto.Genre.Contains(p.GenreAnnonce.NomGenre));
         }
     
         if (filterDto.PrixMin.HasValue)
@@ -154,7 +161,4 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             _ => query.OrderByDescending(a => a.DateAnnonce)
         };
     }
-
-
-
 }

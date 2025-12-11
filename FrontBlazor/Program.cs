@@ -9,6 +9,7 @@ using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.Shared;
 using FrontBlazor.ViewModel;
+using FrontBlazor.ViewModel.Moderation;
 using Microsoft.AspNetCore.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -64,7 +65,7 @@ builder.Services.AddScoped<ModerationBoardViewModel>();
 builder.Services.AddScoped<MotsInterditsViewModel>();
 builder.Services.AddScoped<VerificationViewModel>();
 builder.Services.AddScoped<NavBarViewModel>();
-
+builder.Services.AddScoped<SignalementViewModel>();
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });
 

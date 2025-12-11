@@ -2,6 +2,7 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,35 +11,43 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class SignalementController : ControllerBase
     {
-        private readonly ISignalementRepository _repo;
+        private readonly ISignalementRepository _signalementManager;
         private readonly IMapper _mapper;
 
         public SignalementController(ISignalementRepository repo, IMapper mapper)
         {
-            _repo = repo;
+            _signalementManager = repo;
             _mapper = mapper;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<SignalementDetailDTO>> GetById(int id)
         {
-            var sig = await _repo.GetByIdAsync(id);
+            var sig = await _signalementManager.GetByIdAsync(id);
             if (sig == null) return NotFound();
 
             return Ok(_mapper.Map<SignalementDetailDTO>(sig));
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<SignalementDTO>>> GetAll()
+        {
+            var signalements = await _signalementManager.GetAllAsync();
+            IEnumerable<SignalementDTO> signalementsDTO = _mapper.Map<IEnumerable<SignalementDTO>>(signalements);
+            return Ok(signalementsDTO);
+        }
+
         [HttpGet("Utilisateur/{id}")]
         public async Task<ActionResult<IEnumerable<SignalementDTO>>> GetByUtilisateur(int id)
         {
-            var list = await _repo.GetByUtilisateurAsync(id);
+            var list = await _signalementManager.GetByUtilisateurAsync(id);
             return Ok(_mapper.Map<IEnumerable<SignalementDTO>>(list));
         }
 
         [HttpGet("Type/{typeId}")]
         public async Task<ActionResult<IEnumerable<SignalementDTO>>> GetByType(int typeId)
         {
-            var list = await _repo.GetByTypeAsync(typeId);
+            var list = await _signalementManager.GetByTypeAsync(typeId);
             return Ok(_mapper.Map<IEnumerable<SignalementDTO>>(list));
         }
 
@@ -47,7 +56,7 @@ namespace API.Controllers
         {
             var signalement = _mapper.Map<Signalement>(dto);
 
-            var created = await _repo.CreateWithRelationsAsync(
+            var created = await _signalementManager.CreateWithRelationsAsync(
                 signalement,
                 dto.AnnonceId,
                 dto.AvisId,
@@ -62,10 +71,9 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var sig = await _repo.GetByIdAsync(id);
+            var sig = await _signalementManager.GetByIdAsync(id);
             if (sig == null) return NotFound();
-
-            await _repo.DeleteAsync(sig);
+            await _signalementManager.DeleteAsync(sig);
             return NoContent();
         }
     }

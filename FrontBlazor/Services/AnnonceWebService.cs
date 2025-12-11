@@ -74,6 +74,7 @@ public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annon
         AddListToQuery(queryParams, "Marques", filterDto.Marques);
         AddListToQuery(queryParams, "Categories", filterDto.Categories);
         AddListToQuery(queryParams, "SousCategories", filterDto.SousCategories);
+        AddListToQuery(queryParams, "Genre", filterDto.Genre);
         AddListToQuery(queryParams, "Tailles", filterDto.Tailles);
         AddListToQuery(queryParams, "Etats", filterDto.Etats);
 

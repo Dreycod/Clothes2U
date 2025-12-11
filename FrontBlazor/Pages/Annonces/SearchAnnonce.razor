@@ -1,5 +1,6 @@
 ﻿@page "/search"
 @using Microsoft.AspNetCore.WebUtilities
+@inject SearchAnnonceViewModel VM_Search
 @inject NavBarViewModel Vm_NavBar
 @implements IDisposable
 
@@ -25,6 +26,36 @@
                 <div class="filters-header">
                     <h3>Filtres</h3>
                     <button class="reset-btn" @onclick="VM_Search.ResetFilters">Réinitialiser</button>
+                </div>
+
+                <!-- Genre -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Genre</h4>
+                    <div class="filter-options">
+                        @if (VM_Genre.IsLoading)
+                        {
+                            <div class="filter-loading">
+                                <div class="spinner-small"></div>
+                                <span>Chargement...</span>
+                            </div>
+                        }
+                        else if (VM_Genre.Items != null && VM_Genre.Items.Any())
+                        {
+                            @foreach (var genre in VM_Genre.Items)
+                            {
+                                <label class="checkbox-label">
+                                    <input type="checkbox"
+                                           checked="@VM_Search.SelectedGenres.Contains(genre.NomGenre)"
+                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedGenres, genre.NomGenre)" />
+                                    <span>@genre.NomGenre</span>
+                                </label>
+                            }
+                        }
+                        else
+                        {
+                            <p class="filter-empty">Aucun genre disponible</p>
+                        }
+                    </div>
                 </div>
 
                 <!-- Type de vêtement -->
@@ -238,17 +269,19 @@
                                 </button>
 
                                 <div class="pagination-numbers">
-                                    @foreach (var page in VM_Search.GetVisiblePages())
+                                    @foreach (var pageNumber in VM_Search.GetVisiblePages())
                                     {
-                                        @if (page == -1)
+                                        @if (pageNumber == -1)
                                         {
                                             <span class="pagination-ellipsis">...</span>
                                         }
                                         else
                                         {
-                                            <button class="pagination-number @(page == VM_Search.CurrentPage ? "active" : "")"
-                                                    @onclick="() => VM_Search.GoToPage(page)">
+                                            <button class="pagination-number @(pageNumber == VM_Search.CurrentPage ? "active" : "")"
+                                                    @onclick="() => VM_Search.GoToPage(pageNumber)">
+                                                @pageNumber
                                             </button>
+
                                         }
                                     }
                                 </div>

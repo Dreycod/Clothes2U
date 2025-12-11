@@ -210,6 +210,7 @@ builder.Services.AddAutoMapper(cfg => {
     cfg.AllowNullCollections = true;
 }, Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ICaracteristiquesRepository<Categorie>, CategorieManager>();
+builder.Services.AddScoped<ICaracteristiquesRepository<Genre>, GenreManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
@@ -236,6 +237,7 @@ builder.Services.AddScoped<IEtatArticleRepository, EtatArticleManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Marque>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
 builder.Services.AddScoped<IMotInterditRepository, MotInterditManager>();
+builder.Services.AddScoped<ISignalementRepository,  SignalementManager>();
 
 
 //services

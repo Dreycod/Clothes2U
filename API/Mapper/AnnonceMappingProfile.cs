@@ -105,7 +105,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
              .ReverseMap()
             .ForMember(dest => dest.Annonces, opt => opt.Ignore());
-
+        CreateMap<Genre, GenreDTO>().ReverseMap();
 
     }
 }

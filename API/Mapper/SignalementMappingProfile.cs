@@ -9,16 +9,7 @@ public class SignalementMappingProfile : Profile
 {
     public SignalementMappingProfile()
     {
-        CreateMap<NoteUtilisateur, NoteUtilisateurDTO>()
-            .ForMember(dest => dest.NoteurId, opt => opt.MapFrom(src => src.AuteurId))
-            .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
-            .ForMember(dest => dest.PhotoProfilAuteurId, opt => opt.MapFrom(src => src.Auteur.PhotoId))
-            .ForMember(dest => dest.NoteId, opt => opt.MapFrom(src => src.CibleId));
-
-        CreateMap<NoteUtilisateur, NoteUtilisateurDetailDTO>()
-            .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
-            .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
-
+        
         CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
             .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))
             .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow))
@@ -26,8 +17,24 @@ public class SignalementMappingProfile : Profile
 
         CreateMap<Signalement, SignalementDTO>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
-            .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login));
-
+            .ForMember(dest => dest.LoginUtilisateurSignale, opt => opt.MapFrom(src => 
+                src.SignalementsUtilisateur != null 
+                    ? src.SignalementsUtilisateur.UtilisateurSignale.Login
+                    : src.SignalementsAnnonce != null 
+                        ? src.SignalementsAnnonce.Annonce.Utilisateur.Login
+                        : src.SignalementsAvis != null 
+                            ? src.SignalementsAvis.Avis.Cible.Login
+                            : "Inconnu"
+            ))
+            .ForMember(dest => dest.PhotoProfilUtilisateurId, opt => opt.MapFrom(src => 
+                src.SignalementsUtilisateur != null 
+                    ? src.SignalementsUtilisateur.UtilisateurSignale.PhotoId
+                    : src.SignalementsAnnonce != null 
+                        ? src.SignalementsAnnonce.Annonce.Utilisateur.PhotoId
+                        : src.SignalementsAvis != null 
+                            ? src.SignalementsAvis.Avis.Cible.PhotoId
+                            : null
+            ));
         CreateMap<Signalement, SignalementDetailDTO>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))

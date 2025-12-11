@@ -1,108 +1,85 @@
 ﻿@page "/moderation/signalements"
-
+@using FrontBlazor.Components.Moderation
+@using FrontBlazor.ViewModel.Moderation
+@inject SignalementViewModel SignalementViewModel
+@layout ModerationLayout
 
 <PageTitle>Signalements - Modération</PageTitle>
 
 <link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/loading.css" rel="stylesheet" />
 
-<div class="moderation-page">
-    <div class="moderation-container">
-        <!-- Sidebar (same as dashboard) -->
-        <aside class="mod-sidebar">
-            <div class="mod-header">
-                <div class="mod-logo">
-                    <i class="bi bi-shield-check"></i>
-                    <div>
-                        <h2>Clothes2U</h2>
-                        <p>Moderation Board</p>
+@if (SignalementViewModel.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <h1 class="mod-page-title">Signalements</h1>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <button class="filter-tab @(SignalementViewModel.SelectedCategoryId == 0 ? "active" : "")" 
+                @onclick='() => SignalementViewModel.ChangeCategory(0)'>
+            Tous
+        </button>
+        <button class="filter-tab @(SignalementViewModel.SelectedCategoryId == 1 ? "active" : "")" 
+                @onclick='() => SignalementViewModel.ChangeCategory(1)'>
+            Comptes
+        </button>
+        <button class="filter-tab @(SignalementViewModel.SelectedCategoryId == 2 ? "active" : "")" 
+                @onclick='() => SignalementViewModel.ChangeCategory(2)'>
+            Posts
+        </button>
+        <button class="filter-tab @(SignalementViewModel.SelectedCategoryId == 4 ? "active" : "")" 
+                @onclick='() => SignalementViewModel.ChangeCategory(4)'>
+            Messages privés
+        </button>
+        <button class="filter-tab @(SignalementViewModel.SelectedCategoryId == 3 ? "active" : "")" 
+                @onclick='() => SignalementViewModel.ChangeCategory(3)'>
+            Avis
+        </button>
+    </div>
+    
+    <div class="reports-container">
+        @if (SignalementViewModel.Signalements.Any())
+        {
+            @foreach(var signalement in SignalementViewModel.Signalements)
+            {
+                <div class="report-card">
+                    <div class="report-header">
+                        <div class="report-user">
+                            @if (signalement.PhotoProfilUtilisateurId.HasValue)
+                            {
+                                <img class="report-avatar" src="/api/Photo/@signalement.PhotoProfilUtilisateurId" alt="Avatar" />
+                            }
+                            else
+                            {
+                                <div class="report-avatar"></div>
+                            }
+                            <div>
+                                <h3>@signalement.LoginUtilisateurSignale</h3>
+                                <p class="report-reason">a été signalé pour <span class="reason-highlight">@signalement.SignalementMotif</span></p>
+                            </div>
+                        </div>
+                        <button class="btn-view" @onclick="() => SignalementViewModel.VoirSignalement(signalement.SignalementId)">
+                            Visualiser
+                        </button>
                     </div>
                 </div>
-            </div>
-
-            <nav class="mod-nav">
-                <a href="/moderation" class="mod-nav-item">
-                    <i class="bi bi-house-door"></i>
-                    <span>Home</span>
-                </a>
-                <a href="/moderation/signalements" class="mod-nav-item active">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <span>Signalements</span>
-                </a>
-                <a href="/moderation/images" class="mod-nav-item">
-                    <i class="bi bi-image"></i>
-                    <span>Images</span>
-                </a>
-                <a href="/moderation/restauration" class="mod-nav-item">
-                    <i class="bi bi-person-check"></i>
-                    <span>Restauration</span>
-                </a>
-                <a href="/moderation/sanctions" class="mod-nav-item">
-                    <i class="bi bi-person-x"></i>
-                    <span>Sanctions</span>
-                </a>
-                <a href="/moderation/mots-interdits" class="mod-nav-item">
-                    <i class="bi bi-chat-square-text"></i>
-                    <span>Mots interdits</span>
-                </a>
-                <a href="/moderation/support" class="mod-nav-item">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Support</span>
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="mod-content">
-            <h1 class="mod-page-title">Signalements</h1>
-
-            <!-- Filter Tabs -->
-            <div class="filter-tabs">
-                <button class="filter-tab @(selectedCategory == "all" ? "active" : "")" @onclick='() => selectedCategory = "all"'>
-                    Tous
-                </button>
-                <button class="filter-tab @(selectedCategory == "comptes" ? "active" : "")" @onclick='() => selectedCategory = "comptes"'>
-                    Comptes
-                </button>
-                <button class="filter-tab @(selectedCategory == "posts" ? "active" : "")" @onclick='() => selectedCategory = "posts"'>
-                    Posts
-                </button>
-                <button class="filter-tab @(selectedCategory == "messages" ? "active" : "")" @onclick='() => selectedCategory = "messages"'>
-                    Messages privés
-                </button>
-                <button class="filter-tab @(selectedCategory == "avis" ? "active" : "")" @onclick='() => selectedCategory = "avis"'>
-                    Avis
-                </button>
-            </div>
-
-            <!-- Reports List -->
-            <div class="reports-container">
-                @for (int i = 0; i < 3; i++)
-                {
-                    <div class="report-card">
-                        <div class="report-header">
-                            <div class="report-user">
-                                <div class="report-avatar"></div>
-                                <div>
-                                    <h3>Denielz Denielzzz</h3>
-                                    <p class="report-reason">a été signalé pour <span class="reason-highlight">Harcèlement</span></p>
-                                </div>
-                            </div>
-                            <button class="btn-view" @onclick="() => ViewReport(i)">
-                                Visualiser
-                            </button>
-                        </div>
-                    </div>
-                }
-            </div>
-        </main>
+            }
+        }
+        else
+        {
+            <p class="no-results">Aucun signalement trouvé pour cette catégorie.</p>
+        }
     </div>
-</div>
+}
 
 @code {
-    private string selectedCategory = "all";
-
-    private void ViewReport(int reportId)
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Navigate to report detail
+        await SignalementViewModel.LoadAsync();
+        await SignalementViewModel.LoadSignalements();
     }
 }

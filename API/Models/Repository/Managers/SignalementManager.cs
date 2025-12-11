@@ -1,5 +1,7 @@
-﻿using API.Models.EntityFramework;
+﻿using API.DTO.Signalement;
+using API.Models.EntityFramework;
 using API.Models.Repository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers
@@ -13,10 +15,20 @@ namespace API.Models.Repository.Managers
             return _context.Signalements
                 .Include(s => s.TypeSignalement)
                 .Include(s => s.Utilisateur)
-                .Include(s => s.SignalementsAnnonce).ThenInclude(sa => sa.Annonce)
-                .Include(s => s.SignalementsAvis).ThenInclude(sa => sa.Avis).ThenInclude(a => a.Auteur)
-                .Include(s => s.SignalementsUtilisateur).ThenInclude(su => su.UtilisateurSignale)
+                .Include(s => s.SignalementsAnnonce)
+                .ThenInclude(sa => sa.Annonce)
+                .ThenInclude(a => a.Utilisateur)  
+                .Include(s => s.SignalementsAvis)  
+                .ThenInclude(sa => sa.Avis)
+                .ThenInclude(av => av.Cible)  
+                .Include(s => s.SignalementsUtilisateur)  
+                .ThenInclude(su => su.UtilisateurSignale)
                 .AsSplitQuery();
+        }
+
+        public async override Task<IEnumerable<Signalement>> GetAllAsync()
+        {
+            return await BaseQuery().ToListAsync();
         }
 
         public override Task<Signalement?> GetByIdAsync(int id)
@@ -33,29 +45,6 @@ namespace API.Models.Repository.Managers
         {
             return await BaseQuery().Where(s => s.SignalementTypeId == typeId).ToListAsync();
         }
-
-        public async Task<IEnumerable<Signalement>> GetSignalementAnnonceAsync(int annonceId)
-        {
-            return await BaseQuery()
-                .Where(s => s.SignalementsAnnonce != null && s.SignalementsAnnonce.AnnonceSignaleeId == annonceId)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Signalement>> GetSignalementAvisAsync(int avisId)
-        {
-            return await BaseQuery()
-                .Where(s => s.SignalementsAvis != null && s.SignalementsAvis.AvisId == avisId)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Signalement>> GetSignalementUtilisateurAsync(int utilisateurSignaleId)
-        {
-            return await BaseQuery()
-                .Where(s => s.SignalementsUtilisateur != null &&
-                            s.SignalementsUtilisateur.UtilisateurSignaleId == utilisateurSignaleId)
-                .ToListAsync();
-        }
-
         public async Task<Signalement> CreateWithRelationsAsync(
     Signalement signalement,
     int? annonceId,
