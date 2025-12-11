@@ -5,7 +5,7 @@ using API.Attributes;
 namespace API.Models.EntityFramework
 {
     [Table("t_j_mesure_mes")]
-    public class Mesure
+    public class Mesure : IEntity
     {
         [Key]
         [Column("mes_id")]
@@ -26,5 +26,8 @@ namespace API.Models.EntityFramework
         [InverseProperty(nameof(Categorie.Mesures))]
         [NavigationProperty]
         public virtual Categorie CategorieMesure { get; set; } = null!;
+
+        public int GetId() => MesureId;
+
     }
 }

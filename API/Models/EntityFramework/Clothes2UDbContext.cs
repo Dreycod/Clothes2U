@@ -19,6 +19,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Est_De_Couleur> Est_De_Couleurs { get; set; }
     public DbSet<EtatArticle> EtatArticles { get; set; }
     public DbSet<Favoris> Favorises { get; set; }
+    public DbSet<Genre> Genres { get; set; }
     public DbSet<Illustre_Annonce> Illustre_Annonces { get; set; }
     public DbSet<Marque> Marques { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -175,6 +176,11 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.EtatId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.HasOne(e => e.GenreAnnonce)
+                 .WithMany(g => g.Annonces)
+                 .HasForeignKey(e => e.GenreId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
             entity.HasMany(e => e.Couleurs)
                 .WithOne(edc => edc.Annonce)
                 .HasForeignKey(edc => edc.AnnonceId)
@@ -216,7 +222,9 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.StatutAnnonceId);
             entity.HasIndex(e => e.CategorieId);
             entity.HasIndex(e => e.SousCategorieId);
-        });
+            entity.HasIndex(e => e.GenreId)
+               .HasDatabaseName("idx_annonce_genre");
+            });
 
         modelBuilder.Entity<Bloque>(entity =>
         {
@@ -404,7 +412,23 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.UtilisateurId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
-       
+
+        modelBuilder.Entity<Genre>(entity =>
+        {
+            entity.ToTable("t_e_genre_gen");
+
+            entity.HasKey(e => e.GenreId);
+
+            entity.Property(e => e.NomGenre)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.HasIndex(e => e.NomGenre)
+                .IsUnique();
+
+            entity.HasIndex(e => e.GenreId)
+                .IsUnique();
+        });
         
         
         modelBuilder.Entity<Illustre_Annonce>(entity =>

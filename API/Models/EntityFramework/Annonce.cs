@@ -49,6 +49,9 @@ public class Annonce : IEntity
     
     [Column("ann_statut_annonce_id")]
     public int StatutAnnonceId { get; set; }
+
+    [Column("ann_genre_id")]
+    public int GenreId { get; set; }
     
     //relation avec les autres tables : 
     
@@ -85,7 +88,12 @@ public class Annonce : IEntity
     [InverseProperty(nameof(Categorie.Annonces))]
     [NavigationProperty]
     public virtual Categorie Categorie { get; set; } = null!;
-    
+
+    [ForeignKey(nameof(GenreId))]
+    [InverseProperty(nameof(Genre.Annonces))]
+    [NavigationProperty]
+    public virtual Genre GenreAnnonce { get; set; } = null!;
+
     [ForeignKey(nameof(StatutAnnonceId))]
     [InverseProperty(nameof(StatutAnnonce.Annonces))]
     public virtual StatutAnnonce Statut { get; set; } = null!;
