@@ -83,13 +83,13 @@ public class LoginViewModel
             {
                 case HttpStatusCode.OK:
                     return "Success";
-                
+
                 case HttpStatusCode.Unauthorized:
                     return "Email, Login ou mot de passe incorrect.";
-                
+
                 case HttpStatusCode.BadRequest:
                     return "Requête invalide. Vérifiez vos informations.";
-                
+
                 default:
                     return "Erreur lors de la connexion.";
             }
@@ -99,6 +99,7 @@ public class LoginViewModel
             Console.WriteLine($"Erreur: {ex.Message}");
             return $"Erreur réelle: {ex.Message}";
         }
+        
 
         return "";
     }

@@ -7,6 +7,7 @@ using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Shared;
 using FrontBlazor.ViewModel;
 using Microsoft.AspNetCore.Components;
 

@@ -248,11 +248,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorDev", policy =>
-        policy.WithOrigins("http://localhost:5281")
+        policy.WithOrigins("http://localhost:5281") // URL exacte de votre Blazor
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .SetIsOriginAllowed(_ => true));
+            .AllowCredentials()); // ✅ Pas de SetIsOriginAllowed avec AllowCredentials
 });
 builder.Services.AddAutoMapper(cfg => {
     cfg.AllowNullCollections = true;

@@ -149,6 +149,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await VM_Messagerie.LoadAsync();
+        
         Console.WriteLine("[Page] 🎬 OnInitializedAsync START");
         
         VM_Messagerie.OnChange += StateHasChanged;

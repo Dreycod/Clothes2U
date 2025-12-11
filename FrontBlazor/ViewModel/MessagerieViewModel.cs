@@ -13,7 +13,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private readonly IConversationService<Conversation> _conversationService;
     private readonly IAuthService _authService;
     private readonly IMessageService<Message> _messageService;
-    private readonly ISignalRService _signalRService;
+    public readonly ISignalRService _signalRService;
     private readonly Func<Task>? _refreshUi;
     private readonly NavigationManager _nav;
 
@@ -38,11 +38,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IConversationService<Conversation> conversationService,
         IAuthService authService,
         IMessageService<Message> messageService,
+        NavigationManager nav,
         ISignalRService signalRService,
         Func<Task>? refreshUi = null)
     {
         _conversationService = conversationService;
         _authService = authService;
+        _nav = nav;
         _messageService = messageService;
         _signalRService = signalRService;
         _refreshUi = refreshUi;
@@ -52,6 +54,14 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         _signalRService.OnMessagesRead += HandleMessagesRead;
     }
 
+    public async Task LoadAsync()
+    {
+        CurrentUser = await _authService.GetCurrentUserAsync();
+        if (CurrentUser == null)
+        {
+            _nav.NavigateTo("/");
+        }
+    }
     private void NotifyStateChanged() => OnChange?.Invoke();
 
     public async Task LoadConversationsAsync()

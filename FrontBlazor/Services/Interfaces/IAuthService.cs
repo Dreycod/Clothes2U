@@ -11,4 +11,5 @@ public interface IAuthService
     public Task<AuthResult> SignUpAsync(RegisterRequest compte);
     public Task LogoutAsync();
     public Task<Utilisateur?> GetCurrentUserAsync();
+    public string GetGoogleLoginUrl(string returnUrl = "/");
 }
