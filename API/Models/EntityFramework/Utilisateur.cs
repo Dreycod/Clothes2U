@@ -14,6 +14,10 @@ public class Utilisateur : IEntity
     [EmailAddress(ErrorMessage = "L'adresse email n'est pas valide.")]
     public string Email { get; set; }
     
+    [Column("uti_telephone")]
+    [Phone]
+    public string? Telephone { get; set; }
+    
     [Column("uti_login")]
     public string Login { get; set; }
     
@@ -25,6 +29,12 @@ public class Utilisateur : IEntity
     
     [Column("uti_description")]
     public string Description { get; set; }
+    
+    [Column("uti_valid_email")]
+    public bool  ValidEmail { get; set; }
+    
+    [Column("uti_valid_telephone")]
+    public bool  ValidTelephone { get; set; }
     
     //id de relation
     
@@ -106,6 +116,12 @@ public class Utilisateur : IEntity
 
     [InverseProperty(nameof(DemandeRestauration.Plaignant))]
     public virtual ICollection<DemandeRestauration> DemandesRestauration { get; set; } = new List<DemandeRestauration>();
+
+    [InverseProperty(nameof(Visualisation.UtilisateurVisu))]
+    public virtual ICollection<Visualisation> Visualisations { get; set; } = new List<Visualisation>();
+    
+    [InverseProperty(nameof(VerificationCode.Utilisateur))]
+    public virtual ICollection<VerificationCode> VerificationCodes { get; set; } = new List<VerificationCode>();
 
     public int GetId() => UtilisateurId;
 }

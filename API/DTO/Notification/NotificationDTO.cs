@@ -1,26 +1,49 @@
+using System.Text.Json.Serialization;
+
 namespace API.DTO.Notification;
 
-public class NotificationDTO
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "libelleType")]
+[JsonDerivedType(typeof(NotificationAdminDTO), "Administration")]
+[JsonDerivedType(typeof(NotificationAvertissementDTO), "Avertissement")]
+[JsonDerivedType(typeof(NotificationMessageDTO), "Message")]
+[JsonDerivedType(typeof(NotificationModificationAnnonceDTO), "Modification annonce")]
+[JsonDerivedType(typeof(NotificationNouvelleAnnonceDTO), "Nouvelle annonce")]
+public abstract class NotificationDTO
 {
-    public int NotificationTypeId { get; set; }
-    
-    
-    //message administrateur
+    public int NotificationId { get; set; }
+    public DateTime DateCreation { get; set; }
+    public abstract string LibelleType { get;  }
+    public bool EstLu { get; set; }
+}
+
+public class NotificationAdminDTO : NotificationDTO
+{
+    public override string LibelleType => "Administration";
     public String? AdminText { get; set; }
-    
-    
-    //avertissement
+}
+
+public class NotificationAvertissementDTO : NotificationDTO
+{
+    public override string LibelleType => "Avertissement";
     public string? MessageAvertissement  { get; set; } = null!;
-    
-    //Nouveau message
-    public int? MessageId { get; set; }
-    
-    //modification annonce
+}
+public class NotificationMessageDTO  : NotificationDTO
+{
+    public override string LibelleType => "Message";
+    public int? ConversationId { get; set; }
+    public string? MessagePreview { get; set; } 
+}
+
+public class NotificationModificationAnnonceDTO : NotificationDTO
+{
+    public override string LibelleType => "Modification annonce";
     public int? ModificationAnnonceId { get; set; }
-    
-    //nouvelle annonce
+    public string? NomAuteur { get; set; }
+    public string? Title {get; set;}
+}
+
+public class NotificationNouvelleAnnonceDTO : NotificationDTO
+{
+    public override string LibelleType => "Nouvelle annonce";
     public int? NouvelleAnnonceId { get; set; }
-    
-    //type d'annonce 
-    public string TypeAnnonce  { get; set; } = null!;
 }

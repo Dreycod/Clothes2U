@@ -23,8 +23,9 @@ public class Categorie : IEntityWithNavigation
     [InverseProperty(nameof(Annonce.Categorie))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
     
-    [InverseProperty(nameof(Taille.Categorie))]
-    public virtual ICollection<Taille> Tailles { get; set; } = new List<Taille>();
+
+    [InverseProperty(nameof(Mesure.CategorieMesure))]
+    public virtual ICollection<Mesure> Mesures { get; set; } = new List<Mesure>();
 
     public int GetId() => CategorieId;
 

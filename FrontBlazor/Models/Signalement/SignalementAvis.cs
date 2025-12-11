@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models;
+namespace FrontBlazor.Models;
 public class SignalementAvis : IEntity
 {
     public int SignalementAvisId { get; set; }

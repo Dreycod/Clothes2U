@@ -66,7 +66,7 @@ namespace API.Controllers
             return Ok(_mapper.Map<BloqueDTO>(bloque));
         }
 
-        // 6️⃣ Supprimer un blocage
+        // Supprimer un blocage
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

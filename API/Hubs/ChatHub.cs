@@ -1,0 +1,50 @@
+using Microsoft.AspNetCore.SignalR;
+
+namespace API.Hubs;
+
+public class ChatHub : Hub
+{
+    // Cette méthode n'est plus utilisée directement - c'est le controller qui broadcast
+    public async Task SendMessage(int conversationId, int senderId, string message)
+    {
+        Console.WriteLine($"[Hub] 📨 SendMessage called (method direct):");
+        Console.WriteLine($"  - ConversationId: {conversationId}");
+        Console.WriteLine($"  - SenderId: {senderId}");
+        Console.WriteLine($"  - Message: {message}");
+        
+        var date = DateTime.UtcNow;
+        
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceiveMessage", conversationId, senderId, message, date);
+        
+        Console.WriteLine($"[Hub] ✅ Message broadcasted");
+    }
+
+    public async Task JoinConversation(int conversationId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
+        Console.WriteLine($"[Hub] ✅ {Context.ConnectionId} joined conversation_{conversationId}");
+    }
+
+    public async Task LeaveConversation(int conversationId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
+        Console.WriteLine($"[Hub] 👋 {Context.ConnectionId} left conversation_{conversationId}");
+    }
+
+    public override async Task OnConnectedAsync()
+    {
+        Console.WriteLine($"[Hub] 🟢 Client connected: {Context.ConnectionId}");
+        await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        Console.WriteLine($"[Hub] 🔴 Client disconnected: {Context.ConnectionId}");
+        if (exception != null)
+        {
+            Console.WriteLine($"[Hub]    Error: {exception.Message}");
+        }
+        await base.OnDisconnectedAsync(exception);
+    }
+}

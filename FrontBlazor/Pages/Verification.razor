@@ -1,0 +1,39 @@
+﻿@page "/verification"
+@inject VerificationViewModel VM
+
+<h3>Vérification du compte</h3>
+
+<select @bind="VM.SelectedType">
+    <option value="Email">Email</option>
+    <option value="Telephone">Téléphone</option>
+</select>
+
+<button @onclick="VM.SendCodeAsync">
+    Envoyer le code
+</button>
+
+@if (VM.SelectedType == VerificationType.Telephone)
+{
+    <input placeholder="+33612345678"
+           @bind="VM.PhoneNumber" />
+}
+
+
+@if (VM.CodeSent)
+{
+    <div>
+        <input placeholder="Code reçu"
+               @bind="VM.Code" />
+
+        <button @onclick="VM.VerifyAsync">
+            Vérifier
+        </button>
+
+        @if (VM.ExpiresAt != null)
+        {
+            <p>Expire le : @VM.ExpiresAt</p>
+        }
+    </div>
+}
+
+<p>@VM.Message</p>

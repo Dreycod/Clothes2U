@@ -1,7 +1,9 @@
 ﻿using API.DTO.NoteUtilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,44 +12,56 @@ namespace API.Controllers
     [ApiController]
     public class NoteUtilisateurController : ControllerBase
     {
-        private readonly INoteUtilisateurRepository _repo;
+        private readonly INoteUtilisateurRepository _noteUtilisateurManager;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
-        public NoteUtilisateurController(INoteUtilisateurRepository repo, IMapper mapper)
+        public NoteUtilisateurController(INoteUtilisateurRepository noteUtilisateurRepository, ICurrentUserService currentUserService, IMapper mapper)
         {
-            _repo = repo;
+            _noteUtilisateurManager = noteUtilisateurRepository;
+            _currentUserService = currentUserService;
             _mapper = mapper;
         }
 
         [HttpGet("User/{userId}")]
-        public async Task<ActionResult<IEnumerable<NoteUtilisateurDTO>>> GetNotesByUserId(int userId)
+        [ProducesResponseType(typeof(IEnumerable<NoteUtilisateurDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<NoteUtilisateurDTO>>> GetNotesByUserId(
+            int userId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var notes = await _repo.GetByUserIdAsync(userId);
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page et pageSize doivent être supérieurs à 0");
+            }
+    
+            var notes = await _noteUtilisateurManager.GetByUserIdAsync(userId, page, pageSize);
+    
             return Ok(_mapper.Map<IEnumerable<NoteUtilisateurDTO>>(notes));
-        }
-
-        [HttpGet("User/{userId}/Average")]
-        public async Task<ActionResult<double>> GetMoyenne(int userId)
-        {
-            var avg = await _repo.GetMoyenneNoteAsync(userId);
-            return Ok(avg);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<NoteUtilisateurDetailDTO>> GetById(int id)
         {
-            var note = await _repo.GetByIdAsync(id);
+            var note = await _noteUtilisateurManager.GetByIdAsync(id);
             if (note == null)
                 return NotFound();
 
             return Ok(_mapper.Map<NoteUtilisateurDetailDTO>(note));
         }
-
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<NoteUtilisateurDTO>> AddNote(NoteUtilisateurCreateDTO dto)
         {
+            int? userId = await _currentUserService.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
             var entity = _mapper.Map<NoteUtilisateur>(dto);
-            await _repo.AddAsync(entity);
+            entity.AuteurId = (int)userId;
+            await _noteUtilisateurManager.AddAsync(entity);
 
             return CreatedAtAction(nameof(GetById), new { id = entity.NoteUtilisateurId },
                 _mapper.Map<NoteUtilisateurDTO>(entity));
@@ -56,11 +70,11 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNote(int id)
         {
-            var note = await _repo.GetByIdAsync(id);
+            var note = await _noteUtilisateurManager.GetByIdAsync(id);
             if (note == null)
                 return NotFound();
 
-            await _repo.DeleteAsync(note);
+            await _noteUtilisateurManager.DeleteAsync(note);
             return NoContent();
         }
     }

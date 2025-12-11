@@ -1,5 +1,5 @@
-﻿@page "/profile/{username}"
-@rendermode InteractiveServer
+﻿@page "/profile/{userId:int}"
+
 
 
 
@@ -14,29 +14,33 @@
         <div class="profile-header">
             <div class="profile-avatar"></div>
             <div class="profile-info">
-                <div class="profile-top-row">
-                    <h1 class="profile-name">Denielz Denielz</h1>
-                    <div class="profile-actions">
-                        <button class="btn-icon">
-                            <i class="bi bi-three-dots"></i>
-                        </button>
-                        <button class="btn-follow">Suivre</button>
+                @if (VM_Profil.ViewingUser != null)
+                {
+                    <div class="profile-top-row">
+
+                        <h1 class="profile-name">@VM_Profil.ViewingUser.Login</h1>
+                        <div class="profile-actions">
+                            <button class="btn-icon">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <button class="btn-follow" @onclick="AbonnerUtilisateur">Suivre</button>
+                        </div>
                     </div>
-                </div>
-                <div class="profile-location">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>Annecy, France</span>
-                </div>
-                <div class="profile-stats-row">
-                    <span class="profile-stat">412 Abonnés, 12 Abonnements</span>
-                </div>
-                <div class="profile-member-info">
-                    <span>Membre depuis Novembre 2025</span>
-                    <div class="profile-rating">
-                        <i class="bi bi-star-fill"></i>
-                        <span>4.8 (127 avis)</span>
+                    <div class="profile-location">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>Annecy, France</span>
                     </div>
-                </div>
+                    <div class="profile-stats-row">
+                        <span class="profile-stat">@VM_Profil.ViewingUser.Abonnements Abonnements, @VM_Profil.ViewingUser.Abonnes Abonnés</span>
+                    </div>
+                    <div class="profile-member-info">
+                        <span>Membre depuis @VM_Profil.ViewingUser.DateInscription </span> @*will have to somehow make it like this -> Novembre 2025 *@
+                        <div class="profile-rating">
+                            <i class="bi bi-star-fill"></i>
+                            <span>@VM_Profil.ViewingUser.Moyenne (@VM_Profil.AvisCount)</span> @* nombre de avis grâce a get avis*@
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -46,46 +50,56 @@
                 <i class="bi bi-bag"></i>
                 <span>Articles</span>
             </button>
-            @if (userStateService.CurrentEntity.UtilisateurId == VM_Profil.ViewingUser_UserId) 
+            @* @if (userStateService.CurrentEntity.UtilisateurId == VM_Profil.ViewingUser_UserId) 
             {
                 <button class="tab-btn @(VM_Profil.activeTab == "favoris" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("favoris")'>
                     <i class="bi bi-heart"></i>
                     <span>Favoris</span>
                 </button>
-            }
+            } *@
 
             <button class="tab-btn @(VM_Profil.activeTab == "avis" ? "active" : "")" @onclick='() => VM_Profil.SetActiveTab("avis")'>
                 <i class="bi bi-star"></i>
                 <span>Avis</span>
             </button>
+
+            <button class="tab-btn" @onclick='() => navigationManager.NavigateTo("/verification")'>
+                Vérifier mon compte
+            </button>
+
         </div>
 
         <!-- Tab Content -->
         <div class="tab-content">
             @if (VM_Profil.activeTab == "articles")
             {
-                @if (VM_Profil.hasArticles)
+                @if (VM_Profil.Annonces != null)
                 {
                     <div class="products-grid">
-                        @for (int i = 0; i < 8; i++)
+                        @foreach (Annonce annonce in VM_Profil.Annonces)
                         {
-                            <div class="product-card">
+                            <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
                                 <div class="product-image-container">
                                     <div class="product-image"></div>
-                                    <button class="wishlist-btn">
-                                        <i class="bi bi-heart"></i>
+                                    <button class="wishlist-btn"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="() => ToggleFavorite(annonce.AnnonceId)">
+                                        <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                                     </button>
+
                                 </div>
+
                                 <div class="product-info">
-                                    <h3 class="product-title">T-Shirt Adidas</h3>
-                                    <p class="product-brand">Adidas</p>
+                                    <h3 class="product-title">@annonce.Title</h3>
+
                                     <div class="product-meta">
-                                        <span class="product-size">Taille XL</span>
-                                        <span class="product-condition">Très bon état</span>
+                                        <span class="product-size">Taille @annonce.Taille</span>
+                                        <span class="product-condition">@annonce.EtatArticle</span>
                                     </div>
+
                                     <div class="product-footer">
-                                        <span class="product-price">20.99€</span>
-                                        <span class="product-seller">par Daniel</span>
+                                        <span class="product-price">@annonce.Prix€</span>
+                                        <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
                                     </div>
                                 </div>
                             </div>
@@ -100,62 +114,82 @@
                 }
                 else
                 {
-                    <div class="empty-state">
-                        <p>Vous n'avez pas encore mis en vente des articles</p>
-                        <button class="btn-add-article" @onclick="AddArticle">
-                            Ajouter un article
-                        </button>
-                    </div>
+                    if (true) @* user is not user then it should be a diff thing*@
+                    {
+                        <div class="empty-state">
+                            <p>Vous n'avez pas encore mis en vente des articles</p>
+                            <button class="btn-add-article" @onclick="AddArticle">
+                                Ajouter un article
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <p>L'utilisateur n'a pas posté d'annonces'</p>
+                        </div>
+                    }
+                    
                 }
             }
             else if (VM_Profil.activeTab == "favoris")
             {
                 <div class="products-grid">
-                    @for (int i = 0; i < 8; i++)
+                    @foreach (Annonce favoris in VM_Profil.FavorisAnnonce)
                     {
-                        <div class="product-card">
+                        <div class="product-card" @onclick="() => NavigateToProductDetail(favoris.AnnonceId)">
                             <div class="product-image-container">
                                 <div class="product-image"></div>
-                                <button class="wishlist-btn">
-                                    <i class="bi bi-heart-fill"></i>
+                                <button class="wishlist-btn"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => ToggleFavorite(favoris.AnnonceId)">
+                                    <i class="bi bi-heart@(favoris.IsLikedByCurrentUser ? "-fill" : "")"></i>
                                 </button>
                             </div>
+
                             <div class="product-info">
-                                <h3 class="product-title">T-Shirt Adidas</h3>
-                                <p class="product-brand">Adidas</p>
+                                <h3 class="product-title">@favoris.Title</h3>
+
                                 <div class="product-meta">
-                                    <span class="product-size">Taille XL</span>
-                                    <span class="product-condition">Très bon état</span>
+                                    <span class="product-size">Taille @favoris.Taille</span>
+                                    <span class="product-condition">@favoris.EtatArticle</span>
                                 </div>
+
                                 <div class="product-footer">
-                                    <span class="product-price">20.99€</span>
-                                    <span class="product-seller">par Daniel</span>
+                                    <span class="product-price">@favoris.Prix€</span>
+                                    <span class="product-seller">par @(favoris.NomAuteur ?? "Vendeur")</span>
                                 </div>
                             </div>
                         </div>
                     }
                 </div>
+                <div class="filter-dropdown">
+                    <button class="filter-btn">
+                        <i class="bi bi-funnel"></i>
+                        <span>Tous</span>
+                    </button>
+                </div>
             }
             else if (VM_Profil.activeTab == "avis")
             {
                 <div class="reviews-list">
-                    @for (int i = 0; i < 3; i++)
+                    @foreach (NoteUtilisateur avis in VM_Profil.Avis)
                     {
                         <div class="review-item">
                             <div class="review-header">
                                 <div class="review-user">
                                     <div class="review-avatar"></div>
-                                    <h3 class="review-name">Marie-Antoinette</h3>
+                                    <h3 class="review-name">@avis.LoginAuteur</h3>
                                 </div>
-                                <span class="review-date">02/11/2025</span>
+                                <span class="review-date">@avis.DatePublication</span>
                             </div>
                             <div class="review-rating">
-                                @for (int j = 0; j < 5; j++)
+                                @for (int j = 0; j < avis.Note; j++)
                                 {
                                     <i class="bi bi-star-fill"></i>
                                 }
                             </div>
-                            <p class="review-text">Excellent vendeur! Je recommande.</p>
+                            <p class="review-text">@avis.Commentaire</p>
                         </div>
                     }
                 </div>
@@ -165,9 +199,11 @@
 </div>
 
 @code {
+    [Parameter]
+    public int userId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        //await VM_Profil.InitializeAsync();
+        await VM_Profil.LoadUserProfile(userId);
         // show user's data
         // show user's articles
         // show user's favoris IF logged in user is the same as profile user (don't GET if not)
@@ -178,5 +214,31 @@
     public void AddArticle()
     {
         navigationManager.NavigateTo("/ajouter-article");
+    }
+
+    public async Task AbonnerUtilisateur()
+    {
+        await VM_Profil.ToggleAbonnement(userId);
+    }
+
+    private void NavigateToProductDetail(int? productId)
+    {
+        if (productId.HasValue)
+        {
+            navigationManager.NavigateTo($"/product/{productId}");
+        }
+    }
+
+    private async Task ToggleFavorite(int annonceId)
+    {
+        if (VM_Connexion.CheckLoginStatus == null)
+        {
+            navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await VM_Profil.ToggleFavorite(annonceId);
+
+        StateHasChanged();
     }
 }

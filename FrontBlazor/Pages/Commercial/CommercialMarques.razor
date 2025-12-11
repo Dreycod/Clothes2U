@@ -1,0 +1,178 @@
+@page "/commercial/marques"
+
+<PageTitle>Gestion des Marques - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/commercial-shared.css" />
+
+<div class="commercial-page">
+    <div class="commercial-container">
+        <!-- Sidebar -->
+        <aside class="commercial-sidebar">
+            <div class="commercial-header">
+                <div class="commercial-logo">
+                    <i class="bi bi-shop"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Équipe Commerciale</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="commercial-nav">
+                <a href="/commercial" class="commercial-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/commercial/marques" class="commercial-nav-item active">
+                    <i class="bi bi-tag"></i>
+                    <span>Marques</span>
+                </a>
+                <a href="/commercial/categories" class="commercial-nav-item">
+                    <i class="bi bi-grid"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="/commercial/sous-categories" class="commercial-nav-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Sous-catégories</span>
+                </a>
+                <a href="/commercial/couleurs" class="commercial-nav-item">
+                    <i class="bi bi-palette"></i>
+                    <span>Couleurs</span>
+                </a>
+                <a href="/commercial/tailles" class="commercial-nav-item">
+                    <i class="bi bi-rulers"></i>
+                    <span>Tailles</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="commercial-content">
+            <div class="page-header">
+                <h1 class="commercial-page-title">Gestion des Marques</h1>
+                <button class="btn-primary" @onclick="VM_CommercialMarques.ShowAddModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Ajouter une marque
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(VM_CommercialMarques.successMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@VM_CommercialMarques.successMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(VM_CommercialMarques.errorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>@VM_CommercialMarques.errorMessage</span>
+                </div>
+            }
+
+            <!-- Brands Table -->
+            <div class="table-container">
+                @if (VM_Marque.IsLoading)
+                {
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Chargement des marques...</p>
+                    </div>
+                }
+                else if (VM_Marque.Items != null && VM_Marque.Items.Any())
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom de la marque</th>
+                                <th>Nombre d'articles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var marque in VM_Marque.Items)
+                            {
+                                <tr>
+                                    <td>#@marque.MarqueId</td>
+                                    <td><strong>@marque.NomMarque</strong></td>
+                                    <td>@marque.NombreProduits articles</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialMarques.ShowEditModal(marque)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialMarques.ShowDeleteModal(marque)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-tag"></i>
+                        <h3>Aucune marque</h3>
+                        <p>Commencez par ajouter votre première marque</p>
+                        <button class="btn-primary" @onclick="VM_CommercialMarques.ShowAddModal">
+                            <i class="bi bi-plus-circle"></i>
+                            Ajouter une marque
+                        </button>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+@if (VM_CommercialMarques.showModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialMarques.CloseModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>@(VM_CommercialMarques.isEditing ? "Modifier" : "Ajouter") une marque</h3>
+
+            <div class="form-group">
+                <label class="form-label">Nom de la marque</label>
+                <input type="text" class="form-input" placeholder="Ex: Nike, Adidas..." @bind="VM_CommercialMarques.currentMarque.NomMarque" />
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialMarques.CloseModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_CommercialMarques.SaveMarque">
+                    @(VM_CommercialMarques.isEditing ? "Modifier" : "Ajouter")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Modal -->
+@if (VM_CommercialMarques.showDeleteModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialMarques.CloseDeleteModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>Supprimer la marque</h3>
+            <p>Êtes-vous sûr de vouloir supprimer la marque <strong>@VM_CommercialMarques.currentMarque.NomMarque</strong> ?</p>
+            <p style="color: #ef4444; font-size: 0.9rem;">Cette action est irréversible.</p>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialMarques.CloseDeleteModal">Annuler</button>
+                <button class="btn-danger" @onclick="VM_CommercialMarques.DeleteMarque">Supprimer</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_CommercialMarques.LoadAsync();
+    }
+}

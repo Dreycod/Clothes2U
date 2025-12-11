@@ -1,0 +1,273 @@
+using FrontBlazor.Services.Interfaces;
+using Microsoft.AspNetCore.SignalR.Client;
+
+namespace FrontBlazor.Services;
+
+public class SignalRWebService : IAsyncDisposable, ISignalRService
+{
+    private HubConnection? _hubConnection;
+    private readonly string _hubUrl;
+
+    public event Action<int, int, string, DateTime>? OnMessageReceived;
+    public event Action<int, int, string>? OnUserTyping;
+    public event Action<int, int>? OnMessagesRead;
+
+    public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
+
+    public SignalRWebService()
+    {
+        _hubUrl = "http://localhost:5096/chatHub"; // ← Vérifiez que l'URL est correcte
+        Console.WriteLine($"[SignalR] Service initialized with hub URL: {_hubUrl}");
+    }
+
+    public async Task StartAsync()
+    {
+        if (_hubConnection != null && IsConnected)
+        {
+            Console.WriteLine("[SignalR] Already connected — ignoring StartAsync()");
+            return;
+        }
+
+        try
+        {
+            Console.WriteLine("[SignalR] Creating hub connection...");
+            
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(_hubUrl, options =>
+                {
+                    // Activer les credentials si nécessaire pour l'authentification
+                    options.AccessTokenProvider = async () =>
+                    {
+                        // Si vous utilisez des JWT, récupérez le token ici
+                        // var token = await GetTokenAsync();
+                        // return token;
+                        return null;
+                    };
+                })
+                .WithAutomaticReconnect(new[] 
+                { 
+                    TimeSpan.Zero,           // Reconnexion immédiate
+                    TimeSpan.FromSeconds(2), 
+                    TimeSpan.FromSeconds(5), 
+                    TimeSpan.FromSeconds(10),
+                    TimeSpan.FromSeconds(30)
+                })
+                .ConfigureLogging(logging =>
+                {
+                    // Active les logs SignalR dans la console
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+                })
+                .Build();
+
+            // ===== ÉVÉNEMENTS DE CONNEXION =====
+            
+            _hubConnection.Reconnecting += error =>
+            {
+                Console.WriteLine($"[SignalR] 🔄 Reconnecting... Error: {error?.Message}");
+                return Task.CompletedTask;
+            };
+
+            _hubConnection.Reconnected += connectionId =>
+            {
+                Console.WriteLine($"[SignalR] ✅ Reconnected! New connection ID: {connectionId}");
+                return Task.CompletedTask;
+            };
+
+            _hubConnection.Closed += error =>
+            {
+                Console.WriteLine($"[SignalR] ❌ Connection closed. Error: {error?.Message}");
+                return Task.CompletedTask;
+            };
+
+            // ===== ÉCOUTE DES MESSAGES DU SERVEUR =====
+            
+            // Réception d'un nouveau message
+            _hubConnection.On<int, int, string, DateTime>("ReceiveMessage", 
+                (conversationId, senderId, message, date) =>
+            {
+                Console.WriteLine($"[SignalR] 📨 ReceiveMessage event received:");
+                Console.WriteLine($"  - ConversationId: {conversationId}");
+                Console.WriteLine($"  - SenderId: {senderId}");
+                Console.WriteLine($"  - Message: {message}");
+                Console.WriteLine($"  - Date: {date}");
+                Console.WriteLine($"  - Subscribers: {OnMessageReceived?.GetInvocationList().Length ?? 0}");
+                
+                OnMessageReceived?.Invoke(conversationId, senderId, message, date);
+            });
+
+            // Notification qu'un utilisateur est en train d'écrire
+            _hubConnection.On<int, int, string>("UserIsTyping", 
+                (conversationId, userId, userName) =>
+            {
+                Console.WriteLine($"[SignalR] ⌨️ UserIsTyping: conv={conversationId}, user={userId}, name={userName}");
+                OnUserTyping?.Invoke(conversationId, userId, userName);
+            });
+
+            // Notification que des messages ont été lus
+            _hubConnection.On<int, int>("MessagesRead", 
+                (conversationId, userId) =>
+            {
+                Console.WriteLine($"[SignalR] ✔️ MessagesRead: conv={conversationId}, user={userId}");
+                OnMessagesRead?.Invoke(conversationId, userId);
+            });
+
+            // ===== DÉMARRAGE DE LA CONNEXION =====
+            
+            Console.WriteLine("[SignalR] Starting connection...");
+            await _hubConnection.StartAsync();
+            Console.WriteLine("[SignalR] ✅ Connection started successfully!");
+            Console.WriteLine($"[SignalR] Connection ID: {_hubConnection.ConnectionId}");
+            Console.WriteLine($"[SignalR] State: {_hubConnection.State}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR] ❌ ERROR while starting connection:");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+            throw;
+        }
+    }
+
+    public async Task StopAsync()
+    {
+        if (_hubConnection != null)
+        {
+            try
+            {
+                Console.WriteLine("[SignalR] Stopping connection...");
+                await _hubConnection.StopAsync();
+                Console.WriteLine("[SignalR] Connection stopped");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SignalR] Error stopping connection: {ex.Message}");
+            }
+
+            try
+            {
+                await _hubConnection.DisposeAsync();
+                Console.WriteLine("[SignalR] HubConnection disposed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SignalR] Error disposing: {ex.Message}");
+            }
+
+            _hubConnection = null;
+        }
+    }
+
+    public async Task JoinConversation(int conversationId)
+    {
+        if (_hubConnection == null || !IsConnected)
+        {
+            Console.WriteLine($"[SignalR] ❌ Cannot join conversation {conversationId}: not connected");
+            Console.WriteLine($"[SignalR]    _hubConnection is null: {_hubConnection == null}");
+            Console.WriteLine($"[SignalR]    IsConnected: {IsConnected}");
+            return;
+        }
+
+        try
+        {
+            Console.WriteLine($"[SignalR] 🚀 Attempting to join conversation {conversationId}...");
+            await _hubConnection.InvokeAsync("JoinConversation", conversationId);
+            Console.WriteLine($"[SignalR] ✅ Successfully joined conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR] ❌ Error joining conversation {conversationId}:");
+            Console.WriteLine($"[SignalR]    Message: {ex.Message}");
+            Console.WriteLine($"[SignalR]    StackTrace: {ex.StackTrace}");
+            throw;
+        }
+    }
+
+    public async Task LeaveConversation(int conversationId)
+    {
+        if (_hubConnection == null || !IsConnected)
+        {
+            Console.WriteLine($"[SignalR] ⚠️ Cannot leave conversation {conversationId}: not connected");
+            return;
+        }
+
+        try
+        {
+            Console.WriteLine($"[SignalR] Leaving conversation {conversationId}...");
+            await _hubConnection.InvokeAsync("LeaveConversation", conversationId);
+            Console.WriteLine($"[SignalR] ✅ Successfully left conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR] ❌ Error leaving conversation {conversationId}: {ex.Message}");
+        }
+    }
+
+    public async Task SendMessage(int conversationId, int senderId, string message)
+    {
+        if (_hubConnection == null || !IsConnected)
+        {
+            Console.WriteLine($"[SignalR] ❌ Cannot send message: not connected");
+            throw new InvalidOperationException("SignalR connection is not established");
+        }
+
+        try
+        {
+            Console.WriteLine($"[SignalR] Sending message:");
+            Console.WriteLine($"  - ConversationId: {conversationId}");
+            Console.WriteLine($"  - SenderId: {senderId}");
+            Console.WriteLine($"  - Message: {message}");
+            
+            await _hubConnection.InvokeAsync("SendMessage", conversationId, senderId, message);
+            Console.WriteLine($"[SignalR] ✅ Message sent successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR] ❌ Error sending message: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task NotifyTyping(int conversationId, int userId, string userName)
+    {
+        if (_hubConnection == null || !IsConnected)
+        {
+            Console.WriteLine($"[SignalR] ⚠️ Cannot notify typing: not connected");
+            return;
+        }
+
+        try
+        {
+            await _hubConnection.InvokeAsync("UserTyping", conversationId, userId, userName);
+            Console.WriteLine($"[SignalR] ⌨️ Typing notification sent for conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR] ❌ Error notifying typing: {ex.Message}");
+        }
+    }
+
+    public async Task MarkAsRead(int conversationId, int userId)
+    {
+        if (_hubConnection == null || !IsConnected)
+        {
+            Console.WriteLine($"[SignalR] ⚠️ Cannot mark as read: not connected");
+            return;
+        }
+
+        try
+        {
+            await _hubConnection.InvokeAsync("MarkAsRead", conversationId, userId);
+            Console.WriteLine($"[SignalR] ✔️ Messages marked as read for conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR] ❌ Error marking as read: {ex.Message}");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Console.WriteLine("[SignalR] DisposeAsync called");
+        await StopAsync();
+    }
+}

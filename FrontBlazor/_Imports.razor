@@ -1,0 +1,46 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.JSInterop
+@using FrontBlazor
+@using BlazorBootstrap;
+@using FrontBlazor.Layout
+@using FrontBlazor.ViewModel;
+@using FrontBlazor.Services;
+@using FrontBlazor.Models;
+@using FrontBlazor.Models.StateServices
+@using FrontBlazor.Models.Verification
+@using FrontBlazor.ViewModel;
+@using FrontBlazor.Services;
+@using FrontBlazor.Models;
+@using FrontBlazor.Models.StateServices
+@using FrontBlazor.Services.Interfaces
+@using FrontBlazor.Services.GenericIServices
+@inject IStateService<Annonce> annonceStateService
+@inject NavigationManager navigationManager
+@inject LoginViewModel VM_Connexion
+@* Pages *@
+@inject SearchAnnonceViewModel VM_Search
+@inject MessagerieViewModel VM_Messagerie
+@inject CreationAnnonceViewModel VM_CreationAnnonce
+@inject DetailAnnonceViewModel VM_DetailAnnonce
+@inject ProfilViewModel VM_Profil
+@inject CommercialCategoriesViewModel VM_CommercialCategories
+@inject CommercialMarquesViewModel VM_CommercialMarques
+@inject CommercialTaillesViewModel VM_CommercialTailles
+@inject CommercialSousCategoriesViewModel VM_CommercialSousCategories
+@inject CommercialCouleursViewModel VM_CommercialCouleurs
+@inject CommercialViewModel VM_Commercial
+@inject HomeViewModel VM_Home
+
+
+@* Models *@
+@inject ListableViewModel<Categorie> VM_Categorie
+@inject ListableViewModel<Taille> VM_Taille
+@inject ListableViewModel<Marque> VM_Marque
+@inject ListableViewModel<Couleur> VM_Couleur
+@inject ListableViewModel<EtatArticle> VM_Etat

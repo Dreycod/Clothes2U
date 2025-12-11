@@ -6,6 +6,7 @@ public class AnnonceDTO
     public string Title { get; set; }
     public string? Description { get; set; }
     public string NomMarque { get; set; } = null!;
+    public bool IsLikedByCurrentUser { get; set; }
     public int UtilisateurId { get; set; }
     public DateTime DateAnnonce { get; set; }
     public string EtatArticle { get; set; } = null!;

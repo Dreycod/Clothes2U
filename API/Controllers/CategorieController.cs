@@ -1,6 +1,8 @@
+using API.DTO;
 using API.DTO.Categorie;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Managers;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
  
@@ -13,10 +15,10 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class CategorieController : ControllerBase
 {
-    private readonly IDataRepository<Categorie, int> _categorieManager;
+    private readonly ICaracteristiquesRepository<Categorie> _categorieManager;
     private readonly IMapper _mapper;
 
-    public CategorieController(IDataRepository<Categorie, int> manager, IMapper mapper)
+    public CategorieController(ICaracteristiquesRepository<Categorie> manager, IMapper mapper)
     {
         _categorieManager = manager;
         _mapper = mapper;
@@ -31,5 +33,15 @@ public class CategorieController : ControllerBase
         IEnumerable<CategorieDTO> categoriesDTO = _mapper.Map<IEnumerable<CategorieDTO>>(categories);
         return Ok(categoriesDTO);
     }
-    
+
+    [HttpGet("details")]
+    [ProducesResponseType(typeof(IEnumerable<CategorieDetailDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<CategorieDetailDTO>> GetAllCategoriesWithDetails()
+    {
+        IEnumerable<Categorie> categories = await _categorieManager.GetAllWithDetailsAsync();
+        IEnumerable<CategorieDetailDTO> categoriesdetailDTO = _mapper.Map<IEnumerable<CategorieDetailDTO>>(categories);
+        return Ok(categoriesdetailDTO);
+    }
+
 }

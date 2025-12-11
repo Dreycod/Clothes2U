@@ -1,8 +1,13 @@
 using API.DTO.Message;
+using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services.Notifications;
+using API.Services.Notifications.Events;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace API.Controllers;
 
@@ -15,50 +20,118 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageTexte, int> _messageTexteManager;
     private readonly IDataRepository<MessageDemande, int> _messageDemandeManager;
     private readonly IDataRepository<MessageValidation, int> _messageValidationManager;
+    private readonly IConversationRepository<Conversation, int> _conversationManager;
+    private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ChatHub> _hubContext;
 
     public MessageController(
         IDataRepository<Message, int> messageManager,
         IDataRepository<MessageTexte, int> messageTexteManager,
+        IConversationRepository<Conversation, int> conversationManager,
         IDataRepository<MessageDemande, int> messageDemandeManager,
         IDataRepository<MessageValidation, int> messageValidationManager,
-        IMapper mapper)
+        INotificationService notificationMessageManager,
+        IMapper mapper,
+        IHubContext<ChatHub> hubContext)
     {
         _messageManager = messageManager;
         _messageTexteManager = messageTexteManager;
+        _conversationManager = conversationManager;
         _messageDemandeManager = messageDemandeManager;
         _messageValidationManager = messageValidationManager;
+        _notificationService = notificationMessageManager;
         _mapper = mapper;
+        _hubContext = hubContext;
     }
-
-    [HttpPost("texte")]
-    [ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
+    private int? GetConnectedUserId()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var message = new Message
+        if (User?.Identity?.IsAuthenticated == true)
         {
-            MessageDate = DateTime.UtcNow,
-            MessageLu = false,
-            UtilisateurId = dto.UtilisateurId,
-            ConversationId = dto.ConversationId
-        };
-        
-        await _messageManager.AddAsync(message);
+            var userIdClaim = User.FindFirst("userId")?.Value;
 
-        var messageTexte = new MessageTexte
-        {
-            MessageId = message.MessageId,
-            ContenuMessage = dto.ContenuMessage
-        };
-        
-        await _messageTexteManager.AddAsync(messageTexte);
-
-        return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
+            {
+                return id;
+            }
+        }
+        return null;
     }
+    
+    [Authorize]
+[HttpPost("texte")]
+[ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
+{
+    Console.WriteLine($"[MessageController] 📨 PostMessageTexte called:");
+    Console.WriteLine($"  - ConversationId: {dto.ConversationId}");
+    Console.WriteLine($"  - UserId: {dto.UtilisateurId}");
+    Console.WriteLine($"  - Content: {dto.Content}");
+    
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    var message = new Message
+    {
+        MessageDate = DateTime.UtcNow,
+        MessageLu = false,
+        UtilisateurId = dto.UtilisateurId,
+        ConversationId = dto.ConversationId
+    };
+    
+    await _messageManager.AddAsync(message);
+
+    var messageTexte = new MessageTexte
+    {
+        MessageId = message.MessageId,
+        Content = dto.Content
+    };
+    
+    await _messageTexteManager.AddAsync(messageTexte);
+    
+    var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+    if (conversation != null)
+    {
+        int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+        if (targetUserId != null)
+        {
+            var notificationEvent = new NewMessageEvent
+            {
+                TargetUserId = (int)targetUserId,
+                MessageId = message.MessageId,
+                SenderId = dto.UtilisateurId,
+                MessagePreview = dto.Content.Substring(0, Math.Min(50, dto.Content.Length))
+            };
+            await _notificationService.NotifyAsync(notificationEvent);
+            
+            // 🔥 BROADCASTER VIA SIGNALR
+            Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
+            
+            await _hubContext.Clients
+                .Group($"conversation_{message.ConversationId}")
+                .SendAsync("ReceiveMessage", 
+                    message.ConversationId, 
+                    message.UtilisateurId, 
+                    dto.Content, 
+                    message.MessageDate);
+            
+            Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
+        }
+        else
+        {
+            Console.WriteLine($"[MessageController] ❌ Target user not found");
+            return BadRequest("Utilisateur non autorisé pour cette conversation");
+        }
+    }
+    else
+    {
+        Console.WriteLine($"[MessageController] ❌ Conversation {dto.ConversationId} not found");
+        return BadRequest("Conversation introuvable");
+    }
+    
+    return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+}
 
     [HttpPost("demande")]
     [ProducesResponseType(typeof(MessageDemandePostDTO), StatusCodes.Status201Created)]

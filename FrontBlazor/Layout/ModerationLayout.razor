@@ -1,0 +1,52 @@
+@using FrontBlazor.Pages.Moderation
+@inherits LayoutComponentBase
+
+<div class="moderation-page">
+    <div class="moderation-container">
+        <aside class="mod-sidebar">
+            <div class="mod-header">
+                <div class="mod-logo">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Moderation Board</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mod-nav">
+                <NavLink href="/moderation" class="mod-nav-item" Match="NavLinkMatch.All">
+                    <i class="bi bi-house-door"></i>
+                    <span>Home</span>
+                </NavLink>
+                <NavLink href="/moderation/signalements" class="mod-nav-item" Match="NavLinkMatch.Prefix">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>Signalements</span>
+                </NavLink>
+                <NavLink href="/moderation/images" class="mod-nav-item" Match="NavLinkMatch.Prefix">
+                    <i class="bi bi-image"></i>
+                    <span>Images</span>
+                </NavLink>
+                <NavLink href="/moderation/restauration" class="mod-nav-item" Match="NavLinkMatch.Prefix">
+                    <i class="bi bi-person-check"></i>
+                    <span>Restauration</span>
+                </NavLink>
+                <NavLink href="/moderation/sanctions" class="mod-nav-item" Match="NavLinkMatch.Prefix">
+                    <i class="bi bi-person-x"></i>
+                    <span>Sanctions</span>
+                </NavLink>
+                <NavLink href="/moderation/mots-interdits" class="mod-nav-item" Match="NavLinkMatch.Prefix">
+                    <i class="bi bi-chat-square-text"></i>
+                    <span>Mots interdits</span>
+                </NavLink>
+                <NavLink href="/moderation/support" class="mod-nav-item" Match="NavLinkMatch.Prefix">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Support</span>
+                </NavLink>
+            </nav>
+        </aside>
+        <main class="mod-content">
+            @Body
+        </main>
+    </div>
+</div>

@@ -1,22 +1,54 @@
-using System.ComponentModel.DataAnnotations;
+using API.DTO.Utilisateur;
+using API.Models.Entity;
+using API.Models.EntityFramework;
+using API.Models.Repository;
+using API.Services;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-using API.Models.EntityFramework;
-using API.Models.Repository;
-using AutoMapper;
 
 namespace API.Controllers;
 
 public class LoginRequest
 {
+    [Required(ErrorMessage = "Email ou Login obligatoire")]
     public string? Login { get; set; }
+    
+    [Required(ErrorMessage = "Mot de passe obligatoire.")]
+    [DataType(DataType.Password)]
+    public string? Password { get; set; }
+}
+
+public class RegisterRequest
+{
+    [Required(ErrorMessage = "Login obligatoire.")]
+    public string? Login { get; set; }
+    
+    [Required(ErrorMessage = "Email obligatoire.")]
+    [EmailAddress(ErrorMessage = "Email invalide.")]
     public string? Email { get; set; }
-    public string Password { get; set; }
+    
+    [Required(ErrorMessage = "Mot de passe obligatoire.")]
+    [DataType(DataType.Password)]
+    [RegularExpression(
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+        ErrorMessage = "Mot de passe non conforme."
+    )]
+    public string? Password { get; set; }
+    
+    [Required(ErrorMessage = "Veuillez confirmer votre mot de passe.")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Les mots de passe ne correspondent pas.")]
     public string? PasswordConfirm { get; set; }
 }
 
@@ -25,38 +57,55 @@ public class LoginRequest
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly IDataRepository<Utilisateur, int> _dataRepository;
+    private readonly IUtilisateurRepository _utilisateurManager;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly ILoginService _loginService;
     private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
 
-    public LoginController(IConfiguration config, IMapper mapper, IDataRepository<Utilisateur, int> dataRepo)
+    public LoginController(IConfiguration config, IMapper mapper, IUtilisateurRepository dataRepo, ILoginService loginService, ICurrentUserService currentUserService)
     {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
-        _config = config;
-        _dataRepository = dataRepo;
+        _currentUserService = currentUserService;
+        _utilisateurManager = dataRepo;
+        _loginService = loginService;
     }
 
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        await LoadUtilisateursAsync();
+        var utilisateurs = await _utilisateurManager.GetAllAsync();
+        var usersList = utilisateurs?.ToList();
+        
+        if (string.IsNullOrEmpty(request.Login))
+        {
+            return BadRequest("Email ou login obligatoires.");
+        }
 
-        var loginOrEmail = string.IsNullOrEmpty(request.Login) ? request.Email : request.Login;
-        var utilisateur = AuthentificateUtilisateur(loginOrEmail!, request.Password);
+        var loginOrEmail = request.Login;
+        var auth = _loginService.AuthenticateUtilisateur(loginOrEmail!, request.Password, usersList);;
 
-        if (utilisateur == null)
-            return Unauthorized("Email/Login ou mot de passe incorrect.");
+        if (auth.result != AuthResult.Success)
+        {
+            if(auth.result == AuthResult.InvalidLoginOrEmail)
+                return Unauthorized("Utilisateur inconnu.");
+            return Unauthorized("Votre mot de passe est incorrect.");
+        }
+            
+
+        var utilisateur = auth.user;
 
         // Génération JWT
-        var tokenString = GenerateJwtToken(utilisateur);
+        var tokenString = _loginService.GenerateJwtToken(utilisateur);
 
         // Cookie HttpOnly
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = false, // dev local
-            SameSite = SameSiteMode.Strict,
+            Secure = false, 
+            SameSite = SameSiteMode.Lax,
             Expires = DateTime.Now.AddMinutes(30)
         };
         Response.Cookies.Append("authToken", tokenString, cookieOptions);
@@ -67,28 +116,18 @@ public class LoginController : ControllerBase
 
     [HttpPost("signup")]
     [AllowAnonymous]
-    public async Task<IActionResult> SignUp([FromBody] LoginRequest request)
+    public async Task<IActionResult> SignUp([FromBody] RegisterRequest request)
     {
-        if (request == null ||
-            string.IsNullOrEmpty(request.Email) ||
-            string.IsNullOrEmpty(request.Login) ||
-            string.IsNullOrEmpty(request.Password) ||
-            string.IsNullOrEmpty(request.PasswordConfirm))
-            return BadRequest("Données invalides.");
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        if (!new EmailAddressAttribute().IsValid(request.Email))
-            return BadRequest("Email invalide.");
-
-        string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
-        if (!Regex.IsMatch(request.Password, pattern))
-            return BadRequest("Mot de passe non conforme.");
-
-        if (request.Password != request.PasswordConfirm)
-            return BadRequest("Les mots de passe ne correspondent pas.");
-
-        var existingUsers = await _dataRepository.GetAllAsync();
+        var existingUsers = await _utilisateurManager.GetAllAsync();
+        
         if (existingUsers.Any(u => u.Email.ToUpper() == request.Email.ToUpper()))
             return BadRequest("Cet email est déjà utilisé.");
+        
         if (existingUsers.Any(u => u.Login.ToUpper() == request.Login.ToUpper()))
             return BadRequest("Ce login est déjà utilisé.");
 
@@ -99,19 +138,21 @@ public class LoginController : ControllerBase
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Description = "",
             StatutId = 1,
+            ValidEmail = false,
+            ValidTelephone = false,
             Dateinscription = DateTime.UtcNow,
             RoleId = 1
         };
 
-        await _dataRepository.AddAsync(newUser);
+        await _utilisateurManager.AddAsync(newUser);
 
         // JWT
-        var tokenString = GenerateJwtToken(newUser);
+        var tokenString = _loginService.GenerateJwtToken(newUser);
 
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = false, // dev local
+            Secure = false, 
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.Now.AddMinutes(30)
         };
@@ -124,58 +165,252 @@ public class LoginController : ControllerBase
     public IActionResult Logout()
     {
         Response.Cookies.Delete("authToken");
-        return Ok(new { message = "Déconnexion réussie" });
+        return Ok("Déconnexion réussie");
     }
 
     [HttpGet("me")]
     [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
-        var userIdStr = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdStr))
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null)
+        {
             return Unauthorized();
-
-        var utilisateur = await _dataRepository.GetByIdAsync(int.Parse(userIdStr));
+        }
+        var utilisateur = await _utilisateurManager.GetByIdAsync((int)userId);
         if (utilisateur == null)
             return NotFound();
-
-        return Ok(utilisateur);
+        
+        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        return Ok(utilisateurDTO);
     }
 
-    private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
+    [HttpPut("modificationMotDePasse")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangePassword(
+        [FromQuery] string currentPassword,
+        [FromQuery] string newPassword,
+        [FromQuery] string confirmNewPassword)
     {
-        return _utilisateurs?.SingleOrDefault(u =>
-            (u.Email.ToUpper() == loginOrEmail.ToUpper() || u.Login.ToUpper() == loginOrEmail.ToUpper())
-            && BCrypt.Net.BCrypt.Verify(password, u.Password));
-    }
-
-    private string GenerateJwtToken(Utilisateur utilisateur)
-    {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
-            new Claim("userId", utilisateur.UtilisateurId.ToString()),
-            new Claim("login", utilisateur.Login),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            return Unauthorized();
+        }
+
+        if (newPassword != confirmNewPassword)
+        {
+            return BadRequest("Les nouveaux mots de passe ne correspondent pas.");
+        }
+
+        Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
+    
+        if (user == null)
+        {
+            return NotFound();
+        }
+        if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
+        {
+            return Unauthorized("Mot de passe actuel incorrect.");
+        }
+    
+        await _utilisateurManager.UpdatePassword(user, BCrypt.Net.BCrypt.HashPassword(newPassword));
+        return NoContent();
+    }
+
+    // private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
+    // {
+    //     return _utilisateurs?.SingleOrDefault(u =>
+    //         (u.Email.ToUpper() == loginOrEmail.ToUpper() || u.Login.ToUpper() == loginOrEmail.ToUpper())
+    //         && BCrypt.Net.BCrypt.Verify(password, u.Password));
+    // }
+
+    // private string GenerateJwtToken(Utilisateur utilisateur)
+    // {
+    //     var key = _config["Jwt:Key"];
+    //     var issuer = _config["Jwt:Issuer"];
+    //     var audience = _config["Jwt:Audience"];
+    //
+    //     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+    //     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+    //
+    //     var claims = new[]
+    //     {
+    //         new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
+    //         new Claim("userId", utilisateur.UtilisateurId.ToString()),
+    //         new Claim("login", utilisateur.Login),
+    //         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    //     };
+    //
+    //     var tokenDescriptor = new SecurityTokenDescriptor
+    //     {
+    //         Subject = new ClaimsIdentity(claims),
+    //         Expires = DateTime.UtcNow.AddMinutes(30),
+    //         Issuer = issuer,
+    //         Audience = audience,
+    //         SigningCredentials = credentials
+    //     };
+    //
+    //     var tokenHandler = new JwtSecurityTokenHandler();
+    //     var token = tokenHandler.CreateToken(tokenDescriptor);
+    //     return tokenHandler.WriteToken(token);
+    // }
+    [HttpGet("google-login")]
+    [AllowAnonymous]
+    public IActionResult GoogleLogin(string returnUrl = "/")
+    {
+        var clientId = _config["Authentication:Google:ClientId"];
+        var redirectUri = _config["Authentication:Google:RedirectUri"];
+        var scope = "openid profile email";
+
+        var googleAuthUrl = $"https://accounts.google.com/o/oauth2/v2/auth?" +
+            $"client_id={clientId}&" +
+            $"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
+            $"response_type=code&" +
+            $"scope={Uri.EscapeDataString(scope)}&" +
+            $"state={Uri.EscapeDataString(returnUrl)}"; // On passe le returnUrl dans state
+
+        Console.WriteLine($"🚀 Redirection vers Google : {googleAuthUrl}");
+
+        return Redirect(googleAuthUrl);
+    }
+
+    [HttpGet("google-callback")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state)
+    {
+        Console.WriteLine($"🔥 Google Callback appelé avec code: {code?.Substring(0, 20)}...");
+
+        if (string.IsNullOrEmpty(code))
+        {
+            Console.WriteLine("❌ Code manquant");
+            return Redirect($"{_config["FrontendUrl"]}/login?error=no_code");
+        }
+
+        try
+        {
+            // 1. Échanger le code contre un access token
+            var tokenResponse = await ExchangeCodeForToken(code);
+            Console.WriteLine($"✅ Access token obtenu");
+
+            // 2. Récupérer les infos utilisateur depuis Google
+            var userInfo = await GetGoogleUserInfo(tokenResponse.AccessToken);
+            Console.WriteLine($"✅ User info: {userInfo.Email}");
+
+            // 3. Créer ou récupérer l'utilisateur
+            var utilisateur = await GetOrCreateUtilisateur(userInfo);
+            Console.WriteLine($"✅ Utilisateur: {utilisateur.Login}");
+
+            // 4. Générer le JWT
+            var jwtToken = _loginService.GenerateJwtToken(utilisateur);
+            Console.WriteLine($"✅ JWT généré");
+
+            // 5. Créer le cookie
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // true en production
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.Now.AddMinutes(30),
+                Path = "/"
+            };
+            Response.Cookies.Append("authToken", jwtToken, cookieOptions);
+            Console.WriteLine($"✅ Cookie authToken créé");
+
+            // 6. Rediriger vers le front
+            var returnUrl = string.IsNullOrEmpty(state) ? "/" : state;
+            var finalUrl = $"{_config["FrontendUrl"]}{returnUrl}";
+            Console.WriteLine($"🔀 Redirection vers: {finalUrl}");
+
+            return Redirect(finalUrl);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erreur: {ex.Message}");
+            return Redirect($"{_config["FrontendUrl"]}/login?error=server_error");
+        }
+    }
+
+    // Méthodes privées helper
+    private async Task<GoogleTokenResponse> ExchangeCodeForToken(string code)
+    {
+        var clientId = _config["Authentication:Google:ClientId"];
+        var clientSecret = _config["Authentication:Google:ClientSecret"];
+        var redirectUri = _config["Authentication:Google:RedirectUri"];
+
+        using var httpClient = new HttpClient();
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+    {
+        { "code", code },
+        { "client_id", clientId },
+        { "client_secret", clientSecret },
+        { "redirect_uri", redirectUri },
+        { "grant_type", "authorization_code" }
+    });
+
+        var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
+        var json = await response.Content.ReadAsStringAsync();
+
+        Console.WriteLine($"📝 Token response: {json.Substring(0, Math.Min(100, json.Length))}...");
+
+        return JsonSerializer.Deserialize<GoogleTokenResponse>(json);
+    }
+
+    private async Task<GoogleUserInfo> GetGoogleUserInfo(string accessToken)
+    {
+        using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v2/userinfo");
+        var json = await response.Content.ReadAsStringAsync();
+
+        return JsonSerializer.Deserialize<GoogleUserInfo>(json);
+    }
+
+    private async Task<Utilisateur> GetOrCreateUtilisateur(GoogleUserInfo userInfo)
+    {
+        // Cherche si un utilisateur existe déjà avec cet email
+        var existingUsers = await _utilisateurManager.GetAllAsync();
+        var utilisateur = existingUsers.FirstOrDefault(u => u.Email.ToUpper() == userInfo.Email.ToUpper());
+
+        if (utilisateur != null)
+        {
+            Console.WriteLine($"✅ Utilisateur existant trouvé: {utilisateur.Login}");
+            return utilisateur;
+        }
+
+        // Créer un nouveau utilisateur
+        var baseLogin = userInfo.Email.Split('@')[0];
+        var login = baseLogin;
+        int counter = 1;
+
+        while (existingUsers.Any(u => u.Login.ToUpper() == login.ToUpper()))
+        {
+            login = $"{baseLogin}{counter}";
+            counter++;
+        }
+
+        utilisateur = new Utilisateur
+        {
+            Email = userInfo.Email,
+            Login = login,
+            Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()), // Mot de passe aléatoire
+            Description = "",
+            StatutId = 1,
+            ValidEmail = true, // Email validé par Google
+            ValidTelephone = false,
+            Dateinscription = DateTime.UtcNow,
+            RoleId = 1
         };
 
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: credentials
-        );
+        await _utilisateurManager.AddAsync(utilisateur);
+        Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    private async Task LoadUtilisateursAsync()
-    {
-        var utilisateurs = await _dataRepository.GetAllAsync();
-        _utilisateurs = utilisateurs?.ToList();
+        return utilisateur;
     }
 }

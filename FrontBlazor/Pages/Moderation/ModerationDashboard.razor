@@ -1,0 +1,157 @@
+﻿@page "/moderation"
+@inject ModerationBoardViewModel moderationViewModel
+@layout ModerationLayout
+
+<link href="css/loading.css" rel="stylesheet" />
+
+<PageTitle>Modération - Clothes2U</PageTitle>
+
+
+@if (moderationViewModel.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <ModerationBasePage ViewModel="moderationViewModel">
+        <link rel="stylesheet" href="/css/moderation-shared.css" />
+        
+        <h1 class="mod-page-title">Tableau de bord</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon red">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>2</h3>
+                    <p>Signalements en attente</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="bi bi-person-slash"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>2</h3>
+                    <p>Comptes suspendus</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>2</h3>
+                    <p>Restaurations en attente</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon cyan">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>2</h3>
+                    <p>Demandes de support</p>
+                </div>
+            </div>
+        </div>
+        <div class="recent-section">
+            <h2 class="section-title">Activité récente</h2>
+
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon red">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Nouveau signalement</strong> de Marie Antoinette contre Denielz Denielzzz</p>
+                        <span class="activity-time">Il y a 5 minutes</span>
+                    </div>
+                    <a href="/moderation/signalements/1" class="activity-action">Voir</a>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon orange">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Compte suspendu:</strong> User123 pour 3 jours</p>
+                        <span class="activity-time">Il y a 2 heures</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon blue">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Demande de restauration</strong> de JeanDupont</p>
+                        <span class="activity-time">Il y a 4 heures</span>
+                    </div>
+                    <a href="/moderation/restauration" class="activity-action">Traiter</a>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon green">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Image validée</strong> par admin</p>
+                        <span class="activity-time">Il y a 6 heures</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon cyan">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Nouveau ticket support</strong> de Alice Martin</p>
+                        <span class="activity-time">Il y a 8 heures</span>
+                    </div>
+                    <a href="/moderation/support" class="activity-action">Répondre</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats-section">
+            <h2 class="section-title">Statistiques</h2>
+
+            <div class="quick-stats-grid">
+                <div class="quick-stat">
+                    <h4>Aujourd'hui</h4>
+                    <p>3 signalements traités</p>
+                    <p>1 compte banni</p>
+                </div>
+                <div class="quick-stat">
+                    <h4>Cette semaine</h4>
+                    <p>18 signalements traités</p>
+                    <p>5 comptes suspendus</p>
+                </div>
+                <div class="quick-stat">
+                    <h4>Ce mois</h4>
+                    <p>67 signalements traités</p>
+                    <p>12 comptes bannis</p>
+                </div>
+            </div>
+        </div>
+    </ModerationBasePage>
+}
+
+
+
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        await moderationViewModel.LoadAsync();
+    }
+
+    
+
+}

@@ -13,12 +13,6 @@
 /API/bin/Debug/net8.0/API.pdb
 /API/bin/Debug/net8.0/API.runtimeconfig.json
 /FrontBlazor/bin/Debug/net8.0
-<<<<<<< HEAD
-/FrontBlazor/obj/Debug/net8.0/apphost.exe
-/FrontBlazor/bin/Debug/net8.0/FrontBlazor.staticwebassets.endpoints.json
-/FrontBlazor/bin/Debug/net8.0/FrontBlazor.exe
-/API/API.csproj.user
-=======
 /API/bin/Debug/net8.0/API.dll
 /API/bin/Debug/net8.0/API.pdb
 /API/obj/Debug/net8.0/API.AssemblyInfo.cs
@@ -29,49 +23,28 @@
 /FrontBlazor/bin/Debug/net8.0/FrontBlazor.exe
 /FrontBlazor/bin/Debug/net8.0/FrontBlazor.staticwebassets.endpoints.json
 /FrontBlazor/obj/Debug/net8.0/apphost.exe
->>>>>>> f042218b7de101768944fbf30ea2fd8da1f508dc
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.AssemblyInfo.cs
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.AssemblyInfoInputs.cache
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.assets.cache
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.csproj.CoreCompileInputs.cache
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.csproj.FileListAbsolute.txt
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.GeneratedMSBuildEditorConfig.editorconfig
-<<<<<<< HEAD
-/FrontBlazor/obj/Debug/net8.0/rjsmcshtml.dswa.cache.json
-/FrontBlazor/obj/Debug/net8.0/rjimswa.dswa.cache.json
-/FrontBlazor/obj/Debug/net8.0/FrontBlazor.sourcelink.json
-=======
 /FrontBlazor/obj/Debug/net8.0/FrontBlazor.sourcelink.json
 /FrontBlazor/obj/Debug/net8.0/rjimswa.dswa.cache.json
 /FrontBlazor/obj/Debug/net8.0/rjsmcshtml.dswa.cache.json
->>>>>>> f042218b7de101768944fbf30ea2fd8da1f508dc
 /FrontBlazor/obj/Debug/net8.0/rjsmrazor.dswa.cache.json
 /FrontBlazor/obj/Debug/net8.0/rpswa.dswa.cache.json
 /FrontBlazor/obj/Debug/net8.0/staticwebassets.build.endpoints.json
 /FrontBlazor/obj/Debug/net8.0/staticwebassets.build.json.cache
 /FrontBlazor/obj/Release/net8.0/FrontBlazor.AssemblyInfo.cs
-<<<<<<< HEAD
-/FrontBlazor/obj/Release/net8.0/FrontBlazor.assets.cache
-/Clothes2U.slnLaunch.user
-/FrontBlazor/obj/project.nuget.cache
-/FrontBlazor/FrontBlazor.csproj.user
-/FrontBlazor/obj/FrontBlazor.csproj.nuget.g.props
-/FrontBlazor/obj/project.assets.json
-/FrontBlazor/obj/FrontBlazor.csproj.nuget.dgspec.json
-/FrontBlazor/obj/Release/net8.0/FrontBlazor.GeneratedMSBuildEditorConfig.editorconfig
-/FrontBlazor/obj/Release/net8.0/FrontBlazor.GlobalUsings.g.cs
-/FrontBlazor/obj/Release/net8.0/FrontBlazor.csproj.AssemblyReference.cache
-/FrontBlazor/obj/Release/net8.0/FrontBlazor.AssemblyInfoInputs.cache
-=======
 /FrontBlazor/obj/Release/net8.0/FrontBlazor.AssemblyInfoInputs.cache
 /FrontBlazor/obj/Release/net8.0/FrontBlazor.assets.cache
 /FrontBlazor/obj/Release/net8.0/FrontBlazor.csproj.AssemblyReference.cache
 /FrontBlazor/obj/Release/net8.0/FrontBlazor.GeneratedMSBuildEditorConfig.editorconfig
 /FrontBlazor/obj/Release/net8.0/FrontBlazor.GlobalUsings.g.cs
 /Clothes2U.slnLaunch.user
-/FrontBlazor/FrontBlazor.csproj.user
->>>>>>> f042218b7de101768944fbf30ea2fd8da1f508dc
 /API/bin/Debug/net8.0/API.dll
 /API/bin/Debug/net8.0/API.dll
 /API/bin/Debug/net8.0/API.pdb
 /API/bin/Debug/net8.0/API.staticwebassets.endpoints.json
+/API/bin/Debug/net8.0

@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models;
+namespace FrontBlazor.Models;
 
 public class Utilisateur 
 {
@@ -9,5 +9,5 @@ public class Utilisateur
     public string? Description { get; set; }
     public int? StatutId { get; set; }
     public int? AdresseId { get; set; }
-  
+    public string RoleUtilisateur { get; set; }
 }

@@ -10,16 +10,37 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
     private IQueryable<Conversation> BaseConversationQuery()
     {
         return _context.Conversations
-            .Include(a => a.Vendeur)
+            // Relations principales de la conversation
+            .Include(c => c.Vendeur)
             .ThenInclude(v => v.UtilisateurVendeur)
-            .Include(a => a.Acheteur)
+            .Include(c => c.Acheteur)
             .ThenInclude(a => a.UtilisateurAcheteur)
-            .Include(a => a.LAnnonce)
-            .Include(a => a.Messages)
-            .ThenInclude(t => t.MessageTexte)
-            .Include(a => a.Messages)
-            .ThenInclude(u => u.Utilisateur);
-            
+            .Include(c => c.LAnnonce)
+            .ThenInclude(a => a.Photos)
+            .ThenInclude(p => p.Photo)
+        
+            // Messages et leurs relations
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.Utilisateur)
+        
+            // MessageTexte avec ses photos
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageTexte)
+            .ThenInclude(mt => mt.Photos)
+        
+            // MessageDemande avec ses relations
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageDemande)
+            .ThenInclude(md => md.Offre) // Si vous avez besoin de la proposition parente
+        
+            // MessageValidation avec la proposition validée
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageValidation)
+            .ThenInclude(mv => mv.PropositionValidee)
+        
+            // Utiliser AsSplitQuery pour éviter les cartesian explosions
+            // avec autant de includes
+            .AsSplitQuery();
     }
 
 
@@ -34,6 +55,21 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
         return await BaseConversationQuery()
             .Where(a => a.Vendeur.UtilisateurVendeurId == id || a.Acheteur.UtilisateurAcheteurId == id)
             .ToListAsync();
+    }
+
+    public async Task<int?> GetOtherUser(int currentUserId, Conversation conversation)
+    {
+        int? otherUserId = null;
+        if (conversation.Acheteur.UtilisateurAcheteurId == currentUserId)
+        {
+            otherUserId = conversation.Vendeur?.UtilisateurVendeurId;
+        }
+            
+        else if (conversation.Vendeur.UtilisateurVendeurId == currentUserId)
+        {
+            otherUserId = conversation.Acheteur?.UtilisateurAcheteurId;
+        }
+        return otherUserId;
     }
     
 }

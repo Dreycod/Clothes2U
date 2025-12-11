@@ -1,0 +1,111 @@
+using API.DTO;
+using API.DTO.Annonce;
+using API.DTO.Categorie;
+using API.DTO.Couleur;
+using API.DTO.EtatArticle;
+using API.DTO.Recense;
+using API.DTO.SousCategorie;
+using API.DTO.StatutAnnonce;
+using API.DTO.Taille;
+using API.Models.EntityFramework;
+using AutoMapper;
+
+namespace API.Mapper;
+
+public class AnnonceMappingProfile : Profile
+{
+    public AnnonceMappingProfile()
+    {
+        CreateMap<Annonce, AnnonceDTO>()
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque))
+            .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
+            .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat))
+            .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId)))
+            .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
+            .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.UriPhotoProfilAuteur,
+                opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoId))
+            .ReverseMap();
+        
+        
+        
+        CreateMap<Annonce, AnnonceDetailDTO>()
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque ?? "Inconnue"))
+            .ForMember(dest => dest.MarqueId, opt => opt.MapFrom(src => src.MarqueId))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat ?? "Inconnu"))
+            .ForMember(dest => dest.EtatId, opt => opt.MapFrom(src => src.EtatId))
+            .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille ?? "Inconnue"))
+            .ForMember(dest => dest.TailleId, opt => opt.MapFrom(src => src.TailleId))
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie ?? "Inconnue"))
+            .ForMember(dest => dest.CategorieId, opt => opt.MapFrom(src => src.CategorieId))
+            .ForMember(dest => dest.SousCategorie, opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie ?? "Inconnue"))
+            .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
+            .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title ?? "Sans titre"))
+            .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
+            .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.Negociable))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
+            .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
+            .ReverseMap();
+        
+        
+        
+        CreateMap<Recense, RecenseDTO>()
+            .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ReverseMap();
+
+        CreateMap<Recense, RecenseDetailDTO>()
+            .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.AnnonceTitre, opt => opt.MapFrom(src => src.Annonce.Title))
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.Tag.LibelleTag))
+            .ReverseMap();
+        
+        CreateMap<StatutAnnonce, StatutAnnonceDTO>();
+        
+        CreateMap<Couleur, CouleurDTO>();
+        
+        CreateMap<Taille, TailleDTO>();
+        
+        CreateMap<EtatArticle, EtatArticleDTO>();
+
+        CreateMap<Marque, MarqueDTO>().ReverseMap();
+        CreateMap<Marque, MarqueDetailDTO>()
+            .ForMember(dest => dest.MarqueID, opt => opt.MapFrom(src => src.MarqueId))
+            .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
+            .ReverseMap()
+            .ForMember(dest => dest.Annonces, opt => opt.Ignore());
+
+        CreateMap<SousCategorie, SousCategorieDTO>()
+            .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
+            .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
+            .ReverseMap();
+
+        CreateMap<Categorie, CategorieDTO>()
+            .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
+            .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))
+            .ForMember(dest => dest.SousCategories, opt => opt.MapFrom(src => src.SousCategories));
+        CreateMap<Categorie, CategorieDetailDTO>()
+            .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
+            .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))
+            .ForMember(dest => dest.SousCategories, opt => opt.MapFrom(src => src.SousCategories))
+            .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
+             .ReverseMap()
+            .ForMember(dest => dest.Annonces, opt => opt.Ignore());
+
+
+    }
+}

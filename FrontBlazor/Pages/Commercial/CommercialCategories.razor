@@ -1,0 +1,192 @@
+@page "/commercial/categories"
+
+<PageTitle>Gestion des Catégories - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/commercial-shared.css" />
+
+<div class="commercial-page">
+    <div class="commercial-container">
+        <!-- Sidebar -->
+        <aside class="commercial-sidebar">
+            <div class="commercial-header">
+                <div class="commercial-logo">
+                    <i class="bi bi-shop"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Équipe Commerciale</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="commercial-nav">
+                <a href="/commercial" class="commercial-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/commercial/marques" class="commercial-nav-item">
+                    <i class="bi bi-tag"></i>
+                    <span>Marques</span>
+                </a>
+                <a href="/commercial/categories" class="commercial-nav-item active">
+                    <i class="bi bi-grid"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="/commercial/sous-categories" class="commercial-nav-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Sous-catégories</span>
+                </a>
+                <a href="/commercial/couleurs" class="commercial-nav-item">
+                    <i class="bi bi-palette"></i>
+                    <span>Couleurs</span>
+                </a>
+                <a href="/commercial/tailles" class="commercial-nav-item">
+                    <i class="bi bi-rulers"></i>
+                    <span>Tailles</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="commercial-content">
+            <div class="page-header">
+                <h1 class="commercial-page-title">Gestion des Catégories</h1>
+                <button class="btn-primary" @onclick="VM_CommercialCategories.ShowAddModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Ajouter une catégorie
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(VM_CommercialCategories.successMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@VM_CommercialCategories.successMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(VM_CommercialCategories.errorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>@VM_CommercialCategories.errorMessage</span>
+                </div>
+            }
+
+            <!-- Categories Table -->
+            <div class="table-container">
+                @if (VM_Categorie.IsLoading)
+                {
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Chargement des catégories...</p>
+                    </div>
+                }
+                else if (VM_Categorie.Items != null && VM_Categorie.Items.Any())
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom de la catégorie</th>
+                                <th>Sous-catégories</th>
+                                <th>Nombre d'articles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var categorie in VM_Categorie.Items)
+                            {
+                                <tr>
+                                    <td>#@categorie.IdCategorie</td>
+                                    <td><strong>@categorie.LibelleCategorie</strong></td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            @(categorie.SousCategories?.Count ?? 0) sous-catégories
+                                        </span>
+                                    </td>
+                                    <td>@categorie.NombreProduits articles</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCategories.ShowEditModal(categorie)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialCategories.ShowDeleteModal(categorie)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-grid"></i>
+                        <h3>Aucune catégorie</h3>
+                        <p>Commencez par ajouter votre première catégorie</p>
+                        <button class="btn-primary" @onclick="VM_CommercialCategories.ShowAddModal">
+                            <i class="bi bi-plus-circle"></i>
+                            Ajouter une catégorie
+                        </button>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+@if (VM_CommercialCategories.showModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialCategories.CloseModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>@(VM_CommercialCategories.isEditing ? "Modifier" : "Ajouter") une catégorie</h3>
+
+            <div class="form-group">
+                <label class="form-label">Nom de la catégorie</label>
+                <input type="text" class="form-input" placeholder="Ex: Vêtements Homme, Accessoires..." @bind="VM_CommercialCategories.currentCategorie.LibelleCategorie" />
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialCategories.CloseModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_CommercialCategories.SaveCategorie">
+                    @(VM_CommercialCategories.isEditing ? "Modifier" : "Ajouter")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Modal -->
+@if (VM_CommercialCategories.showDeleteModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialCategories.CloseDeleteModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>Supprimer la catégorie</h3>
+            <p>Êtes-vous sûr de vouloir supprimer la catégorie <strong>@VM_CommercialCategories.currentCategorie.LibelleCategorie</strong> ?</p>
+            @if (VM_CommercialCategories.currentCategorie.SousCategories != null && VM_CommercialCategories.currentCategorie.SousCategories.Any())
+            {
+                <p style="color: #ef4444; font-size: 0.9rem;">
+                    ⚠️ Cette catégorie contient @VM_CommercialCategories.currentCategorie.SousCategories.Count sous-catégorie(s). Elles seront également supprimées.
+                </p>
+            }
+            <p style="color: #ef4444; font-size: 0.9rem;">Cette action est irréversible.</p>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialCategories.CloseDeleteModal">Annuler</button>
+                <button class="btn-danger" @onclick="VM_CommercialCategories.DeleteCategorie">Supprimer</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM_CommercialCategories.OnStateChange += StateHasChanged;
+        await VM_Categorie.LoadAsync();
+    }
+}

@@ -1,6 +1,11 @@
+using API.DTO;
 using API.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Managers;
+using API.Services;
+using API.Services.Notifications;
+using API.Services.Notifications.Events;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,65 +16,54 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class AnnonceController : ControllerBase
 {
-    private readonly IAnnonceRepository<Annonce, int> _annonceManager;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly IFavorisRepository  _favorisRepository;
+    private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int> manager, IMapper mapper)
+    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService)
     {
         _annonceManager = manager;
+        _favorisRepository = favorisManager;
         _mapper = mapper;
+        _notificationService = notificationService;
+        _currentUserService = currentUserService;
     }
+
+    private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
+    {
+        int? userId = await _currentUserService.GetUserId();
+        if (!userId.HasValue)
+            return annoncesDTO;
+
+        int uid = userId.Value;
+
+        foreach (var annonce in annoncesDTO)
+        {
+            if (await _favorisRepository.CheckIfLiked(uid, annonce.AnnonceId))
+            {
+                annonce.IsLikedByCurrentUser = true;
+            }
+        }
+
+        return annoncesDTO;
+    }
+
+
+    
+    
     
     [AllowAnonymous]
     [HttpGet("GetActiveAnnonces")]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
     {
-        Console.WriteLine($"[AnnonceController] ➡️ Tentative d'accès à GetActiveAnnonces.");
-        foreach (var claim in User.Claims)
-        {
-            Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
-        }
-
-        if (User.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-        
-            if (!string.IsNullOrEmpty(userIdClaim))
-            {
-                int userId = int.Parse(userIdClaim);
-                Console.WriteLine($"[API] ✅ Utilisateur connecté détecté - ID: {userId}. (Authentification via cookie/token réussie)");
-            
-                var userName = User.Identity.Name;
-                Console.WriteLine($"[API] ✅ Nom d'utilisateur: {userName}");
-            }
-            else
-            {
-                // Cela se produit si un token existe mais ne contient pas le claim 'userId'
-                Console.WriteLine($"[API] ⚠️ Utilisateur authentifié mais claim 'userId' manquant. Vérifiez la génération du JWT.");
-            }
-        }
-        else
-        {
-            // C'est l'erreur que nous cherchons à corriger. Si l'utilisateur est connecté, ce log ne devrait pas apparaître.
-            Console.WriteLine($"[API] ❌ Utilisateur non connecté (anonyme). Le cookie d'authentification n'a PAS été envoyé ou n'a PAS été validé.");
-        }
-
-        // Récupérer les annonces actives
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        return Ok(annoncesDTO);
+    }
 
-        return Ok(annoncesDTO);
-    }
-    
-    [HttpGet("ByCategorieId/{categorieId}")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByCategorieId(int  categorieId)
-    {
-        IEnumerable<Annonce> annonces =  await _annonceManager.GetByCategorieId(categorieId);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
-    }
 
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -78,16 +72,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
-    }
-    
-    [HttpGet("BySousCategorieId/{categorieId}")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllBySousCategorieId(int  sousCategorieId)
-    {
-        IEnumerable<Annonce> annonces =  await _annonceManager.GetBySousCategorieId(sousCategorieId);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
     
@@ -102,20 +87,78 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
+        int? userId = await _currentUserService.GetUserId();
+        if (userId != null)
+        {
+            if (await _favorisRepository.CheckIfLiked((int)userId, id))
+            {
+                annonceDTO.IsLikedByCurrentUser = true;
+            }
+        }
         return Ok(annonceDTO);
     }
+    [Authorize]
+    [HttpGet("ByFavorisUtilisateur")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30)
+    {
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
+        }
+
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId, page, pageSize);
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
     
-    [HttpGet("ByFavorisUtilisateur/{id}")]
+        return Ok(annoncesDTO);
+    }
+
+    [Authorize]
+    [HttpPut("id/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(int id)
+    public async Task<IActionResult> PutAnnonce(int id, [FromBody] AnnonceDetailDTO annonceDTO)
     {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris(id);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
+        if (id != annonceDTO.AnnonceId)
+        {
+            return BadRequest();
+        }
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null || userId != annonceDTO.UtilisateurId)
+        {
+            return Unauthorized();
+        }
+        Annonce annonceToUpdate = await _annonceManager.GetByIdAsync(id);
+        if (annonceToUpdate == null)
+        {
+            return NotFound();
+        }
+        Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
+        await _annonceManager.UpdateAsync(annonceToUpdate, annonce);
+        var notificationEvent = new ModificationAnnonceEvent()
+        {
+            AnnonceId = annonce.AnnonceId,
+            CreatorId = annonce.UtilisateurId,
+            
+        };
+        await _notificationService.NotifyAsync(notificationEvent);
+        return NoContent();
     }
     
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -126,41 +169,23 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null || userId != annonceDto.UtilisateurId)
+        {
+            return Unauthorized();
+        }
 
         var annonce =  _mapper.Map<Annonce>(annonceDto);
         await _annonceManager.AddAsync(annonce);
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
+        var notificationEvent = new NewAnnonceEvent
+        {
+            AnnonceId = annonce.AnnonceId,
+            CreatorId = annonce.UtilisateurId,
+            
+        };
+        await _notificationService.NotifyAsync(notificationEvent);
         return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
-    }
-
-    [HttpPost("Search")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> Search([FromBody] AnnonceSearchRequestDTO request)
-    {
-        var annonces = await _annonceManager.SearchAsync(request);
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
-    }
-
-    [HttpGet("MostRecent")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetMostRecent()
-    {
-        var annonces = await _annonceManager.GetMostRecentAsync();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
-    }
-
-    [HttpGet("PlusLike")]
-    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetMostLiked()
-    {
-        var annonces = await _annonceManager.GetPlusLikeAsync();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return Ok(annoncesDTO);
     }
 
     [HttpDelete("id/{id}")]
@@ -178,5 +203,23 @@ public class AnnonceController : ControllerBase
         return NoContent();
     }
     
-
+    [HttpGet("productByFilter")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllAnnonceByFilter(
+        [FromQuery] FilterDTO filterDto,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30)
+    {
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
+        }
+        var annonces = await _annonceManager.FilterAsync(filterDto, page, pageSize);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+    
+        return Ok(annoncesDTO);
+    }
 }

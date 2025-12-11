@@ -1,0 +1,202 @@
+@page "/commercial/tailles"
+
+<PageTitle>Gestion des Tailles - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/commercial-shared.css" />
+
+<div class="commercial-page">
+    <div class="commercial-container">
+        <!-- Sidebar -->
+        <aside class="commercial-sidebar">
+            <div class="commercial-header">
+                <div class="commercial-logo">
+                    <i class="bi bi-shop"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Équipe Commerciale</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="commercial-nav">
+                <a href="/commercial" class="commercial-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/commercial/marques" class="commercial-nav-item">
+                    <i class="bi bi-tag"></i>
+                    <span>Marques</span>
+                </a>
+                <a href="/commercial/categories" class="commercial-nav-item">
+                    <i class="bi bi-grid"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="/commercial/sous-categories" class="commercial-nav-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Sous-catégories</span>
+                </a>
+                <a href="/commercial/couleurs" class="commercial-nav-item">
+                    <i class="bi bi-palette"></i>
+                    <span>Couleurs</span>
+                </a>
+                <a href="/commercial/tailles" class="commercial-nav-item active">
+                    <i class="bi bi-rulers"></i>
+                    <span>Tailles</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="commercial-content">
+            <div class="page-header">
+                <h1 class="commercial-page-title">Gestion des Tailles</h1>
+                <button class="btn-primary" @onclick="VM_CommercialTailles.ShowAddModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Ajouter une taille
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(VM_CommercialTailles.successMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@VM_CommercialTailles.successMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(VM_CommercialTailles.errorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>@VM_CommercialTailles.errorMessage</span>
+                </div>
+            }
+
+            <!-- Sizes Table -->
+            <div class="table-container">
+                @if (VM_Taille.IsLoading || VM_Categorie.IsLoading)
+                {
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Chargement des tailles...</p>
+                    </div>
+                }
+                else if (VM_Taille.Items != null && VM_Taille.Items.Any())
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Taille</th>
+                                <th>Catégorie</th>
+                                <th>Nombre d'articles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var taille in VM_Taille.Items)
+                            {
+                                <tr>
+                                    <td>#@taille.TailleId</td>
+                                    <td><strong>@taille.Libelletaille</strong></td>
+                                    <td>
+                                        <span class="badge badge-success">
+                                            @VM_CommercialTailles.GetCategoryName(taille.CategorieId)
+                                        </span>
+                                    </td>
+                                    <td>@VM_CommercialTailles.GetArticleCount(taille.TailleId) articles</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialTailles.ShowEditModal(taille)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialTailles.ShowDeleteModal(taille)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-rulers"></i>
+                        <h3>Aucune taille</h3>
+                        <p>Commencez par ajouter votre première taille</p>
+                        <button class="btn-primary" @onclick="VM_CommercialTailles.ShowAddModal">
+                            <i class="bi bi-plus-circle"></i>
+                            Ajouter une taille
+                        </button>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+@if (VM_CommercialTailles.showModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialTailles.CloseModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>@(VM_CommercialTailles.isEditing ? "Modifier" : "Ajouter") une taille</h3>
+
+            <div class="form-group">
+                <label class="form-label">Catégorie</label>
+                <select class="form-select" @bind="VM_CommercialTailles.selectedCategorieId">
+                    <option value="0">-- Sélectionnez une catégorie --</option>
+                    @if (VM_Categorie.Items != null)
+                    {
+                        @foreach (var cat in VM_Categorie.Items)
+                        {
+                            <option value="@cat.IdCategorie">@cat.LibelleCategorie</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Libellé de la taille</label>
+                <input type="text" class="form-input" placeholder="Ex: S, M, L, XL, 38, 40..." @bind="VM_CommercialTailles.currentTaille.Libelletaille" />
+                <small style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                    Utilisez des formats standards: XS, S, M, L, XL, XXL pour les vêtements, ou des numéros pour les chaussures
+                </small>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialTailles.CloseModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_CommercialTailles.SaveTaille">
+                    @(VM_CommercialTailles.isEditing ? "Modifier" : "Ajouter")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Modal -->
+@if (VM_CommercialTailles.showDeleteModal)
+{
+    <div class="modal-overlay" @onclick="VM_CommercialTailles.CloseDeleteModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>Supprimer la taille</h3>
+            <p>Êtes-vous sûr de vouloir supprimer la taille <strong>@VM_CommercialTailles.currentTaille.Libelletaille</strong> ?</p>
+            <p style="color: #ef4444; font-size: 0.9rem;">Cette action est irréversible.</p>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_CommercialTailles.CloseDeleteModal">Annuler</button>
+                <button class="btn-danger" @onclick="VM_CommercialTailles.DeleteTaille">Supprimer</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_CommercialTailles.LoadAsync();
+        VM_CommercialTailles.OnStateChange += StateHasChanged;
+    }
+}

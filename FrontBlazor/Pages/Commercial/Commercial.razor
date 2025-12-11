@@ -1,0 +1,170 @@
+@page "/commercial"
+<PageTitle>Équipe Commerciale - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/commercial-shared.css" />
+
+<div class="commercial-page">
+    <div class="commercial-container">
+        <!-- Sidebar -->
+        <aside class="commercial-sidebar">
+            <div class="commercial-header">
+                <div class="commercial-logo">
+                    <i class="bi bi-shop"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Équipe Commerciale</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="commercial-nav">
+                <a href="/commercial" class="commercial-nav-item active">
+                    <i class="bi bi-house-door"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/commercial/marques" class="commercial-nav-item">
+                    <i class="bi bi-tag"></i>
+                    <span>Marques</span>
+                </a>
+                <a href="/commercial/categories" class="commercial-nav-item">
+                    <i class="bi bi-grid"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="/commercial/sous-categories" class="commercial-nav-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Sous-catégories</span>
+                </a>
+                <a href="/commercial/couleurs" class="commercial-nav-item">
+                    <i class="bi bi-palette"></i>
+                    <span>Couleurs</span>
+                </a>
+                <a href="/commercial/tailles" class="commercial-nav-item">
+                    <i class="bi bi-rulers"></i>
+                    <span>Tailles</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="commercial-content">
+            <h1 class="commercial-page-title">Tableau de bord commercial</h1>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="bi bi-tag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@VM_Commercial.totalMarques</h3>
+                        <p>Marques actives</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon emerald">
+                        <i class="bi bi-rulers"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@VM_Commercial.totalCategories</h3>
+                        <p>Catégories</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon teal">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@VM_Commercial.totalSousCategories</h3>
+                        <p>Sous-catégories</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon lime">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@VM_Commercial.totalCouleurs</h3>
+                        <p>Couleurs disponibles</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon lime">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@VM_Commercial.totalTailles</h3>
+                        <p>Tailles disponibles</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-section">
+                <h2 class="section-title">Actions rapides</h2>
+
+                <div class="quick-actions-grid">
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/marques"))">
+                        <div class="action-icon green">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Ajouter une marque</h3>
+                            <p>Créer une nouvelle marque</p>
+                        </div>
+                    </button>
+
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/categories"))">
+                        <div class="action-icon emerald">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Ajouter une catégorie</h3>
+                            <p>Créer une nouvelle catégorie</p>
+                        </div>
+                    </button>
+
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/sous-categories"))">
+                        <div class="action-icon teal">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Ajouter une sous-catégorie</h3>
+                            <p>Créer une sous-catégorie</p>
+                        </div>
+                    </button>
+
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/couleurs"))">
+                        <div class="action-icon lime">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Ajouter une couleur</h3>
+                            <p>Créer une nouvelle couleur</p>
+                        </div>
+                    </button>
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/tailles"))">
+                        <div class="action-icon lime">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Ajouter une taille</h3>
+                            <p>Créer une nouvelle taille</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_Commercial.LoadAsync();
+        VM_Commercial.OnStateChange += StateHasChanged;
+    }
+}

@@ -1,8 +1,6 @@
 ﻿@page "/login"
-@rendermode InteractiveServer
-
+@inject IAuthService AuthService
 @inject NavigationManager Navigation
-@inject ConnexionViewModel VM_Connexion
 
 <PageTitle>Connexion - Clothes2U</PageTitle>
 
@@ -40,7 +38,7 @@
                 <!-- LOGIN FORM -->
                 <div class="auth-form">
                     <div class="form-group">
-                        <label class="form-label">Email</label>
+                        <label class="form-label">Email ou Login</label>
                         <div class="input-with-icon">
                             <i class="bi bi-envelope input-icon"></i>
                             <input type="email" class="form-control" placeholder="votremail@example.com"
@@ -183,7 +181,7 @@
             {
                 SuccessMessage = "Connexion réussie.";
                 // Le ViewModel met à jour le _userStateService; on navigue
-                Navigation.NavigateTo("/");
+                navigationManager.NavigateTo("/");
             }
             else
             {
@@ -233,7 +231,7 @@
 
     private void OnGoogleClicked()
     {
-        // Ton VM a HandleGoogleLogin sans async; appelle-le si tu veux
-        VM_Connexion.HandleGoogleLogin();
+        var googleUrl = AuthService.GetGoogleLoginUrl("/");
+        Navigation.NavigateTo(googleUrl, forceLoad: true);
     }
 }

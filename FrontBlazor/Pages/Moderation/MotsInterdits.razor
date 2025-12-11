@@ -1,0 +1,69 @@
+@page "/moderation/mots-interdits"
+@inject MotsInterditsViewModel motsInterditsView
+@using FrontBlazor.Components.Moderation
+@layout ModerationLayout
+
+<PageTitle>Mots interdits - Modération</PageTitle>
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/loading.css" rel="stylesheet" />
+
+@if (motsInterditsView.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <h1 class="mod-page-title">Mots interdits</h1>
+    <div class="words-container">
+        <div class="words-tags">
+            @if (motsInterditsView.Mots == null || motsInterditsView.Mots.Count == 0)
+            {
+                <p>Il n'y a pas de mots !</p>
+            } 
+            else
+            {
+                @foreach (var word in motsInterditsView.Mots)
+                {
+                    <WordTag MotsInterditsViewModel="@motsInterditsView"
+                             Word="@word"
+                             OnDeleted="@HandleWordDeleted"/>
+                }
+            }
+        </div>
+        <div class="add-word-section">
+            @if (!string.IsNullOrEmpty(motsInterditsView.ErrorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @motsInterditsView.ErrorMessage
+                </div>
+            }
+            <input type="text"
+                   class="word-input"
+                   placeholder="Insérez un mot à bannir . . . "
+                   @bind="motsInterditsView.motToAdd.LibelleMot"/>
+            <button class="btn-add" @onclick="HandleAddWord">
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+    </div>
+}
+        
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await motsInterditsView.LoadAsync();
+    }
+
+    private async Task HandleWordDeleted()
+    {
+        await motsInterditsView.LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task HandleAddWord()
+    {
+        await motsInterditsView.AddMotInterditAsync();
+        StateHasChanged();
+    }
+}

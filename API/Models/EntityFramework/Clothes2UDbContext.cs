@@ -5,7 +5,8 @@ namespace API.Models;
 
 public partial class Clothes2UDbContext : DbContext
 {
-    public DbSet<Abonnement> Abonnements { get; set; } 
+    public DbSet<Abonnement> Abonnements { get; set; }
+    public DbSet<VerificationCode> VerificationCodes { get; set; }
     public DbSet<Achete> Achetes { get; set; }
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
@@ -25,6 +26,8 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<MessageDemande> MessageDemandes { get; set; }
     public DbSet<MessageTexte> MessageTextes { get; set; }
     public DbSet<MessageValidation> MessageValidations { get; set; }
+    public DbSet<Mesure> Mesures { get; set; }
+    public DbSet<MotInterdit> MotsInterdits { get; set; }
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<NotificationAdmin> NotificationAdmins { get; set; }
@@ -51,8 +54,10 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<TypeSuspension> TypeSuspensions { get; set; }
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     public DbSet<Vend> Vends { get; set; }
-    
-    
+    public DbSet<Visualisation> Visualisations { get; set; }
+
+
+
     public Clothes2UDbContext() { }
 
     public Clothes2UDbContext(DbContextOptions<Clothes2UDbContext> options) : base(options) { }
@@ -242,10 +247,6 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.CategorieId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             
-            entity.HasMany(e => e.Tailles)
-                .WithOne(t => t.Categorie)
-                .HasForeignKey(e => e.CategorieTailleId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Conversation>(entity =>
@@ -498,15 +499,23 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.HasKey(e => e.MessageDemandeId);
 
+            // Relation MessageDemande -> Message (One-to-One)
             entity.HasOne(e => e.Message)
                 .WithOne(m => m.MessageDemande)
                 .HasForeignKey<MessageDemande>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Relation MessageDemande -> MessageDemande parent (Offre/Contre-offre)
             entity.HasOne(e => e.Offre)
                 .WithMany(e => e.ContreOffres)
                 .HasForeignKey(e => e.DemandeId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.NoAction);
+    
+            // Relation MessageDemande -> MessageValidation (One-to-One optionnelle)
+            entity.HasOne(e => e.Validation)
+                .WithOne(v => v.PropositionValidee)
+                .HasForeignKey<MessageValidation>(v => v.PropositionValideeId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<MessageValidation>(entity =>
@@ -515,25 +524,65 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.HasKey(e => e.MessageValidationId);
 
+            // Relation MessageValidation -> Message (One-to-One)
             entity.HasOne(e => e.Message)
                 .WithOne(m => m.MessageValidation)
                 .HasForeignKey<MessageValidation>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Relation MessageValidation -> MessageDemande (One-to-One obligatoire)
+            // Déjà configurée dans MessageDemande ci-dessus
+            entity.HasOne(e => e.PropositionValidee)
+                .WithOne(d => d.Validation)
+                .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired(); // La validation doit obligatoirement pointer vers une proposition
+        });
+
+        modelBuilder.Entity<Mesure>(entity =>
+        {
+            entity.ToTable("t_j_mesure_mes");
+
+            entity.HasKey(e => e.MesureId);
+
+            entity.HasOne(e => e.TailleMesure)
+                  .WithMany(t => t.Mesures)
+                  .HasForeignKey(e => e.TailleId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.CategorieMesure)
+                  .WithMany(c => c.Mesures)
+                  .HasForeignKey(e => e.CategorieId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.TailleId, e.CategorieId })
+                  .IsUnique();
+        });
+
+        modelBuilder.Entity<MotInterdit>(entity =>
+        {
+            entity.HasKey(e => e.MotinterditId);
+            entity.HasIndex(e => e.LibelleMot).IsUnique();
         });
 
         modelBuilder.Entity<NoteUtilisateur>(entity =>
         {
             entity.HasKey(e => e.NoteUtilisateurId);
-            
+    
+            entity.Property(e => e.NoteUtilisateurId)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+    
             entity.HasOne(e => e.Auteur)
                 .WithMany(u => u.NotesAuteur)
-                .HasForeignKey(e => e.NoteUtilisateurId)
+                .HasForeignKey(e => e.AuteurId)  
                 .OnDelete(DeleteBehavior.ClientSetNull);
+    
             entity.HasOne(e => e.Cible)
                 .WithMany(u => u.NotesCible)
-                .HasForeignKey(e => e.NoteId)
+                .HasForeignKey(e => e.CibleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-            
+    
             entity.HasMany(e => e.Signalements)
                 .WithOne(s => s.Avis)
                 .HasForeignKey(s => s.AvisId)
@@ -1032,10 +1081,6 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.TailleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             
-            entity.HasOne(e => e.Categorie)
-                .WithMany(a => a.Tailles)
-                .HasForeignKey(e => e.CategorieTailleId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
         });
         
         modelBuilder.Entity<Transaction>(entity =>
@@ -1227,7 +1272,52 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.UtilisateurVendeurId)
                 .HasDatabaseName("idx_vend_utilisateur");
         });
-        
+
+        modelBuilder.Entity<VerificationCode>(entity =>
+        {
+            entity.ToTable("t_e_verification_code_ver");
+            entity.HasKey(e => e.VerificationCodeId);
+        });
+
+        modelBuilder.Entity<Visualisation>(entity =>
+        {
+            entity.ToTable("t_j_visualisation_vis");
+
+            entity.HasKey(e => e.VisualisationId);
+
+            entity.Property(e => e.VisualisationId)
+                .HasColumnName("vis_id")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.UtilisateurId)
+                .HasColumnName("vis_utilisateur_id")
+                .IsRequired();
+
+            entity.Property(e => e.AnnonceId)
+                .HasColumnName("vis_annonce_id")
+                .IsRequired();
+
+            entity.Property(e => e.DateVisualisation)
+                .HasColumnName("vis_date")
+                .IsRequired();
+
+            entity.HasOne(v => v.UtilisateurVisu)
+                .WithMany(u => u.Visualisations)
+                .HasForeignKey(v => v.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(v => v.AnnonceVisu)
+                .WithMany(a => a.LesVisualisations)
+                .HasForeignKey(v => v.AnnonceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.UtilisateurId)
+                .HasDatabaseName("idx_visualisation_utilisateur_utilisateurid");
+
+            entity.HasIndex(e => e.AnnonceId)
+                .HasDatabaseName("idx_visualisation_annonce_annonceid");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 

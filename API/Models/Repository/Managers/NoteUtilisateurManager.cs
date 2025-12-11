@@ -16,21 +16,32 @@ namespace API.Models.Repository.Managers
                 .AsSplitQuery();
         }
 
-        public async Task<IEnumerable<NoteUtilisateur>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<NoteUtilisateur>> GetByUserIdAsync(int userId, int page, int pageSize)
         {
-            return await BaseNoteQuery()
-                .Where(n => n.NoteId == userId)
+            IQueryable<NoteUtilisateur> query = BaseNoteQuery()
+                .Where(n => n.CibleId == userId)
+                .OrderByDescending(n => n.DatePublication);
+    
+            // Pagination
+            int skip = (page - 1) * pageSize;
+            var result = await query
+                .Skip(skip)
+                .Take(pageSize)
                 .ToListAsync();
+    
+            return result;
         }
 
         public async Task<double> GetMoyenneNoteAsync(int userId)
         {
-            return await BaseNoteQuery()
-                .Where(n => n.NoteId == userId)
+            var notes = await _context.NoteUtilisateurs
+                .Where(n => n.CibleId == userId)
                 .Select(n => (double)n.Note)
-                .DefaultIfEmpty(0)
-                .AverageAsync();
+                .ToListAsync();
+
+            return notes.Count == 0 ? 0 : notes.Average();
         }
+
 
         public override async Task<NoteUtilisateur?> GetByIdAsync(int id)
         {

@@ -1,14 +1,82 @@
 ﻿@page "/"
 @inject IJSRuntime JS
-@inject HomeViewModel VM_Home
-@inject AnnoncesViewModel VM_Annonces
-@inject FrontBlazor.Models.StateServices.IStateService<FrontBlazor.Models.Utilisateur> UserStateService
-
-
 <PageTitle>Clothes2U - Home</PageTitle>
 
-<NavBar/>
+<NavBar />
 
+
+<!-- RECENTS Section -->
+<div class="section-container">
+    <div class="section-header">
+        <h2 class="section-title">RECENTS</h2>
+        <div class="carousel-controls">
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <!-- Products Grid -->
+    <div class="products-section">
+        @if (VM_Home.IsLoading)
+        {
+            <div class="loading-state">
+                <div class="spinner-large"></div>
+                <p>Chargement des annonces...</p>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
+        {
+            <div class="error-state">
+                <i class="bi bi-exclamation-circle"></i>
+                <p>@VM_Home.ErrorMessage</p>
+                <button class="btn-retry" @onclick="LoadRecentAnnonces">Réessayer</button>
+            </div>
+        }
+        else if (VM_Home.Annonces == null || !VM_Home.Annonces.Any())
+        {
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <p>Aucune annonce trouvée</p>
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var annonce in VM_Home.Annonces)
+                {
+                    <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
+                        <div class="product-image-container">
+                            <div class="product-image"></div>
+                            <button class="wishlist-btn"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="() => ToggleFavorite(annonce.AnnonceId)">
+                                <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="product-info">
+                            <h3 class="product-title">@annonce.Title</h3>
+
+                            <div class="product-meta">
+                                <span class="product-size">Taille @annonce.Taille</span>
+                                <span class="product-condition">@annonce.EtatArticle</span>
+                            </div>
+
+                            <div class="product-footer">
+                                <span class="product-price">@annonce.Prix€</span>
+                                <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
 
 <!-- Hero Section -->
 <div class="hero-section">
@@ -41,14 +109,14 @@
                     </button>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-title">T-Shirt Adidas</h3>
+                    <h3 class="product-title">Template</h3>
                     <div class="product-meta">
-                        <span class="product-size">Taille XL</span>
-                        <span class="product-condition">Très bon état</span>
+                        <span class="product-size">Taille Template</span>
+                        <span class="product-condition">Attente de l'algorithme suggestion</span>
                     </div>
                     <div class="product-footer">
                         <span class="product-price">20.99€</span>
-                        <span class="product-seller">par Daniel</span>
+                        <span class="product-seller">SaeUserTemplate</span>
                     </div>
                 </div>
             </div>
@@ -98,17 +166,101 @@
                     </button>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-title">T-Shirt Adidas</h3>
+                    <h3 class="product-title">Template</h3>
                     <div class="product-meta">
-                        <span class="product-size">Taille XL</span>
-                        <span class="product-condition">Très bon état</span>
+                        <span class="product-size">Taille Template</span>
+                        <span class="product-condition">Attente de l'algorithme suggestion</span>
                     </div>
                     <div class="product-footer">
                         <span class="product-price">20.99€</span>
-                        <span class="product-seller">par Daniel</span>
+                        <span class="product-seller">SaeUserTemplate</span>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
+
+@code {
+
+
+    public bool IsLoading { get; set; } = false;
+
+    public string ErrorMessage { get; set; } = string.Empty;
+    public string SuccessMessage { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JS.InvokeVoidAsync("console.log", "OnInitializedAsync triggered");
+        await LoadRecentAnnonces();
+    }
+
+    private async Task LoadRecentAnnonces()
+    {
+        await JS.InvokeVoidAsync("console.log", "LoadRecentAnnonces() called");
+        ErrorMessage = SuccessMessage = string.Empty;
+        IsLoading = true;
+
+        FilterDTO filter = new FilterDTO
+        {
+            SortBy = SortField.DateAnnonce,
+            SortOrder = SortOrder.Descending,
+        };
+
+        try
+        {
+            List<Annonce> result = await VM_Home.GetAnnoncesByFiltreAsync(filter, 1, 10);
+
+            if (result.Any())
+            {
+                VM_Home.Annonces = result;
+                SuccessMessage = "Chargement réussi.";
+                // Print all of result in console for debugging
+                foreach (Annonce annonce in result)
+                {
+                    Console.WriteLine($"Annonce ID: {annonce.AnnonceId}, Title: {annonce.Title}");
+                }
+            }
+            else
+            {
+                ErrorMessage = "Erreur lors du chargement d'annonces recent.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateToProductDetail(int? productId)
+    {
+        if (productId.HasValue)
+        {
+            navigationManager.NavigateTo($"/product/{productId}");
+        }
+    }
+    private async Task ToggleFavorite(int annonceId)
+    {
+        if (VM_Connexion.CheckLoginStatus == null)
+        {
+            navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        var annonce = VM_Home.Annonces.First(a => a.AnnonceId == annonceId);
+
+        await VM_Home.ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
+
+        annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
+
+        StateHasChanged();
+    }
+
+
+}
+

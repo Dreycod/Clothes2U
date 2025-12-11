@@ -5,7 +5,7 @@ namespace API.Models.EntityFramework;
 
 
 [Table("t_e_notification_admin_notadm")]
-public class NotificationAdmin
+public class NotificationAdmin : IEntity
 {
     [Key]
     [Column("notadm_id")]
@@ -22,4 +22,6 @@ public class NotificationAdmin
     [ForeignKey(nameof(NotificationId))]
     [InverseProperty(nameof(Notification.NotificationAdmins))]
     public virtual Notification LaNotification { get; set; } = null!;
+    
+    public int GetId() =>  NotificationAdminId; 
 }

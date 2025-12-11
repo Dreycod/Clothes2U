@@ -11,22 +11,22 @@ namespace API.Services;
 public class PhotoService : IPhotoService
 {
     private readonly IPhotoRepository<Photo, int> _photoRepository;
-    private readonly IAnnonceRepository<Annonce, int> _annonceRepository;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IDataRepository<Illustre_Annonce, int> _illustreAnnonceRepository;
-    private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
+    private readonly IUtilisateurRepository _utilisateurManager;
     private readonly Clothes2UDbContext _context;
 
     public PhotoService(
         IPhotoRepository<Photo, int> photoRepository,
-        IAnnonceRepository<Annonce, int> annonceRepository,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         IDataRepository<Illustre_Annonce, int> illustreAnnonceRepository,
-        IDataRepository<Utilisateur, int> utilisateurRepository,
+        IUtilisateurRepository utilisateurRepository,
         Clothes2UDbContext context)
     {
         _photoRepository = photoRepository;
         _annonceRepository = annonceRepository;
         _illustreAnnonceRepository = illustreAnnonceRepository;
-        _utilisateurRepository = utilisateurRepository;
+        _utilisateurManager = utilisateurRepository;
         _context = context;
     }
 
@@ -76,7 +76,7 @@ public class PhotoService : IPhotoService
         try
         {
             // Validation métier
-            var utilisateur = await _utilisateurRepository.GetByIdAsync(compteId);
+            var utilisateur = await _utilisateurManager.GetByIdAsync(compteId);
             if (utilisateur == null)
             {
                 throw new NotFoundException($"Utilisateur {compteId} introuvable");
@@ -88,9 +88,9 @@ public class PhotoService : IPhotoService
             var photo = await _photoRepository.AddPhotoAsync(photoDto);
 
             // Mise à jour de l'utilisateur
-            var utilisateurToUpdate = await _utilisateurRepository.GetByIdAsync(compteId);
+            var utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(compteId);
             utilisateurToUpdate.PhotoId = photo.PhotoId;
-            await _utilisateurRepository.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
+            await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
 
             await transaction.CommitAsync();
             return photo;
@@ -121,9 +121,9 @@ public class PhotoService : IPhotoService
             }
             if (photo.Utilisateur != null)
             {
-                var utilisateurToUpdate = await _utilisateurRepository.GetByIdAsync(photo.Utilisateur.UtilisateurId);
+                var utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(photo.Utilisateur.UtilisateurId);
                 utilisateurToUpdate.PhotoId = null;
-                await _utilisateurRepository.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
+                await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
             }
             await _photoRepository.DeleteAsync(photo);
             await transaction.CommitAsync();

@@ -1,4 +1,4 @@
-﻿namespace FrontBlazor.Models.StateServices
+namespace FrontBlazor.Models.StateServices
 {
     public class AnnonceStateService : IStateService<Annonce>
     {
