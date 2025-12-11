@@ -49,6 +49,7 @@ public class MotInterditController : ControllerBase
         return Ok(motsDTO);
     }
     [HttpGet("id/{id}")]
+    [Authorize]
     [ProducesResponseType(typeof(MotInterditDTO),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -71,24 +72,37 @@ public class MotInterditController : ControllerBase
     {
         int? currentUserId = await _currentUserService.GetUserId();
         if (currentUserId == null)
-        {
             return Unauthorized("Le user est null");
-        }
+
         Utilisateur user = await _currentUserService.GetUser();
         if (user.Role.RoleUtilisateurLibelle != "Admin" && user.Role.RoleUtilisateurLibelle != "Modérateur")
-        {
             return Unauthorized("vous n'avez pas le bon role");
+
+        var motToAdd = _mapper.Map<MotInterdit>(motInterditDTO);
+
+        try
+        {
+            await _motInterditRepository.AddAsync(motToAdd);
+        }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateException dbEx)
+        {
+            // Vérifie si c’est une violation de contrainte unique
+            if (dbEx.InnerException != null && dbEx.InnerException.Message.Contains("UNIQUE"))
+            {
+                return BadRequest(new { 
+                    LibelleMot = "Ce mot est déjà utilisé." 
+                });
+            }
+
+            // Pour tout autre problème
+            return StatusCode(500, "Erreur lors de l'ajout du mot.");
         }
 
-        if (await _motInterditRepository.EstInterdit(motInterditDTO.LibelleMot))
-        {
-            return BadRequest("Libelle n'est pas le bon");
-        }
-        var motToAdd = _mapper.Map<MotInterdit>(motInterditDTO);
-        await _motInterditRepository.AddAsync(motToAdd);
-        return CreatedAtAction(nameof(GetById), new {id = motToAdd.MotinterditId}, motToAdd);
+        return CreatedAtAction(nameof(GetById), new { id = motToAdd.MotinterditId }, motToAdd);
     }
+
     [HttpDelete("id/{id}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

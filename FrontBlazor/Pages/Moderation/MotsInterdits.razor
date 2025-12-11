@@ -1,142 +1,69 @@
 @page "/moderation/mots-interdits"
 @inject MotsInterditsViewModel motsInterditsView
-
+@using FrontBlazor.Components.Moderation
+@layout ModerationLayout
 
 <PageTitle>Mots interdits - Modération</PageTitle>
 
 <link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/loading.css" rel="stylesheet" />
 
-
-<div class="moderation-page">
-    <div class="moderation-container">
-        <!-- Sidebar -->
-        <aside class="mod-sidebar">
-            <div class="mod-header">
-                <div class="mod-logo">
-                    <i class="bi bi-shield-check"></i>
-                    <div>
-                        <h2>Clothes2U</h2>
-                        <p>Moderation Board</p>
-                    </div>
+@if (motsInterditsView.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <h1 class="mod-page-title">Mots interdits</h1>
+    <div class="words-container">
+        <div class="words-tags">
+            @if (motsInterditsView.Mots == null || motsInterditsView.Mots.Count == 0)
+            {
+                <p>Il n'y a pas de mots !</p>
+            } 
+            else
+            {
+                @foreach (var word in motsInterditsView.Mots)
+                {
+                    <WordTag MotsInterditsViewModel="@motsInterditsView"
+                             Word="@word"
+                             OnDeleted="@HandleWordDeleted"/>
+                }
+            }
+        </div>
+        <div class="add-word-section">
+            @if (!string.IsNullOrEmpty(motsInterditsView.ErrorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @motsInterditsView.ErrorMessage
                 </div>
-            </div>
-
-            <nav class="mod-nav">
-                <a href="/moderation" class="mod-nav-item">
-                    <i class="bi bi-house-door"></i>
-                    <span>Home</span>
-                </a>
-                <a href="/moderation/signalements" class="mod-nav-item">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <span>Signalements</span>
-                </a>
-                <a href="/moderation/images" class="mod-nav-item">
-                    <i class="bi bi-image"></i>
-                    <span>Images</span>
-                </a>
-                <a href="/moderation/restauration" class="mod-nav-item">
-                    <i class="bi bi-person-check"></i>
-                    <span>Restauration</span>
-                </a>
-                <a href="/moderation/sanctions" class="mod-nav-item">
-                    <i class="bi bi-person-x"></i>
-                    <span>Sanctions</span>
-                </a>
-                <a href="/moderation/mots-interdits" class="mod-nav-item active">
-                    <i class="bi bi-chat-square-text"></i>
-                    <span>Mots interdits</span>
-                </a>
-                <a href="/moderation/support" class="mod-nav-item">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Support</span>
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="mod-content">
-            <h1 class="mod-page-title">Mots interdits</h1>
-
-            <!-- Forbidden Words List -->
-            <div class="words-container">
-                <div class="words-tags">
-                    @if (motsInterditsView.IsLoading)
-                    {
-                        
-                    }else if(motsInterditsView.Mots == null || motsInterditsView.Mots.Count == 0)
-                    {
-                        <p>Il n'y a pas de mots !</p>
-                    } else
-                    {
-                        @foreach (var word in motsInterditsView.Mots)
-                        {
-                            <div class="word-tag">
-                                <span>× @word.LibelleMot</span>
-                                <button class="remove-word-btn" @onclick="() => motsInterditsView.DeleteMotAsync(word.MotinterditId)">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                        }
-                    }
-                </div>
-                <!-- Add Word Input -->
-                <div class="add-word-section">
-                    <input type="text"
-                           class="word-input"
-                           placeholder="Insérez un mot à censurer ou upload un fichier Json"
-                           @bind="motsInterditsView.motToAdd.LibelleMot"
-                           @onkeydown="HandleKeyPress" />
-                    <button class="btn-upload" title="Upload JSON">
-                        <i class="bi bi-paperclip"></i>
-                        <input type="file" accept=".json" style="display: none;" />
-                    </button>
-                    <button class="btn-add" @onclick="() => motsInterditsView.AddMotInterditAsync()">
-                        <i class="bi bi-send"></i>
-                    </button>
-                </div>
-            </div>
-        </main>
+            }
+            <input type="text"
+                   class="word-input"
+                   placeholder="Insérez un mot à bannir . . . "
+                   @bind="motsInterditsView.motToAdd.LibelleMot"/>
+            <button class="btn-add" @onclick="HandleAddWord">
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
     </div>
-</div>
+}
+        
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await motsInterditsView.LoadAsync();
+    }
 
-    @code {
+    private async Task HandleWordDeleted()
+    {
+        await motsInterditsView.LoadAsync();
+        StateHasChanged();
+    }
 
-        protected override async Task OnInitializedAsync()
-        {
-            await motsInterditsView.LoadAsync();
-        }
-
-        private List<string> forbiddenWords = new()
-        {
-            "insulte1", "insulte2", "insulte3", "insulte4",
-            "insulte5", "insulte6", "insulte7", "très grande insulte"
-        };
-
-        private string newWord = string.Empty;
-
-        private void AddWord()
-        {
-            if (!string.IsNullOrWhiteSpace(newWord) && !forbiddenWords.Contains(newWord.ToLower()))
-            {
-                forbiddenWords.Add(newWord.ToLower());
-                newWord = string.Empty;
-                // TODO: Save to database
-            }
-        }
-
-        private void RemoveWord(string word)
-        {
-            forbiddenWords.Remove(word);
-            // TODO: Remove from database
-        }
-
-        private void HandleKeyPress(KeyboardEventArgs e)
-        {
-            if (e.Key == "Enter")
-            {
-                AddWord();
-            }
-        }
-
+    private async Task HandleAddWord()
+    {
+        await motsInterditsView.AddMotInterditAsync();
+        StateHasChanged();
     }
 }

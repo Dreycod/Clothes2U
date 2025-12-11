@@ -1,17 +1,16 @@
 ﻿@page "/search"
-@inject IJSRuntime JS;
-@using Microsoft.AspNetCore.WebUtilities;
+@using Microsoft.AspNetCore.WebUtilities
+@inject NavBarViewModel Vm_NavBar
+@implements IDisposable
+
 <PageTitle>Rechercher - Clothes2U</PageTitle>
 
-<!-- Navigation Bar -->
 <NavBar />
 
 <div class="search-page">
-    <!-- Hero Banner -->
     <div class="search-hero"></div>
 
     <div class="search-container">
-        <!-- Page Header -->
         <div class="search-header">
             <div>
                 <h1 class="search-title">Rechercher des articles</h1>
@@ -22,7 +21,6 @@
         </div>
 
         <div class="search-content">
-            <!-- Filters Sidebar -->
             <aside class="filters-sidebar">
                 <div class="filters-header">
                     <h3>Filtres</h3>
@@ -45,33 +43,31 @@
                             @foreach (var categorie in VM_Categorie.Items)
                             {
                                 <div class="category-filter-item">
-                                    <!-- Main Category -->
                                     <div class="category-header" @onclick="() => VM_Search.ToggleCategory(categorie.IdCategorie)">
                                         <label class="checkbox-label">
                                             <input type="checkbox"
-                                                   checked="@VM_Search.IsCategorySelected(categorie.IdCategorie)"
-                                                   @onchange="(e) => VM_Search.ToggleCategorySelection(categorie.IdCategorie, (bool)e.Value!)"
-                                                   @onclick:stopPropagation />
+                                                   checked="@VM_Search.SelectedCategories.Contains(categorie.LibelleCategorie)"
+                                                   @onclick:stopPropagation
+                                                   @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedCategories, categorie.LibelleCategorie)" />
                                             <span>@categorie.LibelleCategorie</span>
                                         </label>
                                         @if (categorie.SousCategories != null && categorie.SousCategories.Any())
                                         {
-                                            <i class="bi bi-chevron-@(VM_Search.expandedCategories.Contains(categorie.IdCategorie) ? "up" : "down") expand-icon"></i>
+                                            <i class="bi bi-chevron-@(VM_Search.ExpandedCategories.Contains(categorie.IdCategorie) ? "up" : "down") expand-icon"></i>
                                         }
                                     </div>
 
-                                    <!-- Subcategories (expandable) -->
-                                    @if (VM_Search.expandedCategories.Contains(categorie.IdCategorie) &&
-                                                                categorie.SousCategories != null &&
-                                                                categorie.SousCategories.Any())
+                                    @if (VM_Search.ExpandedCategories.Contains(categorie.IdCategorie) &&
+                                         categorie.SousCategories != null &&
+                                         categorie.SousCategories.Any())
                                     {
                                         <div class="subcategory-list">
                                             @foreach (var sousCategorie in categorie.SousCategories)
                                             {
                                                 <label class="checkbox-label subcategory-item">
                                                     <input type="checkbox"
-                                                           checked="@VM_Search.IsSubcategorySelected(sousCategorie.SousCategorieId)"
-                                                           @onchange="(e) => VM_Search.ToggleSubcategorySelection(sousCategorie.SousCategorieId, (bool)e.Value!)" />
+                                                           checked="@VM_Search.SelectedSousCategories.Contains(sousCategorie.LibelleSousCategorie!)"
+                                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedSousCategories, sousCategorie.LibelleSousCategorie!)" />
                                                     <span>@sousCategorie.LibelleSousCategorie</span>
                                                 </label>
                                             }
@@ -104,8 +100,8 @@
                             {
                                 <label class="checkbox-label">
                                     <input type="checkbox"
-                                           checked="@VM_Search.IsMarqueSelected(marque.MarqueId)"
-                                           @onchange="(e) => VM_Search.ToggleMarqueSelection(marque.MarqueId, (bool)e.Value!)" />
+                                           checked="@VM_Search.SelectedMarques.Contains(marque.NomMarque)"
+                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedMarques, marque.NomMarque)" />
                                     <span>@marque.NomMarque</span>
                                 </label>
                             }
@@ -133,8 +129,8 @@
                             @foreach (var taille in VM_Taille.Items)
                             {
                                 <button type="button"
-                                        class="size-btn @(VM_Search.selectedTailleId == taille.TailleId ? "active" : "")"
-                                        @onclick="() => VM_Search.ToggleTailleSelection(taille.TailleId)">
+                                        class="size-btn @(VM_Search.SelectedTailles.Contains(taille.Libelletaille) ? "active" : "")"
+                                        @onclick="() => VM_Search.ToggleFilter(VM_Search.SelectedTailles, taille.Libelletaille)">
                                     @taille.Libelletaille
                                 </button>
                             }
@@ -154,7 +150,12 @@
                             <span>0€</span>
                             <span>@VM_Search.SliderMax€</span>
                         </div>
-                        <input type="range" min="0" max="@VM_Search.SliderMax" @bind="VM_Search.SelectedPrice" class="price-slider" />
+                        <input type="range" 
+                               min="0" 
+                               max="@VM_Search.SliderMax" 
+                               @bind="VM_Search.SelectedPrice"
+                               @bind:after="VM_Search.OnPriceChanged"
+                               class="price-slider" />
                         <div class="price-current">
                             <span>Maximum Choisi: @VM_Search.SelectedPrice€</span>
                         </div>
@@ -165,18 +166,9 @@
                 <div class="filter-section">
                     <h4 class="filter-title">État</h4>
                     <div class="filter-options">
-                        @foreach (var etat in VM_Etat.Items)
-                        {
-                            <label class="checkbox-label subcategory-item">
-                                <input type="checkbox"
-                                       checked="@VM_Search.IsEtatSelected(etat.EtatArticleId)"
-                                       @onchange="(e) => VM_Search.ToggleEtatSelection(etat.EtatArticleId, (bool)e.Value!)" />
-                                <span>@etat.NomEtat</span>
-                            </label>
-                        }
+                        <!-- Section commentée - pas implémentée -->
                     </div>
                 </div>
-
             </aside>
 
             <!-- Products Grid -->
@@ -193,7 +185,6 @@
                     <div class="error-state">
                         <i class="bi bi-exclamation-circle"></i>
                         <p>@VM_Search.ErrorMessage</p>
-                        <button class="btn-retry" @onclick="VM_Search.LoadAnnonces">Réessayer</button>
                     </div>
                 }
                 else if (VM_Search.Annonces == null || !VM_Search.Annonces.Any())
@@ -216,7 +207,6 @@
                                             @onclick="() => VM_Search.ToggleFavorite(annonce.AnnonceId)">
                                         <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                                     </button>
-
                                 </div>
 
                                 <div class="product-info">
@@ -235,12 +225,11 @@
                             </div>
                         }
                     </div>
-                    <!-- Pagination Component -->
+
                     @if (VM_Search.TotalPages > 1)
                     {
                         <div class="pagination-container">
                             <div class="pagination">
-                                <!-- Previous Button -->
                                 <button class="pagination-btn @(VM_Search.CurrentPage == 1 ? "disabled" : "")"
                                         @onclick="() => VM_Search.GoToPage(VM_Search.CurrentPage - 1)"
                                         disabled="@(VM_Search.CurrentPage == 1)">
@@ -248,25 +237,22 @@
                                     Précédent
                                 </button>
 
-                                <!-- Page Numbers -->
                                 <div class="pagination-numbers">
-                                    @foreach (var _page in VM_Search.GetVisiblePages())
+                                    @foreach (var page in VM_Search.GetVisiblePages())
                                     {
-                                        @if (_page == -1)
+                                        @if (page == -1)
                                         {
                                             <span class="pagination-ellipsis">...</span>
                                         }
                                         else
                                         {
-                                            <button class="pagination-number @(_page == VM_Search.CurrentPage ? "active" : "")"
-                                                    @onclick="() => VM_Search.GoToPage(_page)">
-                                                @_page
+                                            <button class="pagination-number @(page == VM_Search.CurrentPage ? "active" : "")"
+                                                    @onclick="() => VM_Search.GoToPage(page)">
                                             </button>
                                         }
                                     }
                                 </div>
 
-                                <!-- Next Button -->
                                 <button class="pagination-btn @(VM_Search.CurrentPage == VM_Search.TotalPages ? "disabled" : "")"
                                         @onclick="() => VM_Search.GoToPage(VM_Search.CurrentPage + 1)"
                                         disabled="@(VM_Search.CurrentPage == VM_Search.TotalPages)">
@@ -275,7 +261,6 @@
                                 </button>
                             </div>
 
-                            <!-- Results Info -->
                             <div class="pagination-info">
                                 Affichage de @VM_Search.GetStartItem() - @VM_Search.GetEndItem() sur @VM_Search.TotalItems résultats
                             </div>
@@ -288,14 +273,20 @@
 </div>
 
 @code {
-
     protected override async Task OnInitializedAsync()
     {
-        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
-
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("q", out var q))
-            VM_Search.Query = q;
-        await VM_Search.LoadAsync();
+        // Enregistrer le SearchViewModel auprès de la NavBar
+        Vm_NavBar.SetSearchViewModel(VM_Search);
+        
+        await VM_Search.InitializeFromUrlAsync();
         VM_Search.OnStateChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        VM_Search.OnStateChange -= StateHasChanged;
+        
+        // Nettoyer la référence
+        Vm_NavBar.SetSearchViewModel(null);
     }
 }

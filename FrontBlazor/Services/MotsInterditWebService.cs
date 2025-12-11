@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using FrontBlazor.Models.Moderation;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
@@ -44,18 +45,41 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
         }
     }
 
-    public async Task<MotInterdit?> AddAsync(MotInterdit entity)
+    public async Task<(MotInterdit? mot, string? error)> AddAsync(MotInterdit entity)
     {
         try
         {
             var body = JsonContent.Create(entity);
             var response = await PostWithCredentialsAsync("MotInterdit", body);
-            return response.Content.ReadFromJsonAsync<MotInterdit>().Result;
+        
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+            
+                // Essayer de parser le JSON d'erreur
+                try
+                {
+                    var errorObj = JsonSerializer.Deserialize<Dictionary<string, string>>(errorContent);
+                    if (errorObj != null && errorObj.ContainsKey("message"))
+                    {
+                        return (null, errorObj["message"]);
+                    }
+                }
+                catch
+                {
+                    // Si ce n'est pas du JSON, retourner le contenu brut
+                }
+            
+                return (null, errorContent);
+            }
+        
+            var result = await response.Content.ReadFromJsonAsync<MotInterdit>();
+            return (result, null);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Exception: {ex.Message}");
-            return null;
+            return (null, $"Erreur lors de l'ajout: {ex.Message}");
         }
     }
 }

@@ -545,6 +545,7 @@ public partial class Clothes2UDbContext : DbContext
         modelBuilder.Entity<MotInterdit>(entity =>
         {
             entity.HasKey(e => e.MotinterditId);
+            entity.HasIndex(e => e.LibelleMot).IsUnique();
         });
 
         modelBuilder.Entity<NoteUtilisateur>(entity =>

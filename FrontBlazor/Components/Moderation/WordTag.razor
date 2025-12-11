@@ -1,0 +1,27 @@
+@using FrontBlazor.Models.Moderation
+
+
+<link href="css/Components/WordTag.css" rel="stylesheet" />
+
+<div class="word-tag">
+    <span>@Word?.LibelleMot</span>
+    <button class="remove-word-btn" @onclick="HandleDelete">
+        <i class="bi bi-x"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] 
+    public MotsInterditsViewModel MotsInterditsViewModel { get; set; } = null!;
+    
+    [Parameter] 
+    public MotInterdit Word { get; set; } = null!;
+    [Parameter]
+    public EventCallback OnDeleted { get; set; }
+
+    private async Task HandleDelete()
+    {
+        await MotsInterditsViewModel.DeleteMotAsync(Word.MotinterditId);
+        await OnDeleted.InvokeAsync();
+    }
+}
