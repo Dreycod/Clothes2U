@@ -13,19 +13,15 @@ public class Taille : IEntity
     [Column("tai_libelletaille")]
     public string Libelletaille { get; set; }
     
-    //id de la table catégorie
-    
-    [Column("tai_categorie_taille_id")]
-    public int CategorieTailleId { get; set; }
     
     //relations avec les autres tables
     
     [InverseProperty(nameof(Annonce.Taille))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
     
-    [ForeignKey(nameof(CategorieTailleId))]
-    [InverseProperty(nameof(Categorie.Tailles))]
-    public virtual Categorie Categorie { get; set; } = null!;
+
+    [InverseProperty(nameof(Mesure.TailleMesure))]
+    public virtual ICollection<Mesure> Mesures { get; set; } = new List<Mesure>();
     
     public int GetId() => TailleId;
 }
