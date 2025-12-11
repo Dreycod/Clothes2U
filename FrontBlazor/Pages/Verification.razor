@@ -1,39 +1,77 @@
 ﻿@page "/verification"
 @inject VerificationViewModel VM
 
-<h3>Vérification du compte</h3>
+<div class="container d-flex justify-content-center mt-5">
+    <div class="card shadow-lg p-4" style="max-width: 450px; width: 100%;">
 
-<select @bind="VM.SelectedType">
-    <option value="Email">Email</option>
-    <option value="Telephone">Téléphone</option>
-</select>
+        <h3 class="text-center mb-4">
+            <i class="bi bi-shield-check text-primary"></i>
+            Vérification du compte
+        </h3>
 
-<button @onclick="VM.SendCodeAsync">
-    Envoyer le code
-</button>
+        <!-- Choix du type -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Méthode de vérification</label>
+            <select class="form-select" @bind="VM.SelectedType">
+                <option value="Email">Email</option>
+                <option value="Telephone">Téléphone</option>
+            </select>
+        </div>
 
-@if (VM.SelectedType == VerificationType.Telephone)
-{
-    <input placeholder="+33612345678"
-           @bind="VM.PhoneNumber" />
-}
+        <!-- Téléphone uniquement -->
+        @if (VM.SelectedType == VerificationType.Telephone)
+        {
+            <div class="mb-3">
+                <label class="form-label">Numéro de téléphone</label>
+                <input class="form-control"
+                       placeholder="+33612345678"
+                       @bind="VM.PhoneNumber" />
+            </div>
+        }
 
-
-@if (VM.CodeSent)
-{
-    <div>
-        <input placeholder="Code reçu"
-               @bind="VM.Code" />
-
-        <button @onclick="VM.VerifyAsync">
-            Vérifier
+        <!-- Bouton envoyer code -->
+        <button class="btn btn-primary w-100 mb-3"
+                @onclick="VM.SendCodeAsync">
+            <i class="bi bi-envelope-paper"></i>
+            Envoyer le code
         </button>
 
-        @if (VM.ExpiresAt != null)
+        <!-- Champ de saisie du code -->
+        @if (VM.CodeSent)
         {
-            <p>Expire le : @VM.ExpiresAt</p>
-        }
-    </div>
-}
+            <div class="alert alert-info text-center">
+                Un code a été envoyé !
+            </div>
 
-<p>@VM.Message</p>
+            <div class="mb-3">
+                <label class="form-label">Code reçu</label>
+                <input class="form-control text-center"
+                       maxlength="6"
+                       @bind="VM.Code"
+                       placeholder="123456" />
+            </div>
+
+            <button class="btn btn-success w-100 mb-3"
+                    @onclick="VM.VerifyAsync">
+                <i class="bi bi-check-circle"></i>
+                Vérifier
+            </button>
+
+            @if (VM.ExpiresAt != null)
+            {
+                <p class="text-muted text-center">
+                    Expire le : <b>@VM.ExpiresAt</b>
+                </p>
+            }
+        }
+
+        <!-- Message retour -->
+        @if (!string.IsNullOrWhiteSpace(VM.Message))
+        {
+            <div class="alert @(VM.Message.Contains("succès") ? "alert-success" : "alert-danger") mt-3">
+                @VM.Message
+            </div>
+        }
+
+    </div>
+</div>
