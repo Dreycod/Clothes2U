@@ -11,6 +11,9 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using System.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace API.Controllers;
 
@@ -254,5 +257,108 @@ public class LoginController : ControllerBase
     //     var token = tokenHandler.CreateToken(tokenDescriptor);
     //     return tokenHandler.WriteToken(token);
     // }
-    
+    [HttpGet("google-login")]
+    [AllowAnonymous]
+    public IActionResult GoogleLogin(string returnUrl = "/")
+    {
+        Console.WriteLine($"🚀 Démarrage Google Login, returnUrl: {returnUrl}");
+
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(GoogleCallback), "Login", new { returnUrl }),
+            AllowRefresh = true
+        };
+
+        Console.WriteLine($"🔗 RedirectUri: {properties.RedirectUri}");
+
+        return Challenge(properties, "Google");
+    }
+
+    [HttpGet("google-callback")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GoogleCallback(string returnUrl = "/")
+    {
+        Console.WriteLine($"📥 Google Callback appelé");
+        Console.WriteLine($"   returnUrl: {returnUrl}");
+
+        // 🔧 CHANGEMENT : Authentifier avec le Cookie scheme (où Google a signé)
+        var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        if (!authenticateResult.Succeeded)
+        {
+            Console.WriteLine($"❌ Authentification échouée: {authenticateResult.Failure?.Message}");
+            return Redirect($"{_config["FrontendUrl"]}/login?error=auth_failed");
+        }
+
+        var email = authenticateResult.Principal.FindFirst(ClaimTypes.Email)?.Value;
+        var name = authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value;
+
+        Console.WriteLine($"✅ Email: {email}, Name: {name}");
+
+        if (string.IsNullOrEmpty(email))
+        {
+            return Redirect($"{_config["FrontendUrl"]}/login?error=no_email");
+        }
+
+        // Récupérer ou créer l'utilisateur
+        var existingUsers = await _utilisateurManager.GetAllAsync();
+        var utilisateur = existingUsers.FirstOrDefault(u => u.Email.ToUpper() == email.ToUpper());
+
+        if (utilisateur == null)
+        {
+            var baseLogin = email.Split('@')[0];
+            var login = baseLogin;
+            int counter = 1;
+
+            while (existingUsers.Any(u => u.Login.ToUpper() == login.ToUpper()))
+            {
+                login = $"{baseLogin}{counter}";
+                counter++;
+            }
+
+            utilisateur = new Utilisateur
+            {
+                Email = email,
+                Login = login,
+                Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
+                Description = "",
+                StatutId = 1,
+                ValidEmail = true,
+                ValidTelephone = false,
+                Dateinscription = DateTime.UtcNow,
+                RoleId = 1
+            };
+
+            await _utilisateurManager.AddAsync(utilisateur);
+            Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
+        }
+        else
+        {
+            Console.WriteLine($"✅ Utilisateur existant: {utilisateur.Login}");
+        }
+
+        // Générer le JWT
+        var tokenString = _loginService.GenerateJwtToken(utilisateur);
+        Console.WriteLine($"✅ JWT généré");
+
+        // Créer le cookie JWT pour votre application
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTime.Now.AddMinutes(30)
+        };
+        Response.Cookies.Append("authToken", tokenString, cookieOptions);
+        Console.WriteLine($"✅ Cookie authToken créé");
+
+        // 🔧 IMPORTANT : Se déconnecter du Cookie temporaire de Google
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        Console.WriteLine($"✅ Déconnexion du cookie temporaire Google");
+
+        var finalUrl = $"{_config["FrontendUrl"]}{returnUrl}";
+        Console.WriteLine($"🔀 Redirection vers: {finalUrl}");
+
+        return Redirect(finalUrl);
+    }
 }

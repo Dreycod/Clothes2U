@@ -1,5 +1,6 @@
 ﻿@page "/login"
-
+@inject AuthWebService AuthService
+@inject NavigationManager Navigation
 
 <PageTitle>Connexion - Clothes2U</PageTitle>
 
@@ -230,7 +231,7 @@
 
     private void OnGoogleClicked()
     {
-        // Ton VM a HandleGoogleLogin sans async; appelle-le si tu veux
-        VM_Connexion.HandleGoogleLogin();
+        var googleUrl = AuthService.GetGoogleLoginUrl("/dashboard");
+        Navigation.NavigateTo(googleUrl, forceLoad: true);
     }
 }

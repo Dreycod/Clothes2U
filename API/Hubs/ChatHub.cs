@@ -1,44 +1,49 @@
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
 
 namespace API.Hubs;
 
-//[Authorize] // Optionnel : si vous voulez sécuriser le hub
 public class ChatHub : Hub
 {
-    public async Task SendMessageToConversation(int conversationId, string messageContent, int userId, DateTime date)
+    // Cette méthode n'est plus utilisée directement - c'est le controller qui broadcast
+    public async Task SendMessage(int conversationId, int senderId, string message)
     {
-        Console.WriteLine($"📨 SendMessageToConversation: ConvId={conversationId}, UserId={userId}");
+        Console.WriteLine($"[Hub] 📨 SendMessage called (method direct):");
+        Console.WriteLine($"  - ConversationId: {conversationId}");
+        Console.WriteLine($"  - SenderId: {senderId}");
+        Console.WriteLine($"  - Message: {message}");
         
-        // Envoyer à tous les membres du groupe de cette conversation
+        var date = DateTime.UtcNow;
+        
         await Clients.Group($"conversation_{conversationId}")
-            .SendAsync("ReceiveMessage", conversationId, userId, messageContent, date);
+            .SendAsync("ReceiveMessage", conversationId, senderId, message, date);
+        
+        Console.WriteLine($"[Hub] ✅ Message broadcasted");
     }
 
     public async Task JoinConversation(int conversationId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
-        Console.WriteLine($"✅ User {Context.ConnectionId} joined conversation {conversationId}");
+        Console.WriteLine($"[Hub] ✅ {Context.ConnectionId} joined conversation_{conversationId}");
     }
 
     public async Task LeaveConversation(int conversationId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
-        Console.WriteLine($"👋 User {Context.ConnectionId} left conversation {conversationId}");
+        Console.WriteLine($"[Hub] 👋 {Context.ConnectionId} left conversation_{conversationId}");
     }
 
     public override async Task OnConnectedAsync()
     {
-        Console.WriteLine($"🟢 Client connected: {Context.ConnectionId}");
+        Console.WriteLine($"[Hub] 🟢 Client connected: {Context.ConnectionId}");
         await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        Console.WriteLine($"🔴 Client disconnected: {Context.ConnectionId}");
+        Console.WriteLine($"[Hub] 🔴 Client disconnected: {Context.ConnectionId}");
         if (exception != null)
         {
-            Console.WriteLine($"   Error: {exception.Message}");
+            Console.WriteLine($"[Hub]    Error: {exception.Message}");
         }
         await base.OnDisconnectedAsync(exception);
     }

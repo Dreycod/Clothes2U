@@ -1,6 +1,6 @@
 using API.DTO.Verification;
 using API.Models.EntityFramework;
-using API.Services.Verification;
+using API.Services.VerificationSrvceV2;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,20 +20,21 @@ public class VerificationController : ControllerBase
 
     [HttpPost("send")]
     public async Task<ActionResult<VerificationResponse>> SendVerificationCode(
-        [FromBody] SendVerificationCodeRequest request)
+       [FromBody] SendVerificationCodeRequest request)
     {
         var userId = GetConnectedUserId();
         if (userId == null)
             return Unauthorized();
 
         var (success, message, expiresAt) = await _verificationService
-            .SendVerificationCodeAsync(userId.Value, request.Type);
+            .SendVerificationCodeAsync(userId.Value, request.Type, request.PhoneNumber);
+
 
         if (!success)
-            return BadRequest(new VerificationResponse 
-            { 
-                Success = false, 
-                Message = message 
+            return BadRequest(new VerificationResponse
+            {
+                Success = false,
+                Message = message
             });
 
         return Ok(new VerificationResponse

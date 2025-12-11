@@ -7,7 +7,6 @@ using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
-using FrontBlazor.Shared;
 using FrontBlazor.ViewModel;
 using Microsoft.AspNetCore.Components;
 
@@ -32,6 +31,7 @@ builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
 builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
+builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<NotificationService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
@@ -60,8 +60,8 @@ builder.Services.AddScoped<CommercialTaillesViewModel>();
 builder.Services.AddScoped<CommercialViewModel>();
 builder.Services.AddScoped<ModerationBoardViewModel>();
 builder.Services.AddScoped<MotsInterditsViewModel>();
+builder.Services.AddScoped<VerificationViewModel>();
 builder.Services.AddScoped<NavBarViewModel>();
-
 
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });
