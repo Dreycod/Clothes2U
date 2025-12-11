@@ -29,4 +29,15 @@ public class MessageWebService : WritableService<Message>, IMessageService<Messa
         var body = JsonContent.Create(message);
         return await PostWithCredentialsAsync($"Message/texte",body);
     }
+
+    public async Task MaskAsRead(int messageId)
+    {
+        var response = await _httpClient.PutAsync($"Message/markAsRead/{messageId}", null);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"❌ Failed to mark message {messageId} as read. Status: {response.StatusCode}");
+        }
+    }
+
 }

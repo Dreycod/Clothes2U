@@ -223,5 +223,24 @@ public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTex
         await _messageManager.DeleteAsync(message);
         return NoContent();
     }
+
+    [HttpPut("markAsRead/{messageId}")]
+    public async Task<IActionResult> MarkAsRead(int messageId)
+    {
+        var message = await _messageManager.GetByIdAsync(messageId);
+        if (message == null) return NotFound();
+        
+        var newMessage = _mapper.Map<Message>(message);
+        newMessage.MessageLu = true; 
+        
+        await _messageManager.UpdateAsync(message, newMessage);
+        
+        // Notifier SignalR
+        // Dans MessageController après avoir sauvegardé le message
+        await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
+            .SendAsync("ReceiveMessage", message.ConversationId, message.UtilisateurId, message.MessageTexte.Content, message.MessageDate);
+
+        return NoContent();
+    }
     
 }

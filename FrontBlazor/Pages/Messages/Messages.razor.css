@@ -297,3 +297,121 @@
     position: relative;
     transition: all 0.3s ease;
 }
+
+.read-badge {
+    width: 8px;
+    height: 8px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 6px;
+}
+
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    margin: 10px;
+    margin-left: 15px;
+}
+
+.typing-indicator .dot {
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator .dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator .dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+/* Indicateur de frappe */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #f0f0f0;
+    border-radius: 18px;
+    width: fit-content;
+    margin: 8px 0;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.typing-text {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+.typing-indicator .dot {
+    width: 8px;
+    height: 8px;
+    background-color: #999;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Badge "Vu" */
+.message-read {
+    color: #4A90E2;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+.message.sent .message-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-end;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #999;
+}
+
+/* Alternative : Badge rond au lieu de ✔✔ */
+.read-badge {
+    width: 8px;
+    height: 8px;
+    background-color: #4A90E2;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 4px;
+}

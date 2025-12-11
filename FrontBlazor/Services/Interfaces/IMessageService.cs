@@ -7,5 +7,6 @@ public interface IMessageService<TEntity> : IReadableService<TEntity>, IWritable
     Task<List<TEntity>?> GetMessagesByConversationId(int id);
     Task<List<TEntity>?> GetMessagesByUserId(int id);
     Task<HttpResponseMessage> PostMessageTexte(Message message);
+    Task MaskAsRead(int messageId);
 
 }

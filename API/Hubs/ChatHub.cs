@@ -47,4 +47,25 @@ public class ChatHub : Hub
         }
         await base.OnDisconnectedAsync(exception);
     }
+    
+    public async Task MarkMessagesAsRead(int conversationId, int userId)
+    {
+        var groupName = $"conversation_{conversationId}";
+        Console.WriteLine($"[Hub] 📖 User {userId} marked messages as read in conversation {conversationId}");
+        
+        // Notifier tous les membres du groupe
+        await Clients.Group(groupName).SendAsync("MessagesRead", conversationId, userId);
+        
+        Console.WriteLine($"[Hub] ✅ Broadcasted MessagesRead to group {groupName}");
+    }
+    
+    public async Task NotifyTyping(int conversationId, int userId, string userName)
+    {
+        var groupName = $"conversation_{conversationId}";
+        Console.WriteLine($"[Hub] ⌨️ User {userId} ({userName}) typing in conv {conversationId}");
+    
+        await Clients.Group(groupName).SendAsync("UserTyping", conversationId, userId, userName);
+    
+        Console.WriteLine($"[Hub] ✅ Broadcasted typing to group {groupName}");
+    }
 }
