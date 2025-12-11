@@ -9,6 +9,6 @@ public class TailleManager : GenericCRUDManager<Taille>, ITailleRepository
 
     public async Task<IEnumerable<Taille>> GetAllAsyncByIdentifier(int id)
     {
-        return await _context.Tailles.Where(e => e.CategorieTailleId == id).ToListAsync();
+        return await _context.Tailles.Where(e => e.TailleId == id).ToListAsync();
     }
 }
