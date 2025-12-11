@@ -34,6 +34,7 @@ builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<ClipboardService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>

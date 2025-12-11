@@ -1,20 +1,40 @@
 ﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace FrontBlazor.ViewModel;
 
 public class DetailAnnonceViewModel
 {
     private readonly IAnnonceService<Annonce> _annonceService;
+    private readonly IFavorisService<Favoris> _favorisService;
+    private readonly IAuthService _authService;
+    private readonly IReadableService<UtilisateurView> _utilisateurService;
+    private readonly NavigationManager _navigationManager;
+    private readonly ClipboardService _clipboardService;
 
     public Annonce? AnnonceDetail { get; set; }
+    public UtilisateurView? utilisateurAnnonce { get; set; }
+    public List<Annonce>? similarProducts = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
+    public bool clickedShareButton { get; set; } = false;
 
-    public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
+    public bool IsSameUser { get; set; } = true;
+
+    public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService, 
+        IFavorisService<Favoris> favorisService, IAuthService authService, 
+        IReadableService<UtilisateurView> utilisateurService, NavigationManager navigationManager, 
+        ClipboardService clipboardService)
     {
         _annonceService = annonceService;
+        _favorisService = favorisService;
+        _authService = authService;
+        _utilisateurService = utilisateurService;
+        _navigationManager = navigationManager;
+        _clipboardService = clipboardService; 
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -29,6 +49,30 @@ public class DetailAnnonceViewModel
             {
                 ErrorMessage = "Annonce introuvable";
             }
+
+            utilisateurAnnonce = await _utilisateurService.GetByIdAsync(AnnonceDetail.UtilisateurId);
+            Console.WriteLine("UtilisateurId: " + utilisateurAnnonce.UtilisateurId);
+            Console.WriteLine("followeddByCurrentUser: " + utilisateurAnnonce.followeddByCurrentUser);
+            Console.WriteLine("Login: " + utilisateurAnnonce.Login);
+            Console.WriteLine("DateInscription: " + utilisateurAnnonce.DateInscription);
+            Console.WriteLine("Description: " + utilisateurAnnonce.Description);
+            Console.WriteLine("ValidTelephone: " + utilisateurAnnonce.ValidTelephone);
+            Console.WriteLine("ValidEmail: " + utilisateurAnnonce.ValidEmail);
+            Console.WriteLine("Statut: " + utilisateurAnnonce.Statut);
+            Console.WriteLine("Abonnements: " + utilisateurAnnonce.Abonnements);
+            Console.WriteLine("Abonnes: " + utilisateurAnnonce.Abonnes);
+            Console.WriteLine("PhotoProfilId: " + utilisateurAnnonce.PhotoProfilId);
+            Console.WriteLine("MoyenneAvis: " + utilisateurAnnonce.MoyenneAvis);
+            Console.WriteLine("NombreAvis: " + utilisateurAnnonce.NombreAvis);
+
+            Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+            if (utilisateur != null && utilisateurAnnonce != null && 
+                utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
+                IsSameUser = true;
+            
+            else
+                IsSameUser = false;
+            
         }
         catch (Exception ex)
         {
@@ -39,5 +83,92 @@ public class DetailAnnonceViewModel
         {
             IsLoading = false;
         }
+    }
+    public async Task GetSimilarProductsAsync()
+    {
+        // For future try to make a good filter that grabs the infos, also using GetByIds etc
+        FilterDTO filterDTO = new FilterDTO();
+        filterDTO.MotCle = AnnonceDetail.Title;
+
+        similarProducts = await _annonceService.GetAnnonceByFilter(filterDTO, page: 1, pageSize: 3);
+    }
+    public async Task<bool> CheckLoginStatus()
+    {
+        if (await _authService.GetCurrentUserAsync() != null)
+            return true;
+        return false;
+    }
+    public async Task ToggleFavorite(Annonce annonce)
+    {
+        if (CheckLoginStatus == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        bool isFavorite = annonce.IsLikedByCurrentUser;
+        annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
+
+        try
+        {
+            if (!isFavorite)
+            {
+                await _favorisService.AddFavoris(annonce.AnnonceId);
+                annonce.NombreLikes += 1;
+            }
+            else
+            {
+                await _favorisService.DeleteFavoris(annonce.AnnonceId);
+                annonce.NombreLikes -= 1;
+            }
+        }
+        catch
+        {
+            annonce.IsLikedByCurrentUser = isFavorite;
+        }
+    }
+
+    public void GoBack()
+    {
+        _navigationManager.NavigateTo("/search");
+    }
+
+    public void ContactSeller()
+    {
+        if (CheckLoginStatus == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        // check if conversation already exists, if not then create and send to page
+
+        _navigationManager.NavigateTo($"/messages");
+    }
+
+    public void MakeOffer()
+    {
+        // TODO: Open make offer dialog
+        // open something like review form thing for the avis
+        // but he inserts the price, then checks if conversation exists, if not creates and 
+        // creates a new message too of type Proposition.
+    }
+
+    public void BuyProduct()
+    {
+        // TODO go to page payment and ye
+    }
+
+    public async void ShareProduct()
+    {
+        clickedShareButton = false;
+        string url = _navigationManager.Uri.ToString();
+        _clipboardService.Copy(url);
+        clickedShareButton = true;
+    }
+
+    public void NavigateToProduct(int productId)
+    {
+         _navigationManager.NavigateTo($"/product/{productId}", forceLoad: true);
     }
 }

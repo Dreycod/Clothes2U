@@ -22,9 +22,10 @@
             <button class="btn-retry" @onclick="LoadProduct">Réessayer</button>
         </div>
     }
-    else if (VM_DetailAnnonce.AnnonceDetail != null)
+    else if (VM_DetailAnnonce.AnnonceDetail != null && VM_DetailAnnonce.utilisateurAnnonce != null)
     {
-        var annonce = VM_DetailAnnonce.AnnonceDetail;
+        Annonce annonce = VM_DetailAnnonce.AnnonceDetail;
+        UtilisateurView utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
 
         <div class="product-container">
             <!-- Left Side - Product Image -->
@@ -35,7 +36,7 @@
                         <img src="@annonce.Photos.First()" alt="@annonce.Title" />
                     }
                 </div>
-                <button class="close-btn" @onclick="GoBack">
+                <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
                     <i class="bi bi-x"></i>
                 </button>
             </div>
@@ -68,14 +69,16 @@
 
                 <!-- Actions Row -->
                 <div class="actions-row">
-                    <button class="btn-action" @onclick="ToggleFavorite">
-                        <i class="bi bi-heart@(isFavorite ? "-fill" : "")"></i>
+                    <button class="btn-action"
+                            @onclick:stopPropagation="true"
+                            @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
+                        <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                     </button>
                     <button class="btn-action">
                         <i class="bi bi-three-dots"></i>
                     </button>
-                    <button class="btn-action" @onclick="ShareProduct">
-                        <i class="bi bi-share"></i>
+                    <button class="btn-action" @onclick="VM_DetailAnnonce.ShareProduct">
+                        <i class="bi bi@(VM_DetailAnnonce.clickedShareButton ? "-check-square" : "-share")"></i>
                     </button>
                 </div>
 
@@ -83,10 +86,10 @@
                 <div class="seller-section">
                     <div class="seller-avatar"></div>
                     <div class="seller-info"> 
-                        <h3 class="seller-name">@(@*Description (it's not in the Annonce) annonce.Description ?? *@ "Vendeur")</h3>
+                        <h3 class="seller-name">@(utilisateur.Login ?? "Vendeur")</h3>
                         <div class="seller-rating">
                             <i class="bi bi-star-fill"></i>
-                            <span>4.8 (100 avis)</span>
+                            <span>@(utilisateur.MoyenneAvis) (@(utilisateur.NombreAvis) avis)</span>
                         </div>
                     </div>
                 </div>
@@ -95,15 +98,15 @@
                 <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label">Taille</div>
-                        <div class="detail-value">@annonce.Taille</div>
+                        <div class="detail-value">@(annonce.Taille)</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">État</div>
-                        <div class="detail-value">@annonce.EtatArticle</div>
+                        <div class="detail-value">@(annonce.EtatArticle)</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Catégorie</div>
-                        <div class="detail-value">@annonce.SousCategorie</div>
+                        <div class="detail-value">@(annonce.SousCategorie)</div>
                     </div>
                 </div>
 
@@ -111,32 +114,35 @@
                 <div class="description-section">
                     <h3 class="section-title">Description</h3>
                     <p class="description-text">
-                        @(@*Description (it's not in the Annonce) annonce.Description ?? *@ "Aucune description disponible.")
+                        @(annonce.Description ?? "Aucune description disponible.")
                     </p>
                 </div>
 
                 <!-- Publication Date & Likes -->
                 <div class="product-stats">
-                    <span><i class="bi bi-calendar"></i> Publié le @annonce.DateAnnonce.ToString("dd/MM/yyyy")</span>
-                    <span><i class="bi bi-heart"></i> @annonce.NombreLikes likes</span>
+                    <span><i class="bi bi-calendar"></i> Publié le @(annonce.DateAnnonce.ToString("dd/MM/yyyy"))</span>
+                    <span><i class="bi bi@(annonce.IsLikedByCurrentUser ? "-heart-fill" : "-heart")"></i> @(annonce.NombreLikes) likes</span>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="btn-secondary" @onclick="ContactSeller">
-                        Contacter le vendeur
-                    </button>
-                    @if (annonce.Negociable)
-                    {
-                        <button class="btn-secondary" @onclick="MakeOffer">
-                            Faire une offre
+                @if (VM_DetailAnnonce.IsSameUser)
+                {
+                    <div class="action-buttons">
+                        <button class="btn-secondary" @onclick="VM_DetailAnnonce.ContactSeller">
+                            Contacter le vendeur
                         </button>
-                    }
-                </div>
+                        @if (annonce.Negociable)
+                        {
+                            <button class="btn-secondary" @onclick="VM_DetailAnnonce.MakeOffer">
+                                Faire une offre
+                            </button>
+                        }
+                    </div>
 
-                <button class="btn-primary" @onclick="BuyProduct">
-                    Acheter l'article
-                </button>
+                    <button class="btn-primary" @onclick="VM_DetailAnnonce.BuyProduct">
+                        Acheter l'article
+                    </button>
+                }
             </div>
         </div>
 
@@ -144,31 +150,32 @@
         <div class="similar-section">
             <h2 class="similar-title">Produits Similaires</h2>
             <div class="similar-grid">
-                @if (similarProducts != null && similarProducts.Any())
+                @if (VM_DetailAnnonce.similarProducts != null && VM_DetailAnnonce.similarProducts.Any())
                 {
-                    @foreach (var similar in similarProducts.Take(3))
-                    {
-                        <div class="product-card" @onclick="() => NavigateToProduct(similar.AnnonceId)">
-                            <div class="product-image-container">
-                                <div class="product-image"></div>
-                                <button class="wishlist-btn" @onclick:stopPropagation="true">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-                            <div class="product-card-info">
-                                <h3 class="card-title">@similar.Title</h3>
-                                <p class="card-brand">@similar.NomMarque</p>
-                                <div class="card-meta">
-                                    <span class="card-size">Taille @similar.Taille</span>
-                                    <span class="card-condition">@similar.EtatArticle</span>
+                     @foreach (Annonce similarAnnonce in VM_DetailAnnonce.similarProducts)
+                            {
+                                <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
+                                    <div class="product-image-container">
+                                        <div class="product-image"></div>
+                                        <button class="wishlist-btn"
+                                                @onclick:stopPropagation="true"
+                                                @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
+                                            <i class="bi bi-heart@(similarAnnonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
+                                        </button>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-title">@similarAnnonce.Title</h3>
+                                        <div class="product-meta">
+                                            <span class="product-size">Taille @similarAnnonce.Taille</span>
+                                            <span class="product-condition">@similarAnnonce.EtatArticle</span>
+                                        </div>
+                                        <div class="product-footer">
+                                            <span class="product-price">@similarAnnonce.Prix€</span>
+                                            <span class="product-seller">par @(similarAnnonce.NomAuteur ?? "Vendeur")</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="card-footer">
-                                    <span class="card-price">@similar.Prix€</span>
-                                    <span class="card-seller">par @(@*Description (it's not in the Annonce) annonce.Description ?? *@ "Vendeur")</span>
-                                </div>
-                            </div>
-                        </div>
-                    }
+                            }
                 }
                 else
                 {
@@ -184,57 +191,16 @@
     public int Id { get; set; }
 
     private bool isFavorite = false;
-    private List<Annonce>? similarProducts;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadProduct();
         // TODO: Load similar products based on category
-        // similarProducts = await VM_DetailAnnonce.GetSimilarProductsAsync(Id);
+        await VM_DetailAnnonce.GetSimilarProductsAsync();
     }
 
     private async Task LoadProduct()
     {
         await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
-    }
-
-    private void ToggleFavorite()
-    {
-        isFavorite = !isFavorite;
-        // TODO: Call API to save/remove favorite
-    }
-
-    private void GoBack()
-    {
-        navigationManager.NavigateTo("/search");
-    }
-
-    private void ContactSeller()
-    {
-        // TODO: Navigate to messages or open contact dialog
-        navigationManager.NavigateTo("/messages");
-    }
-
-    private void MakeOffer()
-    {
-        // TODO: Open make offer dialog
-    }
-
-    private void BuyProduct()
-    {
-        // TODO: Add to cart or navigate to checkout
-    }
-
-    private void ShareProduct()
-    {
-        // TODO: Implement share functionality
-    }
-
-    private void NavigateToProduct(int? productId)
-    {
-        if (productId.HasValue)
-        {
-            navigationManager.NavigateTo($"/product/{productId}", forceLoad: true);
-        }
     }
 }

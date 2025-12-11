@@ -10,7 +10,10 @@ namespace FrontBlazor.Services
 
         public async Task<UtilisateurView?> GetByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<UtilisateurView>($"Utilisateur/{id}");
+            var response =  await GetWithCredentialsAsync($"Utilisateur/{id}");
+            response.EnsureSuccessStatusCode();
+            var utilisateur = await response.Content.ReadFromJsonAsync<UtilisateurView>();
+            return utilisateur;
         }
     }
 }

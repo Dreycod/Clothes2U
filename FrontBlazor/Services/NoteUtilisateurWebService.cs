@@ -8,12 +8,16 @@ namespace FrontBlazor.Services
     {
         public NoteUtilisateurWebService(HttpClient httpClient) : base(httpClient) {}
 
-        public async Task AddNoteUtilisateur(NoteUtilisateurCreate noteUtilisateurCreate)
+        public async Task<HttpResponseMessage> AddNoteUtilisateur(NoteUtilisateurCreate noteUtilisateurCreate)
         {
             var body = JsonContent.Create(noteUtilisateurCreate);
 
             var response = await PostWithCredentialsAsync("NoteUtilisateur", body);
-        
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            return response;
         }
 
         public async Task<List<NoteUtilisateur>?> GetAllNotesByUtilisateurId(int utilisateurId)
