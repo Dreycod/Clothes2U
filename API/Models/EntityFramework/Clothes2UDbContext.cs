@@ -26,6 +26,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<MessageDemande> MessageDemandes { get; set; }
     public DbSet<MessageTexte> MessageTextes { get; set; }
     public DbSet<MessageValidation> MessageValidations { get; set; }
+    public DbSet<Mesure> Mesures { get; set; }
     public DbSet<MotInterdit> MotsInterdits { get; set; }
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
     public DbSet<Notification> Notifications { get; set; }
@@ -246,10 +247,6 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.CategorieId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             
-            entity.HasMany(e => e.Tailles)
-                .WithOne(t => t.Categorie)
-                .HasForeignKey(e => e.CategorieTailleId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Conversation>(entity =>
@@ -540,6 +537,26 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(); // La validation doit obligatoirement pointer vers une proposition
+        });
+
+        modelBuilder.Entity<Mesure>(entity =>
+        {
+            entity.ToTable("t_j_mesure_mes");
+
+            entity.HasKey(e => e.MesureId);
+
+            entity.HasOne(e => e.TailleMesure)
+                  .WithMany(t => t.Mesures)
+                  .HasForeignKey(e => e.TailleId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.CategorieMesure)
+                  .WithMany(c => c.Mesures)
+                  .HasForeignKey(e => e.CategorieId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.TailleId, e.CategorieId })
+                  .IsUnique();
         });
 
         modelBuilder.Entity<MotInterdit>(entity =>
@@ -1064,10 +1081,6 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.TailleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             
-            entity.HasOne(e => e.Categorie)
-                .WithMany(a => a.Tailles)
-                .HasForeignKey(e => e.CategorieTailleId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
         });
         
         modelBuilder.Entity<Transaction>(entity =>
