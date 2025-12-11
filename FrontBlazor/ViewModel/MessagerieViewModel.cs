@@ -3,7 +3,6 @@ using FrontBlazor.Models;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace FrontBlazor.ViewModel;
@@ -14,7 +13,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private readonly IAuthService _authService;
     private readonly IMessageService<Message> _messageService;
     public readonly ISignalRService _signalRService;
-    private readonly Func<Task>? _refreshUi;
     private readonly NavigationManager _nav;
 
     public ObservableCollection<Conversation> Conversations { get; private set; } = new();
@@ -25,13 +23,14 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public string NewMessage { get; set; } = "";
     public bool IsLoading { get; private set; } = false;
     public bool IsTyping { get; private set; } = false;
+    public string TypingUserName { get; private set; } = "";
 
     public ElementReference MessagesContainer;
     public event Action? OnChange;
-    
     public event Action? OnMessageReceivedUI; 
 
     private System.Threading.Timer? _typingTimer;
+    private System.Threading.Timer? _typingDisplayTimer;
     private bool _typingNotified = false;
 
     public MessagerieViewModel(
@@ -39,15 +38,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IAuthService authService,
         IMessageService<Message> messageService,
         NavigationManager nav,
-        ISignalRService signalRService,
-        Func<Task>? refreshUi = null)
+        ISignalRService signalRService)
     {
         _conversationService = conversationService;
         _authService = authService;
         _nav = nav;
         _messageService = messageService;
         _signalRService = signalRService;
-        _refreshUi = refreshUi;
 
         _signalRService.OnMessageReceived += HandleMessageReceived;
         _signalRService.OnUserTyping += HandleUserTyping;
@@ -62,6 +59,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             _nav.NavigateTo("/");
         }
     }
+    
     private void NotifyStateChanged() => OnChange?.Invoke();
 
     public async Task LoadConversationsAsync()
@@ -81,7 +79,12 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         Conversations = data != null ? new ObservableCollection<Conversation>(data) : new ObservableCollection<Conversation>();
 
         await _signalRService.StartAsync();
-        NotifyStateChanged();
+        
+        foreach (var c in Conversations)
+        {
+            await _signalRService.JoinConversation(c.ConversationId);
+            Console.WriteLine($"[VM] 🔗 Auto-joined conversation {c.ConversationId}");
+        }
 
         IsLoading = false;
         NotifyStateChanged();
@@ -91,13 +94,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     {
         if (CurrentUser == null)
             CurrentUser = await _authService.GetCurrentUserAsync();
-
-        // Quitter l'ancienne conversation si elle existe
-        if (SelectedConversationId.HasValue)
-        {
-            await _signalRService.LeaveConversation(SelectedConversationId.Value);
-            Console.WriteLine($"[VM] Left conversation {SelectedConversationId.Value}");
-        }
 
         SelectedConversationId = conversationId;
         var conv = await _conversationService.GetConversationDetailById(conversationId);
@@ -115,27 +111,63 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
         }
 
-        // Rejoindre la nouvelle conversation
-        await _signalRService.JoinConversation(conversationId);
-        Console.WriteLine($"[VM] Joined conversation {conversationId}");
+        var listConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+        if (listConv != null)
+        {
+            listConv.HasNewMessages = false;
+
+            if (SelectedConversation != null && !string.IsNullOrEmpty(SelectedConversation.LastMessage))
+            {
+                listConv.LastMessage = SelectedConversation.LastMessage;
+            }
+        }
+
+        if (SelectedConversation != null)
+            SelectedConversation.HasNewMessages = false;
+        
+        // ✅ CORRECTION 1 : Marquer les messages REÇUS comme lus LOCALEMENT
+        if (SelectedConversation?.ListMessages != null)
+        {
+            var unreadReceivedMessages = SelectedConversation.ListMessages
+                .Where(m => m.SentbyCurrentUser == false && m.Lu == false)
+                .ToList();
+
+            foreach (var msg in unreadReceivedMessages)
+            {
+                try
+                {
+                    // Appeler l'API pour mettre à jour en base
+                    await _messageService.MaskAsRead(msg.MessageId);
+                    
+                    // Mettre à jour localement seulement si l'API a réussi
+                    msg.Lu = true;
+                    
+                    Console.WriteLine($"[VM] 📖 Marked received message as read: {msg.MessageId}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[VM] ❌ Error marking message {msg.MessageId} as read: {ex.Message}");
+                    // Continue avec les autres messages même si un échoue
+                }
+            }
+        }
+        
+        // ✅ Notifier SignalR que j'ai lu les messages
+        await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+
+        Console.WriteLine($"[VM] Joined conversation {conversationId} and marked as read");
 
         NotifyStateChanged();
     }
 
     public async Task SendMessageAsync()
     {
-        
         if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage))
             return;
         
         var content = NewMessage.Trim();
-        //var filesToUpload = new List<IBrowserFile>(SelectedFiles);
-        
         NewMessage = "";
-        //SelectedFiles.Clear();
         NotifyStateChanged();
-        
-        //IsUploadingFiles = true;
         
         try
         {
@@ -145,12 +177,28 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                 ConversationId = SelectedConversation.ConversationId,
                 UtilisateurId = CurrentUser!.UtilisateurId,
                 Date = DateTime.Now,
-                SentbyCurrentUser = true
+                SentbyCurrentUser = true,
+                Lu = false // ✅ Pas encore lu par l'autre
             };
         
             await _messageService.PostMessageTexte(message);
-            //SelectedConversation.ListMessages.Add(message);
-        
+            
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = content;
+                conv.HasNewMessages = false;
+
+                try
+                {
+                    Conversations.Remove(conv);
+                    Conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -158,7 +206,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
         finally
         {
-            //IsUploadingFiles = false;
             NotifyStateChanged();
         }
     }
@@ -167,10 +214,8 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     {
         Console.WriteLine($"[VM] HandleMessageReceived: conv={conversationId}, sender={senderId}, current={SelectedConversationId}");
     
-        // Si c'est la conversation actuelle, ajouter le message
         if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
         {
-            // Vérifier si le message n'existe pas déjà (éviter les doublons)
             var exists = SelectedConversation.ListMessages?.Any(m =>
                 m.UtilisateurId == senderId &&
                 m.Content == message &&
@@ -183,17 +228,44 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                 var newMessage = new Message
                 {
                     Content = message,
-                    UtilisateurId = senderId, // ← Utiliser UtilisateurId, pas SenderId
+                    UtilisateurId = senderId,
                     Date = date,
                     ConversationId = conversationId,
-                    SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId
+                    SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId,
+                    Lu = false // ✅ Nouveau message non lu
                 };
 
                 SelectedConversation.ListMessages?.Add(newMessage);
+
+                var previewConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+                if (previewConv != null)
+                {
+                    previewConv.LastMessage = message;
+                }
+
                 Console.WriteLine($"[VM] Message added to current conversation. Total: {SelectedConversation.ListMessages?.Count}");
-            
-                // 🔥 CRITIQUE : Notifier le changement
-                NotifyStateChanged();
+                
+                // ✅ CORRECTION 2 : Marquer automatiquement comme lu si on est dans la conversation
+                if (senderId != CurrentUser?.UtilisateurId)
+                {
+                    try
+                    {
+                        // Appeler l'API
+                        await _messageService.MaskAsRead(newMessage.MessageId);
+                        
+                        // Mettre à jour localement seulement si l'API a réussi
+                        newMessage.Lu = true;
+                        
+                        // Notifier SignalR
+                        await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+                        
+                        Console.WriteLine($"[VM] Auto-marked new message as read");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[VM] ❌ Error auto-marking message as read: {ex.Message}");
+                    }
+                }
             }
             else
             {
@@ -202,68 +274,127 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
             NotifyStateChanged();
             OnMessageReceivedUI?.Invoke();
-            
-                
         }
         else
         {
-            // Message dans une autre conversation - marquer comme nouveau
             var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
             if (conv != null)
             {
+                conv.LastMessage = message;
                 conv.HasNewMessages = true;
-                conv.LastMessage = conv.LastMessage;
-                Console.WriteLine($"[VM] Marked conversation {conversationId} as having new messages");
+
+                try
+                {
+                    Conversations.Remove(conv);
+                    Conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[VM] Error moving conversation to top: {ex.Message}");
+                }
+
+                Console.WriteLine($"[VM] Marked conversation {conversationId} as having new messages and moved to top");
             }
-        
+
             NotifyStateChanged();
         }
-        
     }
 
     private void HandleMessagesRead(int conversationId, int userId)
     {
-        if (userId == CurrentUser?.UtilisateurId && SelectedConversationId == conversationId)
+        Console.WriteLine($"[VM] 📖 HandleMessagesRead: conv={conversationId}, userId={userId}, currentUser={CurrentUser?.UtilisateurId}");
+    
+        // ✅ CORRECTION 3 : L'autre utilisateur a lu nos messages
+        if (userId != CurrentUser?.UtilisateurId)
         {
-            foreach (var msg in SelectedConversation!.ListMessages.Where(m => m.UtilisateurId != userId))
+            Conversation? targetConv = null;
+        
+            if (SelectedConversationId == conversationId && SelectedConversation != null)
             {
-                msg.SentbyCurrentUser = true; // Marque comme lu
+                targetConv = SelectedConversation;
             }
-            NotifyStateChanged();
+            else
+            {
+                targetConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            }
+
+            if (targetConv?.ListMessages != null)
+            {
+                // Marquer MES messages envoyés comme lus
+                var mySentMessages = targetConv.ListMessages
+                    .Where(m => m.UtilisateurId == CurrentUser!.UtilisateurId && m.SentbyCurrentUser == true && m.Lu == false)
+                    .ToList();
+            
+                if (mySentMessages.Any())
+                {
+                    foreach (var m in mySentMessages)
+                    {
+                        m.Lu = true;
+                        Console.WriteLine($"[VM] ✅ Marked my sent message as read: '{m.Content?.Substring(0, Math.Min(20, m.Content?.Length ?? 0))}'");
+                    }
+                    Console.WriteLine($"[VM] 📖 MessagesRead: marked {mySentMessages.Count} messages as read in conv {conversationId}");
+                    NotifyStateChanged();
+                }
+                else
+                {
+                    Console.WriteLine($"[VM] No unread sent messages found in conv {conversationId}");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine($"[VM] MessagesRead ignored: it's my own read notification");
         }
     }
 
     private void HandleUserTyping(int conversationId, int userId, string userName)
     {
+        Console.WriteLine($"[VM] ⌨️ HandleUserTyping: conv={conversationId}, user={userId}, name={userName}, selectedConv={SelectedConversationId}");
+        
+        // ✅ CORRECTION 4 : Ne pas afficher si c'est nous ou si ce n'est pas la conversation active
         if (SelectedConversationId != conversationId || userId == CurrentUser?.UtilisateurId)
+        {
+            Console.WriteLine($"[VM] Typing notification ignored");
             return;
+        }
 
+        // ✅ Afficher le nom de l'interlocuteur
         IsTyping = true;
+        TypingUserName = userName;
+        Console.WriteLine($"[VM] ✅ Showing typing indicator for {userName}");
         NotifyStateChanged();
 
-        Task.Delay(3000).ContinueWith(_ =>
+        // Arrêter l'indicateur après 3 secondes
+        _typingDisplayTimer?.Dispose();
+        _typingDisplayTimer = new System.Threading.Timer(_ =>
         {
             IsTyping = false;
+            TypingUserName = "";
+            Console.WriteLine($"[VM] Hiding typing indicator");
             NotifyStateChanged();
-        });
+        }, null, 3000, Timeout.Infinite);
     }
 
     public void HandleTyping(KeyboardEventArgs e)
     {
-        if (SelectedConversation == null)
+        if (SelectedConversation == null || CurrentUser == null)
             return;
 
+        // Réinitialiser le timer
         _typingTimer?.Dispose();
         _typingTimer = new System.Threading.Timer(_ =>
         {
             _typingNotified = false;
         }, null, 2000, Timeout.Infinite);
 
+        // Si on a déjà notifié récemment, ne pas re-notifier
         if (_typingNotified)
             return;
 
         _typingNotified = true;
-        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser!.UtilisateurId, "User");
+        
+        Console.WriteLine($"[VM] 📝 Notifying typing for conversation {SelectedConversation.ConversationId}");
+        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser.UtilisateurId, CurrentUser.Login ?? "Utilisateur");
     }
 
     public void Dispose()
@@ -272,201 +403,399 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         _signalRService.OnUserTyping -= HandleUserTyping;
         _signalRService.OnMessagesRead -= HandleMessagesRead;
         _typingTimer?.Dispose();
+        _typingDisplayTimer?.Dispose();
     }
 }
-//
 // using System.Collections.ObjectModel;
 // using FrontBlazor.Models;
-// using FrontBlazor.Services;
 // using FrontBlazor.Services.GenericIServices;
+// using FrontBlazor.Services.Interfaces;
 // using Microsoft.AspNetCore.Components;
+// using Microsoft.AspNetCore.Components.Web;
 //
 // namespace FrontBlazor.ViewModel;
 //
-// public class MessagerieViewModel : ComponentBase
+// public class MessagerieViewModel : ComponentBase, IDisposable
 // {
 //     private readonly IConversationService<Conversation> _conversationService;
 //     private readonly IAuthService _authService;
 //     private readonly IMessageService<Message> _messageService;
-//     private readonly SignalRWebService _signalRService;
-//     
-//     public bool IsLoading { get; set; } 
-//     public string? ErrorMessage { get; set; }
+//     public readonly ISignalRService _signalRService;
+//     private readonly NavigationManager _nav;
+//
+//     public ObservableCollection<Conversation> Conversations { get; private set; } = new();
+//     public Conversation? SelectedConversation { get; private set; }
+//     public int? SelectedConversationId { get; private set; }
+//     public Utilisateur? CurrentUser { get; private set; }
+//
+//     public string NewMessage { get; set; } = "";
+//     public bool IsLoading { get; private set; } = false;
+//     public bool IsTyping { get; private set; } = false;
+//     public string TypingUserName { get; private set; } = "";
+//
+//     public ElementReference MessagesContainer;
 //     public event Action? OnChange;
-//     
+//     public event Action? OnMessageReceivedUI; 
+//
+//     private System.Threading.Timer? _typingTimer;
+//     private System.Threading.Timer? _typingDisplayTimer;
+//     private bool _typingNotified = false;
+//
 //     public MessagerieViewModel(
-//         IConversationService<Conversation> conversationService, 
-//         IAuthService authService, 
+//         IConversationService<Conversation> conversationService,
+//         IAuthService authService,
 //         IMessageService<Message> messageService,
-//         SignalRWebService signalRService)
+//         NavigationManager nav,
+//         ISignalRService signalRService)
 //     {
 //         _conversationService = conversationService;
 //         _authService = authService;
+//         _nav = nav;
 //         _messageService = messageService;
 //         _signalRService = signalRService;
+//
+//         _signalRService.OnMessageReceived += HandleMessageReceived;
+//         _signalRService.OnUserTyping += HandleUserTyping;
+//         _signalRService.OnMessagesRead += HandleMessagesRead;
 //     }
 //
-//     public ObservableCollection<Conversation> conversations { get; private set; } = new();
-//     public Conversation? conv { get; private set; }
-//     public int? SelectedConversationId { get; private set; }
-//     public string NewMessage { get; set; } = string.Empty;
-//     public Utilisateur? CurrentUser { get; private set; }
-//     
-//     private void NotifyStateChanged() => OnChange?.Invoke();
-//     
-//     public async Task Load()
+//     public async Task LoadAsync()
 //     {
-//         IsLoading = true;
-//         ErrorMessage = null;
-//         
-//         try
-//         {
-//             CurrentUser = await _authService.GetCurrentUserAsync();
-//             if (CurrentUser == null)
-//             {
-//                 ErrorMessage = "Utilisateur non connecté";
-//                 return;
-//             }
-//             
-//             Console.WriteLine($"Loading conversations for user: {CurrentUser.UtilisateurId}");
-//             var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
-//             
-//             conversations = data != null
-//                 ? new ObservableCollection<Conversation>(data)
-//                 : new ObservableCollection<Conversation>();
-//                 
-//             NotifyStateChanged();
-//             _signalRService.OnMessageReceived += OnNewMessageReceived;
-//             await _signalRService.StartAsync("http://localhost:5096/chatHub");
-//         }
-//         catch (Exception ex)
-//         {
-//             ErrorMessage = $"Erreur lors du chargement: {ex.Message}";
-//             Console.WriteLine($"Error in Load: {ex}");
-//         }
-//         finally
-//         {
-//             IsLoading = false;
-//             NotifyStateChanged();
-//         }
-//     }
-//
-//     public async Task SelectedConversation(int id)
-//     {
-//         IsLoading = true;
-//         ErrorMessage = null;
-//         
-//         try
-//         {
-//             if (CurrentUser == null)
-//             {
-//                 CurrentUser = await _authService.GetCurrentUserAsync();
-//             }
-//             
-//             SelectedConversationId = id;
-//             var data = await _conversationService.GetConversationDetailById(id);
-//
-//             if (data != null)
-//             {
-//                 Console.WriteLine($"Loaded {data.ListMessages?.Count ?? 0} messages");
-//                 conv = data;
-//                 
-//                 // S'assurer que ListMessages est une ObservableCollection
-//                 if (conv.ListMessages == null)
-//                     conv.ListMessages = new ObservableCollection<Message>();
-//                 else if (conv.ListMessages is not ObservableCollection<Message>)
-//                     conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
-//                 await _signalRService.LeaveConversation(SelectedConversationId.Value);
-//             }
-//             else
-//             {
-//                 Console.WriteLine("Pas de messages ou conversation null");
-//                 conv = new Conversation 
-//                 { 
-//                     ListMessages = new ObservableCollection<Message>() 
-//                 };
-//                 await _signalRService.JoinConversation(id);
-//             }
-//             
-//             NotifyStateChanged();
-//         }
-//         catch (Exception ex)
-//         {
-//             ErrorMessage = $"Erreur lors du chargement de la conversation: {ex.Message}";
-//             Console.WriteLine($"Error in SelectedConversation: {ex}");
-//         }
-//         finally
-//         {
-//             IsLoading = false;
-//             NotifyStateChanged();
-//         }
-//     }
-//
-//     public async Task SendMessage()
-//     {
+//         CurrentUser = await _authService.GetCurrentUserAsync();
 //         if (CurrentUser == null)
 //         {
-//             CurrentUser = await _authService.GetCurrentUserAsync();
+//             _nav.NavigateTo("/");
 //         }
-//         
-//         if (string.IsNullOrWhiteSpace(NewMessage)) return;
-//         if (conv == null || SelectedConversationId == null) return;
-//         
-//         IsLoading = true;
-//         ErrorMessage = null;
-//         
-//         try
-//         {
-//             Message message = new Message
-//             {
-//                 Content = NewMessage,
-//                 ImagesId = null,
-//                 ConversationId = conv.ConversationId,
-//                 UtilisateurId = CurrentUser.UtilisateurId,
-//                 Date = DateTime.Now,
-//                 SentbyCurrentUser = true 
-//             };
+//     }
+//     
+//     private void NotifyStateChanged() => OnChange?.Invoke();
 //
-//             await _messageService.PostMessageTexte(message);
-//             
-//             if (conv.ListMessages is ObservableCollection<Message> observableList)
-//             {
-//                 observableList.Add(message);
-//             }
-//             else
-//             {
-//                 conv.ListMessages.Add(message);
-//             }
-//             
-//             NewMessage = string.Empty;
-//             NotifyStateChanged();
-//             
-//         }
-//         catch (Exception ex)
-//         {
-//             ErrorMessage = $"Erreur lors de l'envoi: {ex.Message}";
-//             Console.WriteLine($"Error in SendMessage: {ex}");
-//         }
-//         finally
+//     public async Task LoadConversationsAsync()
+//     {
+//         IsLoading = true;
+//         NotifyStateChanged();
+//
+//         CurrentUser = await _authService.GetCurrentUserAsync();
+//         if (CurrentUser == null)
 //         {
 //             IsLoading = false;
 //             NotifyStateChanged();
+//             return;
 //         }
-//     }
-//     private void OnNewMessageReceived(int conversationId, Message message)
-//     {
-//         if (SelectedConversationId == conversationId && conv?.ListMessages != null)
+//
+//         var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
+//         Conversations = data != null ? new ObservableCollection<Conversation>(data) : new ObservableCollection<Conversation>();
+//
+//         await _signalRService.StartAsync();
+//         
+//         foreach (var c in Conversations)
 //         {
-//             if (conv.ListMessages is ObservableCollection<Message> observableList)
+//             await _signalRService.JoinConversation(c.ConversationId);
+//             Console.WriteLine($"[VM] 🔗 Auto-joined conversation {c.ConversationId}");
+//         }
+//
+//         IsLoading = false;
+//         NotifyStateChanged();
+//     }
+//
+//     public async Task SelectConversationAsync(int conversationId)
+//     {
+//         if (CurrentUser == null)
+//             CurrentUser = await _authService.GetCurrentUserAsync();
+//
+//         SelectedConversationId = conversationId;
+//         var conv = await _conversationService.GetConversationDetailById(conversationId);
+//
+//         if (conv != null)
+//         {
+//             SelectedConversation = conv;
+//             if (conv.ListMessages == null)
+//                 conv.ListMessages = new ObservableCollection<Message>();
+//             else if (conv.ListMessages is not ObservableCollection<Message>)
+//                 conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
+//         }
+//         else
+//         {
+//             SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
+//         }
+//
+//         var listConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+//         if (listConv != null)
+//         {
+//             listConv.HasNewMessages = false;
+//
+//             if (SelectedConversation != null && !string.IsNullOrEmpty(SelectedConversation.LastMessage))
 //             {
-//                 observableList.Add(message);
+//                 listConv.LastMessage = SelectedConversation.LastMessage;
 //             }
-//             else
+//         }
+//
+//         if (SelectedConversation != null)
+//             SelectedConversation.HasNewMessages = false;
+//         
+//         // ✅ CORRECTION 1 : Marquer les messages REÇUS comme lus LOCALEMENT
+//         if (SelectedConversation?.ListMessages != null)
+//         {
+//             var unreadReceivedMessages = SelectedConversation.ListMessages
+//                 .Where(m => m.SentbyCurrentUser == false && m.Lu == false)
+//                 .ToList();
+//
+//             foreach (var msg in unreadReceivedMessages)
 //             {
-//                 conv.ListMessages.Add(message);
+//                 // Mettre à jour localement
+//                 msg.Lu = true;
+//                 
+//                 // Appeler l'API pour mettre à jour en base
+//                 await _messageService.MaskAsRead(msg.MessageId);
+//                 
+//                 Console.WriteLine($"[VM] 📖 Marked received message as read: {msg.MessageId}");
 //             }
+//         }
+//         
+//         // ✅ Notifier SignalR que j'ai lu les messages
+//         await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+//
+//         Console.WriteLine($"[VM] Joined conversation {conversationId} and marked as read");
+//
+//         NotifyStateChanged();
+//     }
+//
+//     public async Task SendMessageAsync()
+//     {
+//         if (SelectedConversation == null || string.IsNullOrWhiteSpace(NewMessage))
+//             return;
+//         
+//         var content = NewMessage.Trim();
+//         NewMessage = "";
+//         NotifyStateChanged();
+//         
+//         try
+//         {
+//             var message = new Message
+//             {
+//                 Content = content,
+//                 ConversationId = SelectedConversation.ConversationId,
+//                 UtilisateurId = CurrentUser!.UtilisateurId,
+//                 Date = DateTime.Now,
+//                 SentbyCurrentUser = true,
+//                 Lu = false // ✅ Pas encore lu par l'autre
+//             };
+//         
+//             await _messageService.PostMessageTexte(message);
 //             
+//             var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
+//             if (conv != null)
+//             {
+//                 conv.LastMessage = content;
+//                 conv.HasNewMessages = false;
+//
+//                 try
+//                 {
+//                     Conversations.Remove(conv);
+//                     Conversations.Insert(0, conv);
+//                 }
+//                 catch (Exception ex)
+//                 {
+//                     Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
+//                 }
+//             }
+//         }
+//         catch (Exception ex)
+//         {
+//             Console.WriteLine($"Erreur envoi message: {ex.Message}");
+//         }
+//         finally
+//         {
 //             NotifyStateChanged();
 //         }
 //     }
-//}
+//
+//     private async void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
+//     {
+//         Console.WriteLine($"[VM] HandleMessageReceived: conv={conversationId}, sender={senderId}, current={SelectedConversationId}");
+//     
+//         if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
+//         {
+//             var exists = SelectedConversation.ListMessages?.Any(m =>
+//                 m.UtilisateurId == senderId &&
+//                 m.Content == message &&
+//                 m.Date.HasValue &&
+//                 Math.Abs((m.Date.Value - date).TotalSeconds) < 2
+//             ) ?? false;
+//
+//             if (!exists)
+//             {
+//                 var newMessage = new Message
+//                 {
+//                     Content = message,
+//                     UtilisateurId = senderId,
+//                     Date = date,
+//                     ConversationId = conversationId,
+//                     SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId,
+//                     Lu = false // ✅ Nouveau message non lu
+//                 };
+//
+//                 SelectedConversation.ListMessages?.Add(newMessage);
+//
+//                 var previewConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+//                 if (previewConv != null)
+//                 {
+//                     previewConv.LastMessage = message;
+//                 }
+//
+//                 Console.WriteLine($"[VM] Message added to current conversation. Total: {SelectedConversation.ListMessages?.Count}");
+//                 
+//                 // ✅ CORRECTION 2 : Marquer automatiquement comme lu si on est dans la conversation
+//                 if (senderId != CurrentUser?.UtilisateurId)
+//                 {
+//                     // Mettre à jour localement
+//                     newMessage.Lu = true;
+//                     
+//                     // Appeler l'API
+//                     await _messageService.MaskAsRead(newMessage.MessageId);
+//                     
+//                     // Notifier SignalR
+//                     await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+//                     
+//                     Console.WriteLine($"[VM] Auto-marked new message as read");
+//                 }
+//             }
+//             else
+//             {
+//                 Console.WriteLine("[VM] Message already exists, skipping");
+//             }
+//
+//             NotifyStateChanged();
+//             OnMessageReceivedUI?.Invoke();
+//         }
+//         else
+//         {
+//             var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+//             if (conv != null)
+//             {
+//                 conv.LastMessage = message;
+//                 conv.HasNewMessages = true;
+//
+//                 try
+//                 {
+//                     Conversations.Remove(conv);
+//                     Conversations.Insert(0, conv);
+//                 }
+//                 catch (Exception ex)
+//                 {
+//                     Console.WriteLine($"[VM] Error moving conversation to top: {ex.Message}");
+//                 }
+//
+//                 Console.WriteLine($"[VM] Marked conversation {conversationId} as having new messages and moved to top");
+//             }
+//
+//             NotifyStateChanged();
+//         }
+//     }
+//
+//     private void HandleMessagesRead(int conversationId, int userId)
+//     {
+//         Console.WriteLine($"[VM] 📖 HandleMessagesRead: conv={conversationId}, userId={userId}, currentUser={CurrentUser?.UtilisateurId}");
+//     
+//         // ✅ CORRECTION 3 : L'autre utilisateur a lu nos messages
+//         if (userId != CurrentUser?.UtilisateurId)
+//         {
+//             Conversation? targetConv = null;
+//         
+//             if (SelectedConversationId == conversationId && SelectedConversation != null)
+//             {
+//                 targetConv = SelectedConversation;
+//             }
+//             else
+//             {
+//                 targetConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+//             }
+//
+//             if (targetConv?.ListMessages != null)
+//             {
+//                 // Marquer MES messages envoyés comme lus
+//                 var mySentMessages = targetConv.ListMessages
+//                     .Where(m => m.UtilisateurId == CurrentUser!.UtilisateurId && m.SentbyCurrentUser == true && m.Lu == false)
+//                     .ToList();
+//             
+//                 if (mySentMessages.Any())
+//                 {
+//                     foreach (var m in mySentMessages)
+//                     {
+//                         m.Lu = true;
+//                         Console.WriteLine($"[VM] ✅ Marked my sent message as read: '{m.Content?.Substring(0, Math.Min(20, m.Content?.Length ?? 0))}'");
+//                     }
+//                     Console.WriteLine($"[VM] 📖 MessagesRead: marked {mySentMessages.Count} messages as read in conv {conversationId}");
+//                     NotifyStateChanged();
+//                 }
+//                 else
+//                 {
+//                     Console.WriteLine($"[VM] No unread sent messages found in conv {conversationId}");
+//                 }
+//             }
+//         }
+//         else
+//         {
+//             Console.WriteLine($"[VM] MessagesRead ignored: it's my own read notification");
+//         }
+//     }
+//
+//     private void HandleUserTyping(int conversationId, int userId, string userName)
+//     {
+//         Console.WriteLine($"[VM] ⌨️ HandleUserTyping: conv={conversationId}, user={userId}, name={userName}, selectedConv={SelectedConversationId}");
+//         
+//         // ✅ CORRECTION 4 : Ne pas afficher si c'est nous ou si ce n'est pas la conversation active
+//         if (SelectedConversationId != conversationId || userId == CurrentUser?.UtilisateurId)
+//         {
+//             Console.WriteLine($"[VM] Typing notification ignored");
+//             return;
+//         }
+//
+//         // ✅ Afficher le nom de l'interlocuteur
+//         IsTyping = true;
+//         TypingUserName = userName;
+//         Console.WriteLine($"[VM] ✅ Showing typing indicator for {userName}");
+//         NotifyStateChanged();
+//
+//         // Arrêter l'indicateur après 3 secondes
+//         _typingDisplayTimer?.Dispose();
+//         _typingDisplayTimer = new System.Threading.Timer(_ =>
+//         {
+//             IsTyping = false;
+//             TypingUserName = "";
+//             Console.WriteLine($"[VM] Hiding typing indicator");
+//             NotifyStateChanged();
+//         }, null, 3000, Timeout.Infinite);
+//     }
+//
+//     public void HandleTyping(KeyboardEventArgs e)
+//     {
+//         if (SelectedConversation == null || CurrentUser == null)
+//             return;
+//
+//         // Réinitialiser le timer
+//         _typingTimer?.Dispose();
+//         _typingTimer = new System.Threading.Timer(_ =>
+//         {
+//             _typingNotified = false;
+//         }, null, 2000, Timeout.Infinite);
+//
+//         // Si on a déjà notifié récemment, ne pas re-notifier
+//         if (_typingNotified)
+//             return;
+//
+//         _typingNotified = true;
+//         
+//         Console.WriteLine($"[VM] 📝 Notifying typing for conversation {SelectedConversation.ConversationId}");
+//         _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser.UtilisateurId, CurrentUser.Login ?? "Utilisateur");
+//     }
+//
+//     public void Dispose()
+//     {
+//         _signalRService.OnMessageReceived -= HandleMessageReceived;
+//         _signalRService.OnUserTyping -= HandleUserTyping;
+//         _signalRService.OnMessagesRead -= HandleMessagesRead;
+//         _typingTimer?.Dispose();
+//         _typingDisplayTimer?.Dispose();
+//     }
+// }

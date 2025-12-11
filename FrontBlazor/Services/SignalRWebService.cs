@@ -96,10 +96,8 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
             });
 
             // Notification qu'un utilisateur est en train d'écrire
-            _hubConnection.On<int, int, string>("UserIsTyping", 
-                (conversationId, userId, userName) =>
+            _hubConnection.On<int, int, string>("UserTyping", (conversationId, userId, userName) =>
             {
-                Console.WriteLine($"[SignalR] ⌨️ UserIsTyping: conv={conversationId}, user={userId}, name={userName}");
                 OnUserTyping?.Invoke(conversationId, userId, userName);
             });
 
@@ -237,7 +235,8 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 
         try
         {
-            await _hubConnection.InvokeAsync("UserTyping", conversationId, userId, userName);
+            // ✅ CORRECTION : Le Hub a une méthode "NotifyTyping"
+            await _hubConnection.InvokeAsync("NotifyTyping", conversationId, userId, userName);
             Console.WriteLine($"[SignalR] ⌨️ Typing notification sent for conversation {conversationId}");
         }
         catch (Exception ex)
@@ -246,23 +245,39 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
         }
     }
 
-    public async Task MarkAsRead(int conversationId, int userId)
+    public async Task MarkMessagesAsRead(int conversationId, int userId)
     {
-        if (_hubConnection == null || !IsConnected)
+        Console.WriteLine($"[SignalR] 🔍 MarkMessagesAsRead called:");
+        Console.WriteLine($"  - ConversationId: {conversationId}");
+        Console.WriteLine($"  - UserId: {userId}");
+        Console.WriteLine($"  - Connection State: {_hubConnection?.State}");
+        Console.WriteLine($"  - Connection ID: {_hubConnection?.ConnectionId}");
+    
+        if (_hubConnection?.State != HubConnectionState.Connected)
         {
-            Console.WriteLine($"[SignalR] ⚠️ Cannot mark as read: not connected");
+            Console.WriteLine($"[SignalR] ⚠️ Cannot mark as read - not connected!");
             return;
         }
 
         try
         {
-            await _hubConnection.InvokeAsync("MarkAsRead", conversationId, userId);
-            Console.WriteLine($"[SignalR] ✔️ Messages marked as read for conversation {conversationId}");
+            Console.WriteLine($"[SignalR] 🚀 Invoking MarkMessagesAsRead on hub...");
+            await _hubConnection.InvokeAsync("MarkMessagesAsRead", conversationId, userId);
+            Console.WriteLine($"[SignalR] ✅ Successfully invoked MarkMessagesAsRead");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SignalR] ❌ Error marking as read: {ex.Message}");
+            Console.WriteLine($"[SignalR] ❌ Error marking messages as read:");
+            Console.WriteLine($"  - Error Type: {ex.GetType().Name}");
+            Console.WriteLine($"  - Message: {ex.Message}");
+            Console.WriteLine($"  - Stack: {ex.StackTrace}");
+        
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"  - Inner Exception: {ex.InnerException.Message}");
+            }
         }
+
     }
 
     public async ValueTask DisposeAsync()

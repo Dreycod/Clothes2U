@@ -19,19 +19,13 @@
                 {
                     <p>Chargement...</p>
                 }
-                @* else if (VM_Messagerie.ErrorMessage != null) *@
-                @* { *@
-                @*     <p class="error">@VM_Messagerie.ErrorMessage</p> *@
-                @* } *@
                 else if (VM_Messagerie.Conversations != null && VM_Messagerie.Conversations.Any())
                 {
                     @foreach (var conversation in VM_Messagerie.Conversations)
                     {
-                        Console.WriteLine($"grrrr paw paw paw + {conversation.HasNewMessages}");
                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "") @(conversation.HasNewMessages ? "has-new-messages" : "")"
                              @onclick="() => OnSelectConversation(conversation.ConversationId)">
                             <div class="conversation-avatar">
-
                                 @if (conversation.HasNewMessages)
                                 {
                                     <span class="notification-badge">●</span>
@@ -87,7 +81,14 @@
                         {
                             <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
                                 <p class="message-text">@message.Content</p>
-                                <span class="message-time">@message.Date</span>
+                                <div class="message-info">
+                                    <span class="message-time">@message.Date</span>
+                                    @* ✅ CORRECTION ICI : IsRead au lieu de Lu *@
+                                    @if (message.SentbyCurrentUser == true && message.Lu == true)
+                                    {
+                                        <span class="message-read">✔✔</span>
+                                    }
+                                </div>
                             </div>
                         }
                     }
@@ -95,15 +96,26 @@
                     {
                         <p class="no-messages">Aucun message dans cette conversation</p>
                     }
+                    
+                    @* ✅ AJOUT : Indicateur de frappe *@
+                    @if (VM_Messagerie.IsTyping)
+                    {
+                        <div class="typing-indicator">
+                            <span class="typing-text">@VM_Messagerie.TypingUserName est en train d'écrire</span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    }
                 </div>
 
                 <!-- Message Input -->
                 <div class="message-input-area">
-                    <input type="text" 
-                           class="message-input" 
-                           placeholder="Ecrivez votre message ici..." 
-                           @bind="VM_Messagerie.NewMessage"
-                           @bind:event="oninput"
+                    <input type="text"
+                           class="message-input"
+                           placeholder="Ecrivez votre message ici..."
+                           value="@VM_Messagerie.NewMessage"
+                           @oninput="OnUserTypingAndUpdateMessage"
                            @onkeydown="HandleKeyPress" />
                     <button class="send-btn" @onclick="OnSendClick">
                         <i class="bi bi-send"></i>
@@ -134,18 +146,6 @@
             }
         }
     }
-    
-    // protected override void OnAfterRender(bool firstRender)
-    // {
-    //     if (!firstRender)
-    //     {
-    //         foreach (var conv in VM_Messagerie.Conversations)
-    //         {
-    //             Console.WriteLine($"[Page Render] Conv {conv.ConversationId}: HasNewMessages = {conv.HasNewMessages}");
-    //         }
-    //     }
-    //     base.OnAfterRender(firstRender);
-    // }
 
     protected override async Task OnInitializedAsync()
     {
@@ -206,4 +206,243 @@
         Console.WriteLine($"[Page] ✅ Conversation {id} selected");
         StateHasChanged();
     }
+    
+    private void OnUserTypingAndUpdateMessage(ChangeEventArgs e)
+    {
+        // Mettre à jour le message
+        VM_Messagerie.NewMessage = e.Value?.ToString() ?? "";
+        
+        // Notifier que l'utilisateur est en train d'écrire
+        VM_Messagerie.HandleTyping(new KeyboardEventArgs());
+    }
 }
+@* @page "/messages" *@
+@* @using System.Collections.ObjectModel *@
+@* @inject MessagerieViewModel VM_Messagerie *@
+@* @inject IJSRuntime JSRuntime *@
+@* @implements IDisposable *@
+@* *@
+@* <PageTitle>Messages - Clothes2U</PageTitle> *@
+@* *@
+@* <NavBar /> *@
+@* *@
+@* <div class="messages-page"> *@
+@*     <div class="messages-container"> *@
+@*         <!-- Left Sidebar - Conversations List --> *@
+@*         <aside class="conversations-sidebar"> *@
+@*             <h2 class="sidebar-title">Messages</h2> *@
+@*              *@
+@*             <div class="conversations-list"> *@
+@*                 @if (VM_Messagerie.IsLoading) *@
+@*                 { *@
+@*                     <p>Chargement...</p> *@
+@*                 } *@
+@*                 $1$ else if (VM_Messagerie.ErrorMessage != null) #1# *@
+@*                 $1$ { #1# *@
+@*                 $1$     <p class="error">@VM_Messagerie.ErrorMessage</p> #1# *@
+@*                 $1$ } #1# *@
+@*                 else if (VM_Messagerie.Conversations != null && VM_Messagerie.Conversations.Any()) *@
+@*                 { *@
+@*                     @foreach (var conversation in VM_Messagerie.Conversations) *@
+@*                     { *@
+@*                         Console.WriteLine($"grrrr paw paw paw + {conversation.HasNewMessages}"); *@
+@*                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "") @(conversation.HasNewMessages ? "has-new-messages" : "")" *@
+@*                              @onclick="() => OnSelectConversation(conversation.ConversationId)"> *@
+@*                             <div class="conversation-avatar"> *@
+@* *@
+@*                                 @if (conversation.HasNewMessages) *@
+@*                                 { *@
+@*                                     <span class="notification-badge">●</span> *@
+@*                                 } *@
+@*                             </div> *@
+@*                             <div class="conversation-info"> *@
+@*                                 <h3 class="conversation-name"> *@
+@*                                     @conversation.Interlocuteur *@
+@*                                     @if (conversation.HasNewMessages) *@
+@*                                     { *@
+@*                                         <span class="new-indicator">Nouveau</span> *@
+@*                                     } *@
+@*                                 </h3> *@
+@*                                 <p class="conversation-preview @(conversation.HasNewMessages ? "unread" : "")"> *@
+@*                                     @conversation.LastMessage *@
+@*                                 </p> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     } *@
+@*                 } *@
+@*                 else *@
+@*                 { *@
+@*                     <p>Vous n'avez pas de conversations</p> *@
+@*                 } *@
+@*             </div> *@
+@*         </aside> *@
+@* *@
+@*         <!-- Right Side - Chat Area --> *@
+@*         <div class="chat-area"> *@
+@*             @if (VM_Messagerie.SelectedConversation != null) *@
+@*             { *@
+@*                 <!-- Chat Header --> *@
+@*                 <div class="chat-header"> *@
+@*                     <div class="chat-product-info"> *@
+@*                         <div class="product-thumbnail"></div> *@
+@*                         <div> *@
+@*                             <NavLink href="@($"/product/{VM_Messagerie.SelectedConversation.AnnonceId}")" class="product-link"> *@
+@*                                 <h3 class="product-name"> *@
+@*                                     @VM_Messagerie.SelectedConversation.TitreAnnonce *@
+@*                                 </h3> *@
+@*                             </NavLink>  *@
+@*                             <p class="product-price">@VM_Messagerie.SelectedConversation.Prix €</p> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@* *@
+@*                 <!-- Messages Area --> *@
+@*                 <div class="messages-area" @ref="messagesContainer"> *@
+@*                     @if (VM_Messagerie.SelectedConversation.ListMessages != null && *@
+@*                          VM_Messagerie.SelectedConversation.ListMessages.Any()) *@
+@*                     { *@
+@*                         @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages) *@
+@*                         { *@
+@*                             <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")"> *@
+@*                                 <p class="message-text">@message.Content</p> *@
+@*                                 <div class="message-info"> *@
+@*                                     <span class="message-time">@message.Date</span> *@
+@*                                     @if (message.SentbyCurrentUser == true && message.Lu == true) *@
+@*                                     { *@
+@*                                         Console.WriteLine("vu mon bb laalalalalala"); *@
+@*                                         <span class="read-badge"></span>  $1$ Ou un petit rond si tu préfères #1# *@
+@*                                     } *@
+@*                                 </div> *@
+@*                             </div> *@
+@*                              *@
+@*                         } *@
+@*                          *@
+@*                     } *@
+@*                     else *@
+@*                     { *@
+@*                         <p class="no-messages">Aucun message dans cette conversation</p> *@
+@*                     } *@
+@*                 </div> *@
+@*                 @if (VM_Messagerie.IsTyping) *@
+@*                 { *@
+@*                     <div class="typing-indicator"> *@
+@*                         <span class="dot"></span> *@
+@*                         <span class="dot"></span> *@
+@*                         <span class="dot"></span> *@
+@*                     </div> *@
+@*                 } *@
+@*                 <!-- Message Input --> *@
+@*                 <div class="message-input-area"> *@
+@*                     <input type="text" *@
+@*                            class="message-input" *@
+@*                            placeholder="Ecrivez votre message ici..." *@
+@*                            @bind="VM_Messagerie.NewMessage" *@
+@*                            @oninput="OnUserTyping" *@
+@*                            @onkeydown="HandleKeyPress" /> *@
+@*                     <button class="send-btn" @onclick="OnSendClick"> *@
+@*                         <i class="bi bi-send"></i> *@
+@*                     </button> *@
+@*                 </div> *@
+@*             } *@
+@*             else *@
+@*             { *@
+@*                 <div class="no-conversation"> *@
+@*                     <p>Sélectionnez une conversation pour commencer</p> *@
+@*                 </div> *@
+@*             } *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+@* *@
+@* @code { *@
+@*     private ElementReference messagesContainer; *@
+@* *@
+@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*     { *@
+@*         if (VM_Messagerie.SelectedConversation?.ListMessages != null && *@
+@*             VM_Messagerie.SelectedConversation.ListMessages.Any()) *@
+@*         { *@
+@*             if (messagesContainer.Context != null) *@
+@*             { *@
+@*                 await JSRuntime.InvokeVoidAsync("ScrollHelper", messagesContainer); *@
+@*             } *@
+@*         } *@
+@*     } *@
+@*      *@
+@*     // protected override void OnAfterRender(bool firstRender) *@
+@*     // { *@
+@*     //     if (!firstRender) *@
+@*     //     { *@
+@*     //         foreach (var conv in VM_Messagerie.Conversations) *@
+@*     //         { *@
+@*     //             Console.WriteLine($"[Page Render] Conv {conv.ConversationId}: HasNewMessages = {conv.HasNewMessages}"); *@
+@*     //         } *@
+@*     //     } *@
+@*     //     base.OnAfterRender(firstRender); *@
+@*     // } *@
+@* *@
+@*     protected override async Task OnInitializedAsync() *@
+@*     { *@
+@*         await VM_Messagerie.LoadAsync(); *@
+@*          *@
+@*         Console.WriteLine("[Page] 🎬 OnInitializedAsync START"); *@
+@*          *@
+@*         VM_Messagerie.OnChange += StateHasChanged; *@
+@*         VM_Messagerie.OnMessageReceivedUI += async () => *@
+@*         { *@
+@*             Console.WriteLine("[Page] 🔔 OnMessageReceivedUI triggered!"); *@
+@*             StateHasChanged(); *@
+@*             await JSRuntime.InvokeVoidAsync("ScrollHelper", messagesContainer); *@
+@*         }; *@
+@* *@
+@*         await VM_Messagerie.LoadConversationsAsync(); *@
+@*         Console.WriteLine($"[Page] Conversations loaded: {VM_Messagerie.Conversations.Count}"); *@
+@*          *@
+@*         Console.WriteLine($"[Page] SignalR IsConnected: {VM_Messagerie._signalRService.IsConnected}"); *@
+@*          *@
+@*         if (VM_Messagerie.SelectedConversationId.HasValue) *@
+@*         { *@
+@*             Console.WriteLine($"[Page] Re-joining conversation: {VM_Messagerie.SelectedConversationId.Value}"); *@
+@*             await VM_Messagerie.SelectConversationAsync(VM_Messagerie.SelectedConversationId.Value); *@
+@*         } *@
+@*          *@
+@*         Console.WriteLine("[Page] 🎬 OnInitializedAsync END"); *@
+@*     } *@
+@* *@
+@*     public void Dispose() *@
+@*     { *@
+@*         VM_Messagerie.OnChange -= StateHasChanged; *@
+@*         VM_Messagerie.OnMessageReceivedUI -= null; *@
+@*     } *@
+@* *@
+@*     private async Task HandleKeyPress(KeyboardEventArgs e) *@
+@*     { *@
+@*         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage)) *@
+@*         { *@
+@*             await VM_Messagerie.SendMessageAsync(); *@
+@*             StateHasChanged(); *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task OnSendClick() *@
+@*     { *@
+@*         if (!string.IsNullOrWhiteSpace(VM_Messagerie.NewMessage)) *@
+@*         { *@
+@*             await VM_Messagerie.SendMessageAsync(); *@
+@*             StateHasChanged(); *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task OnSelectConversation(int id) *@
+@*     { *@
+@*         Console.WriteLine($"[Page] 🖱️ OnSelectConversation clicked: {id}"); *@
+@*         await VM_Messagerie.SelectConversationAsync(id); *@
+@*         Console.WriteLine($"[Page] ✅ Conversation {id} selected"); *@
+@*         StateHasChanged(); *@
+@*     } *@
+@*      *@
+@*     private async Task OnUserTyping(ChangeEventArgs e) *@
+@*     { *@
+@*         await VM_Messagerie.NotifyTypingAsync(); *@
+@*     } *@
+@* } *@
