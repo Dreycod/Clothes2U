@@ -4,4 +4,6 @@ public interface IConversationService<TEntity> : IReadableService<TEntity>, IWri
 {
     Task<List<TEntity>?> GetConversationsByUserId(int id);
     Task<TEntity?> GetConversationDetailById(int id);
+    
+    Task<TEntity> GetOrCreateConversation(int annonceId);
 }

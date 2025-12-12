@@ -16,13 +16,15 @@ public class ConversationController : ControllerBase
     private readonly IDataRepository<Message, int> _messageManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IConversationService _conversationService;
     private readonly IMapper _mapper;
     
-    public ConversationController(IConversationRepository<Conversation, int> manager,IDataRepository<Message, int> messageManager,ICurrentUserService currentUserService, IMapper mapper)
+    public ConversationController(IConversationRepository<Conversation, int> manager,IDataRepository<Message, int> messageManager,ICurrentUserService currentUserService, IConversationService conversationService, IMapper mapper)
     {
         _conversationManager = manager;
         _currentUserService = currentUserService;
         _messageManager = messageManager;
+        _conversationService = conversationService;
         _mapper = mapper;
     }
     
@@ -57,6 +59,22 @@ public class ConversationController : ControllerBase
         });
         
         return Ok(conversationsDTO.OrderByDescending(c => c.LastMessageDate));
+    }
+    
+    [HttpPost("annonce/{annonceId}")]
+    [Authorize]
+    public async Task<ActionResult<ConversationDetailDTO>> GetOrCreate(int annonceId)
+    {
+        var currentUserId = await _currentUserService.GetUserId();
+        var conversation = await _conversationService.GetOrCreateConversation(annonceId, (int)currentUserId);
+        
+
+        var dto = _mapper.Map<ConversationDetailDTO>(conversation, opt =>
+        {
+            opt.Items["CurrentUserId"] = currentUserId;
+        });
+
+        return Ok(dto);
     }
     
 }

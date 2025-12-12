@@ -25,6 +25,7 @@ public class Conversation : IEntity
     public int StatutConversationId { get; set; }
     
     
+    
     //relation avec les autres tables
     [InverseProperty(nameof(Message.Conversation))]
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();

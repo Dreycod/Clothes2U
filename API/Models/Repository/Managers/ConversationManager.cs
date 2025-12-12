@@ -72,4 +72,14 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
         return otherUserId;
     }
     
+    public async Task<Conversation?> GetByUserAndAnnonceAsync(int userId, int annonceId)
+    {
+        return await BaseConversationQuery()
+            .Where(c =>
+                c.AnnonceId == annonceId &&
+                (c.Acheteur.UtilisateurAcheteurId == userId ||
+                 c.Vendeur.UtilisateurVendeurId == userId))
+            .FirstOrDefaultAsync();
+    }
+    
 }
