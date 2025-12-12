@@ -11,6 +11,7 @@ public class DetailAnnonceViewModel
     private readonly IAnnonceService<Annonce> _annonceService;
     private readonly IFavorisService<Favoris> _favorisService;
     private readonly IAuthService _authService;
+    private readonly IConversationService<Conversation> _conversationService;
     private readonly IReadableService<UtilisateurView> _utilisateurService;
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
@@ -27,16 +28,18 @@ public class DetailAnnonceViewModel
 
     public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService, 
         IFavorisService<Favoris> favorisService, IAuthService authService, 
-        IReadableService<UtilisateurView> utilisateurService, NavigationManager navigationManager, 
-        ClipboardService clipboardService, IMediasService<Photo> mediasService)
+        IReadableService<UtilisateurView> utilisateurService,
+        IConversationService<Conversation> conversationService,
+        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<Photo> mediasService)
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
         _authService = authService;
         _utilisateurService = utilisateurService;
-        _navigationManager = navigationManager;
-        _clipboardService = clipboardService;
+        _conversationService = conversationService;
         _mediaService = mediasService;
+        _navigationManager = navigationManager;
+        _clipboardService = clipboardService; 
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -136,7 +139,7 @@ public class DetailAnnonceViewModel
         _navigationManager.NavigateTo("/search");
     }
 
-    public void ContactSeller()
+    public async void ContactSeller()
     {
         if (CheckLoginStatus == null)
         {
@@ -145,8 +148,8 @@ public class DetailAnnonceViewModel
         }
 
         // check if conversation already exists, if not then create and send to page
-
-        _navigationManager.NavigateTo($"/messages");
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}");
     }
 
     public void MakeOffer()

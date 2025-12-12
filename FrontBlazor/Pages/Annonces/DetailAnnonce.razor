@@ -125,7 +125,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                @if (VM_DetailAnnonce.IsSameUser)
+                @if (!VM_DetailAnnonce.IsSameUser)
                 {
                     <div class="action-buttons">
                         <button class="btn-secondary" @onclick="VM_DetailAnnonce.ContactSeller">

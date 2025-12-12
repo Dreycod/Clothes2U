@@ -66,6 +66,22 @@ public class ConversationWebService: WritableService<Conversation>, IConversatio
         {
             return null;
         }
-        
+    }
+
+    public async Task<Conversation> GetOrCreateConversation(int annonceId)
+    {
+        try
+        {
+            
+            var response = await PostWithCredentialsAsync($"Conversation/annonce/{annonceId}", null);
+            response.EnsureSuccessStatusCode();
+            
+            var conversation = await response.Content.ReadFromJsonAsync<Conversation>();
+            return conversation ?? new Conversation();
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

@@ -246,6 +246,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, TwilioSmsService>();
 builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
 builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddHttpContextAccessor();
 
 
