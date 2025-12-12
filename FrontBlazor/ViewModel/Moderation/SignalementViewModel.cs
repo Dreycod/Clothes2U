@@ -19,6 +19,7 @@ public class SignalementViewModel : ModerationViewModel
         NavigationManager nav) : base(authService, nav)
     {
         _signalementService = signalementService;
+        _nav = nav;
     }
     
     public List<Signalement> Signalements { get; set; } = new();

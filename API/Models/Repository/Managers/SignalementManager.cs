@@ -20,7 +20,7 @@ namespace API.Models.Repository.Managers
                 .ThenInclude(a => a.Utilisateur)  
                 .Include(s => s.SignalementsAvis)  
                 .ThenInclude(sa => sa.Avis)
-                .ThenInclude(av => av.Cible)  
+                .ThenInclude(av => av.Auteur)
                 .Include(s => s.SignalementsUtilisateur)  
                 .ThenInclude(su => su.UtilisateurSignale)
                 .AsSplitQuery();
@@ -51,40 +51,7 @@ namespace API.Models.Repository.Managers
     int? avisId,
     int? utilisateurSignaleId)
         {
-            // Ajoute le signalement principal
-            _context.Signalements.Add(signalement);
-            await _context.SaveChangesAsync();
-
-            // Ajout sous-entités selon type
-            if (annonceId.HasValue)
-            {
-                _context.SignalementAnnonces.Add(new SignalementAnnonce
-                {
-                    SignalementId = signalement.SignalementId,
-                    AnnonceSignaleeId = annonceId.Value
-                });
-            }
-
-            if (avisId.HasValue)
-            {
-                _context.SignalementAvises.Add(new SignalementAvis
-                {
-                    SignalementId = signalement.SignalementId,
-                    AvisId = avisId.Value
-                });
-            }
-
-            if (utilisateurSignaleId.HasValue)
-            {
-                _context.SignalementUtilisateurs.Add(new SignalementUtilisateur
-                {
-                    SignalementId = signalement.SignalementId,
-                    UtilisateurSignaleId = utilisateurSignaleId.Value
-                });
-            }
-
-            await _context.SaveChangesAsync();
-            return signalement;
+            throw new NotImplementedException();
         }
 
     }

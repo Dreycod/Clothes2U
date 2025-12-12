@@ -1,17 +1,28 @@
-﻿namespace API.DTO.Signalement
+using System.Text.Json.Serialization;
+
+namespace API.DTO.Signalement;
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(SignalementAnnonceDTO), "annonce")]
+[JsonDerivedType(typeof(SignalementAvisDTO), "avis")]
+[JsonDerivedType(typeof(SignalementUtilisateurDTO), "utilisateur")]
+public abstract class SignalementDetailsDTO
 {
-    public class SignalementDetailDTO
-    {
-        public int SignalementId { get; set; }
-        public DateTime SignalementDate { get; set; }
-        public string SignalementMotif { get; set; } = null!;
-        public string Type { get; set; } = null!;
+    public int SignalementId { get; set; }
+    public DateTime SignalementDate { get; set; }
+    public string SignalementMotif { get; set; } = null!;
+    public int UtilisateurSignaleId { get; set; }
 
-        public int UtilisateurId { get; set; }
-        public string LoginAuteur { get; set; } = null!;
-
-        public SignalementAnnonceDTO? Annonce { get; set; }
-        public SignalementAvisDTO? Avis { get; set; }
-        public SignalementUtilisateurDTO? Utilisateur { get; set; }
-    }
 }
+
+public class SignalementAnnonceDTO : SignalementDetailsDTO
+{
+    public int AnnonceSignaleeId { get; set; }
+}
+
+public class SignalementAvisDTO : SignalementDetailsDTO
+{
+    public int AvisId { get; set; }
+}
+
+public class SignalementUtilisateurDTO : SignalementDetailsDTO { }

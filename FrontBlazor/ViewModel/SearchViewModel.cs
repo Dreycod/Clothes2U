@@ -25,6 +25,7 @@ namespace FrontBlazor.ViewModel
         public ListableViewModel<Genre> VM_Genre { get; set; }
         public ListableViewModel<Marque> VM_Marque { get; set; }
         public ListableViewModel<Taille> VM_Taille { get; set; }
+        public ListableViewModel<EtatArticle> VM_Etat { get; set; }
         public NavigationManager NavigationManager { get; set; }
         public LoginViewModel VM_Login { get; set; }
         #endregion
@@ -40,6 +41,7 @@ namespace FrontBlazor.ViewModel
         public List<string> SelectedMarques { get; set; } = new();
         public List<string> SelectedTailles { get; set; } = new();
         public List<string> SelectedGenres { get; set; } = new();
+        public List<string> SelectedEtats { get; set; } = new();
         public HashSet<int> ExpandedCategories { get; set; } = new();
 
         public int SliderMax { get; set; } = 500;
@@ -56,6 +58,7 @@ namespace FrontBlazor.ViewModel
             IFavorisService<Favoris> favorisService, 
             ListableViewModel<Categorie> vM_Categorie, 
             ListableViewModel<Marque> vM_Marque, 
+            ListableViewModel<EtatArticle> vM_Etat,
             ListableViewModel<Genre> vM_Genre,
             ListableViewModel<Taille> vM_Taille, 
             NavigationManager navManager, 
@@ -68,6 +71,7 @@ namespace FrontBlazor.ViewModel
             VM_Categorie = vM_Categorie;
             VM_Marque = vM_Marque;
             VM_Taille = vM_Taille;
+            VM_Etat =  vM_Etat;
             NavigationManager = navManager;
             _notificationService = notificationService;
             VM_Login = vM_Login;
@@ -100,6 +104,7 @@ namespace FrontBlazor.ViewModel
             await VM_Categorie.LoadAsync();
             await VM_Marque.LoadAsync();
             await VM_Genre.LoadAsync();
+            await VM_Etat.LoadAsync();
             await VM_Taille.LoadAsync();
             
             await ApplyFilters();

@@ -21,12 +21,22 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SignalementDetailDTO>> GetById(int id)
+        [ProducesResponseType(typeof(SignalementDetailsDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById(int id)
         {
             var sig = await _signalementManager.GetByIdAsync(id);
-            if (sig == null) return NotFound();
+            if (sig == null)
+            {
+                return NotFound();
+            }
 
-            return Ok(_mapper.Map<SignalementDetailDTO>(sig));
+            var result = _mapper.Map<SignalementDetailsDTO>(sig);
+            return new ObjectResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK,
+                DeclaredType = typeof(SignalementDetailsDTO)
+            };
         }
 
         [HttpGet]
@@ -52,7 +62,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SignalementDetailDTO>> Create(SignalementCreateDTO dto)
+        public async Task<ActionResult<SignalementDetailsDTO>> Create(SignalementCreateDTO dto)
         {
             var signalement = _mapper.Map<Signalement>(dto);
 
@@ -63,7 +73,7 @@ namespace API.Controllers
                 dto.UtilisateurSignaleId
             );
 
-            var result = _mapper.Map<SignalementDetailDTO>(created);
+            var result = _mapper.Map<SignalementDetailsDTO>(created);
             return CreatedAtAction(nameof(GetById), new { id = created.SignalementId }, result);
         }
 

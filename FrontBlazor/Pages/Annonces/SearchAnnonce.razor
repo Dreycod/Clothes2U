@@ -195,7 +195,24 @@
                 <div class="filter-section">
                     <h4 class="filter-title">État</h4>
                     <div class="filter-options">
-                        <!-- Section commentée - pas implémentée -->
+                        @if (VM_Etat.IsLoading)
+                        {
+                            <div class="filter-loading">
+                                <div class="spinner-small"></div>
+                                <span>Chargement...</span>
+                            </div>
+                        }else if(VM_Etat.Items != null && VM_Etat.Items.Any())
+                        {
+                            @foreach (var etat in VM_Etat.Items)
+                            {
+                                <label class="checkbox-label">
+                                    <input type="checkbox"
+                                           checked="@VM_Search.SelectedMarques.Contains(etat.NomEtat)"
+                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedEtats, etat.NomEtat)" />
+                                    <span>@etat.NomEtat</span>
+                                </label>
+                            }
+                        }
                     </div>
                 </div>
             </aside>

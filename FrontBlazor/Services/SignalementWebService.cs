@@ -15,6 +15,7 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         return signalements ??  new List<Signalement>();
     }
 
+
     public async Task<List<Signalement>> GetAllByType(int typeId)
     {
         var response = await GetWithCredentialsAsync($"Signalement/Type/{typeId}");
@@ -23,9 +24,12 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         return signalements ??  new List<Signalement>();
     }
 
-    public Task<Signalement> GetByIdAsync(int id)
+    public async Task<SignalementDetails> GetSignalementByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var response = await GetWithCredentialsAsync($"Signalement/{id}");
+        response.EnsureSuccessStatusCode();
+        var signalement = await response.Content.ReadFromJsonAsync<SignalementDetails>();
+        return signalement;
     }
 
     public Task<Signalement?> AddAsync(Signalement entity)
