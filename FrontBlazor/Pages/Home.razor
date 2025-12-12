@@ -47,31 +47,9 @@
             <div class="product-grid">
                 @foreach (var annonce in VM_Home.Annonces)
                 {
-                    <div class="product-card" @onclick="() => NavigateToProductDetail(annonce.AnnonceId)">
-                        <div class="product-image-container">
-                            <div class="product-image"></div>
-                            <button class="wishlist-btn"
-                                    @onclick:stopPropagation="true"
-                                    @onclick="() => ToggleFavorite(annonce.AnnonceId)">
-                                <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
-                            </button>
-
-                        </div>
-
-                        <div class="product-info">
-                            <h3 class="product-title">@annonce.Title</h3>
-
-                            <div class="product-meta">
-                                <span class="product-size">Taille @annonce.Taille</span>
-                                <span class="product-condition">@annonce.EtatArticle</span>
-                            </div>
-
-                            <div class="product-footer">
-                                <span class="product-price">@annonce.Prix€</span>
-                                <span class="product-seller">par @(annonce.NomAuteur ?? "Vendeur")</span>
-                            </div>
-                        </div>
-                    </div>
+                    <AnnonceCard annonceComponent="annonce"
+                                 OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
                 }
             </div>
         }

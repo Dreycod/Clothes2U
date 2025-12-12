@@ -1,4 +1,6 @@
-﻿<div class="product-card" @onclick="OnClick">
+﻿@inject IMediasService<Photo> MediasService
+
+<div class="product-card" @onclick="OnClick">
     <div class="product-image-container">
         <img class="product-image" src="@PhotoUrl" />
 
@@ -30,7 +32,7 @@
     [Parameter] public EventCallback<Annonce> OnClickAnnonce { get; set; }
     [Inject] DetailAnnonceViewModel DetailVM { get; set; }
 
-    private string PhotoUrl => DetailVM.GetPhoto(annonceComponent.Photos.First());
+    private string PhotoUrl => MediasService.GetPhotoUrl(annonceComponent.Photos.First());
     private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
 
     private async Task ToggleFavorite()

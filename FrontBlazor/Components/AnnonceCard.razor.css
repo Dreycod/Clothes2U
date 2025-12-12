@@ -14,14 +14,13 @@
 .product-image-container {
     position: relative;
     width: 100%;
-    padding-top: 100%;
+    height: 250px;
     background: #d3d3d3;
+    overflow: hidden;
 }
 
 .product-image {
-    position: absolute;
-    top: 0;
-    left: 0;
+    object-fit: cover;
     width: 100%;
     height: 100%;
 }
