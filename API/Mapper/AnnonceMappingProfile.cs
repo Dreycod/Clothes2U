@@ -111,7 +111,8 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.SousCategorie, opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie))
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
             .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque))
-            .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat));
-
+            .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat))
+            .ForMember(dest => dest.Couleurs, opt => opt.MapFrom(src => 
+                src.Couleurs.Select(ac => ac.Couleur.Nom).ToList()));
     }
 }

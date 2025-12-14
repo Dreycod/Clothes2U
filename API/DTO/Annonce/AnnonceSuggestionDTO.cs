@@ -27,4 +27,6 @@ public class AnnonceSuggestionDTO
     
     [JsonPropertyName("etatArticle")]
     public string EtatArticle { get; set; }
+    [JsonPropertyName("couleurs")]
+    public List<string> Couleurs { get; set; }
 }

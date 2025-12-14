@@ -29,6 +29,8 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Include(a => a.UtilisateursFavoris)
             .Include(a => a.Utilisateur)
             .ThenInclude(u => u.PhotoProfil)
+            .Include(a => a.Couleurs)
+            .ThenInclude(c => c.Couleur)
             .AsSplitQuery(); 
     }
 
