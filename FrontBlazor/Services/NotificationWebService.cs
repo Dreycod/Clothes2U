@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Text.Json;
 using FrontBlazor.Models.Notification;
 using FrontBlazor.Converters;
@@ -42,4 +43,34 @@ public class NotificationWebService : BaseGenericService, INotificationService
     {
         await DeleteWithCredentialsAsync($"Notification/{id}");
     }
+
+    public async Task CreateNotificationAvertissement(string messageAvertissement, int utilisateurId)
+    {
+        CreateAvertissementRequest avertissementRequest = new CreateAvertissementRequest()
+        {
+            MessageAvertissement = messageAvertissement,
+            UtilisateurId = utilisateurId
+        };
+
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase  
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(avertissementRequest, jsonOptions),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await PostWithCredentialsAsync($"Notification/avertissement", content);
+        response.EnsureSuccessStatusCode();  
+    }
+}
+
+public class CreateAvertissementRequest
+{
+    public string MessageAvertissement { get; set; }
+    public int UtilisateurId { get; set; }
 }

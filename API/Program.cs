@@ -241,12 +241,14 @@ builder.Services.AddScoped<ISignalementRepository,  SignalementManager>();
 
 
 //services
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, TwilioSmsService>();
 builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
 builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddHttpContextAccessor();
 
 

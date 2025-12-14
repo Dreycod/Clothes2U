@@ -42,7 +42,7 @@ namespace FrontBlazor.ViewModel
         public bool IsSubmittingReview { get; set; } = false;
 
         public bool IsFollowing = true;
-        public string FollowButtonText => IsFollowing ? "Se désabonner" : "Suivre";
+        public string FollowButtonText => IsFollowing ? "Se dï¿½sabonner" : "Suivre";
 
         public event Action? OnStateChanged;
         #endregion
@@ -103,19 +103,19 @@ namespace FrontBlazor.ViewModel
 
 
                 var tasks = new List<Task>
-             {
-                 Task.Run(async () => {
-                     Annonces = await _annonceService.GetAnnoncesByUserIdAsync(id);
-                     IsLoadingArticles = false;
-                     NotifyStateChanged();
-                 }),
-                 Task.Run(async () => {
-                     Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(id);
-                     AvisCount = Avis?.Count ?? 0;
-                     IsLoadingAvis = false;
-                     NotifyStateChanged();
-                 })
-             };
+                 {
+                     Task.Run(async () => {
+                         Annonces = await _annonceService.GetAnnoncesByUserIdAsync(id);
+                         IsLoadingArticles = false;
+                         NotifyStateChanged();
+                     }),
+                     Task.Run(async () => {
+                         Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(id);
+                         AvisCount = Avis?.Count ?? 0;
+                         IsLoadingAvis = false;
+                         NotifyStateChanged();
+                     })
+                 };
 
                 Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
@@ -265,7 +265,7 @@ namespace FrontBlazor.ViewModel
 
             if (SelectedRating == 0)
             {
-                ReviewErrorMessage = "Veuillez sélectionner une note";
+                ReviewErrorMessage = "Veuillez sï¿½lectionner une note";
                 NotifyStateChanged();
                 return;
             }
@@ -279,7 +279,7 @@ namespace FrontBlazor.ViewModel
 
             if (ReviewComment.Length < 10)
             {
-                ReviewErrorMessage = "Le commentaire doit contenir au moins 10 caractères";
+                ReviewErrorMessage = "Le commentaire doit contenir au moins 10 caractï¿½res";
                 NotifyStateChanged();
                 return;
             }

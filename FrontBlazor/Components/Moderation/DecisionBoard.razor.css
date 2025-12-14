@@ -1,0 +1,27 @@
+
+
+/* Fix pour la mise en page du traitement de signalement */
+#content_board {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#decision-board {
+    max-width: 100%;
+}
+
+/* Ajustement des actions pour qu'elles ne débordent pas */
+.actions-section {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* S'assurer que le contenu principal ne déborde pas */
+.mod-content {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}

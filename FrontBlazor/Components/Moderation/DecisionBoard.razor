@@ -1,0 +1,90 @@
+@using FrontBlazor.ViewModel.Moderation.Signalements
+
+<div class="actions-section">
+    <h3>Actions de modération</h3>
+
+    <button class="action-btn warning" @onclick="ShowWarningModal">
+        <i class="bi bi-exclamation-triangle"></i>
+        Avertissement
+    </button>
+
+    <button class="action-btn suspend" @onclick="@VM_Traitement.ShowSuspendModal">
+        <i class="bi bi-clock-history"></i>
+        Suspendre
+    </button>
+
+    <button class="action-btn ban" @onclick="@VM_Traitement.ShowBanModal">
+        <i class="bi bi-x-circle"></i>
+        Bannir
+    </button>
+
+    <button class="action-btn dismiss" @onclick="@VM_Traitement.DismissReport">
+        <i class="bi bi-check-circle"></i>
+        Ignorer le signalement
+    </button>
+</div>
+
+@if (showWarningModal)
+{
+    <div class="modal-overlay" @onclick="CloseWarningModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <h3>Envoyer un avertissement</h3>
+            <p>Rédigez le message d'avertissement à envoyer à l'utilisateur</p>
+
+            <textarea 
+                class="warning-textarea" 
+                value="@warningMessage"
+                @oninput="@((ChangeEventArgs e) => warningMessage = e.Value?.ToString() ?? string.Empty)"
+                placeholder="Entrez le motif de l'avertissement..."
+                rows="5"
+                maxlength="500">
+            </textarea>
+
+            <div class="character-count">
+                @warningMessage.Length / 500 caractères
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" @onclick="CloseWarningModal">
+                    Annuler
+                </button>
+                <button 
+                    class="btn-confirm" 
+                    @onclick="ConfirmWarning"
+                    disabled="@string.IsNullOrWhiteSpace(warningMessage)">
+                    <i class="bi bi-send"></i>
+                    Envoyer l'avertissement
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public TraitementSignalementViewModel VM_Traitement { get; set; }
+
+    private bool showWarningModal = false;
+    private string warningMessage = string.Empty;
+
+    private void ShowWarningModal()
+    {
+        showWarningModal = true;
+        warningMessage = string.Empty;
+    }
+
+    private void CloseWarningModal()
+    {
+        showWarningModal = false;
+        warningMessage = string.Empty;
+    }
+
+    private async Task ConfirmWarning()
+    {
+        if (!string.IsNullOrWhiteSpace(warningMessage))
+        {
+            await VM_Traitement.SendWarning(warningMessage);
+            CloseWarningModal();
+        }
+    }
+}

@@ -7,6 +7,7 @@ public interface INotificationRepository : IDataRepository<Notification, int>
     public Task<IEnumerable<Notification>> GetByUserId(int userId);
     public Task<int> GetNotificationsUnreadCountByUserId(int userId);
     public Task MarkAsRead(int userId);
+    public Task CreateNotificationAvertissement(NotificationAvertissement notification);
 }
 
 public interface INotificationMessageRepository : IDataRepository<NotificationMessage, int>

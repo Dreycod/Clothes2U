@@ -106,6 +106,12 @@ public class AnnonceMappingProfile : Profile
              .ReverseMap()
             .ForMember(dest => dest.Annonces, opt => opt.Ignore());
         CreateMap<Genre, GenreDTO>().ReverseMap();
+        CreateMap<Annonce, AnnonceSuggestionDTO>()
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
+            .ForMember(dest => dest.SousCategorie, opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie))
+            .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
+            .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque))
+            .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat));
 
     }
 }

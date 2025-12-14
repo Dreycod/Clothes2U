@@ -51,19 +51,16 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id, int page, int pageSize)
+    public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
     {
         var annonceIds = await _context.Favorises
             .Where(f => f.UtilisateurId == id)
             .Select(f => f.AnnonceId)
             .ToListAsync();
 
-        int skip = (page - 1) * pageSize;
-
         return await BaseAnnonceQuery()
+            .AsSingleQuery() 
             .Where(a => annonceIds.Contains(a.AnnonceId))
-            .Skip(skip)
-            .Take(pageSize)
             .ToListAsync();
     }
 

@@ -1,5 +1,6 @@
-﻿@page "/moderation/signalements/{id:int}"
+@page "/moderation/signalements/{id:int}"
 @using FrontBlazor.ViewModel.Moderation.Signalements
+@using FrontBlazor.Components.Moderation
 @inject TraitementSignalementViewModel VM_traitementSignalement
 @layout ModerationLayout
 
@@ -17,11 +18,24 @@
 else
 {
     <div>
-        <div>
-            <p>@VM_traitementSignalement.avis.LoginAuteur</p>
+        <div id="content_board">
+            @switch (VM_traitementSignalement.Signalement)
+            {
+                case SignalementAnnonce signalementAnnonce:
+                    <p>@VM_traitementSignalement.annonce.Title</p>
+                    break;
+                case SignalementAvis signalementAvis :
+                    <p>@VM_traitementSignalement.avis.Commentaire</p>
+                    break;
+                case SignalementUtilisateur signalementUtilisateur:
+                    <p>@VM_traitementSignalement.utilisateurSignale.Login</p>
+                    break;
+            }
         </div>
-        <div>
-            
+        <div id="decision-board">
+            <DecisionBoard 
+                VM_Traitement = "@VM_traitementSignalement"
+                ></DecisionBoard>
         </div>
     </div>
 }

@@ -117,11 +117,15 @@ public class AnnonceController : ControllerBase
         {
             return Unauthorized();
         }
-
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId, page, pageSize);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId);
     
+        IEnumerable<Annonce> annoncesPaginees = annonces
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+    
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+
         return Ok(annoncesDTO);
     }
 

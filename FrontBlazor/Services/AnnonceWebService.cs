@@ -49,7 +49,10 @@ public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annon
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<List<Annonce>>($"Annonce/ByUtilisateurId/{userId}");
+            var response = await GetWithCredentialsAsync($"Annonce/ByUtilisateurId/{userId}");
+            response.EnsureSuccessStatusCode();
+            var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+            return annonces ?? new List<Annonce>();
         }
         catch (HttpRequestException ex)
         {

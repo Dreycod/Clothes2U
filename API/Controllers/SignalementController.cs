@@ -76,8 +76,6 @@ namespace API.Controllers
             var result = _mapper.Map<SignalementDetailsDTO>(created);
             return CreatedAtAction(nameof(GetById), new { id = created.SignalementId }, result);
         }
-
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

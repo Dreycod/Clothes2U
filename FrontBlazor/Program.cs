@@ -24,6 +24,7 @@ builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>)
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthWebService>();
+builder.Services.AddScoped<INotificationService, NotificationWebService>();
 builder.Services.AddScoped<ISignalementService, SignalementWebService>();
 builder.Services.AddScoped<ICategorieService<Categorie>, CategorieWebService>();
 builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebService>();
@@ -36,8 +37,8 @@ builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<IMediasService<Photo>, MediaWebService>();
 builder.Services.AddScoped<VerificationService>();
-builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ClipboardService>();
+builder.Services.AddScoped<NotificationService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>

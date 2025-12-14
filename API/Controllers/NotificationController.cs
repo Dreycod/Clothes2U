@@ -3,9 +3,20 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
+
+
+
+public class CreateAvertissementRequest
+{
+    public string MessageAvertissement { get; set; }
+    public int UtilisateurId { get; set; }
+}
+
+
 
 [Microsoft.AspNetCore.Components.Route("api/[controller]")]
 [ApiController]
@@ -70,5 +81,43 @@ public class NotificationController : ControllerBase
         }
         await _notificationManager.DeleteAsync(notificationToDelete);
         return NoContent();
+    }
+
+    [HttpGet("id/{id}")]
+    [ProducesResponseType(typeof(NotificationDTO),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<NotificationDTO>> GetById(int id)
+    {
+        var notification = await _notificationManager.GetByIdAsync(id);
+        if (notification == null)
+            return NotFound();
+        NotificationDTO notificationDTO = _mapper.Map<NotificationDTO>(notification);
+        return Ok(notificationDTO);
+    }
+    [HttpPost("avertissement")]
+    [Authorize]
+    public async Task<ActionResult<NotificationAvertissementDTO>> CreateNotificationAvertissement(
+        [FromBody] CreateAvertissementRequest avertissementRequest)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        Notification notification = new Notification()
+        {
+            DateCreation = DateTime.UtcNow,
+            EstLu = false,
+            NotificationTypeId = 3,
+            UtilisateurId = avertissementRequest.UtilisateurId,
+        };
+        await _notificationManager.AddAsync(notification);
+        NotificationAvertissement notificationAvertissement = new NotificationAvertissement()
+        {
+            NotificationId = notification.NotificationId,
+            MessageAvertissement = avertissementRequest.MessageAvertissement,
+        };
+        await _notificationManager.CreateNotificationAvertissement(notificationAvertissement);
+        return CreatedAtAction(nameof(GetById), new { id = notification.NotificationId }, notificationAvertissement);
     }
 }

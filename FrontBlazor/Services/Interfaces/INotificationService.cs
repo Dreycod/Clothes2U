@@ -10,4 +10,5 @@ public interface INotificationService
     Task<ObservableCollection<Notification>> GetAllAsync(int utilisateurId);
     Task MarkAsRead();
     Task DeleteNotification(int notificationId);
+    Task CreateNotificationAvertissement(string messageAvertissement, int Utilisateur);
 }

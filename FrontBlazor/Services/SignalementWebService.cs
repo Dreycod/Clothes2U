@@ -42,8 +42,8 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         throw new NotImplementedException();
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        await DeleteWithCredentialsAsync($"Signalement/{id}");
     }
 }
