@@ -23,7 +23,8 @@ namespace API.Models.Repository.Managers
             return await _context.Visualisations
                 .AnyAsync(v =>
                     v.UtilisateurId == utilisateurId &&
-                    v.AnnonceId == annonceId);
+                    v.AnnonceId == annonceId &&
+                    (v.DateVisualisation + TimeSpan.FromMinutes(5)) >= limit);
         }
 
         public async Task<IEnumerable<Visualisation>> GetByUtilisateurId(int utilisateurId)
