@@ -26,6 +26,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId)))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
+            .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
             .ForMember(dest => dest.UriPhotoProfilAuteur,
