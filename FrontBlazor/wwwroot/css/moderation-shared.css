@@ -1397,3 +1397,50 @@
         max-width: 100%;
     }
 }
+
+
+
+
+
+/* ===== MODAL SUSPENSION - AJOUT ===== */
+.suspend-date-group {
+    margin-bottom: 1.5rem;
+}
+
+.suspend-date-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.suspend-date-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: all 0.2s;
+    color: #1a1a1a;
+}
+
+.suspend-date-input:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
+
+.btn-confirm.suspend-confirm {
+    background: #f97316;
+}
+
+.btn-confirm.suspend-confirm:hover:not(:disabled) {
+    background: #ea580c;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+
+
+

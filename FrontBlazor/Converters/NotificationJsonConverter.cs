@@ -11,16 +11,11 @@ public class NotificationJsonConverter : JsonConverter<Notification>
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
-        
         string typeDiscriminator = "";
-        
-        // Chercher dans libelleType au lieu de $type
         if (root.TryGetProperty("libelleType", out var libelleElement))
         {
             typeDiscriminator = libelleElement.GetString() ?? "";
         }
-
-        // Mapper selon le libellé
         Notification notification = typeDiscriminator switch
         {
             "Administration" => new NotificationAdmin(),
@@ -30,16 +25,12 @@ public class NotificationJsonConverter : JsonConverter<Notification>
             "Nouvelle annonce" => new NotificationNouvelleAnnonce(),
             _ => throw new JsonException($"Type de notification inconnu: {typeDiscriminator}")
         };
-
         if (root.TryGetProperty("notificationId", out var notificationIdElement))
             notification.NotificationId = notificationIdElement.GetInt32();
-        
         if (root.TryGetProperty("dateCreation", out var dateCreationElement))
             notification.DateCreation = dateCreationElement.GetDateTime();
-        
         if (root.TryGetProperty("estLu", out var estLuElement))
             notification.EstLu = estLuElement.GetBoolean();
-
         switch (notification)
         {
             case NotificationAdmin admin:
@@ -106,17 +97,13 @@ public class NotificationJsonConverter : JsonConverter<Notification>
                 break;
 
             case NotificationModificationAnnonce modifAnnonce:
-                if (modifAnnonce.ModificationAnnonceId.HasValue)
-                    writer.WriteNumber("modificationAnnonceId", modifAnnonce.ModificationAnnonceId.Value);
-                if (modifAnnonce.NomAuteur != null)
-                    writer.WriteString("nomAuteur", modifAnnonce.NomAuteur);
-                if (modifAnnonce.Title != null)
-                    writer.WriteString("title", modifAnnonce.Title);
+                writer.WriteNumber("modificationAnnonceId", modifAnnonce.ModificationAnnonceId);
+                writer.WriteString("nomAuteur", modifAnnonce.NomAuteur);
+                writer.WriteString("title", modifAnnonce.Title);
                 break;
 
             case NotificationNouvelleAnnonce nouvelleAnnonce:
-                if (nouvelleAnnonce.NouvelleAnnonceId.HasValue)
-                    writer.WriteNumber("nouvelleAnnonceId", nouvelleAnnonce.NouvelleAnnonceId.Value);
+                writer.WriteNumber("nouvelleAnnonceId", nouvelleAnnonce.NouvelleAnnonceId);
                 break;
         }
 

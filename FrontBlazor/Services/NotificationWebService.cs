@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using FrontBlazor.Models.Notification;
 using FrontBlazor.Converters;
+using FrontBlazor.Models.Moderation;
 using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.Services;
@@ -16,16 +17,16 @@ public class NotificationWebService : BaseGenericService, INotificationService
         Converters = { new NotificationJsonConverter() }
     };
     public NotificationWebService(HttpClient httpClient) : base(httpClient) { }
-    public async Task<ObservableCollection<Notification>> GetAllAsync(int utilisateurId)
+    public async Task<ObservableCollection<Notification>> GetAllAsync()
     {
         try
         {
-            var response = await GetWithCredentialsAsync($"Notification/user/{utilisateurId}");
+            var response = await GetWithCredentialsAsync("Notification/user");
             response.EnsureSuccessStatusCode();
             
             var jsonString = await response.Content.ReadAsStringAsync();
             var notificationsList = JsonSerializer.Deserialize<List<Notification>>(jsonString, JsonOptions);
-            
+            Console.WriteLine("Recuperation des données il y a : " +  notificationsList.Count + " notifications");
             return new ObservableCollection<Notification>(notificationsList ?? new List<Notification>());
         }
         catch (Exception ex)
@@ -44,13 +45,9 @@ public class NotificationWebService : BaseGenericService, INotificationService
         await DeleteWithCredentialsAsync($"Notification/{id}");
     }
 
-    public async Task CreateNotificationAvertissement(string messageAvertissement, int utilisateurId)
+    public async Task CreateNotificationAvertissement(CreateAvertissementRequest request)
     {
-        CreateAvertissementRequest avertissementRequest = new CreateAvertissementRequest()
-        {
-            MessageAvertissement = messageAvertissement,
-            UtilisateurId = utilisateurId
-        };
+        
 
         var jsonOptions = new JsonSerializerOptions
         {
@@ -59,7 +56,7 @@ public class NotificationWebService : BaseGenericService, INotificationService
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(avertissementRequest, jsonOptions),
+            JsonSerializer.Serialize(request, jsonOptions),
             Encoding.UTF8,
             "application/json"
         );
@@ -69,8 +66,3 @@ public class NotificationWebService : BaseGenericService, INotificationService
     }
 }
 
-public class CreateAvertissementRequest
-{
-    public string MessageAvertissement { get; set; }
-    public int UtilisateurId { get; set; }
-}

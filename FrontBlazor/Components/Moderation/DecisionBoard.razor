@@ -1,59 +1,107 @@
 @using FrontBlazor.ViewModel.Moderation.Signalements
+@implements IDisposable
 
 <div class="actions-section">
     <h3>Actions de modération</h3>
 
-    <button class="action-btn warning" @onclick="ShowWarningModal">
+    <button class="action-btn warning" @onclick="VM_Traitement.OpenWarningModal">
         <i class="bi bi-exclamation-triangle"></i>
         Avertissement
     </button>
 
-    <button class="action-btn suspend" @onclick="@VM_Traitement.ShowSuspendModal">
+    <button class="action-btn suspend" @onclick="VM_Traitement.OpenSuspendModal">
         <i class="bi bi-clock-history"></i>
         Suspendre
     </button>
 
-    <button class="action-btn ban" @onclick="@VM_Traitement.ShowBanModal">
+    <button class="action-btn ban" @onclick="VM_Traitement.OpenBanModal">
         <i class="bi bi-x-circle"></i>
         Bannir
     </button>
 
-    <button class="action-btn dismiss" @onclick="@VM_Traitement.DismissReport">
+    <button class="action-btn dismiss" @onclick="VM_Traitement.DismissReportAsync">
         <i class="bi bi-check-circle"></i>
         Ignorer le signalement
     </button>
 </div>
 
-@if (showWarningModal)
+@if (VM_Traitement.ShowWarningModal)
 {
-    <div class="modal-overlay" @onclick="CloseWarningModal">
+    <div class="modal-overlay" @onclick="VM_Traitement.CloseWarningModal">
         <div class="modal-content" @onclick:stopPropagation="true">
             <h3>Envoyer un avertissement</h3>
             <p>Rédigez le message d'avertissement à envoyer à l'utilisateur</p>
 
             <textarea 
                 class="warning-textarea" 
-                value="@warningMessage"
-                @oninput="@((ChangeEventArgs e) => warningMessage = e.Value?.ToString() ?? string.Empty)"
+                value="@VM_Traitement.WarningMessage"
+                @oninput="@((ChangeEventArgs e) => VM_Traitement.WarningMessage = e.Value?.ToString() ?? string.Empty)"
                 placeholder="Entrez le motif de l'avertissement..."
                 rows="5"
                 maxlength="500">
             </textarea>
 
             <div class="character-count">
-                @warningMessage.Length / 500 caractères
+                @VM_Traitement.WarningMessage.Length / 500 caractères
             </div>
 
             <div class="modal-actions">
-                <button class="btn-cancel" @onclick="CloseWarningModal">
+                <button class="btn-cancel" @onclick="VM_Traitement.CloseWarningModal">
                     Annuler
                 </button>
                 <button 
                     class="btn-confirm" 
-                    @onclick="ConfirmWarning"
-                    disabled="@string.IsNullOrWhiteSpace(warningMessage)">
+                    @onclick="VM_Traitement.SendWarningAsync"
+                    disabled="@(!VM_Traitement.CanSendWarning)">
                     <i class="bi bi-send"></i>
                     Envoyer l'avertissement
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (VM_Traitement.ShowSuspendModal)
+{
+    <div class="modal-overlay" @onclick="VM_Traitement.CloseSuspendModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <h3>Suspendre l'utilisateur</h3>
+            <p>Définissez les paramètres de la suspension</p>
+
+            <textarea 
+                class="warning-textarea" 
+                value="@VM_Traitement.SuspendMessage"
+                @oninput="@((ChangeEventArgs e) => VM_Traitement.SuspendMessage = e.Value?.ToString() ?? string.Empty)"
+                placeholder="Entrez le motif de la suspension..."
+                rows="5"
+                maxlength="500">
+            </textarea>
+
+            <div class="character-count">
+                @VM_Traitement.SuspendMessage.Length / 500 caractères
+            </div>
+
+            <div class="suspend-date-group">
+                <label for="suspend-date">Date de fin de suspension</label>
+                <input 
+                    id="suspend-date"
+                    type="datetime-local" 
+                    class="suspend-date-input" 
+                    value="@VM_Traitement.SuspendEndDate?.ToString("yyyy-MM-ddTHH:mm")"
+                    @onchange="@((ChangeEventArgs e) => VM_Traitement.SuspendEndDate = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value.ToString()))"
+                    min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" @onclick="VM_Traitement.CloseSuspendModal">
+                    Annuler
+                </button>
+                <button 
+                    class="btn-confirm suspend-confirm" 
+                    @onclick="VM_Traitement.SuspendUserAsync"
+                    disabled="@(!VM_Traitement.CanSuspend)">
+                    <i class="bi bi-clock-history"></i>
+                    Confirmer la suspension
                 </button>
             </div>
         </div>
@@ -64,27 +112,13 @@
     [Parameter]
     public TraitementSignalementViewModel VM_Traitement { get; set; }
 
-    private bool showWarningModal = false;
-    private string warningMessage = string.Empty;
-
-    private void ShowWarningModal()
+    protected override void OnInitialized()
     {
-        showWarningModal = true;
-        warningMessage = string.Empty;
+        VM_Traitement.OnStateChanged += StateHasChanged;
     }
 
-    private void CloseWarningModal()
+    public void Dispose()
     {
-        showWarningModal = false;
-        warningMessage = string.Empty;
-    }
-
-    private async Task ConfirmWarning()
-    {
-        if (!string.IsNullOrWhiteSpace(warningMessage))
-        {
-            await VM_Traitement.SendWarning(warningMessage);
-            CloseWarningModal();
-        }
+        VM_Traitement.OnStateChanged -= StateHasChanged;
     }
 }

@@ -46,10 +46,15 @@ public class NotificationController : ControllerBase
         int count = await _notificationManager.GetNotificationsUnreadCountByUserId((int)userId);
         return count;
     }
-    [HttpGet("user/{userId}")]
-    public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetUserNotifications(int userId)
+    [HttpGet("user")]
+    public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetUserNotifications()
     {
-        var notifications = await _notificationManager.GetByUserId(userId);
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        var notifications = await _notificationManager.GetByUserId((int)userId);
         var notificationDtos = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
     
         return Ok(notificationDtos);

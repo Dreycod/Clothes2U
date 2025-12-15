@@ -1,5 +1,7 @@
 ﻿@inject NavBarViewModel Vm_NavBar
 
+<link href="css/loading.css" rel="stylesheet" />
+<link href="css/notification.css" rel="stylesheet"/>
 <nav class="main-navbar">
     <div class="navbar-container">
         <div class="navbar-left">
@@ -25,23 +27,55 @@
         <div class="navbar-right">
             <a href="#" class="nav-link">NOUVEAUTÉS</a>
             <a href="#" class="nav-link">TENDANCES</a>
-
-            @if (Vm_NavBar.IsConnected)
-            {
-                <button class="icon-btn" title="Notifications">
-                    <i class="bi bi-bell"></i>
-                </button>
-
-                <a href="/messages">
-                    <button class="icon-btn" title="Messages">
-                        <i class="bi bi-chat-dots"></i>
-                    </button>
-                </a>
-            }
             @if (!Vm_NavBar.IsLoading)
             {
                 @if (Vm_NavBar.IsConnected)
                 {
+                    <div class="notification-dropdown-container">
+                        <button class="icon-btn"
+                                title="Notifications"
+                                @onclick="async () =>
+                                {
+                                    await Vm_NavBar.ToggleDropDownNotification();
+                                    StateHasChanged();
+                                }">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                        @if (Vm_NavBar.showDropDownNotification)
+                        {
+                            <div class="notification-dropdown">
+                                @if (Vm_NavBar.LoadingNotifications)
+                                {
+                                    <div class="loader"></div>
+                                }
+                                else
+                                {
+                                    @if (Vm_NavBar.notifications.Count == 0)
+                                    {
+                                        <p>Vous n'avez pas de notification pour le moment</p>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var notification in Vm_NavBar.notifications.OrderByDescending(n => n.DateCreation))
+                                        {
+                                            <NotificationComponent
+                                                Vm_NavBar="Vm_NavBar"
+                                                Notification="notification">
+                                            </NotificationComponent>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                    
+
+                    <a href="/messages">
+                        <button class="icon-btn" title="Messages">
+                            <i class="bi bi-chat-dots"></i>
+                        </button>
+                    </a>
+                    
                     <div class="profile-dropdown-container">
                         <button class="icon-btn" title="Profil" @onclick="Vm_NavBar.ToggleDropdown">
                             <i class="bi bi-person-circle"></i>
@@ -80,6 +114,12 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
+        Vm_NavBar.OnStateChanged += StateHasChanged;
         await Vm_NavBar.LoadAsync();
     }
 }
+
+
+
+
+
