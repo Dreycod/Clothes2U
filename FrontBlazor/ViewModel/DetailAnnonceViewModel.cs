@@ -66,19 +66,6 @@ public class DetailAnnonceViewModel
             }
 
             utilisateurAnnonce = await _utilisateurService.GetByIdAsync(AnnonceDetail.UtilisateurId);
-            Console.WriteLine("UtilisateurId: " + utilisateurAnnonce.UtilisateurId);
-            Console.WriteLine("followeddByCurrentUser: " + utilisateurAnnonce.followeddByCurrentUser);
-            Console.WriteLine("Login: " + utilisateurAnnonce.Login);
-            Console.WriteLine("DateInscription: " + utilisateurAnnonce.DateInscription);
-            Console.WriteLine("Description: " + utilisateurAnnonce.Description);
-            Console.WriteLine("ValidTelephone: " + utilisateurAnnonce.ValidTelephone);
-            Console.WriteLine("ValidEmail: " + utilisateurAnnonce.ValidEmail);
-            Console.WriteLine("Statut: " + utilisateurAnnonce.Statut);
-            Console.WriteLine("Abonnements: " + utilisateurAnnonce.Abonnements);
-            Console.WriteLine("Abonnes: " + utilisateurAnnonce.Abonnes);
-            Console.WriteLine("PhotoProfilId: " + utilisateurAnnonce.PhotoProfilId);
-            Console.WriteLine("MoyenneAvis: " + utilisateurAnnonce.MoyenneAvis);
-            Console.WriteLine("NombreAvis: " + utilisateurAnnonce.NombreAvis);
 
             Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
             if (utilisateur != null && utilisateurAnnonce != null && 

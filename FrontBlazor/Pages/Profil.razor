@@ -55,9 +55,28 @@
                         <div class="profile-actions">
                             @if (!VM_Profil.IsSameUser)
                             {
-                                <button class="btn-icon">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
+                                <div class="profile-dropdown-container">
+                                    <button class="btn-icon"
+                                            title="Actions"
+                                            @onclick="VM_Profil.ToggleDotsDropdown">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+
+                                    @if (VM_Profil.showDotsDropdown)
+                                    {
+                                        <div class="profile-dropdown">
+                                            <button class="dropdown-item danger" @onclick="VM_Profil.BlockUtilisateur">
+                                                <i class="bi bi-person-x"></i>
+                                                <span>Bloquer</span>
+                                            </button>
+
+                                            <button class="dropdown-item danger" @onclick="VM_Profil.SignalerUtilisateur">
+                                                <i class="bi bi-flag"></i>
+                                                <span>Signaler</span>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
                             }
                             @if (!VM_Profil.IsSameUser)
                             {

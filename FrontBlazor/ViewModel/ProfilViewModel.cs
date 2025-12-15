@@ -17,6 +17,8 @@ namespace FrontBlazor.ViewModel
         public int AvisCount { get; set; } = 0;
         public bool IsSameUser { get; set; } = false;
 
+        public bool showDotsDropdown;
+
         private readonly IReadableService<UtilisateurView> _utilisateurService;
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
@@ -336,6 +338,23 @@ namespace FrontBlazor.ViewModel
         public void NavigateToHome()
         {
             _navigationManager.NavigateTo("/");
+        }
+
+        public void ToggleDotsDropdown()
+        {
+            showDotsDropdown = !showDotsDropdown;
+        }
+
+        public void BlockUtilisateur()
+        {
+            showDotsDropdown = false;
+            //
+        }
+
+        public void SignalerUtilisateur()
+        {
+            showDotsDropdown = false;
+            // 
         }
 
         public string GetPhoto(int id)

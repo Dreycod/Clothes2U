@@ -123,6 +123,7 @@
                 <div class="product-stats">
                     <span><i class="bi bi-calendar"></i> Publié le @(annonce.DateAnnonce.ToString("dd/MM/yyyy"))</span>
                     <span><i class="bi bi@(annonce.IsLikedByCurrentUser ? "-heart-fill" : "-heart")"></i> @(annonce.NombreLikes) likes</span>
+                    <span><i class="bi bi-eye"></i> @(annonce.NombreVues) vues </span>
                 </div>
 
                 <!-- Action Buttons -->
