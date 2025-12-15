@@ -54,6 +54,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.Negociable))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
+            .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
             .ReverseMap();
