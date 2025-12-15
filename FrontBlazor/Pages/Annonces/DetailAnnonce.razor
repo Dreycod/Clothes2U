@@ -1,4 +1,5 @@
 ﻿@page "/product/{Id:int}"
+@implements IDisposable
 
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
@@ -202,5 +203,10 @@
     private async Task LoadProduct()
     {
         await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
+    }
+
+    public void Dispose()
+    {
+        VM_DetailAnnonce.CancelVisualisation();
     }
 }

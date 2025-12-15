@@ -39,6 +39,7 @@ builder.Services.AddScoped<IMediasService<Photo>, MediaWebService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>
