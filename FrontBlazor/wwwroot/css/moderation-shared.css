@@ -614,7 +614,7 @@
     }
 }
 
-.add-word-section .alert-danger {
+.alert-danger {
     background: #fee2e2;
     border: 1px solid #fca5a5;
     color: #dc2626;
@@ -624,7 +624,7 @@
     gap: 1rem;
 }
 
-.add-word-section .btn-close {
+.btn-close {
     background: transparent;
     border: none;
     color: #dc2626;
@@ -642,11 +642,11 @@
     justify-content: center;
 }
 
-.add-word-section .btn-close:hover {
+ .btn-close:hover {
     opacity: 1;
 }
 
-.add-word-section .btn-close::before {
+ .btn-close::before {
     content: "×";
     font-size: 1.5rem;
     line-height: 1;

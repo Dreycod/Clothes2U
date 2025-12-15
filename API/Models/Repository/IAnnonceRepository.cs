@@ -9,5 +9,5 @@ public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IData
     Task<IEnumerable<TEntity>> GetByUtilisateurId(TIdentifier id);
     
     Task<IEnumerable<TEntity>> GetByUtilisateurFavoris(TIdentifier id);
-    Task<IEnumerable<TEntity>> FilterAsync(TFilterEntity filterDto, int page, int pageSize);
+    Task<IEnumerable<TEntity>> FilterAsync(TFilterEntity filterDto, int page, int pageSize, int? currentUserId = null);
 }

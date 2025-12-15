@@ -36,22 +36,17 @@ namespace API.Models.Repository.Managers
                 .Where(b => b.UtilisateurBloqueId == id)
                 .ToListAsync();
         }
-
-        public async Task<IEnumerable<Bloque>> SearchBlockedByLogin(int bloqueurId, string login)
-        {
-            login = login.ToLower();
-
-            return await BaseBloqueQuery()
-                .Where(b => b.UtilisateurBloqueurId == bloqueurId &&
-                            b.UtilisateurBloque.Login.ToLower().Contains(login))
-                .ToListAsync();
-        }
-
         public async Task<bool> Exists(int bloqueurId, int bloqueId)
         {
             return await _context.Bloques
                 .AnyAsync(b => b.UtilisateurBloqueurId == bloqueurId &&
                                b.UtilisateurBloqueId == bloqueId);
+        }
+        public async Task<Bloque?> GetIfExists(int bloqueurId, int bloqueId)
+        {
+            return await _context.Bloques
+                .FirstOrDefaultAsync(b => b.UtilisateurBloqueurId == bloqueurId &&
+                                          b.UtilisateurBloqueId == bloqueId);
         }
     }
 }

@@ -6,4 +6,6 @@ public interface ICurrentUserService
 {
     Task<int?> GetUserId();
     Task<Utilisateur?> GetUser();
+    Task<bool> IsFollowedByCurrentUser(int id);
+    Task<bool> IsBlockedByCurrentUser(int id);
 }

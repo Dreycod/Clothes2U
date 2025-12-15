@@ -46,13 +46,45 @@ namespace API.Models.Repository.Managers
             return await BaseQuery().Where(s => s.SignalementTypeId == typeId).ToListAsync();
         }
         public async Task<Signalement> CreateWithRelationsAsync(
-    Signalement signalement,
-    int? annonceId,
-    int? avisId,
-    int? utilisateurSignaleId)
+            Signalement signalement,
+            int? annonceId,
+            int? avisId,
+            int? utilisateurSignaleId)
         {
-            throw new NotImplementedException();
+            await _context.Signalements.AddAsync(signalement);
+            await _context.SaveChangesAsync();
+            if (annonceId.HasValue)
+            {
+                var signalementAnnonce = new SignalementAnnonce
+                {
+                    SignalementId = signalement.SignalementId,
+                    AnnonceSignaleeId = annonceId.Value
+                };
+                await _context.SignalementAnnonces.AddAsync(signalementAnnonce);
+            }
+            else if (avisId.HasValue)
+            {
+                var signalementAvis = new SignalementAvis
+                {
+                    SignalementId = signalement.SignalementId,
+                    AvisId = avisId.Value
+                };
+                await _context.SignalementAvises.AddAsync(signalementAvis);
+            }
+            else if (utilisateurSignaleId.HasValue)
+            {
+                var signalementUtilisateur = new SignalementUtilisateur
+                {
+                    SignalementId = signalement.SignalementId,
+                    UtilisateurSignaleId = utilisateurSignaleId.Value
+                };
+                await _context.SignalementUtilisateurs.AddAsync(signalementUtilisateur);
+            }
+            await _context.SaveChangesAsync();
+            return await GetByIdAsync(signalement.SignalementId) 
+                   ?? throw new InvalidOperationException("Le signalement créé n'a pas pu être récupéré");
         }
+        
 
     }
 }
