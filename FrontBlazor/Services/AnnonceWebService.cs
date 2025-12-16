@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace FrontBlazor.Services;
 
-public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annonce>
+public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
     public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
 
@@ -20,24 +20,11 @@ public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annon
 
         return annonces ?? new List<Annonce>();
     }
-
-    public async Task<List<Annonce>?> GetAnnoncesByCategorieId(int Id)
-    {
-        return await _httpClient.GetFromJsonAsync<List<Annonce>>(
-            $"Annonce/ByCategorieId/{Id}"
-        );
-    }
-    public async Task<List<Annonce?>?> GetAnnoncesBySousCategoryId(int Id)
-    {
-        return await _httpClient.GetFromJsonAsync<List<Annonce>>(
-            $"Annonce/BySousCategorieId/{Id}"
-        );
-    }
-    public async Task<Annonce> GetAnnonceDetailById(int Id)
+    public async Task<AnnonceDetail> GetAnnonceDetailById(int Id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<Annonce>($"Annonce/id/{Id}");
+            return await _httpClient.GetFromJsonAsync<AnnonceDetail>($"Annonce/id/{Id}");
         }
         catch (HttpRequestException ex)
         {
@@ -125,5 +112,15 @@ public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annon
 
         foreach (var v in values)
             qp.Add(new(key, v));
+    }
+
+    public async Task CreateAnnonce(AnnonceCreate annonce)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task ModificationAnnonce(AnnonceCreate annonce)
+    {
+        throw new NotImplementedException();
     }
 }

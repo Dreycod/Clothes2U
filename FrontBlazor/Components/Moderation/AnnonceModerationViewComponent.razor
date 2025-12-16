@@ -1,0 +1,221 @@
+@using FrontBlazor.ViewModel.Moderation.Signalements
+<div class="annonce-detail">
+    <div class="section">
+        <h3>Informations principales</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">ID:</span>
+                <span class="value">@annonce.AnnonceId</span>
+            </div>
+            <div class="field">
+                <span class="label">Utilisateur ID:</span>
+                <span class="value">@annonce.UtilisateurId</span>
+            </div>
+            <div class="field">
+                <span class="label">Date:</span>
+                <span class="value">@annonce.DateAnnonce.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Contenu</h3>
+        <div class="field full-width">
+            <span class="label">Titre:</span>
+            <span class="value">@annonce.Title</span>
+        </div>
+        <div class="field full-width">
+            <span class="label">Description:</span>
+            <span class="value">@(annonce.Description ?? "N/A")</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Caractéristiques</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">Prix:</span>
+                <span class="value">@annonce.Prix.ToString("C")</span>
+            </div>
+            <div class="field">
+                <span class="label">Négociable:</span>
+                <span class="value">@(annonce.Negociable ? "Oui" : "Non")</span>
+            </div>
+            <div class="field">
+                <span class="label">Marque:</span>
+                <span class="value">@annonce.NomMarque</span>
+            </div>
+            <div class="field">
+                <span class="label">État:</span>
+                <span class="value">@annonce.EtatArticle</span>
+            </div>
+            <div class="field">
+                <span class="label">Taille:</span>
+                <span class="value">@annonce.Taille</span>
+            </div>
+            <div class="field">
+                <span class="label">Catégorie:</span>
+                <span class="value">@(annonce.Categorie ?? "N/A")</span>
+            </div>
+            <div class="field">
+                <span class="label">Sous-catégorie:</span>
+                <span class="value">@(annonce.SousCategorie ?? "N/A")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Statistiques</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">Likes:</span>
+                <span class="value">@annonce.NombreLikes</span>
+            </div>
+            <div class="field">
+                <span class="label">Vues:</span>
+                <span class="value">@annonce.NombreVues</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Photos (@(annonce.Photos?.Count ?? 0))</h3>
+        <div class="photos-grid">
+            @if (annonce.Photos != null && annonce.Photos.Any())
+            {
+                foreach (string photoUrl in PhotosUrl)
+                {
+                    <div class="photo-item">
+                        <img src="@photoUrl" alt="Photo de l'annonce" />
+                    </div>
+                }
+            }
+            else
+            {
+                <span>Aucune photo</span>
+            }
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Tags</h3>
+        <div class="tags">
+            @if (annonce.Tags != null && annonce.Tags.Any())
+            {
+                foreach (var tag in annonce.Tags)
+                {
+                    <span class="tag">@tag</span>
+                }
+            }
+            else
+            {
+                <span>Aucun tag</span>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .annonce-detail {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .section {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .section h3 {
+        margin: 0 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ccc;
+        font-size: 16px;
+    }
+
+    .field-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 10px;
+    }
+
+    .field {
+        display: flex;
+        padding: 8px;
+        background: white;
+        border-radius: 3px;
+    }
+
+    .field.full-width {
+        grid-column: 1 / -1;
+        display: block;
+        padding: 10px;
+    }
+
+    .label {
+        font-weight: 600;
+        margin-right: 8px;
+        color: #555;
+        min-width: 120px;
+    }
+
+    .value {
+        color: #333;
+        word-break: break-word;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tag {
+        background: #007bff;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 14px;
+    }
+
+    .photos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .photo-item {
+        position: relative;
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    .photo-item img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .photo-id {
+        display: block;
+        padding: 5px;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        background: white;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public AnnonceDetail annonce { get; set; }
+
+    [Parameter] public List<string> PhotosUrl { get; set; }
+}
