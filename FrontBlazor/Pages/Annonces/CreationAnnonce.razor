@@ -159,7 +159,7 @@
                     }
                     else if (VM_Couleur.Items != null && VM_Couleur.Items.Any())
                     {
-                        <select class="form-input" @bind="selectedCouleurId">
+                        <select class="form-input">
                             <option value="0">-- Sélectionnez une couleur --</option>
                             @foreach (Couleur couleur in VM_Couleur.Items)
                             {
@@ -368,11 +368,11 @@
         set => newAnnonce.TailleId = value;
     }
 
-    private int? selectedCouleurId
-    {
-        get => newAnnonce.CouleurId;
-        set => newAnnonce.CouleurId = value;
-    }
+    // private int? selectedCouleurId
+    // {
+    //     get => newAnnonce.CouleurId;
+    //     set => newAnnonce.CouleurId = value;
+    // }
 
     private int? selectedGenreId
     {
@@ -522,8 +522,8 @@
         if (!newAnnonce.TailleId.HasValue || newAnnonce.TailleId == 0)
             errorMessages.Add("Veuillez sélectionner une taille");
 
-        if (!newAnnonce.CouleurId.HasValue || newAnnonce.CouleurId == 0)
-            errorMessages.Add("Veuillez sélectionner une couleur");
+        // if (!newAnnonce.CouleurId.HasValue || newAnnonce.CouleurId == 0)
+        //     errorMessages.Add("Veuillez sélectionner une couleur");
 
         if (!newAnnonce.GenreId.HasValue || newAnnonce.GenreId == 0)
             errorMessages.Add("Veuillez sélectionner un genre");
@@ -545,7 +545,7 @@
         Console.WriteLine($"Negotiable: {newAnnonce.Negociable}");
         Console.WriteLine($"Brand ID: {newAnnonce.MarqueId}");
         Console.WriteLine($"Size ID: {newAnnonce.TailleId}");
-        Console.WriteLine($"Color ID: {newAnnonce.CouleurId}");
+        // Console.WriteLine($"Color ID: {newAnnonce.CouleurId}");
         Console.WriteLine($"Genre ID: {newAnnonce.GenreId}");
         Console.WriteLine($"Category ID: {newAnnonce.CategorieId}");
         Console.WriteLine($"Subcategory ID: {newAnnonce.SousCategorieId}");

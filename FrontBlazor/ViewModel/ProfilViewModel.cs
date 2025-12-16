@@ -20,7 +20,7 @@ namespace FrontBlazor.ViewModel
 
         public bool showDotsDropdown;
 
-        private readonly IReadableService<UtilisateurView> _utilisateurService;
+        private readonly IUtilisateurService _utilisateurService;
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
