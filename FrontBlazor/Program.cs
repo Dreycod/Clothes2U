@@ -31,7 +31,7 @@ builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebSe
 builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();
 builder.Services.AddScoped<ICouleurService<Couleur>, CouleurWebService>();
 builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
-builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
+builder.Services.AddScoped<IAnnonceService, AnnonceWebService>();
 builder.Services.AddScoped<IUtilisateurService, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
@@ -57,7 +57,6 @@ builder.Services.AddScoped<ProfilViewModel>();
 builder.Services.AddScoped<HomeViewModel>();
 builder.Services.AddScoped<MessagerieViewModel>();
 builder.Services.AddScoped<DetailAnnonceViewModel>();
-builder.Services.AddScoped<CreationAnnonceViewModel>();
 builder.Services.AddScoped<CommercialCategoriesViewModel>();
 builder.Services.AddScoped<CommercialCouleursViewModel>();
 builder.Services.AddScoped<CommercialMarquesViewModel>();

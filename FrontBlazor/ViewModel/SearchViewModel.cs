@@ -11,7 +11,7 @@ namespace FrontBlazor.ViewModel
 {
     public class SearchAnnonceViewModel
     {
-        private readonly IAnnonceService<Annonce> _annonceService;
+        private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly INotificationService _notificationPopUpService;
         private CancellationTokenSource _searchCts;
@@ -53,7 +53,7 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         public SearchAnnonceViewModel(
-            IAnnonceService<Annonce> annonceService, 
+            IAnnonceService annonceService, 
             IFavorisService<Favoris> favorisService, 
             ListableViewModel<Categorie> vM_Categorie, 
             ListableViewModel<Marque> vM_Marque, 

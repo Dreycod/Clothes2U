@@ -105,7 +105,7 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetByFavorisUtilisateur(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 3)
+        [FromQuery] int pageSize = 30)
     {
         if (page <= 0 || pageSize <= 0)
         {

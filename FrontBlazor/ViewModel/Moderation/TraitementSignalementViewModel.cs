@@ -12,7 +12,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
 {
     private readonly ISignalementService _signalementService;
     private readonly IUtilisateurService _utilisateurService;
-    private readonly IAnnonceService<Annonce> _annonceService;
+    private readonly IAnnonceService _annonceService;
     private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
     private readonly INotificationService _notificationService;
     private readonly NavigationManager _nav;
@@ -22,7 +22,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     public TraitementSignalementViewModel(
         ISignalementService signalementService,
         IUtilisateurService utilisateurService,
-        IAnnonceService<Annonce> annonceService,
+        IAnnonceService annonceService,
         INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
         INotificationService notificationService,
         IAuthService authService,
@@ -39,7 +39,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
 
     public SignalementDetails Signalement { get; set; }
     public NoteUtilisateur Avis { get; set; }
-    public Annonce Annonce { get; set; }
+    public AnnonceDetail Annonce { get; set; }
     public UtilisateurView UtilisateurSignale { get; set; }
     
     private bool _showWarningModal;

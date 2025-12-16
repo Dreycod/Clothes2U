@@ -9,7 +9,7 @@ namespace FrontBlazor.ViewModel;
 
 public class DetailAnnonceViewModel
 {
-    private readonly IAnnonceService<Annonce> _annonceService;
+    private readonly IAnnonceService _annonceService;
     private readonly IFavorisService<Favoris> _favorisService;
     private readonly IAuthService _authService;
     private readonly IConversationService<Conversation> _conversationService;
@@ -22,7 +22,7 @@ public class DetailAnnonceViewModel
 
     private CancellationTokenSource? _viewTimerCts;
 
-    public Annonce? AnnonceDetail { get; set; }
+    public AnnonceDetail? AnnonceDetail { get; set; }
     public UtilisateurView? utilisateurAnnonce { get; set; }
     public List<Annonce>? similarProducts = null;
     public bool IsLoading { get; set; }
@@ -36,7 +36,7 @@ public class DetailAnnonceViewModel
     public bool ShowSignalerModal { get; set; } = false;
     public bool IsSubmittingReport { get; set; } = false;
 
-    public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService,
+    public DetailAnnonceViewModel(IAnnonceService annonceService,
         IFavorisService<Favoris> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
         IConversationService<Conversation> conversationService,
@@ -111,13 +111,14 @@ public class DetailAnnonceViewModel
             return true;
         return false;
     }
-    public async Task ToggleFavorite(Annonce annonce)
+    public async Task ToggleFavorite(int id)
     {
         if (CheckLoginStatus == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
         }
+        AnnonceDetail annonce = await _annonceService.GetAnnonceDetailById(id);
 
         bool isFavorite = annonce.IsLikedByCurrentUser;
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;

@@ -7,7 +7,7 @@ namespace FrontBlazor.ViewModel
 {
     public class HomeViewModel
     {
-        private readonly IAnnonceService<Annonce> _annonceService;
+        private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly IAuthService _authService;
 
@@ -16,7 +16,7 @@ namespace FrontBlazor.ViewModel
         public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public HomeViewModel(IAnnonceService<Annonce> annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
+        public HomeViewModel(IAnnonceService annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;

@@ -21,7 +21,7 @@ namespace FrontBlazor.ViewModel
         public bool showDotsDropdown;
 
         private readonly IUtilisateurService _utilisateurService;
-        private readonly IAnnonceService<Annonce> _annonceService;
+        private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
         private readonly IAuthService _authService;
@@ -58,7 +58,7 @@ namespace FrontBlazor.ViewModel
 
         public ProfilViewModel(
             IUtilisateurService utilisateurService,
-            IAnnonceService<Annonce> annonceService,
+            IAnnonceService annonceService,
             IFavorisService<Favoris> favorisService,
             INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
             IAuthService authService,
