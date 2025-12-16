@@ -16,6 +16,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
     private readonly INotificationService _notificationService;
     private readonly NavigationManager _nav;
+    private readonly IMediasService<Photo> _mediasService;
     public event PropertyChangedEventHandler PropertyChanged;
     public event Action OnStateChanged;
 
@@ -23,6 +24,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         ISignalementService signalementService,
         IUtilisateurService utilisateurService,
         IAnnonceService annonceService,
+        IMediasService<Photo> mediasService,
         INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
         INotificationService notificationService,
         IAuthService authService,
@@ -34,10 +36,13 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         _annonceService = annonceService;
         _noteUtilisateurService = noteUtilisateurService;
         _signalementService = signalementService;
+        _mediasService = mediasService;
         _nav = nav;
     }
 
     public SignalementDetails Signalement { get; set; }
+    public string? PhotoProfilUrl { get; set; }
+    public List<string> PhotosUrl { get; set; } = new();
     public NoteUtilisateur Avis { get; set; }
     public AnnonceDetail Annonce { get; set; }
     public UtilisateurView UtilisateurSignale { get; set; }
@@ -120,6 +125,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         {
             case SignalementAnnonce sa:
                 Annonce = await _annonceService.GetAnnonceDetailById(sa.AnnonceSignaleeId);
+                PhotosUrl = await GetPhotosUrl();
                 break;
 
             case SignalementAvis sav:
@@ -128,6 +134,8 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         }
         
         UtilisateurSignale = await _utilisateurService.GetUserById(Signalement.UtilisateurSignaleId);
+        
+        PhotoProfilUrl = await GetPhotoProfilUrl();
         NotifyStateChanged();
     }
 
@@ -231,5 +239,24 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         catch (Exception ex)
         {
         }
+    }
+
+    private async Task<List<string>> GetPhotosUrl()
+    {
+        List<string> photoUrls = new List<string>();
+        foreach (int photoId in Annonce.Photos)
+        {
+            photoUrls.Add(_mediasService.GetPhotoUrl(photoId));
+        }
+        return photoUrls;
+    }
+
+    private async Task<string?> GetPhotoProfilUrl()
+    {
+        if (UtilisateurSignale.PhotoProfilId == null)
+        {
+            return null;
+        }
+        return _mediasService.GetPhotoUrl(UtilisateurSignale.PhotoProfilId);
     }
 }

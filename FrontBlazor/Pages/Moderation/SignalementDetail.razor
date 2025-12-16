@@ -1,6 +1,7 @@
 @page "/moderation/signalements/{id:int}"
 @using FrontBlazor.ViewModel.Moderation.Signalements
 @using FrontBlazor.Components.Moderation
+@using FrontBlazor.Components.Moderation
 @inject TraitementSignalementViewModel VM_traitementSignalement
 @layout ModerationLayout
 
@@ -22,13 +23,22 @@ else
             @switch (VM_traitementSignalement.Signalement)
             {
                 case SignalementAnnonce signalementAnnonce:
-                    <p>@VM_traitementSignalement.Annonce.Title</p>
+                    <AnnonceModerationViewComponent
+                        annonce="VM_traitementSignalement.Annonce"
+                        PhotosUrl="VM_traitementSignalement.PhotosUrl"
+                        ></AnnonceModerationViewComponent>
                     break;
                 case SignalementAvis signalementAvis :
-                    <p>@VM_traitementSignalement.Avis.Commentaire</p>
+                    <AvisModerationComponent
+                        note="VM_traitementSignalement.Avis"
+                        ></AvisModerationComponent>
                     break;
                 case SignalementUtilisateur signalementUtilisateur:
-                    <p>@VM_traitementSignalement.UtilisateurSignale.Login</p>
+                    <UtilisateurModerationComponent
+                        utilisateur="VM_traitementSignalement.UtilisateurSignale"
+                        PhotoProfilUrl="@VM_traitementSignalement.PhotoProfilUrl">
+                    </UtilisateurModerationComponent>
+
                     break;
             }
         </div>

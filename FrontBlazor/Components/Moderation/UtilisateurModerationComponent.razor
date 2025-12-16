@@ -1,0 +1,172 @@
+@using FrontBlazor.Models
+
+<div class="utilisateur-detail">
+    <div class="section">
+        <h3>Informations principales</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">ID :</span>
+                <span class="value">@utilisateur.UtilisateurId</span>
+            </div>
+            <div class="field">
+                <span class="label">Login :</span>
+                <span class="value">@utilisateur.Login</span>
+            </div>
+            <div class="field">
+                <span class="label">Statut :</span>
+                <span class="value">@utilisateur.Statut</span>
+            </div>
+            <div class="field">
+                <span class="label">Inscrit le :</span>
+                <span class="value">@utilisateur.DateInscription.ToString("dd/MM/yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Description</h3>
+        <div class="field full-width">
+            <span class="label">Bio :</span>
+            <span class="value">@(string.IsNullOrWhiteSpace(utilisateur.Description) ? "Aucune description" : utilisateur.Description)</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Validation du compte</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">Email validé :</span>
+                <span class="value">@(utilisateur.ValidEmail ? "Oui" : "Non")</span>
+            </div>
+            <div class="field">
+                <span class="label">Téléphone validé :</span>
+                <span class="value">@(utilisateur.ValidTelephone ? "Oui" : "Non")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Relations</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">Abonnements :</span>
+                <span class="value">@utilisateur.Abonnements</span>
+            </div>
+            <div class="field">
+                <span class="label">Abonnés :</span>
+                <span class="value">@utilisateur.Abonnes</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Avis</h3>
+        <div class="field-grid">
+            <div class="field">
+                <span class="label">Note moyenne :</span>
+                <span class="value">@utilisateur.MoyenneAvis / 5</span>
+            </div>
+            <div class="field">
+                <span class="label">Nombre d’avis :</span>
+                <span class="value">@utilisateur.NombreAvis</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Photo de profil</h3>
+        <div class="photos-grid">
+            @if (!string.IsNullOrWhiteSpace(PhotoProfilUrl))
+            {
+                <div class="photo-item">
+                    <img src="@PhotoProfilUrl" alt="Photo de profil" />
+                </div>
+            }
+            else
+            {
+                <span>Aucune photo</span>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .utilisateur-detail {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .section {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .section h3 {
+        margin: 0 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ccc;
+        font-size: 16px;
+    }
+
+    .field-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 10px;
+    }
+
+    .field {
+        display: flex;
+        padding: 8px;
+        background: white;
+        border-radius: 3px;
+    }
+
+    .field.full-width {
+        grid-column: 1 / -1;
+        display: block;
+        padding: 10px;
+    }
+
+    .label {
+        font-weight: 600;
+        margin-right: 8px;
+        color: #555;
+        min-width: 150px;
+    }
+
+    .value {
+        color: #333;
+        word-break: break-word;
+    }
+
+    .photos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .photo-item {
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    .photo-item img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public UtilisateurView utilisateur { get; set; }
+    [Parameter]
+    public string PhotoProfilUrl { get; set; }
+}

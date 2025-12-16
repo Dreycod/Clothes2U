@@ -8,9 +8,7 @@ public class NoteUtilisateur: IEntity
     public DateTime DatePublication { get; set; }
 
     public int NoteurId { get; set; }
-    public string? LoginAuteur { get; set; }
-
-    public int NoteId { get; set; }
+    public string LoginAuteur { get; set; }
     public string? LoginCible { get; set; }
     public int GetId()
     {
