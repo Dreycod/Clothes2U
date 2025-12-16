@@ -73,5 +73,42 @@ public class SignalementMappingProfile : Profile
 
                 return null;
             });
+        
+        CreateMap<SignalementAnnonceCreateDTO, Signalement>()
+            .ForMember(dest => dest.SignalementId, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementMotif, opt => opt.MapFrom(src => src.SignalementMotif))
+            .ForMember(dest => dest.SignalementDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.SignalementTypeId, opt => opt.MapFrom(src => src.TypeSignalementId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+            .ForMember(dest => dest.TypeSignalement, opt => opt.Ignore())
+            .ForMember(dest => dest.Utilisateur, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsAnnonce, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsAvis, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsUtilisateur, opt => opt.Ignore());
+
+        CreateMap<SignalementAvisCreateDTO, Signalement>()
+            .ForMember(dest => dest.SignalementId, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementMotif, opt => opt.MapFrom(src => src.SignalementMotif))
+            .ForMember(dest => dest.SignalementDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.SignalementTypeId, opt => opt.MapFrom(src => src.TypeSignalementId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+            .ForMember(dest => dest.TypeSignalement, opt => opt.Ignore())
+            .ForMember(dest => dest.Utilisateur, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsAnnonce, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsAvis, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsUtilisateur, opt => opt.Ignore());
+
+        CreateMap<SignalementUtilisateurCreateDTO, Signalement>()
+            .ForMember(dest => dest.SignalementId, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementMotif, opt => opt.MapFrom(src => src.SignalementMotif))
+            .ForMember(dest => dest.SignalementDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.SignalementTypeId, opt => opt.MapFrom(src => src.TypeSignalementId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+            .ForMember(dest => dest.TypeSignalement, opt => opt.Ignore())
+            .ForMember(dest => dest.Utilisateur, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsAnnonce, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsAvis, opt => opt.Ignore())
+            .ForMember(dest => dest.SignalementsUtilisateur, opt => opt.Ignore());
+               
     }
 }

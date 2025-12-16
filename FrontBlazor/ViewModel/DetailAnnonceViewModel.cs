@@ -1,6 +1,7 @@
 ﻿using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -16,6 +17,9 @@ public class DetailAnnonceViewModel
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
     private readonly IMediasService<Photo> _mediaService;
+    private readonly IVisualisationService _visualisationService;
+
+    private CancellationTokenSource? _viewTimerCts;
 
     public Annonce? AnnonceDetail { get; set; }
     public UtilisateurView? utilisateurAnnonce { get; set; }
@@ -30,7 +34,8 @@ public class DetailAnnonceViewModel
         IFavorisService<Favoris> favorisService, IAuthService authService, 
         IReadableService<UtilisateurView> utilisateurService,
         IConversationService<Conversation> conversationService,
-        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<Photo> mediasService)
+        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<Photo> mediasService
+        , IVisualisationService visualisationService)
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
@@ -39,7 +44,8 @@ public class DetailAnnonceViewModel
         _conversationService = conversationService;
         _mediaService = mediasService;
         _navigationManager = navigationManager;
-        _clipboardService = clipboardService; 
+        _clipboardService = clipboardService;
+        _visualisationService = visualisationService;
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -54,21 +60,12 @@ public class DetailAnnonceViewModel
             {
                 ErrorMessage = "Annonce introuvable";
             }
+            else
+            {
+                await StartVisualisationTimer(AnnonceDetail.AnnonceId);
+            }
 
             utilisateurAnnonce = await _utilisateurService.GetByIdAsync(AnnonceDetail.UtilisateurId);
-            Console.WriteLine("UtilisateurId: " + utilisateurAnnonce.UtilisateurId);
-            Console.WriteLine("followeddByCurrentUser: " + utilisateurAnnonce.followeddByCurrentUser);
-            Console.WriteLine("Login: " + utilisateurAnnonce.Login);
-            Console.WriteLine("DateInscription: " + utilisateurAnnonce.DateInscription);
-            Console.WriteLine("Description: " + utilisateurAnnonce.Description);
-            Console.WriteLine("ValidTelephone: " + utilisateurAnnonce.ValidTelephone);
-            Console.WriteLine("ValidEmail: " + utilisateurAnnonce.ValidEmail);
-            Console.WriteLine("Statut: " + utilisateurAnnonce.Statut);
-            Console.WriteLine("Abonnements: " + utilisateurAnnonce.Abonnements);
-            Console.WriteLine("Abonnes: " + utilisateurAnnonce.Abonnes);
-            Console.WriteLine("PhotoProfilId: " + utilisateurAnnonce.PhotoProfilId);
-            Console.WriteLine("MoyenneAvis: " + utilisateurAnnonce.MoyenneAvis);
-            Console.WriteLine("NombreAvis: " + utilisateurAnnonce.NombreAvis);
 
             Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
             if (utilisateur != null && utilisateurAnnonce != null && 
@@ -186,5 +183,26 @@ public class DetailAnnonceViewModel
     public string GetPhoto(int id)
     {
         return _mediaService.GetPhotoUrl(id);
+    }
+
+    private async Task StartVisualisationTimer(int annonceId)
+    {
+        _viewTimerCts?.Cancel();
+        _viewTimerCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5), _viewTimerCts.Token);
+            await _visualisationService.CreateVisualisationAsync(annonceId);
+        }
+        catch (TaskCanceledException)
+        {
+            // L'utilisateur a quitté la page avant 5 secondes
+        }
+    }
+
+    public void CancelVisualisation()
+    {
+        _viewTimerCts?.Cancel();
     }
 }

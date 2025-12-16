@@ -24,7 +24,7 @@ namespace API.Models.Repository.Managers
                 .AnyAsync(v =>
                     v.UtilisateurId == utilisateurId &&
                     v.AnnonceId == annonceId &&
-                    v.DateVisualisation >= limit);
+                    (v.DateVisualisation + TimeSpan.FromMinutes(5)) >= limit);
         }
 
         public async Task<IEnumerable<Visualisation>> GetByUtilisateurId(int utilisateurId)

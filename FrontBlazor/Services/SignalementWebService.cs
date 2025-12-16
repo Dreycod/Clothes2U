@@ -32,9 +32,10 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         return signalement;
     }
 
-    public Task<Signalement?> AddAsync(Signalement entity)
+    public async Task<Signalement?> AddAsync(Signalement entity)
     {
-        throw new NotImplementedException();
+        await PostWithCredentialsAsync("Signalement", JsonContent.Create(entity));
+        return entity;
     }
 
     public Task UpdateAsync(Signalement updatedEntity)
@@ -42,8 +43,8 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         throw new NotImplementedException();
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        await DeleteWithCredentialsAsync($"Signalement/{id}");
     }
 }

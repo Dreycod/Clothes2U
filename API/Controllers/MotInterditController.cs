@@ -5,6 +5,7 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -77,28 +78,44 @@ public class MotInterditController : ControllerBase
         Utilisateur user = await _currentUserService.GetUser();
         if (user.Role.RoleUtilisateurLibelle != "Admin" && user.Role.RoleUtilisateurLibelle != "Modérateur")
             return Unauthorized("vous n'avez pas le bon role");
-
+        if (string.IsNullOrWhiteSpace(motInterditDTO.LibelleMot))
+        {
+            return BadRequest(new { 
+                LibelleMot = "Le mot ne peut pas être vide." 
+            });
+        }
         var motToAdd = _mapper.Map<MotInterdit>(motInterditDTO);
 
         try
         {
             await _motInterditRepository.AddAsync(motToAdd);
+            return CreatedAtAction(nameof(GetById), new { id = motToAdd.MotinterditId }, motToAdd);
         }
-        catch (Microsoft.EntityFrameworkCore.DbUpdateException dbEx)
+        catch (DbUpdateException dbEx)
         {
-            // Vérifie si c’est une violation de contrainte unique
-            if (dbEx.InnerException != null && dbEx.InnerException.Message.Contains("UNIQUE"))
+            if (dbEx.InnerException != null)
             {
-                return BadRequest(new { 
-                    LibelleMot = "Ce mot est déjà utilisé." 
-                });
+                var innerMessage = dbEx.InnerException.Message.ToLower();
+                if (innerMessage.Contains("unique") || 
+                    innerMessage.Contains("duplicate") || 
+                    innerMessage.Contains("duplicata") ||
+                    innerMessage.Contains("constraint"))
+                {
+                    return BadRequest(new { 
+                        LibelleMot = "Ce mot est déjà utilisé." 
+                    });
+                }
             }
-
-            // Pour tout autre problème
-            return StatusCode(500, "Erreur lors de l'ajout du mot.");
+            return StatusCode(500, new { 
+                LibelleMot = "Erreur lors de l'ajout du mot." 
+            });
         }
-
-        return CreatedAtAction(nameof(GetById), new { id = motToAdd.MotinterditId }, motToAdd);
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { 
+                LibelleMot = "Erreur inattendue lors de l'ajout du mot." 
+            });
+        }
     }
 
     [HttpDelete("id/{id}")]

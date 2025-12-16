@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Components;
 
 public class MotsInterditsViewModel : ModerationViewModel
 {
-    public List<MotInterdit> Mots { get; set; } = new List<MotInterdit>(); // Initialisez ici!
+    public List<MotInterdit> Mots { get; set; } = new List<MotInterdit>(); 
     private readonly IMotsInterditsService _motsInterditsService;
-    public MotInterdit motToAdd { get; set; } = new MotInterdit(); // Initialisez ici aussi!
+    public MotInterdit motToAdd { get; set; } = new MotInterdit(); 
     public string? ErrorMessage { get; set; } 
 
     public MotsInterditsViewModel(
@@ -25,7 +25,7 @@ public class MotsInterditsViewModel : ModerationViewModel
 
     public override async Task LoadAsync()
     {
-        await base.LoadAsync(); // Utilisez await ici!
+        await base.LoadAsync(); 
         IsLoading = true;
         motToAdd = new MotInterdit();
         
@@ -67,11 +67,16 @@ public class MotsInterditsViewModel : ModerationViewModel
 
     public async Task<bool> AddMotInterditAsync()
     {
+        if (string.IsNullOrWhiteSpace(motToAdd.LibelleMot))
+        {
+            ErrorMessage = "Le mot ne peut pas être vide.";
+            NotifyStateChanged();
+            return false;
+        }
         IsLoading = true;
+        ErrorMessage = null;
         try
         {
-            ErrorMessage = null; 
-            
             var (addedMot, error) = await _motsInterditsService.AddAsync(motToAdd);
 
             if (error != null)

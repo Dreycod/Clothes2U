@@ -55,19 +55,30 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-            
-                // Essayer de parser le JSON d'erreur
                 try
                 {
-                    var errorObj = JsonSerializer.Deserialize<Dictionary<string, string>>(errorContent);
-                    if (errorObj != null && errorObj.ContainsKey("message"))
+                    var options = new JsonSerializerOptions 
+                    { 
+                        PropertyNameCaseInsensitive = true 
+                    };
+                    var errorObj = JsonSerializer.Deserialize<Dictionary<string, string>>(errorContent, options);
+                    if (errorObj != null && errorObj.ContainsKey("LibelleMot"))
+                    {
+                        return (null, errorObj["LibelleMot"]);
+                    }
+                    else if (errorObj != null && errorObj.ContainsKey("libelleMot"))
+                    {
+                        return (null, errorObj["libelleMot"]);
+                    }
+                    else if (errorObj != null && errorObj.ContainsKey("message"))
                     {
                         return (null, errorObj["message"]);
                     }
                 }
-                catch
+                catch (JsonException jsonEx)
                 {
-                    // Si ce n'est pas du JSON, retourner le contenu brut
+                    Console.WriteLine($"Erreur de désérialisation: {jsonEx.Message}");
+                    Console.WriteLine($"Contenu reçu: {errorContent}");
                 }
             
                 return (null, errorContent);
@@ -78,7 +89,6 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Exception: {ex.Message}");
             return (null, $"Erreur lors de l'ajout: {ex.Message}");
         }
     }

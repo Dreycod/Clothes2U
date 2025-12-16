@@ -12,22 +12,14 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
     {
         return _context.Notifications
             .Include(n => n.NotificationType)
-            
-            // NotificationAdmin
             .Include(n => n.NotificationAdmins)
-            
-            // NotificationAvertissement
             .Include(n => n.NotificationAvertissements)
-            
-            // NotificationMessage avec Message et Utilisateur (pour avoir l'auteur)
             .Include(n => n.NotificationMessages)
                 .ThenInclude(nm => nm.Message)
-                    .ThenInclude(m => m.Conversation)  // Si vous en avez besoin
+                    .ThenInclude(m => m.Conversation)  
             .Include(n => n.NotificationMessages)
                 .ThenInclude(nm => nm.Message)
                     .ThenInclude(m => m.Utilisateur)
-            
-            // NotificationNouvelleAnnonce avec Annonce et Utilisateur
             .Include(n => n.NotificationNouvellesAnnonces)
                 .ThenInclude(nna => nna.Annonce)
                     .ThenInclude(a => a.Utilisateur)
@@ -35,8 +27,6 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
                 .ThenInclude(nna => nna.Annonce)
                     .ThenInclude(a => a.Photos)
                         .ThenInclude(p => p.Photo)
-            
-            // NotificationModificationAnnonce avec Annonce et Utilisateur
             .Include(n => n.NotificationModifications)
                 .ThenInclude(nm => nm.Annonce)
                     .ThenInclude(a => a.Utilisateur)
@@ -71,6 +61,12 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
             notification.EstLu = true;
         }
         
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task CreateNotificationAvertissement(NotificationAvertissement notification)
+    {
+        await  _context.NotificationAvertissements.AddAsync(notification);
         await _context.SaveChangesAsync();
     }
 }

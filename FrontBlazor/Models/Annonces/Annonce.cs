@@ -27,6 +27,8 @@ public class Annonce: IEntity
     [IgnoreInTemplate]
     public int NombreLikes { get; set; } = 0;
     [IgnoreInTemplate]
+    public int NombreVues { get; set; } = 0;
+    [IgnoreInTemplate]
     public string NomAuteur { get; set; } = null!;
     [IgnoreInTemplate]
     public string? UriPhotoProfilAuteur { get; set; } = null!;

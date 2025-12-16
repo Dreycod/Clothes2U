@@ -1,0 +1,99 @@
+@using FrontBlazor.Models.Notification
+
+<div class="notification-item @(Notification.EstLu ? "read" : "unread")" @onclick="HandleClick">
+    <div class="notification-icon-wrapper">
+        @switch (Notification)
+        {
+            case NotificationAvertissement:
+                <div class="notif-icon warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                break;
+            case NotificationMessage:
+                <div class="notif-icon message">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
+                break;
+            case NotificationAdmin:
+                <div class="notif-icon admin">
+                    <i class="bi bi-shield-fill-check"></i>
+                </div>
+                break;
+            case NotificationModificationAnnonce:
+                <div class="notif-icon modification">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                break;
+            case NotificationNouvelleAnnonce:
+                <div class="notif-icon nouvelle">
+                    <i class="bi bi-plus-circle-fill"></i>
+                </div>
+                break;
+        }
+    </div>
+    
+    <div class="notification-body">
+        @switch (Notification)
+        {
+            case NotificationAvertissement notificationAvertissement:
+                <div class="notif-title">Avertissement reçu</div>
+                <div class="notif-message">@notificationAvertissement.MessageAvertissement</div>
+                break;
+            case NotificationMessage notificationMessage:
+                <div class="notif-title">Nouveau message</div>
+                <div class="notif-message">@notificationMessage.MessagePreview</div>
+                break;
+            case NotificationAdmin notificationAdmin:
+                <div class="notif-title">Message de l'administration</div>
+                <div class="notif-message">@notificationAdmin.AdminText</div>
+                break;
+            case NotificationModificationAnnonce notificationModificationAnnonce:
+                <div class="notif-title">Annonce modifiée</div>
+                <div class="notif-message"><strong>@notificationModificationAnnonce.NomAuteur</strong> a modifié son annonce "@notificationModificationAnnonce.Title"</div>
+                break;
+            case NotificationNouvelleAnnonce notificationNouvelleAnnonce:
+                <div class="notif-title">Nouvelle annonce</div>
+                <div class="notif-message"><strong>@notificationNouvelleAnnonce.NomAuteur</strong> a publié une nouvelle annonce</div>
+                break;
+        }
+        <div class="notif-time">@GetTimeAgo(Notification.DateCreation)</div>
+    </div>
+    
+    <button class="notif-delete-btn" 
+            @onclick="HandleDelete"
+            @onclick:stopPropagation="true"
+            title="Supprimer">
+        <i class="bi bi-x"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] public NavBarViewModel Vm_NavBar { get; set; }
+    [Parameter] public Notification Notification { get; set; }
+
+    private async Task HandleDelete()
+    {
+        await Vm_NavBar.DeleteNotification(Notification.NotificationId);
+    }
+
+    private async Task HandleClick()
+    {
+        await Vm_NavBar.HandleNotificationClick(Notification);
+    }
+
+    private string GetTimeAgo(DateTime dateCreation)
+    {
+        var timeSpan = DateTime.Now - dateCreation;
+        
+        if (timeSpan.TotalMinutes < 1)
+            return "À l'instant";
+        if (timeSpan.TotalMinutes < 60)
+            return $"Il y a {(int)timeSpan.TotalMinutes} min";
+        if (timeSpan.TotalHours < 24)
+            return $"Il y a {(int)timeSpan.TotalHours}h";
+        if (timeSpan.TotalDays < 7)
+            return $"Il y a {(int)timeSpan.TotalDays}j";
+        
+        return dateCreation.ToString("dd/MM/yyyy");
+    }
+}

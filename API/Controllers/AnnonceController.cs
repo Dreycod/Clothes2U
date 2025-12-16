@@ -117,11 +117,15 @@ public class AnnonceController : ControllerBase
         {
             return Unauthorized();
         }
-
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId, page, pageSize);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId);
     
+        IEnumerable<Annonce> annoncesPaginees = annonces
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+    
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+
         return Ok(annoncesDTO);
     }
 
@@ -202,7 +206,7 @@ public class AnnonceController : ControllerBase
         await _annonceManager.DeleteAsync(annonceToDelete);
         return NoContent();
     }
-    
+    [AllowAnonymous]
     [HttpGet("productByFilter")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -216,7 +220,8 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
-        var annonces = await _annonceManager.FilterAsync(filterDto, page, pageSize);
+        int? userId = await _currentUserService.GetUserId();
+        var annonces = await _annonceManager.FilterAsync(filterDto, page, pageSize, userId);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await LikeAnnonce(annoncesDTO);
     

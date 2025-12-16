@@ -26,6 +26,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId)))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
+            .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
             .ForMember(dest => dest.UriPhotoProfilAuteur,
@@ -53,6 +54,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.Negociable))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
+            .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
             .ReverseMap();
@@ -106,6 +108,13 @@ public class AnnonceMappingProfile : Profile
              .ReverseMap()
             .ForMember(dest => dest.Annonces, opt => opt.Ignore());
         CreateMap<Genre, GenreDTO>().ReverseMap();
-
+        CreateMap<Annonce, AnnonceSuggestionDTO>()
+            .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
+            .ForMember(dest => dest.SousCategorie, opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie))
+            .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
+            .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque))
+            .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat))
+            .ForMember(dest => dest.Couleurs, opt => opt.MapFrom(src => 
+                src.Couleurs.Select(ac => ac.Couleur.Nom).ToList()));
     }
 }

@@ -1,6 +1,7 @@
 using API.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,38 +15,16 @@ public class UtilisateurController :  ControllerBase
 {
     private readonly IUtilisateurRepository _utilisateurManager;
     private readonly IAbonnementRepository<Abonnement, int>  _abonnementManager; 
+    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,IMapper mapper)
+    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper)
     {
         _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
-    private int? GetConnectedUserId()
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-            {
-                return id;
-            }
-        }
-        return null;
-    }
-
-    private async Task<bool> IsFollowedByCurrentUser(int suivisId)
-    {
-        int? userId = GetConnectedUserId();
-        if (userId == null)
-        {
-            return false;
-        }
-        return await _abonnementManager.Exists((int)userId, suivisId);
-    }
-
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
     {
@@ -54,9 +33,10 @@ public class UtilisateurController :  ControllerBase
         {
             return NotFound();
         }
-        UtilisateurViewDTO utiliateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
-        utiliateurDTO.followeddByCurrentUser = await IsFollowedByCurrentUser(id);
-        return Ok(utiliateurDTO);
+        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(id);
+        utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(id);
+        return Ok(utilisateurDTO);
     }
 
     [HttpPut("{id}")]

@@ -29,6 +29,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Include(a => a.UtilisateursFavoris)
             .Include(a => a.Utilisateur)
             .ThenInclude(u => u.PhotoProfil)
+            .Include(a => a.Utilisateur)
+            .ThenInclude(u => u.Statut) 
+            .Include(a => a.Couleurs)
+            .ThenInclude(c => c.Couleur)
+            .Include(a => a.LesVisualisations)
             .AsSplitQuery(); 
     }
 
@@ -51,27 +56,28 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id, int page, int pageSize)
+    public async Task<IEnumerable<Annonce>> GetByUtilisateurFavoris(int id)
     {
         var annonceIds = await _context.Favorises
             .Where(f => f.UtilisateurId == id)
             .Select(f => f.AnnonceId)
             .ToListAsync();
 
-        int skip = (page - 1) * pageSize;
-
         return await BaseAnnonceQuery()
+            .AsSingleQuery() 
             .Where(a => annonceIds.Contains(a.AnnonceId))
-            .Skip(skip)
-            .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto, int page, int pageSize)
+    public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto, int page, int pageSize, int? currentUserId = null)
     {
         var query = BaseAnnonceQuery();
-
-        // Filtres
+        if (currentUserId.HasValue)
+        {
+            query = query.Where(a => !_context.Bloques
+                .Any(b => b.UtilisateurBloqueurId == currentUserId.Value && 
+                          b.UtilisateurBloqueId == a.UtilisateurId));
+        }
         if (!string.IsNullOrEmpty(filterDto.MotCle))
         {
             var lowerMotCle = filterDto.MotCle.ToLower();
@@ -80,7 +86,8 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
                 p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle))
             );
         }
-    
+
+        query = query.Where(p => p.Utilisateur.Statut.StatutLibelle == "Actif");
         if (filterDto.Marques != null && filterDto.Marques.Any())
         {
             query = query.Where(p => filterDto.Marques.Contains(p.Marque.NomMarque));
@@ -123,10 +130,8 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             query = query.Where(p => p.Prix <= prixMaxDecimal);
         }
     
-        // Tri
         query = ApplySorting(query, filterDto);
 
-        // Pagination
         int skip = (page - 1) * pageSize;
         query = query.Skip(skip).Take(pageSize);
 

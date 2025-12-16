@@ -19,31 +19,32 @@ public abstract class NotificationDTO
 public class NotificationAdminDTO : NotificationDTO
 {
     public override string LibelleType => "Administration";
-    public String? AdminText { get; set; }
+    public String AdminText { get; set; }
 }
 
 public class NotificationAvertissementDTO : NotificationDTO
 {
     public override string LibelleType => "Avertissement";
-    public string? MessageAvertissement  { get; set; } = null!;
+    public string MessageAvertissement  { get; set; } = null!;
 }
 public class NotificationMessageDTO  : NotificationDTO
 {
     public override string LibelleType => "Message";
-    public int? ConversationId { get; set; }
-    public string? MessagePreview { get; set; } 
+    public int ConversationId { get; set; }
+    public string MessagePreview { get; set; } 
 }
 
 public class NotificationModificationAnnonceDTO : NotificationDTO
 {
     public override string LibelleType => "Modification annonce";
-    public int? ModificationAnnonceId { get; set; }
-    public string? NomAuteur { get; set; }
-    public string? Title {get; set;}
+    public int ModificationAnnonceId { get; set; }
+    public string NomAuteur { get; set; }
+    public string Title {get; set;}
 }
 
 public class NotificationNouvelleAnnonceDTO : NotificationDTO
 {
     public override string LibelleType => "Nouvelle annonce";
+    public string NomAuteur { get; set; }
     public int? NouvelleAnnonceId { get; set; }
 }

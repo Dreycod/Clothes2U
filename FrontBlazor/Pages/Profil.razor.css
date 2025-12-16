@@ -70,6 +70,28 @@
     }
 }
 
+.profile-dropdown-container {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    overflow: hidden;
+    z-index: 1000;
+}
+.dropdown-item.danger {
+    color: #dc3545;
+}
+
+    .dropdown-item.danger:hover {
+        background: #ffebee;
+    }
 /* ===== ERROR STATES ===== */
 
 .error-state-card {

@@ -36,7 +36,7 @@ public class NotificationMappingProfile : Profile
                         NotificationId = src.NotificationId,
                         DateCreation = src.DateCreation,
                         EstLu = src.EstLu,
-                        ConversationId = src.NotificationMessages.Message?.ConversationId,
+                        ConversationId = src.NotificationMessages.Message.ConversationId,
                         MessagePreview = src.NotificationMessages.MessagePreview
                     };
                 }
@@ -58,6 +58,7 @@ public class NotificationMappingProfile : Profile
                     {
                         NotificationId = src.NotificationId,
                         DateCreation = src.DateCreation,
+                        NomAuteur = src.NotificationNouvellesAnnonces.Annonce.Utilisateur.Login,
                         EstLu = src.EstLu,
                         NouvelleAnnonceId = src.NotificationNouvellesAnnonces.AnnonceId
                     };

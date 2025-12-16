@@ -19,14 +19,16 @@ public class FavorisController :  ControllerBase
 {
     private readonly IFavorisRepository _favorisManager;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly ISuggestionService _suggestionService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     
-    public FavorisController(IFavorisRepository manager,IAnnonceRepository<Annonce, int, FilterDTO> annonceManager, IMapper mapper, ICurrentUserService currentUserService)
+    public FavorisController(IFavorisRepository manager,IAnnonceRepository<Annonce, int, FilterDTO> annonceManager, IMapper mapper,ISuggestionService suggestionService, ICurrentUserService currentUserService)
     {
         _favorisManager = manager;
         _annonceManager = annonceManager;
         _currentUserService = currentUserService;
+        _suggestionService =  suggestionService;
         _mapper = mapper;
     }
     [HttpGet("id/{id}")]
@@ -69,6 +71,7 @@ public class FavorisController :  ControllerBase
             AnnonceId = annonceId
         };
         await _favorisManager.AddAsync(favoris);
+        _suggestionService.CalculSuggestion((int)userId);
         FavorisDTO favorisDto = _mapper.Map<FavorisDTO>(favoris);
     
         return CreatedAtAction(nameof(GetById), new { id = favoris.FavorisId }, favorisDto);

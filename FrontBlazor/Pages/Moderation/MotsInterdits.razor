@@ -34,17 +34,22 @@ else
         <div class="add-word-section">
             @if (!string.IsNullOrEmpty(motsInterditsView.ErrorMessage))
             {
-                <div class="alert alert-danger" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     @motsInterditsView.ErrorMessage
+                    <button type="button" class="btn-close" @onclick="@(() => motsInterditsView.ErrorMessage = null)"></button>
                 </div>
             }
-            <input type="text"
-                   class="word-input"
-                   placeholder="Insérez un mot à bannir . . . "
-                   @bind="motsInterditsView.motToAdd.LibelleMot"/>
-            <button class="btn-add" @onclick="HandleAddWord">
-                <i class="bi bi-send"></i>
-            </button>
+            <div class="input-group">
+                <input type="text"
+                       class="word-input"
+                       placeholder="Insérez un mot à bannir . . . "
+                       @bind="motsInterditsView.motToAdd.LibelleMot"
+                       @bind:event="oninput"
+                       @onkeypress="@(async (e) => { if (e.Key == "Enter") await HandleAddWord(); })"/>
+                <button class="btn-add" @onclick="HandleAddWord" disabled="@motsInterditsView.IsLoading">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
         </div>
     </div>
 }

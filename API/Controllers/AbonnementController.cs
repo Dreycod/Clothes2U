@@ -52,7 +52,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<AbonnementDTO>> Create(int idUtilisateur)
+        public async Task<ActionResult<AbonnementDTO>> Create([FromBody] int idUtilisateur)
         {
             int? connectedUserId = await _currentUserService.GetUserId();
             if (connectedUserId == null)
