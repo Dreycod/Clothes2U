@@ -1,4 +1,4 @@
-﻿@page "/profile/{userId:int}"
+﻿@page "/profile/{userLogin}"
 @using FrontBlazor.Components
 @inject NavigationManager NavigationManager
 
@@ -313,13 +313,11 @@
 
 @code {
     [Parameter]
-    public int userId { get; set; }
+    public string userLogin { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        VM_Profil.OnStateChanged += StateHasChanged;
-        
-        await VM_Profil.LoadUserProfile(userId);
+        await VM_Profil.LoadUserProfile(userLogin);
     }
 
     public void Dispose()

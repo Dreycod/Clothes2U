@@ -1,6 +1,7 @@
 using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Xml.Linq;
 
@@ -17,7 +18,7 @@ namespace FrontBlazor.ViewModel
         public int AvisCount { get; set; } = 0;
         public bool IsSameUser { get; set; } = false;
 
-        private readonly IReadableService<UtilisateurView> _utilisateurService;
+        private readonly IUtilisateurService _utilisateurService;
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
@@ -48,7 +49,7 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         public ProfilViewModel(
-            IReadableService<UtilisateurView> utilisateurService,
+            IUtilisateurService utilisateurService,
             IAnnonceService<Annonce> annonceService,
             IFavorisService<Favoris> favorisService,
             INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
@@ -70,7 +71,7 @@ namespace FrontBlazor.ViewModel
 
         private void NotifyStateChanged() => OnStateChanged?.Invoke();
 
-        public async Task LoadUserProfile(int id)
+        public async Task LoadUserProfile(string login)
         {
             IsLoading = true;
             UserNotFound = false;
@@ -78,7 +79,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                ViewingUser = await _utilisateurService.GetByIdAsync(id);
+                ViewingUser = await _utilisateurService.GetByLoginAsync(login);
 
                 if (ViewingUser == null)
                 {
@@ -101,7 +102,7 @@ namespace FrontBlazor.ViewModel
 
                 IsFollowing = ViewingUser.followeddByCurrentUser;
 
-
+                int id = ViewingUser.UtilisateurId;
                 var tasks = new List<Task>
              {
                  Task.Run(async () => {

@@ -16,7 +16,7 @@ namespace FrontBlazor.ViewModel
             _annonceService = annonceService;
         }
 
-        public async Task<bool> CreateAnnonceAsync(Annonce newAnnonce)
+        public async Task<Annonce?> CreateAnnonceAsync(Annonce newAnnonce)
         {
             IsLoading = true;
             ErrorMessage = null;
@@ -26,20 +26,20 @@ namespace FrontBlazor.ViewModel
                 if (createdAnnonce != null)
                 {
                     Annonces.Add(createdAnnonce);
-                    return true;
+                    return createdAnnonce;
                 }
-                return false;
+                return null;
             }
             catch (Exception ex)
             {
                 ErrorMessage = "Erreur lors de la création de l'annonce";
                 Console.WriteLine($"Error: {ex.Message}");
-                return false;
+                return null;
             }
             finally
             {
                 IsLoading = false;
             }
         }
-   }
+    }
 }

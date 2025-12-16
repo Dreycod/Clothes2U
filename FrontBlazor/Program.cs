@@ -31,7 +31,7 @@ builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();
 builder.Services.AddScoped<ICouleurService<Couleur>, CouleurWebService>();
 builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService<Annonce>, AnnonceWebService>();
-builder.Services.AddScoped<IReadableService<UtilisateurView>, UtilisateurWebService>();
+builder.Services.AddScoped<IUtilisateurService, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<IMediasService<Photo>, MediaWebService>();

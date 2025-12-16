@@ -42,22 +42,31 @@ public class MediasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UploadPhotoAnnonce([FromForm] PhotoDTO photoDto, int annonceId)
     {
+        Console.WriteLine($"🔵 UploadPhotoAnnonce appelé pour annonce {annonceId}");
+
         if (photoDto?.File == null)
         {
-            return BadRequest("Fichier requis" );
+            Console.WriteLine("❌ Fichier null");
+            return BadRequest("Fichier requis");
         }
+
+        Console.WriteLine($"📁 Fichier reçu: {photoDto.File.FileName}, Taille: {photoDto.File.Length} bytes");
 
         try
         {
             var photo = await _photoService.UploadPhotoAnnonceAsync(photoDto, annonceId);
+            Console.WriteLine($"✅ Photo uploadée avec ID: {photo.PhotoId}");
             return File(photo.Image, "image/jpeg");
         }
         catch (NotFoundException ex)
         {
+            Console.WriteLine($"❌ NotFoundException: {ex.Message}");
             return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"❌ Exception: {ex.Message}");
+            Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
             return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }

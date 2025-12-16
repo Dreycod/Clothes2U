@@ -83,4 +83,19 @@ public class UtilisateurController :  ControllerBase
         await _utilisateurManager.DeleteAsync(utilisateur);
         return NoContent();
     }
+
+    [HttpGet("login/{login}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<UtilisateurViewDTO>> GetByLogin(string login)
+    {
+        var utilisateurs = await _utilisateurManager.GetAllAsync();
+        var utilisateur = utilisateurs.FirstOrDefault(u =>
+            u.Login.Equals(login, StringComparison.OrdinalIgnoreCase));
+
+        if (utilisateur == null)
+            return NotFound();
+
+        var utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        return Ok(utilisateurDTO);
+    }
 }
