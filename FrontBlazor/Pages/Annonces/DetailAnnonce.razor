@@ -1,5 +1,4 @@
-﻿@page "/product/{Id:int}"
-@implements IDisposable
+﻿@page "/product/{Id:int}" 
 
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
@@ -21,6 +20,28 @@
             <i class="bi bi-exclamation-circle"></i>
             <p>@VM_DetailAnnonce.ErrorMessage</p>
             <button class="btn-retry" @onclick="LoadProduct">Réessayer</button>
+        </div>
+    }
+    @if (VM_DetailAnnonce.IsUserSuspended)
+    {
+        <div class="error-state-card">
+            <i class="bi bi-ban"></i>
+            <h2>Compte suspendu</h2>
+            <p>L'utilisateure de cette annonce a été suspendu, vous ne pouvez pas visualiser leurs annonces.</p>
+            <button class="btn-primary" @onclick="VM_DetailAnnonce.NavigateToHome">
+                Retour à l'accueil
+            </button>
+        </div>
+    }
+    @if (VM_DetailAnnonce.IsBlockedByUser)
+    {
+        <div class="error-state-card">
+            <i class="bi bi-ban"></i>
+            <h2>Compte bloqué</h2>
+            <p>Vous avez bloqué l'utilisateur de cette annonce, vous ne pouvez pas visualiser leurs annonces.</p>
+            <button class="btn-primary" @onclick="VM_DetailAnnonce.NavigateToHome">
+                Retour à l'accueil
+            </button>
         </div>
     }
     else if (VM_DetailAnnonce.AnnonceDetail != null && VM_DetailAnnonce.utilisateurAnnonce != null)

@@ -27,6 +27,8 @@ namespace FrontBlazor.ViewModel
         private readonly IAbonnementService<Abonnement> _abonnementService;
         private readonly NavigationManager _navigationManager;
         private readonly IMediasService<Photo> _mediaService;
+        private readonly ISignalementService _signalementService;
+        private readonly IBloqueService _bloqueService;
 
         public string ActiveTab { get; set; } = "articles";
 
@@ -36,29 +38,29 @@ namespace FrontBlazor.ViewModel
         public bool IsLoadingAvis { get; set; } = false;
         public bool UserNotFound { get; set; } = false;
         public bool UserSuspended { get; set; } = false;
+        public bool IsBlockedByUser { get; set; } = false;
 
         public bool ShowAddReviewModal { get; set; } = false;
         public int SelectedRating { get; set; } = 0;
         public string ReviewComment { get; set; } = string.Empty;
         public string ReviewErrorMessage { get; set; } = string.Empty;
         public bool IsSubmittingReview { get; set; } = false;
+        public bool IsSubmittingBloque { get; set; } = false;
+
+        public bool ShowBloqueModal { get; set; } = false;
 
         public bool IsFollowing = true;
-        public string FollowButtonText => IsFollowing ? "Se d�sabonner" : "Suivre";
+        public string FollowButtonText => IsFollowing ? "Se désabonner" : "Suivre";
 
         public event Action? OnStateChanged;
         #endregion
 
         public ProfilViewModel(
-            IReadableService<UtilisateurView> utilisateurService,
-            IAnnonceService<Annonce> annonceService,
-            IFavorisService<Favoris> favorisService,
-            INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
-            IAuthService authService,
-            IAbonnementService<Abonnement> abonnementService,
-            NavigationManager navigationManager,
-            LoginViewModel connexionViewModel,
-            IMediasService<Photo> mediasService)
+            IReadableService<UtilisateurView> utilisateurService, IAnnonceService<Annonce> annonceService,
+            IFavorisService<Favoris> favorisService,INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+            IAuthService authService, IAbonnementService<Abonnement> abonnementService, NavigationManager navigationManager,
+            LoginViewModel connexionViewModel, IMediasService<Photo> mediasService,
+            ISignalementService signalementService, IBloqueService bloqueService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -68,6 +70,8 @@ namespace FrontBlazor.ViewModel
             _abonnementService = abonnementService;
             _navigationManager = navigationManager;
             _mediaService = mediasService;
+            _signalementService = signalementService;
+            _bloqueService = bloqueService;
         }
 
         private void NotifyStateChanged() => OnStateChanged?.Invoke();
@@ -80,9 +84,9 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                ViewingUser = await _utilisateurService.GetByIdAsync(id);
+                UtilisateurView user = await _utilisateurService.GetByIdAsync(id);
 
-                if (ViewingUser == null)
+                if (user == null)
                 {
                     UserNotFound = true;
                     IsLoading = false;
@@ -90,7 +94,7 @@ namespace FrontBlazor.ViewModel
                     return;
                 }
 
-                if (ViewingUser.Statut == "Suspendu")
+                if (user.Statut == "Suspendu")
                 {
                     UserSuspended = true;
                     IsLoading = false;
@@ -101,8 +105,10 @@ namespace FrontBlazor.ViewModel
                 IsLoadingArticles = true;
                 IsLoadingAvis = true;
 
-                IsFollowing = ViewingUser.followeddByCurrentUser;
+                IsBlockedByUser = user.blockedByCurrentUser;
+                IsFollowing = user.followeddByCurrentUser;
 
+                ViewingUser = user;
 
                 var tasks = new List<Task>
                  {
@@ -326,18 +332,18 @@ namespace FrontBlazor.ViewModel
         {
             if (productId.HasValue)
             {
-                _navigationManager.NavigateTo($"/product/{productId}");
+                _navigationManager.NavigateTo($"/product/{productId}", true);
             }
         }
 
         public void NavigateToAddArticle()
         {
-            _navigationManager.NavigateTo("/add-article");
+            _navigationManager.NavigateTo("/add-article", true);
         }
 
         public void NavigateToHome()
         {
-            _navigationManager.NavigateTo("/");
+            _navigationManager.NavigateTo("/", true);
         }
 
         public void ToggleDotsDropdown()
@@ -345,16 +351,41 @@ namespace FrontBlazor.ViewModel
             showDotsDropdown = !showDotsDropdown;
         }
 
-        public void BlockUtilisateur()
+        public void ToggleBloqueModal()
         {
             showDotsDropdown = false;
-            //
+            ShowBloqueModal = !ShowBloqueModal;
+        }
+        public async void ToggleBloque()
+        {
+            IsSubmittingBloque = true;
+            if (!IsBlockedByUser)
+            {
+                await _bloqueService.CreateBloque(ViewingUser!.UtilisateurId);
+            }
+            else
+            {
+                await _bloqueService.DeleteAsync(ViewingUser!.UtilisateurId);
+            }
+
+            IsSubmittingBloque = false;
+            ShowBloqueModal = false;
+            _navigationManager.Refresh(true);
         }
 
         public void SignalerUtilisateur()
         {
-            showDotsDropdown = false;
-            // 
+            //showDotsDropdown = false;
+            //Signalement signalement = new Signalement
+            //{
+            //     SignalementDate = DateTime.Now,
+            //     SignalementMotif = "Inappropri",
+            //    public string Type { get; set; } = null!;
+            //    public string LoginUtilisateurSignale { get; set; } = null!;
+            //    public int? PhotoProfilUtilisateurId { get; set; }
+            //  };
+            //_signalementService.AddAsync(signalement);
+            
         }
 
         public string GetPhoto(int id)

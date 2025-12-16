@@ -17,6 +17,7 @@
                 <p>Chargement du profil...</p>
             </div>
         }
+
         else if (VM_Profil.UserNotFound)
         {
             <!-- User Not Found State -->
@@ -43,220 +44,234 @@
         }
         else if (VM_Profil.ViewingUser != null)
         {
-            <!-- Profile Header -->
-            <div class="profile-header">
-                @if (VM_Profil.ViewingUser != null)
-                {
-                    <img class="profile-avatar" src="@(VM_DetailAnnonce.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))"/>
-                }
-                <div class="profile-info">
-                    <div class="profile-top-row">
-                        <h1 class="profile-name">@VM_Profil.ViewingUser.Login</h1>
-                        <div class="profile-actions">
-                            @if (!VM_Profil.IsSameUser)
-                            {
-                                <div class="profile-dropdown-container">
-                                    <button class="btn-icon"
-                                            title="Actions"
-                                            @onclick="VM_Profil.ToggleDotsDropdown">
-                                        <i class="bi bi-three-dots"></i>
+            @if (VM_Profil.IsBlockedByUser)
+            {
+                <div class="error-state-card">
+                    <i class="bi bi-person-x"></i>
+                    <h2>Utilisateur bloqué</h2>
+                    <p>Vous avez bloqué cet utilisateur, vous pouvez le débloquer si vous le souhaitez.</p>
+                    <button class="btn-primary" @onclick="VM_Profil.NavigateToHome">
+                        Retour à l'accueil
+                    </button>
+                    <button class="btn-primary" @onclick="VM_Profil.ToggleBloque">
+                        Débloquer l'utilisateur
+                    </button>
+                </div>
+            }
+            else
+            {
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <img class="profile-avatar" src="@(VM_DetailAnnonce.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))" />
+                    <div class="profile-info">
+                        <div class="profile-top-row">
+                            <h1 class="profile-name">@VM_Profil.ViewingUser.Login</h1>
+                            <div class="profile-actions">
+                                @if (!VM_Profil.IsSameUser)
+                                {
+                                    <div class="profile-dropdown-container">
+                                        <button class="btn-icon"
+                                                title="Actions"
+                                                @onclick="VM_Profil.ToggleDotsDropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+
+                                        @if (VM_Profil.showDotsDropdown)
+                                        {
+                                            <div class="profile-dropdown">
+                                                <button class="dropdown-item danger" @onclick="VM_Profil.ToggleBloqueModal">
+                                                    <i class="bi bi-person-x"></i>
+                                                    <span>Bloquer</span>
+                                                </button>
+
+                                                <button class="dropdown-item danger" @onclick="VM_Profil.SignalerUtilisateur">
+                                                    <i class="bi bi-flag"></i>
+                                                    <span>Signaler</span>
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                @if (!VM_Profil.IsSameUser)
+                                {
+                                    <button class="btn-follow" @onclick="VM_Profil.ToggleAbonnement">
+                                        @(VM_Profil.ViewingUser.followeddByCurrentUser ? "Se désabonner" : "S'abonner")
                                     </button>
-
-                                    @if (VM_Profil.showDotsDropdown)
-                                    {
-                                        <div class="profile-dropdown">
-                                            <button class="dropdown-item danger" @onclick="VM_Profil.BlockUtilisateur">
-                                                <i class="bi bi-person-x"></i>
-                                                <span>Bloquer</span>
-                                            </button>
-
-                                            <button class="dropdown-item danger" @onclick="VM_Profil.SignalerUtilisateur">
-                                                <i class="bi bi-flag"></i>
-                                                <span>Signaler</span>
-                                            </button>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                            @if (!VM_Profil.IsSameUser)
-                            {
-                                <button class="btn-follow" @onclick="VM_Profil.ToggleAbonnement">
-                                    @(VM_Profil.ViewingUser.followeddByCurrentUser ? "Se désabonner" : "S'abonner")
-                                </button>
-                            }
+                                }
+                            </div>
                         </div>
-                    </div>
-                    @* <div class="profile-location">
+                        @* <div class="profile-location">
                         <i class="bi bi-geo-alt"></i>
                         <span>Annecy, France</span>
                     </div> *@
-                    <div class="profile-stats-row">
-                        <span class="profile-stat">@VM_Profil.ViewingUser.Abonnements Abonnements, @VM_Profil.ViewingUser.Abonnes Abonnés</span>
-                    </div>
-                    <div class="profile-member-info">
-                        <span>Membre depuis @(VM_Profil.ViewingUser.DateInscription.ToString("MMMM yyyy"))</span>
-                        <div class="profile-rating">
-                            <i class="bi bi-star-fill"></i>
-                            <span>@(VM_Profil.ViewingUser.MoyenneAvis) (@(VM_Profil.AvisCount) avis)</span>
+                        <div class="profile-stats-row">
+                            <span class="profile-stat">@VM_Profil.ViewingUser.Abonnements Abonnements, @VM_Profil.ViewingUser.Abonnes Abonnés</span>
+                        </div>
+                        <div class="profile-member-info">
+                            <span>Membre depuis @(VM_Profil.ViewingUser.DateInscription.ToString("MMMM yyyy"))</span>
+                            <div class="profile-rating">
+                                <i class="bi bi-star-fill"></i>
+                                <span>@(VM_Profil.ViewingUser.MoyenneAvis) (@(VM_Profil.AvisCount) avis)</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tabs Navigation -->
-            <div class="profile-tabs">
-                <button class="tab-btn @(VM_Profil.ActiveTab == "articles" ? "active" : "")" 
-                        @onclick='() => VM_Profil.SetActiveTab("articles")'>
-                    <i class="bi bi-bag"></i>
-                    <span>Articles</span>
-                </button>
-                @if (VM_Profil.IsSameUser)
-                {
-                    <button class="tab-btn @(VM_Profil.ActiveTab == "favoris" ? "active" : "")" 
-                            @onclick='() => VM_Profil.SetActiveTab("favoris")'>
-                        <i class="bi bi-heart"></i>
-                        <span>Favoris</span>
+                <!-- Tabs Navigation -->
+                <div class="profile-tabs">
+                    <button class="tab-btn @(VM_Profil.ActiveTab == "articles" ? "active" : "")"
+                            @onclick='() => VM_Profil.SetActiveTab("articles")'>
+                        <i class="bi bi-bag"></i>
+                        <span>Articles</span>
                     </button>
-                }
-                <button class="tab-btn @(VM_Profil.ActiveTab == "avis" ? "active" : "")" 
-                        @onclick='() => VM_Profil.SetActiveTab("avis")'>
-                    <i class="bi bi-star"></i>
-                    <span>Avis</span>
-                </button>
-                @if (VM_Profil.IsSameUser)
-                {
-                    <button class="tab-btn"
-                            @onclick='() => NavigationManager.NavigateTo("/verification")'>
-                        <i class="bi bi-shield-check"></i>
-                        <span>Vérification</span>
+                    @if (VM_Profil.IsSameUser)
+                    {
+                        <button class="tab-btn @(VM_Profil.ActiveTab == "favoris" ? "active" : "")"
+                                @onclick='() => VM_Profil.SetActiveTab("favoris")'>
+                            <i class="bi bi-heart"></i>
+                            <span>Favoris</span>
+                        </button>
+                    }
+                    <button class="tab-btn @(VM_Profil.ActiveTab == "avis" ? "active" : "")"
+                            @onclick='() => VM_Profil.SetActiveTab("avis")'>
+                        <i class="bi bi-star"></i>
+                        <span>Avis</span>
                     </button>
-                }
-
-            </div>
-
-            <!-- Tab Content -->
-            <div class="tab-content">
-                @if (VM_Profil.ActiveTab == "articles")
-                {
-                    @if (VM_Profil.IsLoadingArticles)
+                    @if (VM_Profil.IsSameUser)
                     {
-                        <div class="tab-loading-state">
-                            <div class="spinner-medium"></div>
-                            <p>Chargement des articles...</p>
-                        </div>
+                        <button class="tab-btn"
+                                @onclick='() => NavigationManager.NavigateTo("/verification")'>
+                            <i class="bi bi-shield-check"></i>
+                            <span>Vérification</span>
+                        </button>
                     }
-                    else if (VM_Profil.Annonces != null && VM_Profil.Annonces.Any())
+
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    @if (VM_Profil.ActiveTab == "articles")
                     {
-                        <div class="products-grid">
-                            @foreach (var annonce in VM_Profil.Annonces)
-                            {
-                                <AnnonceCard annonceComponent="annonce"
-                                            OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                            OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
-                                            />
-                            }
-                        </div>
+                        @if (VM_Profil.IsLoadingArticles)
+                        {
+                            <div class="tab-loading-state">
+                                <div class="spinner-medium"></div>
+                                <p>Chargement des articles...</p>
+                            </div>
+                        }
+                        else if (VM_Profil.Annonces != null && VM_Profil.Annonces.Any())
+                        {
+                            <div class="products-grid">
+                                @foreach (var annonce in VM_Profil.Annonces)
+                                {
+                                    <AnnonceCard annonceComponent="annonce"
+                                                 OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                @if (VM_Profil.IsSameUser)
+                                {
+                                    <p>Vous n'avez pas encore mis en vente des articles</p>
+                                    <button class="btn-add-article" @onclick="VM_Profil.NavigateToAddArticle">
+                                        Ajouter un article
+                                    </button>
+                                }
+                                else
+                                {
+                                    <p>L'utilisateur n'a pas posté d'annonces</p>
+                                }
+                            </div>
+                        }
                     }
-                    else
+                    else if (VM_Profil.ActiveTab == "favoris")
                     {
-                        <div class="empty-state">
-                            @if (VM_Profil.IsSameUser)
+                        @if (VM_Profil.IsLoadingFavoris)
+                        {
+                            <div class="tab-loading-state">
+                                <div class="spinner-medium"></div>
+                                <p>Chargement des favoris...</p>
+                            </div>
+                        }
+                        else if (VM_Profil.FavorisAnnonce != null && VM_Profil.FavorisAnnonce.Any())
+                        {
+                            <div class="products-grid">
+                                @foreach (Annonce annonce in VM_Profil.FavorisAnnonce)
+                                {
+                                    <AnnonceCard annonceComponent="annonce"
+                                                 OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <p>Aucun article en favoris</p>
+                            </div>
+                        }
+                    }
+                    else if (VM_Profil.ActiveTab == "avis")
+                    {
+                        <div class="reviews-header">
+                            @if (!VM_Profil.IsSameUser)
                             {
-                                <p>Vous n'avez pas encore mis en vente des articles</p>
-                                <button class="btn-add-article" @onclick="VM_Profil.NavigateToAddArticle">
-                                    Ajouter un article
+                                <button class="btn-add-review" @onclick="VM_Profil.ShowAddReview">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Ajouter un avis
                                 </button>
                             }
-                            else
-                            {
-                                <p>L'utilisateur n'a pas posté d'annonces</p>
-                            }
                         </div>
-                    }
-                }
-                else if (VM_Profil.ActiveTab == "favoris")
-                {
-                    @if (VM_Profil.IsLoadingFavoris)
-                    {
-                        <div class="tab-loading-state">
-                            <div class="spinner-medium"></div>
-                            <p>Chargement des favoris...</p>
-                        </div>
-                    }
-                    else if (VM_Profil.FavorisAnnonce != null && VM_Profil.FavorisAnnonce.Any())
-                    {
-                        <div class="products-grid">
-                            @foreach (Annonce annonce in VM_Profil.FavorisAnnonce)
-                            {
-                                <AnnonceCard annonceComponent="annonce"
-                                             OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                             OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <p>Aucun article en favoris</p>
-                        </div>
-                    }
-                }
-                else if (VM_Profil.ActiveTab == "avis")
-                {
-                    <div class="reviews-header">
-                        @if (!VM_Profil.IsSameUser)
-                        {
-                            <button class="btn-add-review" @onclick="VM_Profil.ShowAddReview">
-                                <i class="bi bi-plus-circle"></i>
-                                Ajouter un avis
-                            </button>
-                        }
-                    </div>
 
-                    @if (VM_Profil.IsLoadingAvis)
-                    {
-                        <div class="tab-loading-state">
-                            <div class="spinner-medium"></div>
-                            <p>Chargement des avis...</p>
-                        </div>
-                    }
-                    else if (VM_Profil.Avis != null && VM_Profil.Avis.Any())
-                    {
-                        <div class="reviews-list">
-                            @foreach (NoteUtilisateur avis in VM_Profil.Avis)
-                            {
-                                <div class="review-item">
-                                    <div class="review-header">
-                                        <div class="review-user">
-                                            <div class="review-avatar"></div>
-                                            <h3 class="review-name">@avis.LoginAuteur</h3>
+                        @if (VM_Profil.IsLoadingAvis)
+                        {
+                            <div class="tab-loading-state">
+                                <div class="spinner-medium"></div>
+                                <p>Chargement des avis...</p>
+                            </div>
+                        }
+                        else if (VM_Profil.Avis != null && VM_Profil.Avis.Any())
+                        {
+                            <div class="reviews-list">
+                                @foreach (NoteUtilisateur avis in VM_Profil.Avis)
+                                {
+                                    <div class="review-item">
+                                        <div class="review-header">
+                                            <div class="review-user">
+                                                <div class="review-avatar"></div>
+                                                <h3 class="review-name">@avis.LoginAuteur</h3>
+                                            </div>
+                                            <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
                                         </div>
-                                        <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
+                                        <div class="review-rating">
+                                            @for (int j = 0; j < avis.Note; j++)
+                                            {
+                                                <i class="bi bi-star-fill"></i>
+                                            }
+                                            @for (int j = avis.Note; j < 5; j++)
+                                            {
+                                                <i class="bi bi-star"></i>
+                                            }
+                                        </div>
+                                        <p class="review-text">@avis.Commentaire</p>
                                     </div>
-                                    <div class="review-rating">
-                                        @for (int j = 0; j < avis.Note; j++)
-                                        {
-                                            <i class="bi bi-star-fill"></i>
-                                        }
-                                        @for (int j = avis.Note; j < 5; j++)
-                                        {
-                                            <i class="bi bi-star"></i>
-                                        }
-                                    </div>
-                                    <p class="review-text">@avis.Commentaire</p>
-                                </div>
-                            }
-                        </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <p>Aucun avis pour le moment</p>
+                            </div>
+                        }
                     }
-                    else
-                    {
-                        <div class="empty-state">
-                            <p>Aucun avis pour le moment</p>
-                        </div>
-                    }
-                }
-            </div>
+                </div>
+            }
         }
+            
     </div>
 </div>
 
@@ -323,6 +338,41 @@
                     else
                     {
                         <span>Publier l'avis</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Bloque Modal -->
+@if (VM_Profil.ShowBloqueModal)
+{
+    <div class="modal-overlay" @onclick="VM_Profil.ToggleBloqueModal">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>@(VM_Profil.IsBlockedByUser ? "Débloquer" : "Bloquer") l'utilisateur</h3>
+                <button class="modal-close" @onclick="VM_Profil.ToggleBloqueModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <!-- Text -->
+            <div class="form-group">
+                <label class="form-label">Êtes vous certain?</label>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_Profil.ToggleBloqueModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_Profil.ToggleBloque" disabled="@VM_Profil.IsSubmittingBloque">
+                    @if (VM_Profil.IsSubmittingBloque)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>@(VM_Profil.IsBlockedByUser ? "Débloquer" : "Bloquer")</span>
                     }
                 </button>
             </div>

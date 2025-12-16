@@ -30,6 +30,9 @@ public class DetailAnnonceViewModel
 
     public bool IsSameUser { get; set; } = true;
 
+    public bool IsUserSuspended { get; set; } = false;
+    public bool IsBlockedByUser { get; set; } = false;
+
     public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService, 
         IFavorisService<Favoris> favorisService, IAuthService authService, 
         IReadableService<UtilisateurView> utilisateurService,
@@ -66,8 +69,11 @@ public class DetailAnnonceViewModel
             }
 
             utilisateurAnnonce = await _utilisateurService.GetByIdAsync(AnnonceDetail.UtilisateurId);
+            IsBlockedByUser = utilisateurAnnonce.blockedByCurrentUser;
+            if (utilisateurAnnonce == null ||utilisateurAnnonce.Statut == "Suspendu")
+                IsUserSuspended = true;
 
-            Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+                Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
             if (utilisateur != null && utilisateurAnnonce != null && 
                 utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
                 IsSameUser = true;
@@ -204,5 +210,10 @@ public class DetailAnnonceViewModel
     public void CancelVisualisation()
     {
         _viewTimerCts?.Cancel();
+    }
+
+    public void NavigateToHome()
+    {
+        _navigationManager.NavigateTo("/");
     }
 }

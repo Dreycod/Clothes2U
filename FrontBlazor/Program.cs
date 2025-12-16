@@ -26,6 +26,7 @@ builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>)
 builder.Services.AddScoped<IAuthService, AuthWebService>();
 builder.Services.AddScoped<INotificationService, NotificationWebService>();
 builder.Services.AddScoped<ISignalementService, SignalementWebService>();
+builder.Services.AddScoped<IBloqueService, BloqueWebService>();
 builder.Services.AddScoped<ICategorieService<Categorie>, CategorieWebService>();
 builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebService>();
 builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();

@@ -36,7 +36,7 @@ namespace API.Controllers
         }
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<BloqueDTO>> Create(int utilisateurBloqueID)
+        public async Task<ActionResult<BloqueDTO>> Create([FromBody] int utilisateurBloqueID)
         {
             int? userId = await _currentUserService.GetUserId();
             if (userId == null)
