@@ -57,7 +57,7 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         public ProfilViewModel(
-            IReadableService<UtilisateurView> utilisateurService,
+            IUtilisateurService utilisateurService,
             IAnnonceService<Annonce> annonceService,
             IFavorisService<Favoris> favorisService,
             INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
@@ -65,7 +65,7 @@ namespace FrontBlazor.ViewModel
             IAbonnementService<Abonnement> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
-            IMediasService<Photo> mediasService)
+            IMediasService<Photo> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -89,7 +89,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                ViewingUser = await _utilisateurService.GetByIdAsync(id);
+                UtilisateurView user = await _utilisateurService.GetByLoginAsync(login);
 
                 if (user == null)
                 {
@@ -113,16 +113,17 @@ namespace FrontBlazor.ViewModel
                 IsBlockedByUser = user.blockedByCurrentUser;
                 IsFollowing = user.followeddByCurrentUser;
 
+                ViewingUser = user;
 
                 var tasks = new List<Task>
                  {
                      Task.Run(async () => {
-                         Annonces = await _annonceService.GetAnnoncesByUserIdAsync(id);
+                         Annonces = await _annonceService.GetAnnoncesByUserIdAsync(ViewingUser.UtilisateurId);
                          IsLoadingArticles = false;
                          NotifyStateChanged();
                      }),
                      Task.Run(async () => {
-                         Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(id);
+                         Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(ViewingUser.UtilisateurId);
                          AvisCount = Avis?.Count ?? 0;
                          IsLoadingAvis = false;
                          NotifyStateChanged();

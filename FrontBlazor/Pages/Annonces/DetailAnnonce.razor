@@ -96,8 +96,8 @@
                             @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
                         <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                     </button>
-                    <button class="btn-action">
-                        <i class="bi bi-three-dots"></i>
+                    <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
+                        <i class="bi bi-flag"></i>
                     </button>
                     <button class="btn-action" @onclick="VM_DetailAnnonce.ShareProduct">
                         <i class="bi bi@(VM_DetailAnnonce.clickedShareButton ? "-check-square" : "-share")"></i>

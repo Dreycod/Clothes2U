@@ -31,6 +31,13 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         var signalement = await response.Content.ReadFromJsonAsync<SignalementDetails>();
         return signalement;
     }
+    public async Task<SignalementCreate> CreateSignalement(SignalementCreate signalement)
+    {
+        var response = await PostWithCredentialsAsync("Signalement", JsonContent.Create(signalement));
+        response.EnsureSuccessStatusCode();
+        var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementCreate>();
+        return createdSignalement;
+    }
 
     public async Task<Signalement?> AddAsync(Signalement entity)
     {

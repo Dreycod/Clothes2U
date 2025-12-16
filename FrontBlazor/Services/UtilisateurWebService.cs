@@ -1,4 +1,5 @@
 ﻿using FrontBlazor.Models;
+using FrontBlazor.Pages;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
@@ -36,5 +37,26 @@ public class UtilisateurWebService : ReadableService<UtilisateurView>, IUtilisat
             Console.WriteLine($"❌ Exception in GetByLoginAsync: {ex.Message}");
             return null;
         }
+    }
+
+    public async Task<UtilisateurView> GetUserById(int id)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, $"Utilisateur/{id}");
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+        var response = await _httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"❌ GetByLoginAsync failed: {response.StatusCode}");
+            return null;
+        }
+
+
+        var result = await response.Content.ReadFromJsonAsync<UtilisateurView>();
+        Console.WriteLine($"✅ User found: {result?.Login}");
+        return result;
+
+        
     }
 }

@@ -7,4 +7,5 @@ public interface ISignalementService : IWritableService<Signalement>
     Task<List<Signalement>> GetAllAsync();
     Task<List<Signalement>> GetAllByType(int typeId);
     Task<SignalementDetails> GetSignalementByIdAsync(int id);
+    Task<SignalementCreate> CreateSignalement(SignalementCreate signalement);
 }

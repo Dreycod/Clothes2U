@@ -13,11 +13,12 @@ public class DetailAnnonceViewModel
     private readonly IFavorisService<Favoris> _favorisService;
     private readonly IAuthService _authService;
     private readonly IConversationService<Conversation> _conversationService;
-    private readonly IReadableService<UtilisateurView> _utilisateurService;
+    private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
     private readonly IMediasService<Photo> _mediaService;
     private readonly IVisualisationService _visualisationService;
+    private readonly ISignalementService _signalementService;
 
     private CancellationTokenSource? _viewTimerCts;
 
@@ -32,13 +33,15 @@ public class DetailAnnonceViewModel
 
     public bool IsUserSuspended { get; set; } = false;
     public bool IsBlockedByUser { get; set; } = false;
+    public bool ShowSignalerModal { get; set; } = false;
+    public bool IsSubmittingReport { get; set; } = false;
 
-    public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService, 
-        IFavorisService<Favoris> favorisService, IAuthService authService, 
-        IReadableService<UtilisateurView> utilisateurService,
+    public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService,
+        IFavorisService<Favoris> favorisService, IAuthService authService,
+        IUtilisateurService utilisateurService,
         IConversationService<Conversation> conversationService,
         ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<Photo> mediasService
-        , IVisualisationService visualisationService)
+        , IVisualisationService visualisationService, ISignalementService signalementService)
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
@@ -49,6 +52,7 @@ public class DetailAnnonceViewModel
         _navigationManager = navigationManager;
         _clipboardService = clipboardService;
         _visualisationService = visualisationService;
+        _signalementService = signalementService;
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -68,19 +72,19 @@ public class DetailAnnonceViewModel
                 await StartVisualisationTimer(AnnonceDetail.AnnonceId);
             }
 
-            utilisateurAnnonce = await _utilisateurService.GetByIdAsync(AnnonceDetail.UtilisateurId);
+            utilisateurAnnonce = await _utilisateurService.GetUserById(AnnonceDetail.UtilisateurId);
             IsBlockedByUser = utilisateurAnnonce.blockedByCurrentUser;
-            if (utilisateurAnnonce == null ||utilisateurAnnonce.Statut == "Suspendu")
+            if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
                 IsUserSuspended = true;
 
-                Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
-            if (utilisateur != null && utilisateurAnnonce != null && 
+            Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+            if (utilisateur != null && utilisateurAnnonce != null &&
                 utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
                 IsSameUser = true;
-            
+
             else
                 IsSameUser = false;
-            
+
         }
         catch (Exception ex)
         {
@@ -178,12 +182,12 @@ public class DetailAnnonceViewModel
 
     public void NavigateToProduct(int productId)
     {
-         _navigationManager.NavigateTo($"/product/{productId}", forceLoad: true);
+        _navigationManager.NavigateTo($"/product/{productId}", forceLoad: true);
     }
 
     public void GotoProfile()
     {
-        _navigationManager.NavigateTo($"/profile/" + AnnonceDetail.UtilisateurId);
+        _navigationManager.NavigateTo($"/profile/" + utilisateurAnnonce.Login);
     }
 
     public string GetPhoto(int id)
@@ -215,5 +219,33 @@ public class DetailAnnonceViewModel
     public void NavigateToHome()
     {
         _navigationManager.NavigateTo("/");
+    }
+
+    public void ToggleSignalerModal()
+    {
+        ShowSignalerModal = !ShowSignalerModal;
+    }
+    public async Task SubmitReport(string reason)
+    {
+        IsSubmittingReport = true;
+        try
+        {
+            SignalementCreate newReport = new SignalementCreate
+            {
+                SignalementMotif = reason,
+            };
+
+            await _signalementService.CreateSignalement(newReport);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la soumission du signalement : {ex.Message}");
+        }
+        finally
+        {
+            IsSubmittingReport = false;
+            ShowSignalerModal = false;
+
+        }
     }
 }
