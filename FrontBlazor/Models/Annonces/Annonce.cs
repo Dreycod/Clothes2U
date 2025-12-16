@@ -45,7 +45,7 @@ public class Annonce: IEntity
     public int? SousCategorieId { get; set; }
     public int? CategorieId { get; set; }
     public int? StatutAnnonceId { get; set; }
-    public int? CouleurId { get; set; }
+    public int? GenreId { get; set; }
     public int GetId()
     {
         return AnnonceId;

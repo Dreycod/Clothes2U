@@ -1,6 +1,7 @@
 using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Xml.Linq;
 
@@ -19,7 +20,7 @@ namespace FrontBlazor.ViewModel
 
         public bool showDotsDropdown;
 
-        private readonly IReadableService<UtilisateurView> _utilisateurService;
+        private readonly IUtilisateurService _utilisateurService;
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
         private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
@@ -56,11 +57,15 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         public ProfilViewModel(
-            IReadableService<UtilisateurView> utilisateurService, IAnnonceService<Annonce> annonceService,
-            IFavorisService<Favoris> favorisService,INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
-            IAuthService authService, IAbonnementService<Abonnement> abonnementService, NavigationManager navigationManager,
-            LoginViewModel connexionViewModel, IMediasService<Photo> mediasService,
-            ISignalementService signalementService, IBloqueService bloqueService)
+            IReadableService<UtilisateurView> utilisateurService,
+            IAnnonceService<Annonce> annonceService,
+            IFavorisService<Favoris> favorisService,
+            INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+            IAuthService authService,
+            IAbonnementService<Abonnement> abonnementService,
+            NavigationManager navigationManager,
+            LoginViewModel connexionViewModel,
+            IMediasService<Photo> mediasService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -76,7 +81,7 @@ namespace FrontBlazor.ViewModel
 
         private void NotifyStateChanged() => OnStateChanged?.Invoke();
 
-        public async Task LoadUserProfile(int id)
+        public async Task LoadUserProfile(string login)
         {
             IsLoading = true;
             UserNotFound = false;
@@ -84,7 +89,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                UtilisateurView user = await _utilisateurService.GetByIdAsync(id);
+                ViewingUser = await _utilisateurService.GetByIdAsync(id);
 
                 if (user == null)
                 {
@@ -108,7 +113,6 @@ namespace FrontBlazor.ViewModel
                 IsBlockedByUser = user.blockedByCurrentUser;
                 IsFollowing = user.followeddByCurrentUser;
 
-                ViewingUser = user;
 
                 var tasks = new List<Task>
                  {
