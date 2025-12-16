@@ -4,7 +4,6 @@ using FrontBlazor.Models.Notification;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
-using FrontBlazor.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -14,7 +13,7 @@ namespace FrontBlazor.ViewModel
     {
         private readonly IAnnonceService<Annonce> _annonceService;
         private readonly IFavorisService<Favoris> _favorisService;
-        private readonly NotificationService _notificationService;
+        private readonly INotificationService _notificationPopUpService;
         private CancellationTokenSource _searchCts;
         private CancellationTokenSource _filterCts;
 
@@ -62,7 +61,7 @@ namespace FrontBlazor.ViewModel
             ListableViewModel<Genre> vM_Genre,
             ListableViewModel<Taille> vM_Taille, 
             NavigationManager navManager, 
-            NotificationService notificationService,
+            INotificationService notificationPopUpService,
             LoginViewModel vM_Login)
         {
             _annonceService = annonceService;
@@ -73,7 +72,7 @@ namespace FrontBlazor.ViewModel
             VM_Taille = vM_Taille;
             VM_Etat =  vM_Etat;
             NavigationManager = navManager;
-            _notificationService = notificationService;
+            _notificationPopUpService = notificationPopUpService;
             VM_Login = vM_Login;
         }
 

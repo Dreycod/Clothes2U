@@ -11,17 +11,17 @@ namespace FrontBlazor.ViewModel.Moderation.Signalements;
 public class TraitementSignalementViewModel : ModerationViewModel, INotifyPropertyChanged
 {
     private readonly ISignalementService _signalementService;
-    private readonly IReadableService<UtilisateurView> _utilisateurService;
+    private readonly IUtilisateurService _utilisateurService;
     private readonly IAnnonceService<Annonce> _annonceService;
     private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
     private readonly INotificationService _notificationService;
-
+    private readonly NavigationManager _nav;
     public event PropertyChangedEventHandler PropertyChanged;
     public event Action OnStateChanged;
 
     public TraitementSignalementViewModel(
         ISignalementService signalementService,
-        IReadableService<UtilisateurView> utilisateurService,
+        IUtilisateurService utilisateurService,
         IAnnonceService<Annonce> annonceService,
         INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
         INotificationService notificationService,
@@ -34,6 +34,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         _annonceService = annonceService;
         _noteUtilisateurService = noteUtilisateurService;
         _signalementService = signalementService;
+        _nav = nav;
     }
 
     public SignalementDetails Signalement { get; set; }
@@ -126,7 +127,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
                 break;
         }
         
-        UtilisateurSignale = await _utilisateurService.GetByIdAsync(Signalement.UtilisateurSignaleId);
+        UtilisateurSignale = await _utilisateurService.GetUserById(Signalement.UtilisateurSignaleId);
         NotifyStateChanged();
     }
 
@@ -141,30 +142,6 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         ShowWarningModal = false;
         WarningMessage = string.Empty;
     }
-
-    public async Task SendWarningAsync()
-    {
-        if (!CanSendWarning) return;
-
-        try
-        {
-            await _notificationService.CreateNotificationAvertissement(
-                new CreateAvertissementRequest()
-                {
-                    MessageAvertissement = WarningMessage,
-                    UtilisateurId = UtilisateurSignale.UtilisateurId
-                }
-            );
-
-            Console.WriteLine("Avertissement envoyé avec succès");
-            CloseWarningModal();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erreur lors de l'envoi de l'avertissement : {ex.Message}");
-        }
-    }
-
     public void OpenSuspendModal()
     {
         SuspendMessage = string.Empty;
@@ -178,23 +155,6 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         SuspendMessage = string.Empty;
         SuspendEndDate = null;
     }
-
-    public async Task SuspendUserAsync()
-    {
-        if (!CanSuspend) return;
-
-        try
-        {
-
-            Console.WriteLine($"Utilisateur suspendu jusqu'au {SuspendEndDate:dd/MM/yyyy HH:mm}");
-            CloseSuspendModal();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erreur lors de la suspension : {ex.Message}");
-        }
-    }
-
     public void OpenBanModal()
     {
         ShowBanModal = true;
@@ -204,17 +164,61 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     {
         ShowBanModal = false;
     }
+    private void NotifyStateChanged()
+    {
+        OnStateChanged?.Invoke();
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+    }
+    public async Task SendWarningAsync()
+    {
+        if (!CanSendWarning) return;
+
+        try
+        {
+            await _notificationService.CreateNotificationAvertissement(
+                new CreateAvertissementRequest()
+                {
+                    MessageAvertissement = WarningMessage,
+                    UtilisateurId = UtilisateurSignale.UtilisateurId
+                }
+            );
+            CloseWarningModal();
+            _nav.NavigateTo("/moderation/signalements");
+            
+            
+        }
+        catch (Exception ex)
+        {
+            
+        }
+    }
+
+    public async Task SuspendUserAsync()
+    {
+        if (!CanSuspend) return;
+
+        try
+        {
+            
+            
+            _nav.NavigateTo("/moderation/signalements");
+            CloseSuspendModal();
+        }
+        catch (Exception ex)
+        {
+        }
+    }
 
     public async Task BanUserAsync()
     {
         try
         {
-            Console.WriteLine("Utilisateur banni définitivement");
+            _nav.NavigateTo("/moderation/signalements");
             CloseBanModal();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erreur lors du bannissement : {ex.Message}");
+           
         }
     }
 
@@ -222,18 +226,10 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     {
         try
         {
-
-            Console.WriteLine("Signalement ignoré");
+            _nav.NavigateTo("/moderation/signalements");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erreur lors de l'ignorance du signalement : {ex.Message}");
         }
-    }
-
-    private void NotifyStateChanged()
-    {
-        OnStateChanged?.Invoke();
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
     }
 }

@@ -7,7 +7,6 @@ using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
-using FrontBlazor.Shared;
 using FrontBlazor.ViewModel;
 using FrontBlazor.ViewModel.Moderation;
 using FrontBlazor.ViewModel.Moderation.Signalements;
@@ -39,7 +38,6 @@ builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<IMediasService<Photo>, MediaWebService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<ClipboardService>();
-builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();

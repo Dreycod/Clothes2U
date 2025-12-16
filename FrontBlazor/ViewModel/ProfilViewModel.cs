@@ -135,7 +135,9 @@ namespace FrontBlazor.ViewModel
                 {
                     IsSameUser = true;
                     IsLoadingFavoris = true;
+                    Console.WriteLine("Task 1");
                     FavorisAnnonce = await _annonceService.GetByFavorisUtilisateur();
+                    Console.WriteLine("Task 1");
                     IsLoadingFavoris = false;
                 }
                 else

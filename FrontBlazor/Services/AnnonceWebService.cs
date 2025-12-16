@@ -20,19 +20,6 @@ public class AnnonceWebService : WritableService<Annonce>, IAnnonceService<Annon
 
         return annonces ?? new List<Annonce>();
     }
-
-    public async Task<List<Annonce>?> GetAnnoncesByCategorieId(int Id)
-    {
-        return await _httpClient.GetFromJsonAsync<List<Annonce>>(
-            $"Annonce/ByCategorieId/{Id}"
-        );
-    }
-    public async Task<List<Annonce?>?> GetAnnoncesBySousCategoryId(int Id)
-    {
-        return await _httpClient.GetFromJsonAsync<List<Annonce>>(
-            $"Annonce/BySousCategorieId/{Id}"
-        );
-    }
     public async Task<Annonce> GetAnnonceDetailById(int Id)
     {
         try
