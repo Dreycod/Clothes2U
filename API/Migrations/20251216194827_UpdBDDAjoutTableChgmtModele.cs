@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdBDDAjoutTableGenreMesure : Migration
+    public partial class UpdBDDAjoutTableChgmtModele : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,6 +57,19 @@ namespace API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_e_couleur_cou", x => x.cou_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_element_decision_eledec",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    eledec_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_element_decision_eledec", x => x.eledec_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -291,6 +304,9 @@ namespace API.Migrations
                     uti_description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     uti_valid_email = table.Column<bool>(type: "boolean", nullable: false),
                     uti_valid_telephone = table.Column<bool>(type: "boolean", nullable: false),
+                    uti_preference_notif_mail = table.Column<bool>(type: "boolean", nullable: false),
+                    uti_preference_theme = table.Column<bool>(type: "boolean", nullable: false),
+                    uti_preference_cookies = table.Column<bool>(type: "boolean", nullable: false),
                     uti_adresse_id = table.Column<int>(type: "integer", nullable: true),
                     uti_statut_id = table.Column<int>(type: "integer", nullable: false),
                     uti_id_photo = table.Column<int>(type: "integer", nullable: true),
@@ -464,6 +480,35 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "t_e_element_decision_utilisateur_eleuti",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    eleuti_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    eleuti_element_decision_id = table.Column<int>(type: "integer", nullable: false),
+                    eleuti_utilisateur_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_element_decision_utilisateur_eleuti", x => x.eleuti_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_element_decision_utilisateur_eleuti_t_e_element_decisio~",
+                        column: x => x.eleuti_element_decision_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_element_decision_eledec",
+                        principalColumn: "eledec_id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_t_e_element_decision_utilisateur_eleuti_t_e_utilisateur_uti~",
+                        column: x => x.eleuti_utilisateur_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_utilisateur_uti",
+                        principalColumn: "uti_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "t_e_note_utilisateur_notuti",
                 schema: "sae_clothes2u",
                 columns: table => new
@@ -473,6 +518,7 @@ namespace API.Migrations
                     notuti_note = table.Column<int>(type: "integer", nullable: false),
                     notuti_commentaire = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     notuti_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    notuti_statut = table.Column<bool>(type: "boolean", nullable: false),
                     notuti_noteur_id = table.Column<int>(type: "integer", nullable: false),
                     notuti_cible_id = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -641,52 +687,32 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "t_e_decision_suspension_sus",
+                name: "t_e_element_decision_annonce_eleann",
                 schema: "sae_clothes2u",
                 columns: table => new
                 {
-                    sus_id = table.Column<int>(type: "integer", nullable: false)
+                    eleann_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    sus_date_debut_suspension = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    sus_date_fin_suspension = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    sus_motif_suspension = table.Column<string>(type: "text", nullable: false),
-                    sus_traitee = table.Column<bool>(type: "boolean", nullable: false),
-                    sus_utilisateur_id = table.Column<int>(type: "integer", nullable: true),
-                    sus_utilisateur_admin_id = table.Column<int>(type: "integer", nullable: true),
-                    sus_annonce_id = table.Column<int>(type: "integer", nullable: true),
-                    sus_type_id = table.Column<int>(type: "integer", nullable: false)
+                    eleann_element_decision_id = table.Column<int>(type: "integer", nullable: false),
+                    eleann_annonce_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_t_e_decision_suspension_sus", x => x.sus_id);
+                    table.PrimaryKey("PK_t_e_element_decision_annonce_eleann", x => x.eleann_id);
                     table.ForeignKey(
-                        name: "FK_t_e_decision_suspension_sus_t_e_annonce_ann_sus_annonce_id",
-                        column: x => x.sus_annonce_id,
+                        name: "FK_t_e_element_decision_annonce_eleann_t_e_annonce_ann_eleann_~",
+                        column: x => x.eleann_annonce_id,
                         principalSchema: "sae_clothes2u",
                         principalTable: "t_e_annonce_ann",
                         principalColumn: "ann_id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_t_e_decision_suspension_sus_t_e_type_suspension_tsu_sus_typ~",
-                        column: x => x.sus_type_id,
+                        name: "FK_t_e_element_decision_annonce_eleann_t_e_element_decision_el~",
+                        column: x => x.eleann_element_decision_id,
                         principalSchema: "sae_clothes2u",
-                        principalTable: "t_e_type_suspension_tsu",
-                        principalColumn: "tsu_id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_e_decision_suspension_sus_t_e_utilisateur_uti_sus_utilisa~",
-                        column: x => x.sus_utilisateur_admin_id,
-                        principalSchema: "sae_clothes2u",
-                        principalTable: "t_e_utilisateur_uti",
-                        principalColumn: "uti_id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_e_decision_suspension_sus_t_e_utilisateur_uti_sus_utilis~1",
-                        column: x => x.sus_utilisateur_id,
-                        principalSchema: "sae_clothes2u",
-                        principalTable: "t_e_utilisateur_uti",
-                        principalColumn: "uti_id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalTable: "t_e_element_decision_eledec",
+                        principalColumn: "eledec_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -829,6 +855,35 @@ namespace API.Migrations
                         principalSchema: "sae_clothes2u",
                         principalTable: "t_e_utilisateur_uti",
                         principalColumn: "uti_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_element_decision_avis_eleavs",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    eleavs_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    eleavs_element_decision_id = table.Column<int>(type: "integer", nullable: false),
+                    eleavs_avis_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_element_decision_avis_eleavs", x => x.eleavs_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_element_decision_avis_eleavs_t_e_element_decision_elede~",
+                        column: x => x.eleavs_element_decision_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_element_decision_eledec",
+                        principalColumn: "eledec_id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_t_e_element_decision_avis_eleavs_t_e_note_utilisateur_notut~",
+                        column: x => x.eleavs_avis_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_note_utilisateur_notuti",
+                        principalColumn: "notuti_id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -1030,6 +1085,7 @@ namespace API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     mes_date_envoie = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     mes_lu = table.Column<bool>(type: "boolean", nullable: false),
+                    mes_statut = table.Column<bool>(type: "boolean", nullable: false),
                     mes_utilisateur_id = table.Column<int>(type: "integer", nullable: false),
                     mes_conversation_id = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -1132,33 +1188,94 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "t_e_demande_restauration_demres",
+                name: "t_e_decision_suspension_sus",
                 schema: "sae_clothes2u",
                 columns: table => new
                 {
-                    demres_id = table.Column<int>(type: "integer", nullable: false)
+                    sus_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    demres_utilisateur_id = table.Column<int>(type: "integer", nullable: false),
-                    demres_suspension_id = table.Column<int>(type: "integer", nullable: false),
-                    demres_demande_restauration = table.Column<string>(type: "text", nullable: true)
+                    sus_date_debut_suspension = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    sus_motif_suspension = table.Column<string>(type: "text", nullable: false),
+                    sus_traitee = table.Column<bool>(type: "boolean", nullable: false),
+                    sus_utilisateur_id = table.Column<int>(type: "integer", nullable: true),
+                    sus_utilisateur_admin_id = table.Column<int>(type: "integer", nullable: true),
+                    sus_annonce_id = table.Column<int>(type: "integer", nullable: true),
+                    sus_avis_id = table.Column<int>(type: "integer", nullable: true),
+                    sus_message_id = table.Column<int>(type: "integer", nullable: true),
+                    sus_type_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_t_e_demande_restauration_demres", x => x.demres_id);
+                    table.PrimaryKey("PK_t_e_decision_suspension_sus", x => x.sus_id);
                     table.ForeignKey(
-                        name: "FK_t_e_demande_restauration_demres_t_e_decision_suspension_sus~",
-                        column: x => x.demres_suspension_id,
+                        name: "FK_t_e_decision_suspension_sus_t_e_annonce_ann_sus_annonce_id",
+                        column: x => x.sus_annonce_id,
                         principalSchema: "sae_clothes2u",
-                        principalTable: "t_e_decision_suspension_sus",
-                        principalColumn: "sus_id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "t_e_annonce_ann",
+                        principalColumn: "ann_id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_t_e_demande_restauration_demres_t_e_utilisateur_uti_demres_~",
-                        column: x => x.demres_utilisateur_id,
+                        name: "FK_t_e_decision_suspension_sus_t_e_message_mes_sus_message_id",
+                        column: x => x.sus_message_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_message_mes",
+                        principalColumn: "mes_id");
+                    table.ForeignKey(
+                        name: "FK_t_e_decision_suspension_sus_t_e_note_utilisateur_notuti_sus~",
+                        column: x => x.sus_avis_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_note_utilisateur_notuti",
+                        principalColumn: "notuti_id");
+                    table.ForeignKey(
+                        name: "FK_t_e_decision_suspension_sus_t_e_type_suspension_tsu_sus_typ~",
+                        column: x => x.sus_type_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_type_suspension_tsu",
+                        principalColumn: "tsu_id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_e_decision_suspension_sus_t_e_utilisateur_uti_sus_utilisa~",
+                        column: x => x.sus_utilisateur_admin_id,
                         principalSchema: "sae_clothes2u",
                         principalTable: "t_e_utilisateur_uti",
                         principalColumn: "uti_id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_e_decision_suspension_sus_t_e_utilisateur_uti_sus_utilis~1",
+                        column: x => x.sus_utilisateur_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_utilisateur_uti",
+                        principalColumn: "uti_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_element_decision_message_elumes",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    elumes_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    elumes_element_decision_id = table.Column<int>(type: "integer", nullable: false),
+                    elumes_message_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_element_decision_message_elumes", x => x.elumes_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_element_decision_message_elumes_t_e_element_decision_el~",
+                        column: x => x.elumes_element_decision_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_element_decision_eledec",
+                        principalColumn: "eledec_id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_t_e_element_decision_message_elumes_t_e_message_mes_elumes_~",
+                        column: x => x.elumes_message_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_message_mes",
+                        principalColumn: "mes_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1243,6 +1360,89 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "t_e_decision_avertissement_decave",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    decave_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    decave_date_avertissement = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    decave_motif_avertissement = table.Column<string>(type: "text", nullable: true),
+                    decave_decision_suspension_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_decision_avertissement_decave", x => x.decave_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_decision_avertissement_decave_t_e_decision_suspension_s~",
+                        column: x => x.decave_decision_suspension_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_decision_suspension_sus",
+                        principalColumn: "sus_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_demande_restauration_demres",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    demres_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    demres_utilisateur_id = table.Column<int>(type: "integer", nullable: false),
+                    demres_suspension_id = table.Column<int>(type: "integer", nullable: false),
+                    demres_demande_restauration = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_demande_restauration_demres", x => x.demres_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_demande_restauration_demres_t_e_decision_suspension_sus~",
+                        column: x => x.demres_suspension_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_decision_suspension_sus",
+                        principalColumn: "sus_id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_t_e_demande_restauration_demres_t_e_utilisateur_uti_demres_~",
+                        column: x => x.demres_utilisateur_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_utilisateur_uti",
+                        principalColumn: "uti_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_sanction_san",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    san_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    san_statut = table.Column<bool>(type: "boolean", nullable: false),
+                    san_decision_suspension_id = table.Column<int>(type: "integer", nullable: false),
+                    san_element_decision_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_sanction_san", x => x.san_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_sanction_san_t_e_decision_suspension_sus_san_decision_s~",
+                        column: x => x.san_decision_suspension_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_decision_suspension_sus",
+                        principalColumn: "sus_id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_e_sanction_san_t_e_element_decision_eledec_san_element_de~",
+                        column: x => x.san_element_decision_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_element_decision_eledec",
+                        principalColumn: "eledec_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "t_e_message_validation_mesval",
                 schema: "sae_clothes2u",
                 columns: table => new
@@ -1296,6 +1496,49 @@ namespace API.Migrations
                         principalSchema: "sae_clothes2u",
                         principalTable: "t_e_photo_pho",
                         principalColumn: "pho_photo_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_ban_ban",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    ban_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ban_sanction_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_ban_ban", x => x.ban_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_ban_ban_t_e_sanction_san_ban_sanction_id",
+                        column: x => x.ban_sanction_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_sanction_san",
+                        principalColumn: "san_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_suspension_susp",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    susp_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    susp_date_fin_suspension = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    susp_sanction_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_suspension_susp", x => x.susp_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_suspension_susp_t_e_sanction_san_susp_sanction_id",
+                        column: x => x.susp_sanction_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_sanction_san",
+                        principalColumn: "san_id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -1354,6 +1597,12 @@ namespace API.Migrations
                 column: "ann_utilisateur_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_e_ban_ban_ban_sanction_id",
+                schema: "sae_clothes2u",
+                table: "t_e_ban_ban",
+                column: "ban_sanction_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_e_bloque_blo_blo_utilisateur_bloque_id",
                 schema: "sae_clothes2u",
                 table: "t_e_bloque_blo",
@@ -1378,6 +1627,12 @@ namespace API.Migrations
                 column: "con_statut_conversation_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_e_decision_avertissement_decave_decave_decision_suspensio~",
+                schema: "sae_clothes2u",
+                table: "t_e_decision_avertissement_decave",
+                column: "decave_decision_suspension_id");
+
+            migrationBuilder.CreateIndex(
                 name: "idx_decision_suspension_annonce",
                 schema: "sae_clothes2u",
                 table: "t_e_decision_suspension_sus",
@@ -1387,7 +1642,7 @@ namespace API.Migrations
                 name: "idx_decision_suspension_dates",
                 schema: "sae_clothes2u",
                 table: "t_e_decision_suspension_sus",
-                columns: new[] { "sus_date_debut_suspension", "sus_date_fin_suspension" });
+                column: "sus_date_debut_suspension");
 
             migrationBuilder.CreateIndex(
                 name: "idx_decision_suspension_type",
@@ -1400,6 +1655,18 @@ namespace API.Migrations
                 schema: "sae_clothes2u",
                 table: "t_e_decision_suspension_sus",
                 column: "sus_utilisateur_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_decision_suspension_sus_sus_avis_id",
+                schema: "sae_clothes2u",
+                table: "t_e_decision_suspension_sus",
+                column: "sus_avis_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_decision_suspension_sus_sus_message_id",
+                schema: "sae_clothes2u",
+                table: "t_e_decision_suspension_sus",
+                column: "sus_message_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_e_decision_suspension_sus_sus_utilisateur_admin_id",
@@ -1418,6 +1685,54 @@ namespace API.Migrations
                 schema: "sae_clothes2u",
                 table: "t_e_demande_restauration_demres",
                 column: "demres_utilisateur_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_annonce_eleann_eleann_annonce_id",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_annonce_eleann",
+                column: "eleann_annonce_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_annonce_eleann_eleann_element_decision~",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_annonce_eleann",
+                columns: new[] { "eleann_element_decision_id", "eleann_annonce_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_avis_eleavs_eleavs_avis_id",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_avis_eleavs",
+                column: "eleavs_avis_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_avis_eleavs_eleavs_element_decision_id~",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_avis_eleavs",
+                columns: new[] { "eleavs_element_decision_id", "eleavs_avis_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_message_elumes_elumes_element_decision~",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_message_elumes",
+                columns: new[] { "elumes_element_decision_id", "elumes_message_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_message_elumes_elumes_message_id",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_message_elumes",
+                column: "elumes_message_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_utilisateur_eleuti_eleuti_element_deci~",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_utilisateur_eleuti",
+                columns: new[] { "eleuti_element_decision_id", "eleuti_utilisateur_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_element_decision_utilisateur_eleuti_eleuti_utilisateur_~",
+                schema: "sae_clothes2u",
+                table: "t_e_element_decision_utilisateur_eleuti",
+                column: "eleuti_utilisateur_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_e_genre_gen_gen_id",
@@ -1564,6 +1879,18 @@ namespace API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "idx_sanction_decision_suspension",
+                schema: "sae_clothes2u",
+                table: "t_e_sanction_san",
+                column: "san_decision_suspension_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_sanction_element_decision",
+                schema: "sae_clothes2u",
+                table: "t_e_sanction_san",
+                column: "san_element_decision_id");
+
+            migrationBuilder.CreateIndex(
                 name: "idx_signalement_annonce_annonce",
                 schema: "sae_clothes2u",
                 table: "t_e_signalement_annonce_sigan",
@@ -1639,6 +1966,18 @@ namespace API.Migrations
                 table: "t_e_statut_conversation_sta",
                 column: "sta_libelle",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "idx_suspension_sanction",
+                schema: "sae_clothes2u",
+                table: "t_e_suspension_susp",
+                column: "susp_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_e_suspension_susp_susp_sanction_id",
+                schema: "sae_clothes2u",
+                table: "t_e_suspension_susp",
+                column: "susp_sanction_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_transaction_conversation_unique",
@@ -1848,11 +2187,35 @@ namespace API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "t_e_ban_ban",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
                 name: "t_e_bloque_blo",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
+                name: "t_e_decision_avertissement_decave",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
                 name: "t_e_demande_restauration_demres",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_element_decision_annonce_eleann",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_element_decision_avis_eleavs",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_element_decision_message_elumes",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_element_decision_utilisateur_eleuti",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
@@ -1893,6 +2256,10 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "t_e_signalement_utilisateur_siguti",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_suspension_susp",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
@@ -1944,10 +2311,6 @@ namespace API.Migrations
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
-                name: "t_e_decision_suspension_sus",
-                schema: "sae_clothes2u");
-
-            migrationBuilder.DropTable(
                 name: "t_e_message_demande_mesdem",
                 schema: "sae_clothes2u");
 
@@ -1956,11 +2319,11 @@ namespace API.Migrations
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
-                name: "t_e_note_utilisateur_notuti",
+                name: "t_e_signalement_sig",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
-                name: "t_e_signalement_sig",
+                name: "t_e_sanction_san",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
@@ -1976,10 +2339,6 @@ namespace API.Migrations
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
-                name: "t_e_type_suspension_tsu",
-                schema: "sae_clothes2u");
-
-            migrationBuilder.DropTable(
                 name: "t_e_notification_type_nottyp",
                 schema: "sae_clothes2u");
 
@@ -1988,7 +2347,23 @@ namespace API.Migrations
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(
+                name: "t_e_decision_suspension_sus",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_element_decision_eledec",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
                 name: "t_e_message_mes",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_note_utilisateur_notuti",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_type_suspension_tsu",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(

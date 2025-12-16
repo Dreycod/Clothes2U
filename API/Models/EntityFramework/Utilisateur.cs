@@ -35,9 +35,18 @@ public class Utilisateur : IEntity
     
     [Column("uti_valid_telephone")]
     public bool  ValidTelephone { get; set; }
-    
+
+    [Column("uti_preference_notif_mail")]
+    public bool PreferenceNotifMail { get; set; }
+
+    [Column("uti_preference_theme")]
+    public bool PreferenceTheme { get; set; }
+
+    [Column("uti_preference_cookies")]
+    public bool PreferenceCookies { get; set; }
+
     //id de relation
-    
+
     [Column("uti_adresse_id")]
     public int? AdresseId { get; set; }
 
@@ -122,6 +131,10 @@ public class Utilisateur : IEntity
     
     [InverseProperty(nameof(VerificationCode.Utilisateur))]
     public virtual ICollection<VerificationCode> VerificationCodes { get; set; } = new List<VerificationCode>();
+
+    [InverseProperty(nameof(ElementDecisionUtilisateur.UtilisateurElmtDecisionUti))]
+    public virtual ICollection<ElementDecisionUtilisateur> ElementDecisionUtilisateurs { get; set; } = new List<ElementDecisionUtilisateur>();
+
 
     public int GetId() => UtilisateurId;
 }

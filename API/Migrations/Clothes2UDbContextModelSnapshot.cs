@@ -200,6 +200,26 @@ namespace API.Migrations
                     b.ToTable("t_e_annonce_ann", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Ban", b =>
+                {
+                    b.Property<int>("BanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ban_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BanId"));
+
+                    b.Property<int>("SanctionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ban_sanction_id");
+
+                    b.HasKey("BanId");
+
+                    b.HasIndex("SanctionId");
+
+                    b.ToTable("t_e_ban_ban", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Bloque", b =>
                 {
                     b.Property<int>("BloqueId")
@@ -294,6 +314,34 @@ namespace API.Migrations
                     b.ToTable("t_e_couleur_cou", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.DecisionAvertissement", b =>
+                {
+                    b.Property<int>("DecisionAvertissementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("decave_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DecisionAvertissementId"));
+
+                    b.Property<DateTime>("DateAvertissement")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decave_date_avertissement");
+
+                    b.Property<int>("DecisionSuspensionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("decave_decision_suspension_id");
+
+                    b.Property<string>("MotifAvertissement")
+                        .HasColumnType("text")
+                        .HasColumnName("decave_motif_avertissement");
+
+                    b.HasKey("DecisionAvertissementId");
+
+                    b.HasIndex("DecisionSuspensionId");
+
+                    b.ToTable("t_e_decision_avertissement_decave", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Decision_suspension", b =>
                 {
                     b.Property<int>("Decision_suspensionId")
@@ -307,17 +355,21 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("sus_annonce_id");
 
+                    b.Property<int?>("AvisId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sus_avis_id");
+
                     b.Property<DateTime>("DateDebutSuspension")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sus_date_debut_suspension");
 
-                    b.Property<DateTime>("DateFinSuspension")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sus_date_fin_suspension");
-
                     b.Property<bool>("EstTraitee")
                         .HasColumnType("boolean")
                         .HasColumnName("sus_traitee");
+
+                    b.Property<int?>("MessageId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sus_message_id");
 
                     b.Property<string>("MotifSuspension")
                         .IsRequired()
@@ -341,6 +393,13 @@ namespace API.Migrations
                     b.HasIndex("AnnonceId")
                         .HasDatabaseName("idx_decision_suspension_annonce");
 
+                    b.HasIndex("AvisId");
+
+                    b.HasIndex("DateDebutSuspension")
+                        .HasDatabaseName("idx_decision_suspension_dates");
+
+                    b.HasIndex("MessageId");
+
                     b.HasIndex("TypeSuspensionId")
                         .HasDatabaseName("idx_decision_suspension_type");
 
@@ -348,9 +407,6 @@ namespace API.Migrations
 
                     b.HasIndex("UtilisateurId")
                         .HasDatabaseName("idx_decision_suspension_utilisateur");
-
-                    b.HasIndex("DateDebutSuspension", "DateFinSuspension")
-                        .HasDatabaseName("idx_decision_suspension_dates");
 
                     b.ToTable("t_e_decision_suspension_sus", "sae_clothes2u");
                 });
@@ -383,6 +439,124 @@ namespace API.Migrations
                     b.HasIndex("UtilisateurId");
 
                     b.ToTable("t_e_demande_restauration_demres", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecision", b =>
+                {
+                    b.Property<int>("ElementDecisionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("eledec_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionId"));
+
+                    b.HasKey("ElementDecisionId");
+
+                    b.ToTable("t_e_element_decision_eledec", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAnnonce", b =>
+                {
+                    b.Property<int>("ElementDecisionAnnonceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("eleann_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionAnnonceId"));
+
+                    b.Property<int>("AnnonceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eleann_annonce_id");
+
+                    b.Property<int>("ElementDecisionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eleann_element_decision_id");
+
+                    b.HasKey("ElementDecisionAnnonceId");
+
+                    b.HasIndex("AnnonceId");
+
+                    b.HasIndex("ElementDecisionId", "AnnonceId");
+
+                    b.ToTable("t_e_element_decision_annonce_eleann", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAvis", b =>
+                {
+                    b.Property<int>("ElementDecisionAvisId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("eleavs_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionAvisId"));
+
+                    b.Property<int>("AvisId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eleavs_avis_id");
+
+                    b.Property<int>("ElementDecisionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eleavs_element_decision_id");
+
+                    b.HasKey("ElementDecisionAvisId");
+
+                    b.HasIndex("AvisId");
+
+                    b.HasIndex("ElementDecisionId", "AvisId");
+
+                    b.ToTable("t_e_element_decision_avis_eleavs", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionMessage", b =>
+                {
+                    b.Property<int>("ElementDecisionMessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("elumes_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionMessageId"));
+
+                    b.Property<int>("ElementDecisionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("elumes_element_decision_id");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("integer")
+                        .HasColumnName("elumes_message_id");
+
+                    b.HasKey("ElementDecisionMessageId");
+
+                    b.HasIndex("MessageId");
+
+                    b.HasIndex("ElementDecisionId", "MessageId");
+
+                    b.ToTable("t_e_element_decision_message_elumes", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionUtilisateur", b =>
+                {
+                    b.Property<int>("ElementDecisionUtilisateurId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("eleuti_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionUtilisateurId"));
+
+                    b.Property<int>("ElementDecisionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eleuti_element_decision_id");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eleuti_utilisateur_id");
+
+                    b.HasKey("ElementDecisionUtilisateurId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.HasIndex("ElementDecisionId", "UtilisateurId");
+
+                    b.ToTable("t_e_element_decision_utilisateur_eleuti", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Est_De_Couleur", b =>
@@ -548,6 +722,10 @@ namespace API.Migrations
                     b.Property<bool>("MessageLu")
                         .HasColumnType("boolean")
                         .HasColumnName("mes_lu");
+
+                    b.Property<bool>("MessageStatut")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mes_statut");
 
                     b.Property<int>("UtilisateurId")
                         .HasColumnType("integer")
@@ -753,6 +931,10 @@ namespace API.Migrations
                     b.Property<int>("Note")
                         .HasColumnType("integer")
                         .HasColumnName("notuti_note");
+
+                    b.Property<bool>("Statut")
+                        .HasColumnType("boolean")
+                        .HasColumnName("notuti_statut");
 
                     b.HasKey("NoteUtilisateurId");
 
@@ -1019,6 +1201,38 @@ namespace API.Migrations
                     b.ToTable("t_e_role_utilisateur_roluti", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Sanction", b =>
+                {
+                    b.Property<int>("SanctionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("san_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SanctionId"));
+
+                    b.Property<int>("DecisionSuspensionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("san_decision_suspension_id");
+
+                    b.Property<int>("ElementDecisionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("san_element_decision_id");
+
+                    b.Property<bool>("Statut")
+                        .HasColumnType("boolean")
+                        .HasColumnName("san_statut");
+
+                    b.HasKey("SanctionId");
+
+                    b.HasIndex("DecisionSuspensionId")
+                        .HasDatabaseName("idx_sanction_decision_suspension");
+
+                    b.HasIndex("ElementDecisionId")
+                        .HasDatabaseName("idx_sanction_element_decision");
+
+                    b.ToTable("t_e_sanction_san", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Signalement", b =>
                 {
                     b.Property<int>("SignalementId")
@@ -1233,6 +1447,33 @@ namespace API.Migrations
                     b.ToTable("t_e_statut_stauti", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Suspension", b =>
+                {
+                    b.Property<int>("SuspensionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("susp_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SuspensionId"));
+
+                    b.Property<DateTime>("DateFinSuspension")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("susp_date_fin_suspension");
+
+                    b.Property<int>("SanctionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("susp_sanction_id");
+
+                    b.HasKey("SuspensionId");
+
+                    b.HasIndex("SanctionId");
+
+                    b.HasIndex("SuspensionId")
+                        .HasDatabaseName("idx_suspension_sanction");
+
+                    b.ToTable("t_e_suspension_susp", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Tag", b =>
                 {
                     b.Property<int>("TagId")
@@ -1396,6 +1637,18 @@ namespace API.Migrations
                     b.Property<int?>("PhotoId")
                         .HasColumnType("integer")
                         .HasColumnName("uti_id_photo");
+
+                    b.Property<bool>("PreferenceCookies")
+                        .HasColumnType("boolean")
+                        .HasColumnName("uti_preference_cookies");
+
+                    b.Property<bool>("PreferenceNotifMail")
+                        .HasColumnType("boolean")
+                        .HasColumnName("uti_preference_notif_mail");
+
+                    b.Property<bool>("PreferenceTheme")
+                        .HasColumnType("boolean")
+                        .HasColumnName("uti_preference_theme");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer")
@@ -1646,6 +1899,17 @@ namespace API.Migrations
                     b.Navigation("Utilisateur");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Ban", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Sanction", "SanctionBan")
+                        .WithMany("Bans")
+                        .HasForeignKey("SanctionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SanctionBan");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Bloque", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurBloque")
@@ -1683,12 +1947,31 @@ namespace API.Migrations
                     b.Navigation("StatutConversation");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.DecisionAvertissement", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Decision_suspension", "DecisionSuspension")
+                        .WithMany("DecisionAvertissements")
+                        .HasForeignKey("DecisionSuspensionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DecisionSuspension");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Decision_suspension", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Annonce", "AnnonceSuspendu")
                         .WithMany("Decisions")
                         .HasForeignKey("AnnonceId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("API.Models.EntityFramework.NoteUtilisateur", "Avis")
+                        .WithMany("Decision_Suspensions")
+                        .HasForeignKey("AvisId");
+
+                    b.HasOne("API.Models.EntityFramework.Message", "MessageDecision")
+                        .WithMany("Decision_suspensions")
+                        .HasForeignKey("MessageId");
 
                     b.HasOne("API.Models.EntityFramework.TypeSuspension", "TypeSuspension")
                         .WithMany("Decision_suspensions")
@@ -1709,7 +1992,11 @@ namespace API.Migrations
 
                     b.Navigation("AnnonceSuspendu");
 
+                    b.Navigation("Avis");
+
                     b.Navigation("Decisionnaire");
+
+                    b.Navigation("MessageDecision");
 
                     b.Navigation("TypeSuspension");
 
@@ -1733,6 +2020,82 @@ namespace API.Migrations
                     b.Navigation("Plaignant");
 
                     b.Navigation("Suspension");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAnnonce", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Annonce", "AnnonceElmtDecision")
+                        .WithMany("ElementDecisionAnnonces")
+                        .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.ElementDecision", "Elementdecision")
+                        .WithMany("ElementDecisionAnnonces")
+                        .HasForeignKey("ElementDecisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AnnonceElmtDecision");
+
+                    b.Navigation("Elementdecision");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAvis", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.NoteUtilisateur", "Avis")
+                        .WithMany("Elementsdecisionavis")
+                        .HasForeignKey("AvisId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.ElementDecision", "Elementdecision")
+                        .WithMany("Elementdecisionavis")
+                        .HasForeignKey("ElementDecisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Avis");
+
+                    b.Navigation("Elementdecision");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionMessage", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.ElementDecision", "Elementdecision")
+                        .WithMany("Elementdecisionmessages")
+                        .HasForeignKey("ElementDecisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Message", "MessageElmtDeci")
+                        .WithMany("Elementdecisionmessages")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Elementdecision");
+
+                    b.Navigation("MessageElmtDeci");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionUtilisateur", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.ElementDecision", "Elementdecision")
+                        .WithMany("Elementdecisionutilisateur")
+                        .HasForeignKey("ElementDecisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurElmtDecisionUti")
+                        .WithMany("ElementDecisionUtilisateurs")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Elementdecision");
+
+                    b.Navigation("UtilisateurElmtDecisionUti");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Est_De_Couleur", b =>
@@ -2026,6 +2389,25 @@ namespace API.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Sanction", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Decision_suspension", "Decision_sus")
+                        .WithMany("Sanctions")
+                        .HasForeignKey("DecisionSuspensionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.ElementDecision", "Elementdecision")
+                        .WithMany("Sanctions")
+                        .HasForeignKey("ElementDecisionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Decision_sus");
+
+                    b.Navigation("Elementdecision");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Signalement", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.TypeSignalement", "TypeSignalement")
@@ -2110,6 +2492,17 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("Categorie");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.Suspension", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Sanction", "SanctionSus")
+                        .WithMany("Suspensions")
+                        .HasForeignKey("SanctionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SanctionSus");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
@@ -2216,6 +2609,8 @@ namespace API.Migrations
 
                     b.Navigation("Decisions");
 
+                    b.Navigation("ElementDecisionAnnonces");
+
                     b.Navigation("LesConversations");
 
                     b.Navigation("LesVisualisations");
@@ -2260,7 +2655,24 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Decision_suspension", b =>
                 {
+                    b.Navigation("DecisionAvertissements");
+
                     b.Navigation("DemandesRes");
+
+                    b.Navigation("Sanctions");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.ElementDecision", b =>
+                {
+                    b.Navigation("ElementDecisionAnnonces");
+
+                    b.Navigation("Elementdecisionavis");
+
+                    b.Navigation("Elementdecisionmessages");
+
+                    b.Navigation("Elementdecisionutilisateur");
+
+                    b.Navigation("Sanctions");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.EtatArticle", b =>
@@ -2280,6 +2692,10 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Message", b =>
                 {
+                    b.Navigation("Decision_suspensions");
+
+                    b.Navigation("Elementdecisionmessages");
+
                     b.Navigation("MessageDemande");
 
                     b.Navigation("MessageTexte");
@@ -2303,6 +2719,10 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.NoteUtilisateur", b =>
                 {
+                    b.Navigation("Decision_Suspensions");
+
+                    b.Navigation("Elementsdecisionavis");
+
                     b.Navigation("Signalements");
                 });
 
@@ -2336,6 +2756,13 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.EntityFramework.RoleUtilisateur", b =>
                 {
                     b.Navigation("Utilisateurs");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.Sanction", b =>
+                {
+                    b.Navigation("Bans");
+
+                    b.Navigation("Suspensions");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Signalement", b =>
@@ -2404,6 +2831,8 @@ namespace API.Migrations
                     b.Navigation("BloqueParUtilisateurs");
 
                     b.Navigation("DemandesRestauration");
+
+                    b.Navigation("ElementDecisionUtilisateurs");
 
                     b.Navigation("LesDecisions");
 

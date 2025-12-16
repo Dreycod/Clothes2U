@@ -18,12 +18,18 @@ namespace API.Services
         {
             var now = DateTime.UtcNow;
 
-            var suspensions = await _context.DecisionSuspensions
-                .Include(s => s.UtilisateurSuspendu)
-                .Where(s => !s.EstTraitee && s.DateFinSuspension <= now && s.TypeSuspensionId == 1)
-                .ToListAsync();
+            var decisions = await _context.DecisionSuspensions
+            .Include(ds => ds.UtilisateurSuspendu)
+            .Where(ds =>
+                !ds.EstTraitee &&
+                ds.TypeSuspensionId == 1 &&
+                ds.Sanctions.Any(s =>
+                    s.Suspensions.Any(su => su.DateFinSuspension <= now)
+                )
+            )
+            .ToListAsync();
 
-            foreach (var s in suspensions)
+            foreach (var s in decisions)
             {
                 if (s.UtilisateurSuspendu != null)
                 {

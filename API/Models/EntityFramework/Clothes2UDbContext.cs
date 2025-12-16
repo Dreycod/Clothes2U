@@ -10,12 +10,19 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Achete> Achetes { get; set; }
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
+    public DbSet<Ban> Bans { get; set; }
     public DbSet<Bloque> Bloques { get; set; }
     public DbSet<Categorie>  Categories { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<Couleur>  Couleurs { get; set; }
     public DbSet<Decision_suspension> DecisionSuspensions { get; set; }
+    public DbSet<DecisionAvertissement> DecisionAvertissements { get; set; }
     public DbSet<DemandeRestauration> DemandesRestauration { get; set; }
+    public DbSet<ElementDecision> ElementDecisions { get; set; }
+    public DbSet<ElementDecisionAnnonce> ElementDecisionAnnonces { get; set; }
+    public DbSet<ElementDecisionAvis> ElementDecisionAvises { get; set; }
+    public DbSet<ElementDecisionMessage> ElementDecisionMessages { get; set; }
+    public DbSet<ElementDecisionUtilisateur> ElementDecisionUtilisateurs { get; set; }
     public DbSet<Est_De_Couleur> Est_De_Couleurs { get; set; }
     public DbSet<EtatArticle> EtatArticles { get; set; }
     public DbSet<Favoris> Favorises { get; set; }
@@ -40,6 +47,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<RoleUtilisateur> RolesUtilisateurs { get; set; }
+    public DbSet<Sanction> Sanctions { get; set; }
     public DbSet<Signalement> Signalements { get; set; }
     public DbSet<SignalementAnnonce> SignalementAnnonces { get; set; }
     public DbSet<SignalementAvis>  SignalementAvises { get; set; }
@@ -48,6 +56,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<StatutAnnonce> StatutAnnonces { get; set; }
     public DbSet<StatutConversation> StatutConversations { get; set; }
     public DbSet<StatutUtilisateur> StatutUtilisateurs { get; set; }
+    public DbSet<Suspension> Suspensions { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Taille> Tailles { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
@@ -226,6 +235,18 @@ public partial class Clothes2UDbContext : DbContext
                .HasDatabaseName("idx_annonce_genre");
             });
 
+        modelBuilder.Entity<Ban>(entity =>
+        {
+            entity.HasKey(e => e.BanId);
+            
+            entity.HasOne(e => e.SanctionBan)
+                .WithMany(u => u.Bans)
+                .HasForeignKey(e => e.SanctionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.SanctionId);
+        });
+
         modelBuilder.Entity<Bloque>(entity =>
         {
             entity.HasKey(e => e.BloqueId);
@@ -291,9 +312,6 @@ public partial class Clothes2UDbContext : DbContext
                 .HasColumnName("sus_date_debut_suspension")
                 .IsRequired();
             
-            entity.Property(e => e.DateFinSuspension)
-                .HasColumnName("sus_date_fin_suspension")
-                .IsRequired();
             
             entity.Property(e => e.MotifSuspension)
                 .HasColumnName("sus_motif_suspension")
@@ -356,8 +374,23 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.TypeSuspensionId)
                 .HasDatabaseName("idx_decision_suspension_type");
             
-            entity.HasIndex(e => new { e.DateDebutSuspension, e.DateFinSuspension })
+            entity.HasIndex(e => new { e.DateDebutSuspension })
                 .HasDatabaseName("idx_decision_suspension_dates");
+        });
+
+        modelBuilder.Entity<DecisionAvertissement>(entity =>
+        {
+            entity.HasKey(e => e.DecisionAvertissementId);
+            
+
+            
+            entity.HasOne(e => e.DecisionSuspension)
+                .WithMany(da => da.DecisionAvertissements)
+                .HasForeignKey(e => e.DecisionSuspensionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasIndex(e => e.DecisionSuspensionId);
+
         });
 
         modelBuilder.Entity<DemandeRestauration>(entity =>
@@ -376,6 +409,79 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.HasIndex(e => e.UtilisateurId);
             entity.HasIndex(e => e.SuspensionId);
+        });
+
+        modelBuilder.Entity<ElementDecision>(entity =>
+        {
+            entity.HasKey(e => e.ElementDecisionId);
+        });
+
+        modelBuilder.Entity<ElementDecisionAnnonce>(entity =>
+        {
+            entity.HasKey(e => e.ElementDecisionAnnonceId);
+    
+            entity.HasOne(e => e.Elementdecision)
+                .WithMany(ed => ed.ElementDecisionAnnonces)
+                .HasForeignKey(e => e.ElementDecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasOne(e => e.AnnonceElmtDecision)
+                .WithMany(a => a.ElementDecisionAnnonces)
+                .HasForeignKey(e => e.AnnonceId)
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasIndex(e => new { e.ElementDecisionId, e.AnnonceId });
+        });
+
+        modelBuilder.Entity<ElementDecisionAvis>(entity =>
+        {
+            entity.HasKey(e => e.ElementDecisionAvisId);
+
+            entity.HasOne(e => e.Elementdecision)
+                .WithMany(ed => ed.Elementdecisionavis)
+                .HasForeignKey(e => e.ElementDecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Avis)
+                .WithMany(a => a.Elementsdecisionavis)
+                .HasForeignKey(e => e.AvisId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.ElementDecisionId, e.AvisId });
+        });
+
+        modelBuilder.Entity<ElementDecisionMessage>(entity =>
+        {
+            entity.HasKey(e => e.ElementDecisionMessageId);
+    
+            entity.HasOne(e => e.Elementdecision)
+                .WithMany(ed => ed.Elementdecisionmessages)
+                .HasForeignKey(e => e.ElementDecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasOne(e => e.MessageElmtDeci)
+                .WithMany(m => m.Elementdecisionmessages)
+                .HasForeignKey(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasIndex(e => new { e.ElementDecisionId, e.MessageId });
+        });
+
+        modelBuilder.Entity<ElementDecisionUtilisateur>(entity =>
+        {
+            entity.HasKey(e => e.ElementDecisionUtilisateurId);
+    
+            entity.HasOne(e => e.Elementdecision)
+                .WithMany(ed => ed.Elementdecisionutilisateur)
+                .HasForeignKey(e => e.ElementDecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasOne(e => e.UtilisateurElmtDecisionUti)
+                .WithMany(u => u.ElementDecisionUtilisateurs)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasIndex(e => new { e.ElementDecisionId, e.UtilisateurId });
         });
 
         modelBuilder.Entity<Est_De_Couleur>(entity =>
@@ -857,9 +963,29 @@ public partial class Clothes2UDbContext : DbContext
             .OnDelete(DeleteBehavior.ClientSetNull);
     });
     
-    
-    
-    modelBuilder.Entity<Signalement>(entity =>
+    modelBuilder.Entity<Sanction>(entity =>
+    {
+        entity.HasKey(e => e.SanctionId);
+        
+        entity.HasOne(e => e.Decision_sus)
+            .WithMany(ds => ds.Sanctions)
+            .HasForeignKey(e => e.DecisionSuspensionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasOne(e => e.Elementdecision)
+            .WithMany(ed => ed.Sanctions)
+            .HasForeignKey(e => e.ElementDecisionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasIndex(e => e.DecisionSuspensionId)
+            .HasDatabaseName("idx_sanction_decision_suspension");
+
+        entity.HasIndex(e => e.ElementDecisionId)
+            .HasDatabaseName("idx_sanction_element_decision");
+    });
+
+
+        modelBuilder.Entity<Signalement>(entity =>
     {
         entity.ToTable("t_e_signalement_sig");
         
@@ -1085,7 +1211,21 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(u => u.StatutId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
-        
+
+        modelBuilder.Entity<Suspension>(entity =>
+        {
+            entity.HasKey(e => e.SuspensionId);
+            
+            entity.HasOne(e => e.SanctionSus)
+                .WithMany(u => u.Suspensions)
+                .HasForeignKey(e => e.SanctionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.SuspensionId)
+                .HasDatabaseName("idx_suspension_sanction");
+
+        });
+
         modelBuilder.Entity<Tag>(entity =>
         {
             entity.HasKey(e => e.TagId);

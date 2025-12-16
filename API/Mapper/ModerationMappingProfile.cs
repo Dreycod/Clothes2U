@@ -21,8 +21,7 @@ public class ModerationMappingProfile : Profile
 
             .ForMember(dest => dest.SuspensionId, opt => opt.MapFrom(src => src.SuspensionId))
             .ForMember(dest => dest.MotifSuspension, opt => opt.MapFrom(src => src.Suspension.MotifSuspension))
-            .ForMember(dest => dest.DateDebutSuspension, opt => opt.MapFrom(src => src.Suspension.DateDebutSuspension))
-            .ForMember(dest => dest.DateFinSuspension, opt => opt.MapFrom(src => src.Suspension.DateFinSuspension));
+            .ForMember(dest => dest.DateDebutSuspension, opt => opt.MapFrom(src => src.Suspension.DateDebutSuspension));
 
 
         CreateMap<DemandeRestaurationCreateDTO, DemandeRestauration>();
@@ -30,7 +29,6 @@ public class ModerationMappingProfile : Profile
         CreateMap<Decision_suspension, DecisionSuspensionDTO>()
             .ForMember(dest => dest.DecisionSuspensionId, opt => opt.MapFrom(src => src.Decision_suspensionId))
             .ForMember(dest => dest.DateDebut, opt => opt.MapFrom(src => src.DateDebutSuspension))
-            .ForMember(dest => dest.DateFin, opt => opt.MapFrom(src => src.DateFinSuspension))
             .ForMember(dest => dest.EstTraitee, opt => opt.MapFrom(src => src.EstTraitee))
             .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
@@ -40,7 +38,6 @@ public class ModerationMappingProfile : Profile
         CreateMap<Decision_suspension, DecisionSuspensionDetailDTO>()
             .ForMember(dest => dest.DecisionSuspensionId, opt => opt.MapFrom(src => src.Decision_suspensionId))
             .ForMember(dest => dest.DateDebut, opt => opt.MapFrom(src => src.DateDebutSuspension))
-            .ForMember(dest => dest.DateFin, opt => opt.MapFrom(src => src.DateFinSuspension))
             .ForMember(dest => dest.EstTraitee, opt => opt.MapFrom(src => src.EstTraitee))
             .ForMember(dest => dest.Raison, opt => opt.MapFrom(src => src.MotifSuspension))
 
@@ -59,7 +56,6 @@ public class ModerationMappingProfile : Profile
         CreateMap<DecisionSuspensionCreateDTO, Decision_suspension>()
             .ForMember(dest => dest.Decision_suspensionId, opt => opt.Ignore()) // la DB gère l'ID
             .ForMember(dest => dest.DateDebutSuspension, opt => opt.MapFrom(src => src.DateDebut))
-            .ForMember(dest => dest.DateFinSuspension, opt => opt.MapFrom(src => src.DateFin))
             .ForMember(dest => dest.MotifSuspension, opt => opt.MapFrom(src => src.Raison))
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.UtilisateurAdminId, opt => opt.MapFrom(src => src.UtilisateurAdminId))

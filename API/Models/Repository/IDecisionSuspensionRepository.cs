@@ -6,7 +6,6 @@ namespace API.Models.Repository
         : IDataRepository<TEntity, TIdentifier>
     {
         Task<IEnumerable<TEntity>> GetAllAsyncByUser(TIdentifier utilisateurId);
-        Task<IEnumerable<TEntity>> GetActiveSuspensionsAsync();
         Task<IEnumerable<TEntity>> SearchAsync(DecisionSuspensionSearchRequestDTO request);
     }
 }

@@ -19,15 +19,15 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        // Toutes les suspensions actives
-        [HttpGet("Active")]
-        [ProducesResponseType(typeof(IEnumerable<DecisionSuspensionDTO>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<DecisionSuspensionDTO>>> GetActiveSuspensions()
-        {
-            var suspensions = await _suspensionManager.GetActiveSuspensionsAsync();
-            var dto = _mapper.Map<IEnumerable<DecisionSuspensionDTO>>(suspensions);
-            return Ok(dto);
-        }
+        //// Toutes les suspensions actives
+        //[HttpGet("Active")]
+        //[ProducesResponseType(typeof(IEnumerable<DecisionSuspensionDTO>), StatusCodes.Status200OK)]
+        //public async Task<ActionResult<IEnumerable<DecisionSuspensionDTO>>> GetActiveSuspensions()
+        //{
+        //    var suspensions = await _suspensionManager.GetActiveSuspensionsAsync();
+        //    var dto = _mapper.Map<IEnumerable<DecisionSuspensionDTO>>(suspensions);
+        //    return Ok(dto);
+        //}
 
         // Toutes les suspensions d'un utilisateur
         [HttpGet("ByUtilisateur/{utilisateurId}")]

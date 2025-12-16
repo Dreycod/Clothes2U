@@ -124,6 +124,9 @@ public class Annonce : IEntity
     [InverseProperty(nameof(Visualisation.AnnonceVisu))]
     public virtual ICollection<Visualisation> LesVisualisations { get; set; } = new List<Visualisation>();
 
+    [InverseProperty(nameof(ElementDecisionAnnonce.AnnonceElmtDecision))]
+    public virtual ICollection<ElementDecisionAnnonce> ElementDecisionAnnonces { get; set; } = new List<ElementDecisionAnnonce>();
+
     [InverseProperty(nameof(Recense.Annonce))]
     [NavigationProperty]
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();

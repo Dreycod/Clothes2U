@@ -38,13 +38,13 @@ namespace API.Models.Repository.Managers
                 .ToListAsync();
         }
 
-        // Suspensions encore actives
-        public async Task<IEnumerable<Decision_suspension>> GetActiveSuspensionsAsync()
-        {
-            return await BaseDecisionSuspensionQuery()
-                .Where(d => d.DateFinSuspension > DateTime.UtcNow)
-                .ToListAsync();
-        }
+        //// Suspensions encore actives
+        //public async Task<IEnumerable<Decision_suspension>> GetActiveSuspensionsAsync()
+        //{
+        //    return await BaseDecisionSuspensionQuery()
+        //        .Where(d => d.DateFinSuspension > DateTime.UtcNow)
+        //        .ToListAsync();
+        //}
 
         // Recherche filtrée
         public async Task<IEnumerable<Decision_suspension>> SearchAsync(DecisionSuspensionSearchRequestDTO request)
@@ -66,8 +66,6 @@ namespace API.Models.Repository.Managers
             if (request.DateDebut.HasValue)
                 query = query.Where(d => d.DateDebutSuspension >= request.DateDebut.Value);
 
-            if (request.DateFin.HasValue)
-                query = query.Where(d => d.DateFinSuspension <= request.DateFin.Value);
 
             return await query.ToListAsync();
         }
