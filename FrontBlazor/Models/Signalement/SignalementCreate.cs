@@ -1,6 +1,6 @@
 ﻿namespace FrontBlazor.Models
 {
-    public class SignalementCreate
+    public abstract class SignalementCreate
     {
         public string SignalementMotif { get; set; } = null!;
         public int TypeSignalementId { get; set; }
