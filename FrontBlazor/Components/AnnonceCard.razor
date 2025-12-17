@@ -32,7 +32,9 @@
     [Parameter] public EventCallback<Annonce> OnClickAnnonce { get; set; }
     [Inject] DetailAnnonceViewModel DetailVM { get; set; }
 
-    private string PhotoUrl => MediasService.GetPhotoUrl(annonceComponent.Photos.First());
+    private string PhotoUrl => annonceComponent.Photos.Any() && annonceComponent.Photos.First() > 0
+                                 ? MediasService.GetPhotoUrl(annonceComponent.Photos.First())
+                                 : "";
     private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
 
     private async Task ToggleFavorite()

@@ -1,4 +1,4 @@
-﻿@page "/product/{Id:int}" 
+﻿@page "/product/{Id:int}"
 
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
@@ -106,8 +106,8 @@
 
                 <!-- Seller Info -->
                 <div class="seller-section" @onclick="VM_DetailAnnonce.GotoProfile">
-                    <img class="seller-avatar" src="@(VM_DetailAnnonce.GetPhoto(utilisateur.PhotoProfilId))"/>
-                    <div class="seller-info"> 
+                    <img class="seller-avatar" src="@(VM_DetailAnnonce.GetPhoto(utilisateur.PhotoProfilId))" />
+                    <div class="seller-info">
                         <h3 class="seller-name">@(utilisateur.Login ?? "Vendeur")</h3>
                         <div class="seller-rating">
                             <i class="bi bi-star-fill"></i>
@@ -179,7 +179,7 @@
                     {
                         <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
                             <div class="product-image-container">
-                                <img class="product-image" src="@(VM_DetailAnnonce.GetPhoto(similarAnnonce.Photos.First()))"/>
+                                <img class="product-image" src="@(VM_DetailAnnonce.GetPhoto(similarAnnonce.Photos.First()))" />
                                 <button class="wishlist-btn"
                                         @onclick:stopPropagation="true"
                                         @onclick="() => VM_DetailAnnonce.ToggleFavorite(similarAnnonce.AnnonceId)">
@@ -208,6 +208,56 @@
         </div>
     }
 </div>
+
+<!-- Add Review Modal -->
+@if (VM_DetailAnnonce.ShowSignalerModal)
+{
+    <div class="modal-overlay" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Ajouter un avis</h3>
+                <button class="modal-close" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Reason -->
+                <div class="form-group">
+                    <label class="form-label">Raison</label>
+                    <textarea class="form-textarea"
+                              placeholder="Partagez votre opinion sur cette annonce..."
+                              @bind="VM_DetailAnnonce.SignalementRaison"
+                              @bind:event="oninput"
+                              rows="6"></textarea>
+                </div>
+                @* 
+                @if (!string.IsNullOrEmpty(VM_Profil.ReviewErrorMessage))
+                {
+                    <div class="alert alert-error">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>@VM_Profil.ReviewErrorMessage</span>
+                    </div>
+                } *@
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_DetailAnnonce.ToggleSignalerModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_DetailAnnonce.SubmitReport" disabled="@VM_DetailAnnonce.IsSubmittingReport">
+                    @if (VM_Profil.IsSubmittingReview)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>Signaler l'annonce</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter]

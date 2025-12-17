@@ -23,7 +23,7 @@ public class MediaWebService : WritableService<Photo>, IMediasService<Photo>
     public string GetPhotoUrl(int photoId)
     {
         var baseUrl = _httpClient.BaseAddress?.ToString();
-        return $"{baseUrl}Medias/Photos/{photoId}";
+        return $"{baseUrl}Medias/Photos/{photoId}" ?? "";
     }
 
     public async Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, string fileName)

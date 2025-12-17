@@ -34,6 +34,7 @@ public class DetailAnnonceViewModel
     public bool IsUserSuspended { get; set; } = false;
     public bool IsBlockedByUser { get; set; } = false;
     public bool ShowSignalerModal { get; set; } = false;
+    public string SignalementRaison { get; set; } = string.Empty;
     public bool IsSubmittingReport { get; set; } = false;
 
     public DetailAnnonceViewModel(IAnnonceService annonceService,
@@ -226,14 +227,14 @@ public class DetailAnnonceViewModel
     {
         ShowSignalerModal = !ShowSignalerModal;
     }
-    public async Task SubmitReport(string reason)
+    public async Task SubmitReport()
     {
         IsSubmittingReport = true;
         try
         {
             SignalementCreate newReport = new SignalementCreate
             {
-                SignalementMotif = reason,
+                SignalementMotif = SignalementRaison,
             };
 
             await _signalementService.CreateSignalement(newReport);
