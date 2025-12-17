@@ -113,7 +113,7 @@ namespace FrontBlazor.ViewModel
                 IsBlockedByUser = user.blockedByCurrentUser;
                 IsFollowing = user.followeddByCurrentUser;
 
-                ViewingUser = user;
+                 ViewingUser = user;
 
                 var tasks = new List<Task>
                  {
@@ -209,25 +209,18 @@ namespace FrontBlazor.ViewModel
             bool wasFollowing = ViewingUser.followeddByCurrentUser;
             ViewingUser.followeddByCurrentUser = !ViewingUser.followeddByCurrentUser;
 
-            if (!wasFollowing)
-            {
-                ViewingUser.Abonnes += 1;
-            }
-            else
-            {
-                ViewingUser.Abonnes -= 1;
-            }
-
             NotifyStateChanged();
 
             try
             {
                 if (!wasFollowing)
                 {
+                    ViewingUser.Abonnes += 1;
                     await _abonnementService.AddAbonnement(ViewingUser.UtilisateurId);
                 }
                 else
                 {
+                    ViewingUser.Abonnes -= 1;
                     await _abonnementService.DeleteAbonnement(ViewingUser.UtilisateurId);
                 }
             }
@@ -380,18 +373,16 @@ namespace FrontBlazor.ViewModel
             _navigationManager.Refresh(true);
         }
 
-        public void SignalerUtilisateur()
+        public async void SignalerUtilisateur()
         {
-            //showDotsDropdown = false;
-            //Signalement signalement = new Signalement
-            //{
-            //     SignalementDate = DateTime.Now,
-            //     SignalementMotif = "Inappropri",
-            //    public string Type { get; set; } = null!;
-            //    public string LoginUtilisateurSignale { get; set; } = null!;
-            //    public int? PhotoProfilUtilisateurId { get; set; }
-            //  };
-            //_signalementService.AddAsync(signalement);
+            showDotsDropdown = false;
+            SignalementUtilisateurCreate signalement = new SignalementUtilisateurCreate
+            {
+                SignalementMotif = "Inapproprié",
+                UtilisateurSignaleId = ViewingUser!.UtilisateurId,
+            };
+
+            await _signalementService.CreateSignalement(signalement);
             
         }
 

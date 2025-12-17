@@ -232,9 +232,10 @@ public class DetailAnnonceViewModel
         IsSubmittingReport = true;
         try
         {
-            SignalementCreate newReport = new SignalementCreate
+            SignalementAnnonceCreate newReport = new SignalementAnnonceCreate
             {
                 SignalementMotif = SignalementRaison,
+                AnnonceSignaleeId = AnnonceDetail.AnnonceId,
             };
 
             await _signalementService.CreateSignalement(newReport);
