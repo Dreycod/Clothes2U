@@ -1,27 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API.Models.EntityFramework
+namespace API.Models.EntityFramework;
+
+
+[Table("t_e_element_decision_annonce_eda")]
+public class ElementDecisionAnnonce : IEntity
 {
-    [Table("t_e_element_decision_annonce_eleann")]
-    public class ElementDecisionAnnonce
-    {
-        [Key]
-        [Column("eleann_id")]
-        public int ElementDecisionAnnonceId { get; set; }
-
-        [Column("eleann_element_decision_id")]
-        public int ElementDecisionId { get; set; }
-
-        [Column("eleann_annonce_id")]
-        public int AnnonceId { get; set; }
-
-        [ForeignKey(nameof(ElementDecisionId))]
-        [InverseProperty(nameof(ElementDecision.ElementDecisionAnnonces))]
-        public virtual ElementDecision Elementdecision { get; set; }
-
-        [ForeignKey(nameof(AnnonceId))]
-        [InverseProperty(nameof(Annonce.ElementDecisionAnnonces))]
-        public virtual Annonce AnnonceElmtDecision { get; set; }
-    }
+    [Key]
+    [Column("eda_id")]
+    public int ElementDecisionAnnonceId { get; set; }
+    
+    [Column("eda_annonce_id")]
+    public int AnnonceId { get; set; }
+    
+    [ForeignKey(nameof(ElementDecisionAnnonceId))]
+    [InverseProperty(nameof(Annonce.Decisions))]
+    public virtual Annonce Annonce { get; set; } = null!;
+    
+    [Column("eda_element_decision_id")]
+    public int ElementDecisionId { get; set; }
+    
+    [ForeignKey(nameof(ElementDecisionAnnonceId))]
+    [InverseProperty(nameof(ElementDecision.ElementDecisionAnnonce))]
+    public virtual ElementDecision ElementDecision { get; set; } = null!;
+    
+    public int GetId() => ElementDecisionAnnonceId;
 }

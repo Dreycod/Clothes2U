@@ -1,29 +1,37 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API.Models.EntityFramework
+namespace API.Models.EntityFramework;
+
+
+[Table("t_e_element_decision_eledec")]
+public class ElementDecision : IEntity
 {
-    [Table("t_e_element_decision_eledec")]
-    public class ElementDecision
-    {
-        [Key]
-        [Column("eledec_id")]
-        public int ElementDecisionId { get; set; }
-
-        [InverseProperty(nameof(Sanction.Elementdecision))]
-        public virtual ICollection<Sanction> Sanctions { get; set; } = new List<Sanction>();
-
-        [InverseProperty(nameof(ElementDecisionAnnonce.Elementdecision))]
-        public virtual ICollection<ElementDecisionAnnonce> ElementDecisionAnnonces { get; set; } = new List<ElementDecisionAnnonce>();
-
-        [InverseProperty(nameof(ElementDecisionAvis.Elementdecision))]
-        public virtual ICollection<ElementDecisionAvis> Elementdecisionavis { get; set; } = new List<ElementDecisionAvis>();
-
-        [InverseProperty(nameof(ElementDecisionUtilisateur.Elementdecision))]
-        public virtual ICollection<ElementDecisionUtilisateur> Elementdecisionutilisateur { get; set; } = new List<ElementDecisionUtilisateur>();
-
-        [InverseProperty(nameof(ElementDecisionMessage.Elementdecision))]
-        public virtual ICollection<ElementDecisionMessage> Elementdecisionmessages { get; set; } = new List<ElementDecisionMessage>();
-
-    }
+    [Key]
+    [Column("eledec_id")]
+    public int ElementDecisionId { get; set; }
+    
+    [Column("eledec_sanction_id")]
+    public int DecisionSanctionId { get; set; }
+    
+    //relation avec la table DecisionSanction
+    [ForeignKey(nameof(DecisionSanctionId))]
+    [InverseProperty(nameof(DecisionSanction.ElementDecision))]
+    public virtual DecisionSanction DecisionSanction { get; set; } = null!;
+    
+    
+    //relation avec les autres elements de décision : 
+    [InverseProperty(nameof(ElementDecisionAnnonce.ElementDecision))]
+    public virtual ElementDecisionAnnonce? ElementDecisionAnnonce { get; set; } = null!;
+    
+    [InverseProperty(nameof(ElementDecisionAvis.ElementDecision))]
+    public virtual ElementDecisionAvis? ElementDecisionAvis { get; set; } = null!;
+    
+    [InverseProperty(nameof(ElementDecisionMessage.ElementDecision))]
+    public virtual ElementDecisionMessage? ElementDecisionMessage { get; set; } = null!;
+    
+    [InverseProperty(nameof(ElementDecisionUtilisateur.ElementDecision))]
+    public virtual ElementDecisionUtilisateur? ElementDecisionUtilisateur { get; set; } = null!;
+    
+    public int GetId() => ElementDecisionId;
 }

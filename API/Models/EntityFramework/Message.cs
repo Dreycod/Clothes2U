@@ -42,13 +42,8 @@ public class Message : IEntity
     
     [InverseProperty(nameof(NotificationMessage.Message))]
     public virtual ICollection<NotificationMessage> NotificationsMessage { get; set; } = new List<NotificationMessage>();
-
-    [InverseProperty(nameof(Decision_suspension.MessageDecision))]
-    public virtual ICollection<Decision_suspension> Decision_suspensions { get; set; } = new List<Decision_suspension>();
-
-    [InverseProperty(nameof(ElementDecisionMessage.MessageElmtDeci))]
-    public virtual ICollection<ElementDecisionMessage> Elementdecisionmessages { get; set; } = new List<ElementDecisionMessage>();
-
+    
+   
     //relation avec les class child : 
 
     [InverseProperty(nameof(MessageDemande.Message))]
@@ -62,6 +57,10 @@ public class Message : IEntity
 
     [InverseProperty(nameof(MessageValidation.Message))]
     public virtual MessageValidation? MessageValidation { get; set; }
+    
+    //moderation
+    [InverseProperty(nameof(ElementDecisionMessage.Message))]
+    public ICollection<ElementDecisionMessage> Decisions{ get; set; } = new List<ElementDecisionMessage>();
     
     public int GetId() => MessageId;
 }

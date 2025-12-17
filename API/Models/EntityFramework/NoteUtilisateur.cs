@@ -44,11 +44,8 @@ public class NoteUtilisateur : IEntity
     [InverseProperty(nameof(SignalementAvis.Avis))]
     public ICollection<SignalementAvis> Signalements { get; set; } = new List<SignalementAvis>();
 
-    [InverseProperty(nameof(Decision_suspension.Avis))]
-    public ICollection<Decision_suspension> Decision_Suspensions { get; set; } = new List<Decision_suspension>();
-
+    //moderation
     [InverseProperty(nameof(ElementDecisionAvis.Avis))]
-    public ICollection<ElementDecisionAvis> Elementsdecisionavis { get; set; } = new List<ElementDecisionAvis>();
-
+    public ICollection<ElementDecisionAvis> Decisions { get; set; } = new List<ElementDecisionAvis>();
     public int GetId() => NoteUtilisateurId;
 }

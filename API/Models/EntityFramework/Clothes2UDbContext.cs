@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Models;
 
@@ -10,19 +11,18 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Achete> Achetes { get; set; }
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
-    public DbSet<Ban> Bans { get; set; }
     public DbSet<Bloque> Bloques { get; set; }
     public DbSet<Categorie>  Categories { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<Couleur>  Couleurs { get; set; }
-    public DbSet<Decision_suspension> DecisionSuspensions { get; set; }
-    public DbSet<DecisionAvertissement> DecisionAvertissements { get; set; }
-    public DbSet<DemandeRestauration> DemandesRestauration { get; set; }
-    public DbSet<ElementDecision> ElementDecisions { get; set; }
-    public DbSet<ElementDecisionAnnonce> ElementDecisionAnnonces { get; set; }
-    public DbSet<ElementDecisionAvis> ElementDecisionAvises { get; set; }
-    public DbSet<ElementDecisionMessage> ElementDecisionMessages { get; set; }
-    public DbSet<ElementDecisionUtilisateur> ElementDecisionUtilisateurs { get; set; }
+    public DbSet<Decision> Decisions { get; set; }
+    public DbSet<DecisionAvertissement> DecisionsAvertissement { get; set; }
+    public DbSet<DecisionSanction> DecisionsSanction { get; set; }
+    public DbSet<ElementDecision> ElementsDecision { get; set; }
+    public DbSet<ElementDecisionAnnonce> ElementsDecisionAnnonce { get; set; }
+    public DbSet<ElementDecisionAvis>  ElementsDecisionAvis { get; set; }
+    public DbSet<ElementDecisionMessage> ElementsDecisionMessage { get; set; }
+    public DbSet<ElementDecisionUtilisateur>  ElementsDecisionUtilisateur { get; set; }
     public DbSet<Est_De_Couleur> Est_De_Couleurs { get; set; }
     public DbSet<EtatArticle> EtatArticles { get; set; }
     public DbSet<Favoris> Favorises { get; set; }
@@ -47,7 +47,9 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<RoleUtilisateur> RolesUtilisateurs { get; set; }
-    public DbSet<Sanction> Sanctions { get; set; }
+    public DbSet<SanctionBannissement> SactionsBannissements { get; set; }
+    public DbSet<SanctionSuspension> SanctionsSuspensions { get; set; }
+    public DbSet<DecisionSanction> Sanctions { get; set; }
     public DbSet<Signalement> Signalements { get; set; }
     public DbSet<SignalementAnnonce> SignalementAnnonces { get; set; }
     public DbSet<SignalementAvis>  SignalementAvises { get; set; }
@@ -56,12 +58,10 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<StatutAnnonce> StatutAnnonces { get; set; }
     public DbSet<StatutConversation> StatutConversations { get; set; }
     public DbSet<StatutUtilisateur> StatutUtilisateurs { get; set; }
-    public DbSet<Suspension> Suspensions { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Taille> Tailles { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<TypeSignalement> TypeSignalements { get; set; }
-    public DbSet<TypeSuspension> TypeSuspensions { get; set; }
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     public DbSet<Vend> Vends { get; set; }
     public DbSet<Visualisation> Visualisations { get; set; }
@@ -224,6 +224,11 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(t => t.Annonce)
                 .HasForeignKey(t => t.AnnonceId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasMany(e => e.Decisions)
+                .WithOne(d => d.Annonce)
+                .HasForeignKey(d => d.AnnonceId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Index pour améliorer les performances
             entity.HasIndex(e => e.UtilisateurId);
@@ -235,17 +240,6 @@ public partial class Clothes2UDbContext : DbContext
                .HasDatabaseName("idx_annonce_genre");
             });
 
-        modelBuilder.Entity<Ban>(entity =>
-        {
-            entity.HasKey(e => e.BanId);
-            
-            entity.HasOne(e => e.SanctionBan)
-                .WithMany(u => u.Bans)
-                .HasForeignKey(e => e.SanctionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasIndex(e => e.SanctionId);
-        });
 
         modelBuilder.Entity<Bloque>(entity =>
         {
@@ -298,190 +292,78 @@ public partial class Clothes2UDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        modelBuilder.Entity<Decision_suspension>(entity =>
+        modelBuilder.Entity<Decision>(entity =>
         {
-            entity.ToTable("t_e_decision_suspension_sus");
+            entity.HasKey(e => e.DecisionId);
             
-            entity.HasKey(e => e.Decision_suspensionId);
+            entity.HasOne(d => d.Moderateur)
+                .WithMany( m => m.DecisionsModerateur)
+                .HasForeignKey(d => d.ModerateurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
             
-            entity.Property(e => e.Decision_suspensionId)
-                .HasColumnName("sus_id")
-                .ValueGeneratedOnAdd();
-            
-            entity.Property(e => e.DateDebutSuspension)
-                .HasColumnName("sus_date_debut_suspension")
-                .IsRequired();
-            
-            
-            entity.Property(e => e.MotifSuspension)
-                .HasColumnName("sus_motif_suspension")
-                .IsRequired();
-            
-            entity.Property(e => e.UtilisateurId)
-                .HasColumnName("sus_utilisateur_id")
-                .IsRequired(false);
-            
-            entity.Property(e => e.UtilisateurAdminId)
-                .HasColumnName("sus_utilisateur_admin_id")
-                .IsRequired(false);
-            
-            entity.Property(e => e.AnnonceId)
-                .HasColumnName("sus_annonce_id")
-                .IsRequired(false);
-            
-            entity.Property(e => e.TypeSuspensionId)
-                .HasColumnName("sus_type_id")
-                .IsRequired();
-            
-            // Relation avec Utilisateur suspendu
-            entity.HasOne(d => d.UtilisateurSuspendu)
-                .WithMany(u => u.LesSuspensions)
+            entity.HasOne(d => d.Utilisateur)
+                .WithMany(u => u.DecisionsUtilisateurSanctionne)
                 .HasForeignKey(d => d.UtilisateurId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.ClientSetNull);
             
-            // Relation avec Utilisateur admin (décisionnaire)
-            entity.HasOne(d => d.Decisionnaire)
-                .WithMany(u => u.LesDecisions)
-                .HasForeignKey(d => d.UtilisateurAdminId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
+            //relations avec les tables avertissement et sanction
+            entity.HasOne(d => d.DecisionAvertissement)
+                .WithOne(da => da.Decision)
+                .HasForeignKey<DecisionAvertissement>(da => da.DecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
             
-            // Relation avec Annonce suspendue
-            entity.HasOne(d => d.AnnonceSuspendu)
-                .WithMany(a => a.Decisions)
-                .HasForeignKey(d => d.AnnonceId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
-            
-            // Relation avec TypeSuspension
-            entity.HasOne(d => d.TypeSuspension)
-                .WithMany(t => t.Decision_suspensions)
-                .HasForeignKey(d => d.TypeSuspensionId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired();
-            
-            // Contrainte : au moins un des deux doit être renseigné (utilisateur OU annonce)
-            // Note: Cette contrainte logique doit être gérée au niveau applicatif ou via un check constraint SQL
-            
-            // Index pour optimiser les recherches
-            entity.HasIndex(e => e.UtilisateurId)
-                .HasDatabaseName("idx_decision_suspension_utilisateur");
-            
-            entity.HasIndex(e => e.AnnonceId)
-                .HasDatabaseName("idx_decision_suspension_annonce");
-            
-            entity.HasIndex(e => e.TypeSuspensionId)
-                .HasDatabaseName("idx_decision_suspension_type");
-            
-            entity.HasIndex(e => new { e.DateDebutSuspension })
-                .HasDatabaseName("idx_decision_suspension_dates");
+            entity.HasOne(d => d.DecisionSanction)
+                .WithOne(ds => ds.Decision)
+                .HasForeignKey<DecisionSanction>(ds => ds.DecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DecisionAvertissement>(entity =>
         {
-            entity.HasKey(e => e.DecisionAvertissementId);
-            
-
-            
-            entity.HasOne(e => e.DecisionSuspension)
-                .WithMany(da => da.DecisionAvertissements)
-                .HasForeignKey(e => e.DecisionSuspensionId)
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            entity.HasIndex(e => e.DecisionSuspensionId);
-
+            entity.HasKey(d => d.DecisionAvertissementId);
         });
-
-        modelBuilder.Entity<DemandeRestauration>(entity =>
+        modelBuilder.Entity<DecisionSanction>(entity =>
         {
-            entity.HasKey(e => e.DemandeRestaurationId);
-
-            entity.HasOne(e => e.Plaignant)
-                .WithMany(u => u.DemandesRestauration)
-                .HasForeignKey(e => e.UtilisateurId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.Suspension)
-                .WithMany(s => s.DemandesRes)
-                .HasForeignKey(e => e.SuspensionId)
+            entity.HasKey(d => d.DecisionSanctionId);
+    
+            entity.HasOne(d => d.SanctionBannissement)
+                .WithOne(sb => sb.DecisionSanction)
+                .HasForeignKey<SanctionBannissement>(sb => sb.DecisionSanctionId)  // ✅ Utilise l'ID, pas la navigation
                 .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasIndex(e => e.UtilisateurId);
-            entity.HasIndex(e => e.SuspensionId);
+    
+            entity.HasOne(d => d.SanctionSuspension)
+                .WithOne(ss => ss.DecisionSanction)
+                .HasForeignKey<SanctionSuspension>(ss => ss.DecisionSanctionId)  // ✅ Utilise l'ID, pas la navigation
+                .OnDelete(DeleteBehavior.Cascade);
+    
+            entity.HasOne(d => d.ElementDecision)  // ou ElementDecision selon ton choix
+                .WithOne(ed => ed.DecisionSanction)
+                .HasForeignKey<ElementDecision>(ed => ed.DecisionSanctionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ElementDecision>(entity =>
         {
             entity.HasKey(e => e.ElementDecisionId);
-        });
-
-        modelBuilder.Entity<ElementDecisionAnnonce>(entity =>
-        {
-            entity.HasKey(e => e.ElementDecisionAnnonceId);
-    
-            entity.HasOne(e => e.Elementdecision)
-                .WithMany(ed => ed.ElementDecisionAnnonces)
-                .HasForeignKey(e => e.ElementDecisionId)
+            entity.HasOne(e => e.ElementDecisionAnnonce)
+                .WithOne(da => da.ElementDecision)
+                .HasForeignKey<ElementDecisionAnnonce>(da => da.ElementDecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasOne(e => e.AnnonceElmtDecision)
-                .WithMany(a => a.ElementDecisionAnnonces)
-                .HasForeignKey(e => e.AnnonceId)
+            
+            entity.HasOne(e => e.ElementDecisionAvis)
+                .WithOne(da => da.ElementDecision)
+                .HasForeignKey<ElementDecisionAvis>(da => da.ElementDecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasIndex(e => new { e.ElementDecisionId, e.AnnonceId });
-        });
-
-        modelBuilder.Entity<ElementDecisionAvis>(entity =>
-        {
-            entity.HasKey(e => e.ElementDecisionAvisId);
-
-            entity.HasOne(e => e.Elementdecision)
-                .WithMany(ed => ed.Elementdecisionavis)
-                .HasForeignKey(e => e.ElementDecisionId)
+            
+            entity.HasOne(e => e.ElementDecisionMessage)
+                .WithOne(da => da.ElementDecision)
+                .HasForeignKey<ElementDecisionMessage>(da => da.ElementDecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(e => e.Avis)
-                .WithMany(a => a.Elementsdecisionavis)
-                .HasForeignKey(e => e.AvisId)
+            
+            entity.HasOne(e => e.ElementDecisionUtilisateur)
+                .WithOne(da => da.ElementDecision)
+                .HasForeignKey<ElementDecisionUtilisateur>(da => da.ElementDecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasIndex(e => new { e.ElementDecisionId, e.AvisId });
-        });
-
-        modelBuilder.Entity<ElementDecisionMessage>(entity =>
-        {
-            entity.HasKey(e => e.ElementDecisionMessageId);
-    
-            entity.HasOne(e => e.Elementdecision)
-                .WithMany(ed => ed.Elementdecisionmessages)
-                .HasForeignKey(e => e.ElementDecisionId)
-                .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasOne(e => e.MessageElmtDeci)
-                .WithMany(m => m.Elementdecisionmessages)
-                .HasForeignKey(e => e.MessageId)
-                .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasIndex(e => new { e.ElementDecisionId, e.MessageId });
-        });
-
-        modelBuilder.Entity<ElementDecisionUtilisateur>(entity =>
-        {
-            entity.HasKey(e => e.ElementDecisionUtilisateurId);
-    
-            entity.HasOne(e => e.Elementdecision)
-                .WithMany(ed => ed.Elementdecisionutilisateur)
-                .HasForeignKey(e => e.ElementDecisionId)
-                .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasOne(e => e.UtilisateurElmtDecisionUti)
-                .WithMany(u => u.ElementDecisionUtilisateurs)
-                .HasForeignKey(e => e.UtilisateurId)
-                .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasIndex(e => new { e.ElementDecisionId, e.UtilisateurId });
         });
 
         modelBuilder.Entity<Est_De_Couleur>(entity =>
@@ -590,6 +472,11 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.MessageValidation)
                 .WithOne(m => m.Message)
                 .HasForeignKey<MessageValidation>(m => m.MessageId);
+            
+            entity.HasMany(e => e.Decisions)
+                .WithOne(d => d.Message)
+                .HasForeignKey(d => d.MessageId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
         
         modelBuilder.Entity<MessageContientImage>(entity =>
@@ -717,64 +604,69 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(s => s.Avis)
                 .HasForeignKey(s => s.AvisId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasMany(e => e.Decisions)
+                .WithOne(d => d.Avis)
+                .HasForeignKey(d => d.AvisId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
         
         modelBuilder.Entity<Notification>(entity =>
-    {
-        entity.ToTable("t_e_notification_not");
-        
-        entity.HasKey(e => e.NotificationId);
-        
-        entity.Property(e => e.NotificationId)
-            .HasColumnName("not_id")
-            .ValueGeneratedOnAdd();
-        
-        entity.Property(e => e.NotificationTypeId)
-            .HasColumnName("not_type_id")
-            .IsRequired();
-        
-        entity.Property(e => e.UtilisateurId)
-            .HasColumnName("not_utilisateur_id")
-            .IsRequired();
-        
-        // Relation avec NotificationType
-        entity.HasOne(n => n.NotificationType)
-            .WithMany(nt => nt.Notifications)
-            .HasForeignKey(n => n.NotificationTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
-        // Relation avec Utilisateur
-        entity.HasOne(n => n.Utilisateur)
-            .WithMany(u => u.Notifications)
-            .HasForeignKey(n => n.UtilisateurId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        // Relations optionnelles (one-to-one)
-        entity.HasOne(n => n.NotificationAdmins)
-            .WithOne(na => na.LaNotification)
-            .HasForeignKey<NotificationAdmin>(na => na.NotificationId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        entity.HasOne(n => n.NotificationAvertissements)
-            .WithOne(na => na.LaNotification)
-            .HasForeignKey<NotificationAvertissement>(na => na.NotificationId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        entity.HasOne(n => n.NotificationMessages)
-            .WithOne(nm => nm.LaNotification)
-            .HasForeignKey<NotificationMessage>(nm => nm.NotificationId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        entity.HasOne(n => n.NotificationModifications)
-            .WithOne(nm => nm.LaNotification)
-            .HasForeignKey<NotificationModificationAnnonce>(nm => nm.NotificationId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        entity.HasOne(n => n.NotificationNouvellesAnnonces)
-            .WithOne(nn => nn.LaNotification)
-            .HasForeignKey<NotificationNouvelleAnnonce>(nn => nn.NotificationId)
-            .OnDelete(DeleteBehavior.Cascade);
-    });
+        {
+            entity.ToTable("t_e_notification_not");
+            
+            entity.HasKey(e => e.NotificationId);
+            
+            entity.Property(e => e.NotificationId)
+                .HasColumnName("not_id")
+                .ValueGeneratedOnAdd();
+            
+            entity.Property(e => e.NotificationTypeId)
+                .HasColumnName("not_type_id")
+                .IsRequired();
+            
+            entity.Property(e => e.UtilisateurId)
+                .HasColumnName("not_utilisateur_id")
+                .IsRequired();
+            
+            // Relation avec NotificationType
+            entity.HasOne(n => n.NotificationType)
+                .WithMany(nt => nt.Notifications)
+                .HasForeignKey(n => n.NotificationTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            // Relation avec Utilisateur
+            entity.HasOne(n => n.Utilisateur)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Relations optionnelles (one-to-one)
+            entity.HasOne(n => n.NotificationAdmins)
+                .WithOne(na => na.LaNotification)
+                .HasForeignKey<NotificationAdmin>(na => na.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(n => n.NotificationAvertissements)
+                .WithOne(na => na.LaNotification)
+                .HasForeignKey<NotificationAvertissement>(na => na.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(n => n.NotificationMessages)
+                .WithOne(nm => nm.LaNotification)
+                .HasForeignKey<NotificationMessage>(nm => nm.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(n => n.NotificationModifications)
+                .WithOne(nm => nm.LaNotification)
+                .HasForeignKey<NotificationModificationAnnonce>(nm => nm.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(n => n.NotificationNouvellesAnnonces)
+                .WithOne(nn => nn.LaNotification)
+                .HasForeignKey<NotificationNouvelleAnnonce>(nn => nn.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     
     // Configuration de NotificationType
     modelBuilder.Entity<NotificationType>(entity =>
@@ -962,26 +854,13 @@ public partial class Clothes2UDbContext : DbContext
             .HasForeignKey(e => e.RoleId)
             .OnDelete(DeleteBehavior.ClientSetNull);
     });
-    
-    modelBuilder.Entity<Sanction>(entity =>
+    modelBuilder.Entity<SanctionBannissement>(entity =>
     {
-        entity.HasKey(e => e.SanctionId);
-        
-        entity.HasOne(e => e.Decision_sus)
-            .WithMany(ds => ds.Sanctions)
-            .HasForeignKey(e => e.DecisionSuspensionId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne(e => e.Elementdecision)
-            .WithMany(ed => ed.Sanctions)
-            .HasForeignKey(e => e.ElementDecisionId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasIndex(e => e.DecisionSuspensionId)
-            .HasDatabaseName("idx_sanction_decision_suspension");
-
-        entity.HasIndex(e => e.ElementDecisionId)
-            .HasDatabaseName("idx_sanction_element_decision");
+        entity.HasKey(e => e.SanctionBannissementId);
+    });
+    modelBuilder.Entity<SanctionSuspension>(entity =>
+    {
+        entity.HasKey(e => e.SanctionSuspensionId);
     });
 
 
@@ -1212,19 +1091,7 @@ public partial class Clothes2UDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        modelBuilder.Entity<Suspension>(entity =>
-        {
-            entity.HasKey(e => e.SuspensionId);
-            
-            entity.HasOne(e => e.SanctionSus)
-                .WithMany(u => u.Suspensions)
-                .HasForeignKey(e => e.SanctionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasIndex(e => e.SuspensionId)
-                .HasDatabaseName("idx_suspension_sanction");
-
-        });
+       
 
         modelBuilder.Entity<Tag>(entity =>
         {
@@ -1306,27 +1173,7 @@ public partial class Clothes2UDbContext : DbContext
                 .HasDatabaseName("idx_type_signalement_libelle_unique");
         });
 
-// Configuration de TypeSuspension
-        modelBuilder.Entity<TypeSuspension>(entity =>
-        {
-            entity.ToTable("t_e_type_suspension_tsu");
-    
-            entity.HasKey(e => e.TypeSuspensionId);
-    
-            entity.Property(e => e.TypeSuspensionId)
-                .HasColumnName("tsu_id")
-                .ValueGeneratedOnAdd();
-    
-            entity.Property(e => e.NomTypeSuspension)
-                .HasColumnName("tsu_nomtypesuspension")
-                .IsRequired()
-                .HasMaxLength(100);
-    
-            // Index unique sur le nom pour éviter les doublons
-            entity.HasIndex(e => e.NomTypeSuspension)
-                .IsUnique()
-                .HasDatabaseName("idx_type_suspension_nom_unique");
-        });
+
 
         modelBuilder.Entity<StatutUtilisateur>(entity =>
         {
@@ -1390,11 +1237,22 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.Login)
                 .IsUnique();
                 
+            
+            //moderation
+            
+            entity.HasMany(u => u.DecisionsModerateur)
+                .WithOne(d => d.Moderateur)
+                .HasForeignKey(d => d.ModerateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(u => u.DecisionsUtilisateurSanctionne)
+                .WithOne(d => d.Utilisateur)
+                .HasForeignKey(d => d.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+                
             entity.HasIndex(e => e.StatutId);
             entity.HasIndex(e => e.AdresseId);
             entity.HasIndex(e => e.Dateinscription);
-            
-            
         });
         
         modelBuilder.Entity<Vend>(entity =>
@@ -1435,6 +1293,7 @@ public partial class Clothes2UDbContext : DbContext
             // Index pour rechercher les ventes d'un utilisateur
             entity.HasIndex(e => e.UtilisateurVendeurId)
                 .HasDatabaseName("idx_vend_utilisateur");
+            
         });
 
         modelBuilder.Entity<VerificationCode>(entity =>
