@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(Clothes2UDbContext))]
-    [Migration("20251216194827_UpdBDDAjoutTableChgmtModele")]
-    partial class UpdBDDAjoutTableChgmtModele
+    [Migration("20251217113242_UpdBDDAjoutTableChgmtModeleAzure")]
+    partial class UpdBDDAjoutTableChgmtModeleAzure
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
