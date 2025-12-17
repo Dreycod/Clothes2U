@@ -5,9 +5,10 @@ namespace FrontBlazor.Services.GenericIServices
     public interface IMediasService<TEntity>
     {
         Task<TEntity> GetPhotoAsync(int id);
-        Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, string fileName);
-        Task<bool> UploadPhotoCompteAsync(int compteId, byte[] imageBytes, string fileName);
+        Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, string fileName); // pas sur pour le type de retour
+        Task<bool> UploadPhotoCompteAsync(int compteId, byte[] imageBytes, string fileName); // idem
         Task<bool> UploadMultiplePhotosAnnonceAsync(int annonceId, List<string> photosDataUrls);
+        Task<bool> UploadPhotoMessageAsync(int messageId, byte[] imageBytes, string fileName);
         string GetPhotoUrl(int id);
     }
 }

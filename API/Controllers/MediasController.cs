@@ -96,6 +96,32 @@ public class MediasController : ControllerBase
             return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }
+    
+    [HttpPost("uploadMessagePhoto/{messageId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadMessagePhoto([FromForm] PhotoDTO photoDto, int messageId)
+    {
+        if (photoDto?.File == null)
+        {
+            return BadRequest(new { message = "Fichier requis" });
+        }
+
+        try
+        {
+            var photo = await _photoService.UploadMessagePhotoAsync(photoDto, messageId);
+            return File(photo.Image, "image/jpeg");
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
+        }
+    }
 
     [HttpDelete("Photos/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -116,4 +142,6 @@ public class MediasController : ControllerBase
             return StatusCode(500, new { message = "Erreur lors de la suppression de la photo", error = ex.Message });
         }
     }
+    
+    
 }

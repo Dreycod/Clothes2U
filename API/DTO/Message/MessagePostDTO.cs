@@ -10,7 +10,7 @@ public abstract class MessagePostDTO
 public class MessageTextePostDTO : MessagePostDTO
 {
     public string Content { get; set; }
-    public List<int>? ImageId { get; set; }
+    public List<int>? Photos { get; set; }
 }
 
 public class MessageDemandePostDTO : MessagePostDTO

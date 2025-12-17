@@ -24,7 +24,7 @@ public class MessageMapperProfile : Profile
                 src.UtilisateurId == (int)context.Items["CurrentUserId"]))
             .ForMember(dest => dest.Content, opt => opt.MapFrom(src =>
                 src.MessageTexte != null ? src.MessageTexte.Content : string.Empty))
-            .ForMember(dest => dest.ImagesId, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src =>
                 src.MessageTexte != null && src.MessageTexte.Photos != null
                     ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList()
                     : new List<int>()));
