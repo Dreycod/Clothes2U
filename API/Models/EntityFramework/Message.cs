@@ -19,7 +19,7 @@ public class Message : IEntity
     [Column("mes_lu")]
     public bool MessageLu { get; set; }
 
-    //statut du message : true = actif , false = invisible/supprimé
+    //statut du message : true = actif , false = invisible/supprimï¿½
     [Column("mes_statut")]
     public bool MessageStatut { get; set; }
 
@@ -56,6 +56,9 @@ public class Message : IEntity
 
     [InverseProperty(nameof(MessageTexte.Message))]
     public virtual MessageTexte? MessageTexte { get; set; }
+    
+    // [InverseProperty(nameof(MessageTexte.Photos))]
+    // public virtual ICollection<string> Photos { get; set; }
 
     [InverseProperty(nameof(MessageValidation.Message))]
     public virtual MessageValidation? MessageValidation { get; set; }

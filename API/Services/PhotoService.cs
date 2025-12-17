@@ -13,6 +13,8 @@ public class PhotoService : IPhotoService
     private readonly IPhotoRepository<Photo, int> _photoRepository;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IDataRepository<Illustre_Annonce, int> _illustreAnnonceRepository;
+    private readonly IDataRepository<MessageTexte, int> _messageRepository;
+    private readonly IDataRepository<MessageContientImage, int> _messageContientImageRepository;
     private readonly IUtilisateurRepository _utilisateurManager;
     private readonly Clothes2UDbContext _context;
 
@@ -20,6 +22,8 @@ public class PhotoService : IPhotoService
         IPhotoRepository<Photo, int> photoRepository,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         IDataRepository<Illustre_Annonce, int> illustreAnnonceRepository,
+        IDataRepository<MessageTexte, int> messageRepository,
+        IDataRepository<MessageContientImage, int> messageContientImageRepository,
         IUtilisateurRepository utilisateurRepository,
         Clothes2UDbContext context)
     {
@@ -27,6 +31,8 @@ public class PhotoService : IPhotoService
         _annonceRepository = annonceRepository;
         _illustreAnnonceRepository = illustreAnnonceRepository;
         _utilisateurManager = utilisateurRepository;
+        _messageRepository = messageRepository;
+        _messageContientImageRepository = messageContientImageRepository;
         _context = context;
     }
 
@@ -92,6 +98,40 @@ public class PhotoService : IPhotoService
             utilisateurToUpdate.PhotoId = photo.PhotoId;
             await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
 
+            await transaction.CommitAsync();
+            return photo;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    
+    public async Task<Photo> UploadMessagePhotoAsync(PhotoDTO photoDto, int messageId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            // Validation métier
+            var message = await _messageRepository.GetByIdAsync(messageId);
+            if (message == null)
+            {
+                throw new NotFoundException($"Message {messageId} introuvable");
+            }
+    
+            
+            // Création de la photo
+            var photo = await _photoRepository.AddPhotoAsync(photoDto);
+    
+            // Mise à jour de l'utilisateur
+            var messageContientImage = new MessageContientImage
+            {
+                MessageId = messageId,
+                PhotoId = photo.PhotoId
+            };
+            
+            await _messageContientImageRepository.AddAsync(messageContientImage);
             await transaction.CommitAsync();
             return photo;
         }

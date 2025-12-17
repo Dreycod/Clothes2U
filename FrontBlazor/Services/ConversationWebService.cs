@@ -18,16 +18,6 @@ public class ConversationWebService: WritableService<Conversation>, IConversatio
     {
         try
         {
-            // var request = new HttpRequestMessage(HttpMethod.Get, $"Conversation/conversation/{id}");
-            // request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
-            //
-            // var response = await _httpClient.SendAsync(request);
-            //
-            // if (!response.IsSuccessStatusCode)
-            //     return null;
-            //
-            // return await _httpClient.GetFromJsonAsync<Conversation?>(
-            //     $"Conversation/conversation/{id}");
             var response = await GetWithCredentialsAsync($"Conversation/conversation/{id}");
             response.EnsureSuccessStatusCode();
             
@@ -44,18 +34,6 @@ public class ConversationWebService: WritableService<Conversation>, IConversatio
     {
         try
         {
-            // var request = new HttpRequestMessage(HttpMethod.Get, $"Conversation/utilisateur/{id}");
-            // request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
-            //
-            // var response = await _httpClient.SendAsync(request);
-            //
-            // if (!response.IsSuccessStatusCode)
-            //     return null;
-            //
-            // return await _httpClient.GetFromJsonAsync<List<Conversation?>>(
-            //     $"Conversation/utilisateur/{id}"
-            // );
-            
             var response = await GetWithCredentialsAsync($"Conversation/utilisateur/{id}");
             response.EnsureSuccessStatusCode();
             

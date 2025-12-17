@@ -225,6 +225,7 @@ builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
+builder.Services.AddScoped<IDataRepository<MessageContientImage, int>, MessageContientImageManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ILoginService, LoginService>();

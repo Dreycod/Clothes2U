@@ -19,7 +19,7 @@ public class MessageTextDTO : MessageDTO
     public string SenderName { get; set; }
     public bool SentByCurrentUser { get; set; }
     public string Content { get; set; }
-    public List<int> ImagesId { get; set; }
+    public List<int> Photos { get; set; }
 }
 
 public class MessagePropositionDTO : MessageDTO

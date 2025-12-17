@@ -14,7 +14,9 @@ public class MediaWebService : WritableService<Photo>, IMediasService<Photo>
         var response = await GetWithCredentialsAsync($"Medias/Photos/{id}");
         response.EnsureSuccessStatusCode();
 
+
         var photo = await response.Content.ReadFromJsonAsync<Photo>();
+
         return photo ?? new Photo();
     }
 
@@ -116,5 +118,29 @@ public class MediaWebService : WritableService<Photo>, IMediasService<Photo>
 
         Console.WriteLine($"📊 Résultat: {successCount}/{photosDataUrls.Count} photos uploadées");
         return allSuccess;
+    
     }
+
+    public async Task<bool> UploadPhotoMessageAsync(int messageId, byte[] imageBytes, string fileName)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            using var fileContent = new ByteArrayContent(imageBytes);
+
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            content.Add(fileContent, "File", fileName);
+
+            var response = await PostWithCredentialsAsync($"Medias/uploadMessagePhoto/{messageId}", content);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erreur upload photo annonce: {ex.Message}");
+            return false;
+        }
+    }
+    
+        
 }
