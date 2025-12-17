@@ -135,7 +135,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         
         UtilisateurSignale = await _utilisateurService.GetUserById(Signalement.UtilisateurSignaleId);
         
-        PhotoProfilUrl = await GetPhotoProfilUrl();
+        PhotoProfilUrl = await GetPhotoProfilUrl(); 
         NotifyStateChanged();
     }
 

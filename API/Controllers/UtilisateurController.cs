@@ -76,6 +76,8 @@ public class UtilisateurController :  ControllerBase
             return NotFound();
 
         var utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(utilisateurDTO.UtilisateurId);
+        utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(utilisateurDTO.UtilisateurId);
         return Ok(utilisateurDTO);
     }
 }
