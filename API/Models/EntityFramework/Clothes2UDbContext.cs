@@ -328,15 +328,15 @@ public partial class Clothes2UDbContext : DbContext
     
             entity.HasOne(d => d.SanctionBannissement)
                 .WithOne(sb => sb.DecisionSanction)
-                .HasForeignKey<SanctionBannissement>(sb => sb.DecisionSanctionId)  // ✅ Utilise l'ID, pas la navigation
+                .HasForeignKey<SanctionBannissement>(sb => sb.DecisionSanctionId)  
                 .OnDelete(DeleteBehavior.Cascade);
     
             entity.HasOne(d => d.SanctionSuspension)
                 .WithOne(ss => ss.DecisionSanction)
-                .HasForeignKey<SanctionSuspension>(ss => ss.DecisionSanctionId)  // ✅ Utilise l'ID, pas la navigation
+                .HasForeignKey<SanctionSuspension>(ss => ss.DecisionSanctionId)  
                 .OnDelete(DeleteBehavior.Cascade);
     
-            entity.HasOne(d => d.ElementDecision)  // ou ElementDecision selon ton choix
+            entity.HasOne(d => d.ElementDecision)
                 .WithOne(ed => ed.DecisionSanction)
                 .HasForeignKey<ElementDecision>(ed => ed.DecisionSanctionId)
                 .OnDelete(DeleteBehavior.Cascade);

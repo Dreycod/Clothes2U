@@ -13,7 +13,7 @@ public class ElementDecisionAvis : IEntity
     
     //avis
     
-    [Column("edav_annonce_id")]
+    [Column("edav_avis_id")]
     public int AvisId { get; set; }
     
     [ForeignKey(nameof(AvisId))]
