@@ -1,7 +1,7 @@
-using Shared.DTO.Decision_suspension;
 using Shared.DTO.DemandeRestauration;
 using API.Models.EntityFramework;
 using AutoMapper;
+using Shared.DTO.Decision;
 
 namespace API.Mapper;
 

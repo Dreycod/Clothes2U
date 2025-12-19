@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using FrontBlazor;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using FrontBlazor.Models;
-using FrontBlazor.Models.StateServices;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
@@ -11,12 +10,17 @@ using FrontBlazor.ViewModel;
 using FrontBlazor.ViewModel.Moderation;
 using FrontBlazor.ViewModel.Moderation.Signalements;
 using Microsoft.AspNetCore.Components;
+using Shared.DTO.Abonnement;
+using Shared.DTO.Categorie;
+using Shared.DTO.Conversation;
+using Shared.DTO.Couleur;
+using Shared.DTO.Favoris;
+using Shared.DTO.NoteUtilisateur;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped<IStateService<Annonce>, AnnonceStateService>();
 builder.Services.AddScoped(typeof(IListableService<>), typeof(ListableService<>));
 builder.Services.AddScoped(typeof(IReadableService<>), typeof(ReadableService<>));
 builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>));
@@ -26,14 +30,14 @@ builder.Services.AddScoped<IAuthService, AuthWebService>();
 builder.Services.AddScoped<INotificationService, NotificationWebService>();
 builder.Services.AddScoped<ISignalementService, SignalementWebService>();
 builder.Services.AddScoped<IBloqueService, BloqueWebService>();
-builder.Services.AddScoped<ICategorieService<Categorie>, CategorieWebService>();
-builder.Services.AddScoped<IConversationService<Conversation>, ConversationWebService>();
-builder.Services.AddScoped<IMessageService<Message>, MessageWebService>();
-builder.Services.AddScoped<ICouleurService<Couleur>, CouleurWebService>();
-builder.Services.AddScoped<IFavorisService<Favoris>, FavorisWebService>();
+builder.Services.AddScoped<ICategorieService<CategorieDTO>, CategorieWebService>();
+builder.Services.AddScoped<IConversationService<ConversationDTO>, ConversationWebService>();
+builder.Services.AddScoped<IMessageService<MessageDTO>, MessageWebService>();
+builder.Services.AddScoped<ICouleurService<CouleurDTO>, CouleurWebService>();
+builder.Services.AddScoped<IFavorisService<FavorisDTO>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService, AnnonceWebService>();
 builder.Services.AddScoped<IUtilisateurService, UtilisateurWebService>();
-builder.Services.AddScoped<IAbonnementService<Abonnement>, AbonnementWebService>();
+builder.Services.AddScoped<IAbonnementService<AbonnementDTO>, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<IMediasService<Photo>, MediaWebService>();
 builder.Services.AddScoped<VerificationService>();
@@ -46,7 +50,7 @@ builder.Services.AddSingleton<ISignalRService>(sp =>
     return new SignalRWebService();
 });
 
-builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateur>, NoteUtilisateurWebService>();
+builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateurDTO>, NoteUtilisateurWebService>();
 
 builder.Services.AddScoped(typeof(ListableViewModel<>));
 builder.Services.AddScoped(typeof(WritableService<>));

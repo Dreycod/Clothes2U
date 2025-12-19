@@ -9,6 +9,7 @@ using Shared.DTO.Photo;
 using Shared.DTO.Annonce;
 using Shared.DTO.Utilisateur;
 using Shared.DTO.NoteUtilisateur;
+using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel
 {
@@ -27,10 +28,10 @@ namespace FrontBlazor.ViewModel
 
         private readonly IUtilisateurService _utilisateurService;
         private readonly IAnnonceService _annonceService;
-        private readonly IFavorisService<Favoris> _favorisService;
-        private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
+        private readonly IFavorisService<FavorisDTO> _favorisService;
+        private readonly INoteUtilisateurService<NoteUtilisateurDTO> _noteUtilisateurService;
         private readonly IAuthService _authService;
-        private readonly IAbonnementService<Abonnement> _abonnementService;
+        private readonly IAbonnementService<AbonnementDTO> _abonnementService;
         private readonly NavigationManager _navigationManager;
         private readonly IMediasService<Photo> _mediaService;
         private readonly ISignalementService _signalementService;
@@ -64,10 +65,10 @@ namespace FrontBlazor.ViewModel
         public ProfilViewModel(
             IUtilisateurService utilisateurService,
             IAnnonceService annonceService,
-            IFavorisService<Favoris> favorisService,
-            INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+            IFavorisService<FavorisDTO> favorisService,
+            INoteUtilisateurService<NoteUtilisateurDTO> noteUtilisateurService,
             IAuthService authService,
-            IAbonnementService<Abonnement> abonnementService,
+            IAbonnementService<AbonnementDTO> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
             IMediasService<Photo> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
@@ -94,7 +95,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                UtilisateurView user = await _utilisateurService.GetByLoginAsync(login);
+                UtilisateurViewDTO user = await _utilisateurService.GetByLoginAsync(login);
 
                 if (user == null)
                 {
@@ -115,8 +116,8 @@ namespace FrontBlazor.ViewModel
                 IsLoadingArticles = true;
                 IsLoadingAvis = true;
 
-                IsBlockedByUser = user.blockedByCurrentUser;
-                IsFollowing = user.followeddByCurrentUser;
+                IsBlockedByUser = user.BlockedByCurrentUser;
+                IsFollowing = user.FolloweddByCurrentUser;
 
                  ViewingUser = user;
 
@@ -135,7 +136,7 @@ namespace FrontBlazor.ViewModel
                      })
                  };
 
-                Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+                UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
                 {
                     IsSameUser = true;
@@ -169,7 +170,7 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
         }
 
-        public async Task ToggleFavorite(Annonce annonce)
+        public async Task ToggleFavorite(AnnonceDTO annonce)
         {
             if (CheckLoginStatus == null)
             {
@@ -211,8 +212,8 @@ namespace FrontBlazor.ViewModel
             if (ViewingUser == null) 
                 return;
 
-            bool wasFollowing = ViewingUser.followeddByCurrentUser;
-            ViewingUser.followeddByCurrentUser = !ViewingUser.followeddByCurrentUser;
+            bool wasFollowing = ViewingUser.FolloweddByCurrentUser;
+            ViewingUser.FolloweddByCurrentUser = !ViewingUser.FolloweddByCurrentUser;
 
             NotifyStateChanged();
 
@@ -231,7 +232,7 @@ namespace FrontBlazor.ViewModel
             }
             catch
             {
-                ViewingUser.followeddByCurrentUser = wasFollowing;
+                ViewingUser.FolloweddByCurrentUser = wasFollowing;
                 if (!wasFollowing)
                 {
                     ViewingUser.Abonnes -= 1;
@@ -302,7 +303,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                NoteUtilisateurCreate newReview = new NoteUtilisateurCreate
+                NoteUtilisateurCreateDTO newReview = new NoteUtilisateurCreateDTO
                 {
                     CibleId = ViewingUser.UtilisateurId,
                     Note = SelectedRating,
@@ -381,7 +382,7 @@ namespace FrontBlazor.ViewModel
         public async void SignalerUtilisateur()
         {
             showDotsDropdown = false;
-            SignalementUtilisateurCreate signalement = new SignalementUtilisateurCreate
+            SignalementUtilisateurCreateDTO signalement = new SignalementUtilisateurCreateDTO
             {
                 SignalementMotif = "Inapproprié",
                 UtilisateurSignaleId = ViewingUser!.UtilisateurId,

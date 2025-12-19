@@ -12,20 +12,20 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
     public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public async Task<List<Annonce>> GetActiveAnnonces()
+    public async Task<List<AnnonceDTO>> GetActiveAnnonces()
     {
         var response = await GetWithCredentialsAsync("Annonce/GetActiveAnnonces");
         response.EnsureSuccessStatusCode();
 
-        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
 
-        return annonces ?? new List<Annonce>();
+        return annonces ?? new List<AnnonceDTO>();
     }
-    public async Task<AnnonceDetail> GetAnnonceDetailById(int Id)
+    public async Task<AnnonceDetailDTO> GetAnnonceDetailById(int Id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<AnnonceDetail>($"Annonce/id/{Id}");
+            return await _httpClient.GetFromJsonAsync<AnnonceDetailDTO>($"Annonce/id/{Id}");
         }
         catch (HttpRequestException ex)
         {
@@ -33,14 +33,14 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
             return null;
         }
     }
-    public async Task<List<Annonce?>?> GetAnnoncesByUserIdAsync(int userId)
+    public async Task<List<AnnonceDTO?>?> GetAnnoncesByUserIdAsync(int userId)
     {
         try
         {
             var response = await GetWithCredentialsAsync($"Annonce/ByUtilisateurId/{userId}");
             response.EnsureSuccessStatusCode();
-            var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
-            return annonces ?? new List<Annonce>();
+            var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+            return annonces ?? new List<AnnonceDTO>();
         }
         catch (HttpRequestException ex)
         {
@@ -49,12 +49,12 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         }
     }
 
-    public Task<Annonce> GetByIdAsync(int id)
+    public Task<AnnonceDTO> GetByIdAsync(int id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<Annonce>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 20)
+    public async Task<List<AnnonceDTO>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 20)
     {
         var queryParams = new List<KeyValuePair<string, string?>>();
 
@@ -93,18 +93,18 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         var response = await GetWithCredentialsAsync(url);
         response.EnsureSuccessStatusCode();
 
-        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
-        return annonces ?? new List<Annonce>();
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? new List<AnnonceDTO>();
     }
 
-    public async Task<List<Annonce>> GetByFavorisUtilisateur()
+    public async Task<List<AnnonceDTO>> GetByFavorisUtilisateur()
     {
         var response = await GetWithCredentialsAsync("Annonce/ByFavorisUtilisateur");
         response.EnsureSuccessStatusCode();
 
-        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
 
-        return annonces ?? new List<Annonce>();
+        return annonces ?? new List<AnnonceDTO>();
     }
 
     private void AddListToQuery(List<KeyValuePair<string, string?>> qp, string key, List<string>? values)
@@ -115,12 +115,12 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
             qp.Add(new(key, v));
     }
 
-    public async Task CreateAnnonce(AnnonceCreate annonce)
+    public async Task CreateAnnonce(CreateAnnonceDTO annonce)
     {
         throw new NotImplementedException();
     }
 
-    public async Task ModificationAnnonce(AnnonceCreate annonce)
+    public async Task ModificationAnnonce(CreateAnnonceDTO annonce)
     {
         throw new NotImplementedException();
     }

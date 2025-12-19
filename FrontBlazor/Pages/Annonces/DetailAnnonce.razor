@@ -1,4 +1,5 @@
 ﻿@page "/product/{Id:int}"
+@using Shared.DTO.Utilisateur
 
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
@@ -46,8 +47,8 @@
     }
     else if (VM_DetailAnnonce.AnnonceDetail != null && VM_DetailAnnonce.utilisateurAnnonce != null)
     {
-        AnnonceDetail annonce = VM_DetailAnnonce.AnnonceDetail;
-        UtilisateurView utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
+        AnnonceDetailDTO annonce = VM_DetailAnnonce.AnnonceDetail;
+        UtilisateurViewDTO utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
 
         <div class="product-container">
             <!-- Left Side - Product Image -->
@@ -175,7 +176,7 @@
             <div class="similar-grid">
                 @if (VM_DetailAnnonce.similarProducts != null && VM_DetailAnnonce.similarProducts.Any())
                 {
-                    @foreach (Annonce similarAnnonce in VM_DetailAnnonce.similarProducts)
+                    @foreach (AnnonceDTO similarAnnonce in VM_DetailAnnonce.similarProducts)
                     {
                         <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
                             <div class="product-image-container">
@@ -187,7 +188,7 @@
                                 </button>
                             </div>
                             <div class="product-info">
-                                <h3 class="product-title">@similarAnnonce.Title</h3>
+                                <h3 class="product-title">@similarAnnonce.Titre</h3>
                                 <div class="product-meta">
                                     <span class="product-size">Taille @similarAnnonce.Taille</span>
                                     <span class="product-condition">@similarAnnonce.EtatArticle</span>

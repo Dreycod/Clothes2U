@@ -1,10 +1,9 @@
-
-using API.DTO;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO.Decision;
 
 namespace API.Controllers;
 
@@ -30,5 +29,16 @@ public class DecisionController : ControllerBase
         IEnumerable<Decision> decisions = await _decisionManager.GetAllDecisionsByModerateurId(id);
         IEnumerable<DecisionDTO> decisionsDTO = _mapper.Map<IEnumerable<DecisionDTO>>(decisions);
         return Ok(decisionsDTO);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<DecisionDTO>> CreateDecision(DecisionCreateDTO dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        throw new NotImplementedException();
     }
 }

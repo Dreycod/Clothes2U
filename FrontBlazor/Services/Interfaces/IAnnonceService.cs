@@ -1,15 +1,16 @@
 using Shared.DTO;
+using Shared.DTO.Annonce;
 
 namespace FrontBlazor.Services.GenericIServices;
 
 public interface IAnnonceService 
 {
-    Task<List<Annonce>> GetActiveAnnonces();
-    Task<AnnonceDetail> GetAnnonceDetailById(int id);
-    Task<List<Annonce>?> GetAnnoncesByUserIdAsync(int id);
-    Task<List<Annonce>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 30);
-    Task<List<Annonce>?> GetByFavorisUtilisateur();
-    Task CreateAnnonce(AnnonceCreate annonce);
-    Task ModificationAnnonce(AnnonceCreate annonce);
+    Task<List<AnnonceDTO>> GetActiveAnnonces();
+    Task<AnnonceDetailDTO> GetAnnonceDetailById(int id);
+    Task<List<AnnonceDTO>?> GetAnnoncesByUserIdAsync(int id);
+    Task<List<AnnonceDTO>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 30);
+    Task<List<AnnonceDTO>?> GetByFavorisUtilisateur();
+    Task CreateAnnonce(CreateAnnonceDTO annonce);
+    Task ModificationAnnonce(CreateAnnonceDTO annonce);
 
 }

@@ -1,3 +1,4 @@
+@using Shared.DTO.Annonce
 @using FrontBlazor.ViewModel.Moderation.Signalements
 <div class="annonce-detail">
     <div class="section">
@@ -215,7 +216,7 @@
 
 @code {
     [Parameter]
-    public AnnonceDetail annonce { get; set; }
+    public AnnonceDetailDTO annonce { get; set; }
 
     [Parameter] public List<string> PhotosUrl { get; set; }
 }

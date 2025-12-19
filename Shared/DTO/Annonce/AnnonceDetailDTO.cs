@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace API.DTO.Annonce;
+namespace Shared.DTO.Annonce;
 
 public class AnnonceDetailDTO
 {

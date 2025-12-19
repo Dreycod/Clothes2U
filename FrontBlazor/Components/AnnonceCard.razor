@@ -32,9 +32,9 @@
 
 @code {
 
-    [Parameter] public Annonce annonceComponent { get; set; }
-    [Parameter] public EventCallback<Annonce> OnToggleFavorite { get; set; }
-    [Parameter] public EventCallback<Annonce> OnClickAnnonce { get; set; }
+    [Parameter] public AnnonceDTO annonceComponent { get; set; }
+    [Parameter] public EventCallback<AnnonceDTO> OnToggleFavorite { get; set; }
+    [Parameter] public EventCallback<AnnonceDTO> OnClickAnnonce { get; set; }
 
     private string PhotoUrl => annonceComponent.Photos.Any() && annonceComponent.Photos.First() > 0
                                  ? MediasService.GetPhotoUrl(annonceComponent.Photos.First())

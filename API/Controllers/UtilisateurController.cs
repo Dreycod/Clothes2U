@@ -73,21 +73,8 @@ public class UtilisateurController :  ControllerBase
             return NotFound();
 
         UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
-        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(utilisateurDTO.UtilisateurId);
+        utilisateurDTO.FolloweddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(utilisateurDTO.UtilisateurId);
         utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(utilisateurDTO.UtilisateurId);
-        return Ok(utilisateurDTO);
-    }
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
-    {
-        Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(id);
-        if (utilisateur == null)
-        {
-            return NotFound();
-        }
-        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
-        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(id);
-        utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(id);
         return Ok(utilisateurDTO);
     }
 }
