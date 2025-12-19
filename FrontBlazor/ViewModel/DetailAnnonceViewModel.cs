@@ -238,7 +238,7 @@ public class DetailAnnonceViewModel
                 AnnonceSignaleeId = AnnonceDetail.AnnonceId,
             };
 
-            await _signalementService.CreateSignalement(newReport);
+            SignalementCreate reuslt = await _signalementService.CreateSignalement(newReport);
         }
         catch (Exception ex)
         {
