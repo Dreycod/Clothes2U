@@ -1,5 +1,11 @@
-﻿namespace FrontBlazor.Models
+﻿using System.Text.Json.Serialization;
+
+namespace FrontBlazor.Models
 {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+    [JsonDerivedType(typeof(SignalementAnnonceCreate), "annonce")]
+    [JsonDerivedType(typeof(SignalementAvisCreate), "avis")]
+    [JsonDerivedType(typeof(SignalementUtilisateurCreate), "utilisateur")]
     public abstract class SignalementCreate
     {
         public string SignalementMotif { get; set; } = null!;
