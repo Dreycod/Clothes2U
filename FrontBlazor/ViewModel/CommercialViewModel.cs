@@ -1,4 +1,8 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
+using Shared.DTO.Marque;
+using Shared.DTO.Categorie;
+using Shared.DTO.Couleur;
+using Shared.DTO.Taille;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using Microsoft.AspNetCore.Components;
@@ -17,13 +21,13 @@ public class CommercialViewModel
     #endregion
 
     #region ViewModels
-    ListableViewModel<Marque> VM_Marque;
-    ListableViewModel<Categorie> VM_Categorie;
-    ListableViewModel<Couleur> VM_Couleurs;
-    ListableViewModel<Taille> VM_Tailles;
+    ListableViewModel<MarqueDTO> VM_Marque;
+    ListableViewModel<CategorieDetailDTO> VM_Categorie;
+    ListableViewModel<CouleurDTO> VM_Couleurs;
+    ListableViewModel<TailleDTO> VM_Tailles;
     #endregion
     public Action? OnStateChange;
-    public CommercialViewModel(NavigationManager navigationManager, ListableViewModel<Couleur> vM_Couleurs, ListableViewModel<Marque> vM_Marque, ListableViewModel<Categorie> vM_Categorie, ListableViewModel<Taille> vM_Tailles)
+    public CommercialViewModel(NavigationManager navigationManager, ListableViewModel<CouleurDTO> vM_Couleurs, ListableViewModel<MarqueDTO> vM_Marque, ListableViewModel<CategorieDetailDTO> vM_Categorie, ListableViewModel<TailleDTO> vM_Tailles)
     {
         _navigationManager = navigationManager;
         VM_Couleurs = vM_Couleurs;

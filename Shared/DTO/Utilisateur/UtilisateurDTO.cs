@@ -1,0 +1,14 @@
+namespace Shared.DTO.Utilisateur;
+
+public class UtilisateurDTO
+{
+    public int UtilisateurId { get; set; }
+    public string? Email { get; set; }
+    public string? Login { get; set; }
+    public DateTime? Dateinscription { get; set; }
+    public string? Description { get; set; }
+    public int? AdresseId { get; set; }
+    public bool ValidEmail { get; set; }
+    public bool ValidTelephone { get; set; }
+    public int? StatutId { get; set; }
+}

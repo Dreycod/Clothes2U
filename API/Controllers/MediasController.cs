@@ -1,4 +1,4 @@
-using API.DTO;
+using Shared.DTO.Photo;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +10,12 @@ namespace API.Controllers;
 public class MediasController : ControllerBase
 {
     private readonly IPhotoService _photoService;
+    private readonly ILogger<MediasController> _logger;
 
-    public MediasController(IPhotoService photoService)
+    public MediasController(IPhotoService photoService, ILogger<MediasController> logger)
     {
         _photoService = photoService;
+        _logger = logger;
     }
 
     [HttpGet("Photos/{id}")]
@@ -32,60 +34,96 @@ public class MediasController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Erreur lors de la récupération de la photo {PhotoId}", id);
             return StatusCode(500, new { message = "Erreur lors de la récupération de la photo", error = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Upload d'une photo pour une annonce (multipart/form-data)
+    /// </summary>
     [HttpPost("uploadPhotoAnnonce/{annonceId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [RequestSizeLimit(5_242_880)] // 5 MB
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(PhotoResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadPhotoAnnonce([FromForm] PhotoDTO photoDto, int annonceId)
+    public async Task<IActionResult> UploadPhotoAnnonce(int annonceId, IFormFile file)
     {
-        Console.WriteLine($"🔵 UploadPhotoAnnonce appelé pour annonce {annonceId}");
+        _logger.LogInformation("Upload photo pour annonce {AnnonceId}", annonceId);
 
-        if (photoDto?.File == null)
+        if (file == null || file.Length == 0)
         {
-            Console.WriteLine("❌ Fichier null");
             return BadRequest("Fichier requis");
         }
 
-        Console.WriteLine($"📁 Fichier reçu: {photoDto.File.FileName}, Taille: {photoDto.File.Length} bytes");
+        if (file.Length > 5_242_880) // 5 MB
+        {
+            return BadRequest("Le fichier est trop volumineux (max 5MB)");
+        }
+
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            return BadRequest("Le fichier doit être une image");
+        }
 
         try
         {
-            var photo = await _photoService.UploadPhotoAnnonceAsync(photoDto, annonceId);
-            Console.WriteLine($"✅ Photo uploadée avec ID: {photo.PhotoId}");
-            return File(photo.Image, "image/jpeg");
+            // Convertir IFormFile en PhotoUploadDTO
+            var photoDto = await ConvertFormFileToDTO(file);
+
+            // Sauvegarder via le service
+            var savedPhoto = await _photoService.SavePhotoAsync(annonceId, photoDto);
+
+            return Ok(savedPhoto);
         }
         catch (NotFoundException ex)
         {
-            Console.WriteLine($"❌ NotFoundException: {ex.Message}");
+            _logger.LogWarning("Annonce {AnnonceId} introuvable", annonceId);
             return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Exception: {ex.Message}");
-            Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+            _logger.LogError(ex, "Erreur lors de l'upload pour annonce {AnnonceId}", annonceId);
             return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Upload d'une photo de profil pour un compte
+    /// </summary>
     [HttpPost("uploadComptePhoto/{compteId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [RequestSizeLimit(5_242_880)] // 5 MB
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(PhotoResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadComptePhoto([FromForm] PhotoDTO photoDto, int compteId)
+    public async Task<IActionResult> UploadComptePhoto(int compteId, IFormFile file)
     {
-        if (photoDto?.File == null)
+        if (file == null || file.Length == 0)
         {
             return BadRequest(new { message = "Fichier requis" });
         }
 
+        if (file.Length > 5_242_880) // 5 MB
+        {
+            return BadRequest("Le fichier est trop volumineux (max 5MB)");
+        }
+
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            return BadRequest("Le fichier doit être une image");
+        }
+
         try
         {
-            var photo = await _photoService.UploadComptePhotoAsync(photoDto, compteId);
-            return File(photo.Image, "image/jpeg");
+            // Convertir IFormFile en PhotoUploadDTO
+            var photoDto = await ConvertFormFileToDTO(file);
+
+            // Sauvegarder via le service
+            var savedPhoto = await _photoService.SaveComptePhotoAsync(compteId, photoDto);
+
+            return Ok(savedPhoto);
         }
         catch (NotFoundException ex)
         {
@@ -93,6 +131,7 @@ public class MediasController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Erreur lors de l'upload pour compte {CompteId}", compteId);
             return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }
@@ -104,16 +143,38 @@ public class MediasController : ControllerBase
     {
         try
         {
-            await _photoService.DeletePhotoAsync(id);
+            var success = await _photoService.DeletePhotoAsync(id);
+
+            if (!success)
+            {
+                return NotFound($"Photo {id} introuvable");
+            }
+
             return NoContent();
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Erreur lors de la suppression de la photo {PhotoId}", id);
             return StatusCode(500, new { message = "Erreur lors de la suppression de la photo", error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Convertit un IFormFile en PhotoUploadDTO
+    /// </summary>
+    private async Task<PhotoUploadDTO> ConvertFormFileToDTO(IFormFile file)
+    {
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+        var bytes = memoryStream.ToArray();
+        var base64 = Convert.ToBase64String(bytes);
+
+        return new PhotoUploadDTO
+        {
+            FileName = file.FileName,
+            ContentType = file.ContentType,
+            Base64Data = base64,
+            FileSize = file.Length
+        };
     }
 }

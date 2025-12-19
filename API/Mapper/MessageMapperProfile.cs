@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using AutoMapper;
+using Shared.DTO.Message;
 
 namespace API.Mapper;
 

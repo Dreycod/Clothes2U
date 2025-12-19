@@ -1,5 +1,5 @@
-using API.DTO.Categorie;
-using API.DTO.Couleur;
+using Shared.DTO.Categorie;
+using Shared.DTO.Couleur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;

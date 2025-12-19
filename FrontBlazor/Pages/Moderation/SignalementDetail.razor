@@ -1,6 +1,7 @@
 @page "/moderation/signalements/{id:int}"
 @using FrontBlazor.ViewModel.Moderation.Signalements
 @using FrontBlazor.Components.Moderation
+@using Shared.DTO.Signalement
 @inject TraitementSignalementViewModel VM_traitementSignalement
 @layout ModerationLayout
 
@@ -21,13 +22,13 @@ else
         <div id="content_board">
             @switch (VM_traitementSignalement.Signalement)
             {
-                case SignalementAnnonce signalementAnnonce:
-                    <p>@VM_traitementSignalement.Annonce.Title</p>
+                case SignalementAnnonceDTO signalementAnnonce:
+                    <p>@VM_traitementSignalement.Annonce.Titre</p>
                     break;
-                case SignalementAvis signalementAvis :
+                case SignalementAvisDTO signalementAvis :
                     <p>@VM_traitementSignalement.Avis.Commentaire</p>
                     break;
-                case SignalementUtilisateur signalementUtilisateur:
+                case SignalementUtilisateurDTO signalementUtilisateur:
                     <p>@VM_traitementSignalement.UtilisateurSignale.Login</p>
                     break;
             }

@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using FrontBlazor.Models.Moderation;
+using Shared.DTO.MotInterdit;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
@@ -9,7 +9,7 @@ namespace FrontBlazor.Services;
 public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
 {
     public MotsInterditWebService(HttpClient httpClient) : base(httpClient){}
-    public async Task<List<MotInterdit>> GetAllAsync()
+    public async Task<List<MotInterditDTO>> GetAllAsync()
     {
         try
         {
@@ -19,16 +19,16 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Erreur {response.StatusCode}: {errorContent}");
-                return new List<MotInterdit>();
+                return new List<MotInterditDTO>();
             }
             
-            var result = await response.Content.ReadFromJsonAsync<List<MotInterdit>>();
-            return result ?? new List<MotInterdit>();
+            var result = await response.Content.ReadFromJsonAsync<List<MotInterditDTO>>();
+            return result ?? new List<MotInterditDTO>();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Exception: {ex.Message}");
-            return new List<MotInterdit>();
+            return new List<MotInterditDTO>();
         }
     }
 
@@ -45,7 +45,7 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
         }
     }
 
-    public async Task<(MotInterdit? mot, string? error)> AddAsync(MotInterdit entity)
+    public async Task<(MotInterditDTO? mot, string? error)> AddAsync(MotInterditDTO entity)
     {
         try
         {
@@ -84,7 +84,7 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
                 return (null, errorContent);
             }
         
-            var result = await response.Content.ReadFromJsonAsync<MotInterdit>();
+            var result = await response.Content.ReadFromJsonAsync<MotInterditDTO>();
             return (result, null);
         }
         catch (Exception ex)

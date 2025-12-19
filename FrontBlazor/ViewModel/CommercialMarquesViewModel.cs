@@ -1,6 +1,7 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO.Marque;
 
 namespace FrontBlazor.ViewModel;
 public class CommercialMarquesViewModel
@@ -8,16 +9,16 @@ public class CommercialMarquesViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public Marque currentMarque = new Marque();
+    public MarqueDTO currentMarque = new MarqueDTO();
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public ListableViewModel<Marque> VM_Marque { get; set; }
-    public WritableService<Marque> MarqueService { get; set; }  
+    public ListableViewModel<MarqueDTO> VM_Marque { get; set; }
+    public WritableService<MarqueDTO> MarqueService { get; set; }  
     public event Action? OnStateChange;
 
 
-    public CommercialMarquesViewModel(ListableViewModel<Marque> _MarqueViewModel, WritableService<Marque> marqueService)
+    public CommercialMarquesViewModel(ListableViewModel<MarqueDTO> _MarqueViewModel, WritableService<MarqueDTO> marqueService)
     {
         VM_Marque = _MarqueViewModel;
         MarqueService = marqueService;
@@ -31,22 +32,22 @@ public class CommercialMarquesViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentMarque = new Marque();
+        currentMarque = new MarqueDTO();
         showModal = true;
     }
 
-    public void ShowEditModal(Marque marque)
+    public void ShowEditModal(MarqueDTO marque)
     {
         isEditing = true;
-        currentMarque = new Marque
+        currentMarque = new MarqueDTO
         {
-            MarqueId = marque.MarqueId,
+            MarqueID = marque.MarqueID,
             NomMarque = marque.NomMarque
         };
         showModal = true;
     }
 
-    public void ShowDeleteModal(Marque marque)
+    public void ShowDeleteModal(MarqueDTO marque)
     {
         currentMarque = marque;
         showDeleteModal = true;
@@ -55,14 +56,14 @@ public class CommercialMarquesViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentMarque = new Marque();
+        currentMarque = new MarqueDTO();
         errorMessage = string.Empty;
     }
 
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentMarque = new Marque();
+        currentMarque = new MarqueDTO();
     }
 
     public async Task SaveMarque()
@@ -75,9 +76,9 @@ public class CommercialMarquesViewModel
 
         try
         {
-            Marque marqueToSave = new Marque
+            MarqueDTO marqueToSave = new MarqueDTO
             {
-                MarqueId = currentMarque.MarqueId,
+                MarqueID = currentMarque.MarqueID,
                 NomMarque = currentMarque.NomMarque
             };
 
@@ -113,7 +114,7 @@ public class CommercialMarquesViewModel
         try
         {
             // TODO: Delete marque via API
-            await MarqueService.DeleteAsync(currentMarque.MarqueId);
+            await MarqueService.DeleteAsync(currentMarque.MarqueID);
             successMessage = $"Marque {currentMarque.NomMarque} supprimée avec succès";
             CloseDeleteModal();
             await VM_Marque.LoadAsync();

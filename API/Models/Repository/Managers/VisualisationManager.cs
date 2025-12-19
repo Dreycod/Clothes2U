@@ -1,4 +1,4 @@
-﻿using API.DTO.Visualisation;
+﻿using Shared.DTO.Visualisation;
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 

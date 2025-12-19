@@ -11,17 +11,18 @@
 @using FrontBlazor.Layout
 @using FrontBlazor.ViewModel;
 @using FrontBlazor.Services;
-@using FrontBlazor.Models;
-@using FrontBlazor.Models.StateServices
-@using FrontBlazor.Models.Verification
-@using FrontBlazor.ViewModel;
-@using FrontBlazor.Services;
-@using FrontBlazor.Models;
-@using FrontBlazor.Models.StateServices
+@using Shared.DTO;
+@using Shared.DTO.Annonce;
+@using Shared.DTO.Verification;
+@using Shared.DTO.Categorie;
+@using Shared.DTO.Taille;
+@using Shared.DTO.Marque;
+@using Shared.DTO.Couleur;
+@using Shared.DTO.EtatArticle;
 @using FrontBlazor.Services.Interfaces
 @using FrontBlazor.Services.GenericIServices
 @using FrontBlazor.Components;
-@inject IStateService<Annonce> annonceStateService
+@inject IStateService<AnnonceDTO> annonceStateService
 @inject NavigationManager navigationManager
 @inject LoginViewModel VM_Connexion
 @* Pages *@
@@ -39,9 +40,9 @@
 @inject HomeViewModel VM_Home
 
 @* Models *@
-@inject ListableViewModel<Categorie> VM_Categorie
-@inject ListableViewModel<Taille> VM_Taille
-@inject ListableViewModel<Marque> VM_Marque
-@inject ListableViewModel<Couleur> VM_Couleur
-@inject ListableViewModel<EtatArticle> VM_Etat
-@inject ListableViewModel<Genre> VM_Genre
+@inject ListableViewModel<CategorieDTO> VM_Categorie
+@inject ListableViewModel<TailleDTO> VM_Taille
+@inject ListableViewModel<MarqueDTO> VM_Marque
+@inject ListableViewModel<CouleurDTO> VM_Couleur
+@inject ListableViewModel<EtatArticleDTO> VM_Etat
+@inject ListableViewModel<GenreDTO> VM_Genre

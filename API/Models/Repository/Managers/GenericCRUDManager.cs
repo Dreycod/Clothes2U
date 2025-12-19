@@ -33,8 +33,10 @@ public abstract class GenericCRUDManager<T> : IDataRepository<T, int> where T : 
         await _context.SaveChangesAsync();
     }
 
-    public virtual async Task UpdateAsync(T entityToUpdate, T entity)
+    public virtual async Task UpdateAsync(T entity)
     {
+        T entityToUpdate = await GetByIdAsync(entity.GetId()) 
+            ?? throw new ArgumentException($"Entity with id {entity.GetId()} not found");
         _context.Set<T>().Attach(entityToUpdate);
         _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
         await _context.SaveChangesAsync();

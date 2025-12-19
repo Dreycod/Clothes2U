@@ -1,4 +1,10 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
+using Shared.DTO.Annonce;
+using Shared.DTO.Favoris;
+using Shared.DTO.Conversation;
+using Shared.DTO.Photo;
+using Shared.DTO.Signalement;
+using Shared.DTO.Utilisateur;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
@@ -9,22 +15,22 @@ namespace FrontBlazor.ViewModel;
 
 public class DetailAnnonceViewModel
 {
-    private readonly IAnnonceService<Annonce> _annonceService;
-    private readonly IFavorisService<Favoris> _favorisService;
+    private readonly IAnnonceService<AnnonceDetailDTO> _annonceService;
+    private readonly IFavorisService<FavorisDTO> _favorisService;
     private readonly IAuthService _authService;
-    private readonly IConversationService<Conversation> _conversationService;
+    private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
-    private readonly IMediasService<Photo> _mediaService;
+    private readonly IMediasService<PhotoResponseDTO> _mediaService;
     private readonly IVisualisationService _visualisationService;
     private readonly ISignalementService _signalementService;
 
     private CancellationTokenSource? _viewTimerCts;
 
-    public Annonce? AnnonceDetail { get; set; }
-    public UtilisateurView? utilisateurAnnonce { get; set; }
-    public List<Annonce>? similarProducts = null;
+    public AnnonceDetailDTO? AnnonceDetail { get; set; }
+    public UtilisateurViewDTO? utilisateurAnnonce { get; set; }
+    public List<AnnonceDetailDTO>? similarProducts = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
     public bool clickedShareButton { get; set; } = false;
@@ -36,11 +42,11 @@ public class DetailAnnonceViewModel
     public bool ShowSignalerModal { get; set; } = false;
     public bool IsSubmittingReport { get; set; } = false;
 
-    public DetailAnnonceViewModel(IAnnonceService<Annonce> annonceService,
-        IFavorisService<Favoris> favorisService, IAuthService authService,
+    public DetailAnnonceViewModel(IAnnonceService<AnnonceDetailDTO> annonceService,
+        IFavorisService<FavorisDTO> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
-        IConversationService<Conversation> conversationService,
-        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<Photo> mediasService
+        IConversationService<ConversationDTO> conversationService,
+        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<PhotoResponseDTO> mediasService
         , IVisualisationService visualisationService, ISignalementService signalementService)
     {
         _annonceService = annonceService;
@@ -73,11 +79,11 @@ public class DetailAnnonceViewModel
             }
 
             utilisateurAnnonce = await _utilisateurService.GetUserById(AnnonceDetail.UtilisateurId);
-            IsBlockedByUser = utilisateurAnnonce.blockedByCurrentUser;
+            IsBlockedByUser = utilisateurAnnonce.BlockedByCurrentUser;
             if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
                 IsUserSuspended = true;
 
-            Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+            UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
             if (utilisateur != null && utilisateurAnnonce != null &&
                 utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
                 IsSameUser = true;
@@ -111,7 +117,7 @@ public class DetailAnnonceViewModel
             return true;
         return false;
     }
-    public async Task ToggleFavorite(Annonce annonce)
+    public async Task ToggleFavorite(AnnonceDetailDTO annonce)
     {
         if (CheckLoginStatus == null)
         {
@@ -230,7 +236,7 @@ public class DetailAnnonceViewModel
         IsSubmittingReport = true;
         try
         {
-            SignalementCreate newReport = new SignalementCreate
+            SignalementAnnonceCreateDTO newReport = new SignalementAnnonceCreateDTO
             {
                 SignalementMotif = reason,
             };

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Shared.Enums;
 
 namespace API.Models.EntityFramework;
 
@@ -37,10 +38,4 @@ public class VerificationCode : IEntity
     public virtual Utilisateur Utilisateur { get; set; } = null!;
     
     public int GetId() => VerificationCodeId;
-}
-
-public enum VerificationType
-{
-    Email = 1,
-    Telephone = 2
 }

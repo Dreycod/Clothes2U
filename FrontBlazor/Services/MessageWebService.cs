@@ -1,30 +1,31 @@
-using FrontBlazor.Models;
+using Shared.DTO;
+using Shared.DTO.Message;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace FrontBlazor.Services;
 
-public class MessageWebService : WritableService<Message>, IMessageService<Message>
+public class MessageWebService : WritableService<MessageDTO>, IMessageService<MessageDTO>
 {
     public MessageWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public Task<Message> GetByIdAsync(int id)
+    public Task<MessageDTO> GetByIdAsync(int id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<List<Message>?> GetMessagesByConversationId(int id)
+    public Task<List<MessageDTO>?> GetMessagesByConversationId(int id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<Message?>> GetMessagesByUserId(int id)
+    public async Task<List<MessageDTO?>> GetMessagesByUserId(int id)
     {
-        return await _httpClient.GetFromJsonAsync<List<Message?>>(
+        return await _httpClient.GetFromJsonAsync<List<MessageDTO?>>(
        $"Message/utilisateur/{id}");
     }
-    public async Task<HttpResponseMessage> PostMessageTexte(Message message)
+    public async Task<HttpResponseMessage> PostMessageTexte(MessageDTO message)
     {
         var body = JsonContent.Create(message);
         return await PostWithCredentialsAsync($"Message/texte",body);

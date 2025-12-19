@@ -1,10 +1,11 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http.Json;
+using Shared.DTO.Abonnement;
 
 namespace FrontBlazor.Services
 {
-    public class AbonnementWebService : ReadableService<Abonnement>, IAbonnementService<Abonnement>
+    public class AbonnementWebService : ReadableService<AbonnementDTO>, IAbonnementService<AbonnementDTO>
     {
         public AbonnementWebService(HttpClient httpClient) : base(httpClient) { }
         public async Task AddAbonnement(int utilisateurId)
@@ -18,7 +19,7 @@ namespace FrontBlazor.Services
             await DeleteWithCredentialsAsync($"Abonnement/{utilisateurId}");
         }
 
-        public Task<Abonnement?> AddAsync(Abonnement entity)
+        public Task<AbonnementDTO?> AddAsync(AbonnementDTO entity)
         {
             throw new NotImplementedException();
         }
@@ -28,7 +29,7 @@ namespace FrontBlazor.Services
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(Abonnement updatedEntity)
+        public Task UpdateAsync(AbonnementDTO updatedEntity)
         {
             throw new NotImplementedException();
         }

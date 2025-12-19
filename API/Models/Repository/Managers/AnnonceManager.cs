@@ -1,5 +1,5 @@
-using API.DTO;
-using API.DTO.Annonce;
+using Shared.DTO;
+using Shared.DTO.Annonce;
 using API.Extensions;
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;

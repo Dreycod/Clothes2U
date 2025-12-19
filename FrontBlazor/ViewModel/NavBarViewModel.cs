@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using FrontBlazor.Models;
-using FrontBlazor.Models.Notification;
+using Shared.DTO;
+using Shared.DTO.Notification;
+using Shared.DTO.Utilisateur;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
@@ -16,8 +17,8 @@ namespace FrontBlazor.ViewModel
         private readonly NavigationManager _nav;
         private SearchAnnonceViewModel? _searchViewModel;
 
-        public Utilisateur utilisateur { get; set; }
-        public ObservableCollection<Notification> notifications { get; set; } =  new ObservableCollection<Notification>();
+        public UtilisateurDTO utilisateur { get; set; }
+        public ObservableCollection<NotificationDTO> notifications { get; set; } =  new ObservableCollection<NotificationDTO>();
         public bool IsLoading { get; set; }
         public bool IsConnected { get; set; }
         public bool showDropdown;
@@ -60,7 +61,7 @@ namespace FrontBlazor.ViewModel
             if (showDropDownNotification)
             {
                 var result = await _notificationService.GetAllAsync();
-                notifications = result ?? new ObservableCollection<Notification>();
+                notifications = result ?? new ObservableCollection<NotificationDTO>();
                 NotifyStateChanged(); 
             }
             LoadingNotifications = false;
@@ -138,7 +139,7 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public async Task HandleNotificationClick(Notification notification)
+        public async Task HandleNotificationClick(NotificationDTO notification)
         {
             if (!notification.EstLu)
             {
@@ -148,10 +149,10 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
             switch (notification)
             {
-                case NotificationMessage notifMessage:
-                    if (notifMessage.ConversationId.HasValue)
+                case NotificationMessageDTO notifMessage:
+                    if (String.IsNullOrEmpty(notifMessage.ConversationId.ToString()))
                     {
-                        _nav.NavigateTo($"/messages?conversationId={notifMessage.ConversationId.Value}");
+                        _nav.NavigateTo($"/messages?conversationId={notifMessage.ConversationId}");
                     }
                     else
                     {
@@ -159,18 +160,18 @@ namespace FrontBlazor.ViewModel
                     }
                     break;
 
-                case NotificationModificationAnnonce notifModif:
+                case NotificationModificationAnnonceDTO notifModif:
                     _nav.NavigateTo($"/product/{notifModif.ModificationAnnonceId}");
                     break;
 
-                case NotificationNouvelleAnnonce notifNouvelle:
+                case NotificationNouvelleAnnonceDTO notifNouvelle:
                     _nav.NavigateTo($"/product/{notifNouvelle.NouvelleAnnonceId}");
                     break;
 
-                case NotificationAvertissement:
+                case NotificationAvertissementDTO:
                     break;
 
-                case NotificationAdmin:
+                case NotificationAdminDTO:
                     break;
             }
             await DeleteNotification(notification.NotificationId);

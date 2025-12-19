@@ -1,33 +1,30 @@
-using API.DTO;
 using API.Exceptions;
-using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using Microsoft.EntityFrameworkCore;
+using Shared.DTO.Photo;
+using System.Numerics;
 
 namespace API.Services;
 
 public class PhotoService : IPhotoService
 {
     private readonly IPhotoRepository<Photo, int> _photoRepository;
-    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
-    private readonly IDataRepository<Illustre_Annonce, int> _illustreAnnonceRepository;
-    private readonly IUtilisateurRepository _utilisateurManager;
-    private readonly Clothes2UDbContext _context;
+    private readonly IDataRepository<Annonce, int> _annonceRepository;
+    private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
+    private readonly ILogger<PhotoService> _logger;
 
     public PhotoService(
         IPhotoRepository<Photo, int> photoRepository,
-        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
-        IDataRepository<Illustre_Annonce, int> illustreAnnonceRepository,
-        IUtilisateurRepository utilisateurRepository,
-        Clothes2UDbContext context)
+        IDataRepository<Annonce, int> annonceRepository,
+        IDataRepository<Utilisateur, int> utilisateurRepository,
+        ILogger<PhotoService> logger)
     {
         _photoRepository = photoRepository;
         _annonceRepository = annonceRepository;
-        _illustreAnnonceRepository = illustreAnnonceRepository;
-        _utilisateurManager = utilisateurRepository;
-        _context = context;
+        _utilisateurRepository = utilisateurRepository;
+        _logger = logger;
     }
 
     public async Task<Photo?> GetPhotoAsync(int id)
@@ -35,103 +32,86 @@ public class PhotoService : IPhotoService
         return await _photoRepository.GetByIdAsync(id);
     }
 
-    public async Task<Photo> UploadPhotoAnnonceAsync(PhotoDTO photoDto, int annonceId)
+    public async Task<PhotoResponseDTO> SavePhotoAsync(int annonceId, PhotoUploadDTO photoDto)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        // Vérifier que l'annonce existe
+        var annonce = await _annonceRepository.GetByIdAsync(annonceId);
+        if (annonce == null)
         {
-            // Validation métier
-            var annonce = await _annonceRepository.GetByIdAsync(annonceId);
-            if (annonce == null)
-            {
-                throw new NotFoundException($"Annonce {annonceId} introuvable");
-            }
-
-            // TODO: Ajouter validation d'image (taille, format, contenu)
-            
-            // Création de la photo
-            var photo = await _photoRepository.AddPhotoAsync(photoDto);
-
-            // Création de la relation
-            var illustre = new Illustre_Annonce
-            {
-                AnnonceId = annonceId,
-                PhotoId = photo.PhotoId
-            };
-            await _illustreAnnonceRepository.AddAsync(illustre);
-
-            await transaction.CommitAsync();
-            return photo;
+            throw new NotFoundException($"Annonce {annonceId} introuvable");
         }
-        catch
+
+        // Créer la photo
+        var photo = await _photoRepository.AddPhotoAsync(photoDto);
+
+        // Associer la photo à l'annonce
+        // (Selon votre modèle, vous devrez peut-être adapter cette partie)
+        if (annonce.Photos == null)
         {
-            await transaction.RollbackAsync();
-            throw;
+            annonce.Photos = new List<Illustre_Annonce>();
         }
+        Illustre_Annonce illustre = new Illustre_Annonce
+        {
+            AnnonceId = annonceId,
+            PhotoId = photo.PhotoId
+        };
+        annonce.Photos.Add(illustre);
+
+        await _annonceRepository.UpdateAsync(annonce);
+
+        _logger.LogInformation("Photo {PhotoId} ajoutée à l'annonce {AnnonceId}", photo.PhotoId, annonceId);
+
+        // Retourner le DTO de réponse
+        return new PhotoResponseDTO
+        {
+            PhotoId = photo.PhotoId,
+            Url = $"/api/Medias/Photos/{photo.PhotoId}",
+            FileName = photoDto.FileName,
+            DateUpload = DateTime.UtcNow
+        };
     }
 
-    public async Task<Photo> UploadComptePhotoAsync(PhotoDTO photoDto, int compteId)
+    public async Task<PhotoResponseDTO> SaveComptePhotoAsync(int utilisateurId, PhotoUploadDTO photoDto)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        // Vérifier que le compte existe
+        var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
+        if (utilisateur == null)
         {
-            // Validation métier
-            var utilisateur = await _utilisateurManager.GetByIdAsync(compteId);
-            if (utilisateur == null)
-            {
-                throw new NotFoundException($"Utilisateur {compteId} introuvable");
-            }
-
-            // TODO: Ajouter validation d'image
-
-            // Création de la photo
-            var photo = await _photoRepository.AddPhotoAsync(photoDto);
-
-            // Mise à jour de l'utilisateur
-            var utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(compteId);
-            utilisateurToUpdate.PhotoId = photo.PhotoId;
-            await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
-
-            await transaction.CommitAsync();
-            return photo;
+            throw new NotFoundException($"Compte {utilisateurId} introuvable");
         }
-        catch
+
+        // Créer la photo
+        var photo = await _photoRepository.AddPhotoAsync(photoDto);
+
+        // Associer la photo au compte
+        utilisateur.PhotoId = photo.PhotoId;
+        await _utilisateurRepository.UpdateAsync(utilisateur);
+
+        _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
+
+        // Retourner le DTO de réponse
+        return new PhotoResponseDTO
         {
-            await transaction.RollbackAsync();
-            throw;
-        }
+            PhotoId = photo.PhotoId,
+            Url = $"/api/Medias/Photos/{photo.PhotoId}",
+            FileName = photoDto.FileName,
+            DateUpload = DateTime.UtcNow
+        };
     }
 
-    public async Task DeletePhotoAsync(int id)
+    public async Task<bool> DeletePhotoAsync(int id)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
-        {
-            var photo = await _photoRepository.GetByIdWithRelationsAsync(id);
-            if (photo == null)
-            {
-                throw new NotFoundException($"Photo {id} introuvable");
-            }
-            var illustreAnnonce = await ((IllustreAnnonceRepository<Illustre_Annonce, int>)_illustreAnnonceRepository)
-                .GetByPhotoId(id);
+        var photo = await _photoRepository.GetByIdAsync(id);
 
-            if (illustreAnnonce != null)
-            {
-                await _illustreAnnonceRepository.DeleteAsync(illustreAnnonce);
-            }
-            if (photo.Utilisateur != null)
-            {
-                var utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(photo.Utilisateur.UtilisateurId);
-                utilisateurToUpdate.PhotoId = null;
-                await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
-            }
-            await _photoRepository.DeleteAsync(photo);
-            await transaction.CommitAsync();
-        }
-        catch
+        if (photo == null)
         {
-            await transaction.RollbackAsync();
-            throw;
+            return false;
         }
+
+        await _photoRepository.DeleteAsync(photo);
+
+        _logger.LogInformation("Photo {PhotoId} supprimée", id);
+
+        return true;
     }
 }

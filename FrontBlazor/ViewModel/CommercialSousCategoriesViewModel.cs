@@ -1,6 +1,8 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO.Categorie;
+using Shared.DTO.SousCategorie;
 
 namespace FrontBlazor.ViewModel;
 public class CommercialSousCategoriesViewModel
@@ -8,17 +10,17 @@ public class CommercialSousCategoriesViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public SousCategorie currentSousCategorie = new SousCategorie();
+    public SousCategorieDTO currentSousCategorie = new SousCategorieDTO();
     public int selectedCategorieId = 0;
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public List<(SousCategorie Subcategory, Categorie ParentCategory)> allSubcategories = new();
-    private ListableViewModel<Categorie> VM_Categorie;
+    public List<(SousCategorieDTO Subcategory, CategorieDetailDTO ParentCategory)> allSubcategories = new();
+    private ListableViewModel<CategorieDetailDTO> VM_Categorie;
 
 
     public event Action? OnStateChange;
-    public CommercialSousCategoriesViewModel(ListableViewModel<Categorie> categorieService)
+    public CommercialSousCategoriesViewModel(ListableViewModel<CategorieDetailDTO> categorieService)
     {
         VM_Categorie = categorieService;
     }
@@ -49,15 +51,15 @@ public class CommercialSousCategoriesViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentSousCategorie = new SousCategorie();
+        currentSousCategorie = new SousCategorieDTO();
         selectedCategorieId = 0;
         showModal = true;
     }
 
-    public void ShowEditModal(SousCategorie sousCategorie, Categorie parentCategory)
+    public void ShowEditModal(SousCategorieDTO sousCategorie, CategorieDTO parentCategory)
     {
         isEditing = true;
-        currentSousCategorie = new SousCategorie
+        currentSousCategorie = new SousCategorieDTO
         {
             SousCategorieId = sousCategorie.SousCategorieId,
             LibelleSousCategorie = sousCategorie.LibelleSousCategorie,
@@ -67,7 +69,7 @@ public class CommercialSousCategoriesViewModel
         showModal = true;
     }
 
-    public void ShowDeleteModal(SousCategorie sousCategorie)
+    public void ShowDeleteModal(SousCategorieDTO sousCategorie)
     {
         currentSousCategorie = sousCategorie;
         showDeleteModal = true;
@@ -76,7 +78,7 @@ public class CommercialSousCategoriesViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentSousCategorie = new SousCategorie();
+        currentSousCategorie = new SousCategorieDTO();
         selectedCategorieId = 0;
         errorMessage = string.Empty;
     }
@@ -84,7 +86,7 @@ public class CommercialSousCategoriesViewModel
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentSousCategorie = new SousCategorie();
+        currentSousCategorie = new SousCategorieDTO();
     }
 
     public async Task SaveSousCategorie()

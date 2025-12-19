@@ -96,9 +96,9 @@
                             @foreach (var marque in VM_Marque.Items)
                             {
                                 <tr>
-                                    <td>#@marque.MarqueId</td>
+                                    <td>#@marque.MarqueID</td>
                                     <td><strong>@marque.NomMarque</strong></td>
-                                    <td>@marque.NombreProduits articles</td>
+                                    @* <td>@marque.NombreProduits articles</td> *@
                                     <td>
                                         <div class="table-actions">
                                             <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialMarques.ShowEditModal(marque)">

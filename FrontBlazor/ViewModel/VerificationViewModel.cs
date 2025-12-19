@@ -1,5 +1,6 @@
-﻿using FrontBlazor.Models.Verification;
+﻿using Shared.DTO.Verification;
 using FrontBlazor.Services;
+using Shared.Enums;
 
 namespace FrontBlazor.ViewModel
 {

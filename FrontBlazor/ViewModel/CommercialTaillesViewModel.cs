@@ -1,6 +1,8 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO.Taille;
+using Shared.DTO.Categorie;
 
 namespace FrontBlazor.ViewModel;
 
@@ -9,16 +11,16 @@ public class CommercialTaillesViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public Taille currentTaille = new Taille();
+    public TailleDTO currentTaille = new TailleDTO();
     public int selectedCategorieId = 0;
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    private ListableViewModel<Taille> VM_Taille;
-    private ListableViewModel<Categorie> VM_Categorie;
+    private ListableViewModel<TailleDTO> VM_Taille;
+    private ListableViewModel<CategorieDetailDTO> VM_Categorie;
     public event Action? OnStateChange;
 
-    public CommercialTaillesViewModel(ListableViewModel<Taille> tailleService, ListableViewModel<Categorie> categorieService)
+    public CommercialTaillesViewModel(ListableViewModel<TailleDTO> tailleService, ListableViewModel<CategorieDetailDTO> categorieService)
     {
         VM_Taille = tailleService;
         VM_Categorie = categorieService;
@@ -32,15 +34,15 @@ public class CommercialTaillesViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentTaille = new Taille();
+        currentTaille = new TailleDTO();
         selectedCategorieId = 0;
         showModal = true;
     }
 
-    public void ShowEditModal(Taille taille)
+    public void ShowEditModal(TailleDTO taille)
     {
         isEditing = true;
-        currentTaille = new Taille
+        currentTaille = new TailleDTO
         {
             TailleId = taille.TailleId,
             Libelletaille = taille.Libelletaille,
@@ -50,7 +52,7 @@ public class CommercialTaillesViewModel
         showModal = true;
     }
 
-    public void ShowDeleteModal(Taille taille)
+    public void ShowDeleteModal(TailleDTO taille)
     {
         currentTaille = taille;
         showDeleteModal = true;
@@ -59,7 +61,7 @@ public class CommercialTaillesViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentTaille = new Taille();
+        currentTaille = new TailleDTO();
         selectedCategorieId = 0;
         errorMessage = string.Empty;
     }
@@ -67,7 +69,7 @@ public class CommercialTaillesViewModel
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentTaille = new Taille();
+        currentTaille = new TailleDTO();
     }
 
     public async Task SaveTaille()

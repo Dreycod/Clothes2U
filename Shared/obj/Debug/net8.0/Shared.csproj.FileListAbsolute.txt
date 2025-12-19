@@ -1,0 +1,12 @@
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.GeneratedMSBuildEditorConfig.editorconfig
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.AssemblyInfoInputs.cache
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.AssemblyInfo.cs
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.csproj.CoreCompileInputs.cache
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.sourcelink.json
+P:\S5\SAE\Dreycod\Clothes2U\Shared\bin\Debug\net8.0\Shared.deps.json
+P:\S5\SAE\Dreycod\Clothes2U\Shared\bin\Debug\net8.0\Shared.dll
+P:\S5\SAE\Dreycod\Clothes2U\Shared\bin\Debug\net8.0\Shared.pdb
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.dll
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\refint\Shared.dll
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\Shared.pdb
+P:\S5\SAE\Dreycod\Clothes2U\Shared\obj\Debug\net8.0\ref\Shared.dll

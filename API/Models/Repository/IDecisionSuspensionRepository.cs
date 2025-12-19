@@ -1,4 +1,4 @@
-﻿using API.DTO.Decision_suspension;
+﻿using Shared.DTO.Decision_suspension;
 
 namespace API.Models.Repository
 {

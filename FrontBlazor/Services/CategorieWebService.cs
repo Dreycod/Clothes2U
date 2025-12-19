@@ -1,10 +1,11 @@
 using System.Net.Http.Json;
-using FrontBlazor.Models;
+using Shared.DTO;
+using Shared.DTO.Categorie;
 using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services
 {
-    public class CategorieWebService : ReadableService<Categorie>, ICategorieService<Categorie>
+    public class CategorieWebService : ReadableService<CategorieDTO>, ICategorieService<CategorieDTO>
     {
         private readonly HttpClient _httpClient;
         public CategorieWebService(HttpClient httpClient) : base(httpClient)
@@ -12,11 +13,11 @@ namespace FrontBlazor.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Categorie>?> GetAllCategories()
+        public async Task<List<CategorieDTO>?> GetAllCategories()
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<List<Categorie>>("Categorie");
+                return await _httpClient.GetFromJsonAsync<List<CategorieDTO>>("Categorie");
             }
             catch (Exception ex)
             {
@@ -25,7 +26,7 @@ namespace FrontBlazor.Services
             }
         }
 
-        public Task<Categorie?> AddAsync(Categorie entity)
+        public Task<CategorieDTO?> AddAsync(CategorieDTO entity)
         {
             throw new NotImplementedException();
         }
@@ -35,12 +36,12 @@ namespace FrontBlazor.Services
             throw new NotImplementedException();
         }
 
-        public Task<Categorie> GetByIdAsync(int id)
+        public Task<CategorieDTO> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(Categorie updatedEntity)
+        public Task UpdateAsync(CategorieDTO updatedEntity)
         {
             throw new NotImplementedException();
         }

@@ -81,12 +81,12 @@
                     {
                         @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages)
                         {
-                            <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
+                            <div class="message @(message.SentByCurrentUser == true ? "sent" : "received")">
                                 <p class="message-text">@message.Content</p>
                                 <div class="message-info">
                                     <span class="message-time">@message.Date</span>
                                     @* ✅ CORRECTION ICI : IsRead au lieu de Lu *@
-                                    @if (message.SentbyCurrentUser == true && message.Lu == true)
+                                    @if (message.SentByCurrentUser == true && message.Lu == true)
                                     {
                                         <span class="message-read">✔✔</span>
                                     }

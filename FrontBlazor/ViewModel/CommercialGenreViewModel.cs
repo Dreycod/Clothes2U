@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 
@@ -9,15 +9,15 @@ public class CommercialGenresViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public Genre currentGenre = new Genre();
+    public GenreDTO currentGenre = new GenreDTO();
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public ListableViewModel<Genre> VM_Genre { get; set; }
-    public WritableService<Genre> GenreService { get; set; }
+    public ListableViewModel<GenreDTO> VM_Genre { get; set; }
+    public WritableService<GenreDTO> GenreService { get; set; }
     public event Action? OnStateChange;
 
-    public CommercialGenresViewModel(ListableViewModel<Genre> _GenreViewModel, WritableService<Genre> genreService)
+    public CommercialGenresViewModel(ListableViewModel<GenreDTO> _GenreViewModel, WritableService<GenreDTO> genreService)
     {
         VM_Genre = _GenreViewModel;
         GenreService = genreService;
@@ -31,14 +31,14 @@ public class CommercialGenresViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentGenre = new Genre();
+        currentGenre = new GenreDTO();
         showModal = true;
     }
 
-    public void ShowEditModal(Genre genre)
+    public void ShowEditModal(GenreDTO genre)
     {
         isEditing = true;
-        currentGenre = new Genre
+        currentGenre = new GenreDTO
         {
             GenreId = genre.GenreId,
             NomGenre = genre.NomGenre
@@ -46,7 +46,7 @@ public class CommercialGenresViewModel
         showModal = true;
     }
 
-    public void ShowDeleteModal(Genre genre)
+    public void ShowDeleteModal(GenreDTO genre)
     {
         currentGenre = genre;
         showDeleteModal = true;
@@ -55,14 +55,14 @@ public class CommercialGenresViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentGenre = new Genre();
+        currentGenre = new GenreDTO();
         errorMessage = string.Empty;
     }
 
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentGenre = new Genre();
+        currentGenre = new GenreDTO();
     }
 
     public async Task SaveGenre()
@@ -75,7 +75,7 @@ public class CommercialGenresViewModel
 
         try
         {
-            Genre genreToSave = new Genre
+            GenreDTO genreToSave = new GenreDTO
             {
                 GenreId = currentGenre.GenreId,
                 NomGenre = currentGenre.NomGenre

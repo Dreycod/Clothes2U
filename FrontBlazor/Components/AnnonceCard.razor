@@ -1,4 +1,5 @@
-﻿@inject IMediasService<Photo> MediasService
+﻿@using Shared.DTO.Photo
+@inject IMediasService<PhotoResponseDTO> MediasService
 
 <div class="product-card" @onclick="OnClick">
     <div class="product-image-container">
@@ -12,7 +13,7 @@
     </div>
 
     <div class="product-info">
-        <h3 class="product-title">@annonceComponent.Title</h3>
+        <h3 class="product-title">@annonceComponent.Titre</h3>
 
         <div class="product-meta">
             <span class="product-size">Taille @annonceComponent.Taille</span>
@@ -27,12 +28,12 @@
 </div>
 
 @code {
-    [Parameter] public Annonce annonceComponent { get; set; }
-    [Parameter] public EventCallback<Annonce> OnToggleFavorite { get; set; }
-    [Parameter] public EventCallback<Annonce> OnClickAnnonce { get; set; }
+    [Parameter] public AnnonceDTO annonceComponent { get; set; }
+    [Parameter] public EventCallback<AnnonceDTO> OnToggleFavorite { get; set; }
+    [Parameter] public EventCallback<AnnonceDTO> OnClickAnnonce { get; set; }
     [Inject] DetailAnnonceViewModel DetailVM { get; set; }
 
-    private string PhotoUrl => MediasService.GetPhotoUrl(annonceComponent.Photos.First());
+    private string PhotoUrl => annonceComponent.Photos.First();
     private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
 
     private async Task ToggleFavorite()

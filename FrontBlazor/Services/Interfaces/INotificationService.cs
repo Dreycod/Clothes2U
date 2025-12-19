@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
-using FrontBlazor.Models.Moderation;
-using FrontBlazor.Models.Notification;
+using Shared.DTO.Moderation;
+using Shared.DTO.Notification;
 using FrontBlazor.Services.GenericIServices;
 
 
@@ -8,8 +8,8 @@ namespace FrontBlazor.Services.Interfaces;
 
 public interface INotificationService 
 {
-    Task<ObservableCollection<Notification>> GetAllAsync();
+    Task<ObservableCollection<NotificationDTO>> GetAllAsync();
     Task MarkAsRead();
     Task DeleteNotification(int notificationId);
-    Task CreateNotificationAvertissement(CreateAvertissementRequest request);
+    Task CreateNotificationAvertissement(CreateAvertissementRequestDTO request);
 }

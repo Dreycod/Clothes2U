@@ -1,4 +1,4 @@
-using API.DTO.Verification;
+using Shared.DTO.Verification;
 using API.Models.EntityFramework;
 using API.Services.VerificationSrvceV2;
 using Microsoft.AspNetCore.Authorization;

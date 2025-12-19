@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
-using FrontBlazor.Models;
+using Shared.DTO;
+using Shared.DTO.Conversation;
+using Shared.DTO.Message;
+using Shared.DTO.Utilisateur;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -9,16 +12,16 @@ namespace FrontBlazor.ViewModel;
 
 public class MessagerieViewModel : ComponentBase, IDisposable
 {
-    private readonly IConversationService<Conversation> _conversationService;
+    private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IAuthService _authService;
-    private readonly IMessageService<Message> _messageService;
+    private readonly IMessageService<MessageDTO> _messageService;
     public readonly ISignalRService _signalRService;
     private readonly NavigationManager _nav;
 
-    public ObservableCollection<Conversation> Conversations { get; private set; } = new();
-    public Conversation? SelectedConversation { get; private set; }
+    public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
+    public ConversationDTO? SelectedConversation { get; private set; }
     public int? SelectedConversationId { get; private set; }
-    public Utilisateur? CurrentUser { get; private set; }
+    public UtilisateurDTO? CurrentUser { get; private set; }
 
     public string NewMessage { get; set; } = "";
     public bool IsLoading { get; private set; } = false;
@@ -34,9 +37,9 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private bool _typingNotified = false;
 
     public MessagerieViewModel(
-        IConversationService<Conversation> conversationService,
+        IConversationService<ConversationDTO> conversationService,
         IAuthService authService,
-        IMessageService<Message> messageService,
+        IMessageService<MessageDTO> messageService,
         NavigationManager nav,
         ISignalRService signalRService)
     {
@@ -76,7 +79,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
 
         var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
-        Conversations = data != null ? new ObservableCollection<Conversation>(data) : new ObservableCollection<Conversation>();
+        Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
 
         await _signalRService.StartAsync();
         
@@ -102,13 +105,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         {
             SelectedConversation = conv;
             if (conv.ListMessages == null)
-                conv.ListMessages = new ObservableCollection<Message>();
-            else if (conv.ListMessages is not ObservableCollection<Message>)
-                conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
+                conv.ListMessages = new ObservableCollection<MessageDTO>();
+            else if (conv.ListMessages is not ObservableCollection<MessageDTO>)
+                conv.ListMessages = new ObservableCollection<MessageDTO>(conv.ListMessages);
         }
         else
         {
-            SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
+            SelectedConversation = new ConversationDTO { ListMessages = new ObservableCollection<MessageDTO>() };
         }
 
         var listConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
@@ -129,7 +132,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         if (SelectedConversation?.ListMessages != null)
         {
             var unreadReceivedMessages = SelectedConversation.ListMessages
-                .Where(m => m.SentbyCurrentUser == false && m.Lu == false)
+                .Where(m => m.SentByCurrentUser == false && m.Lu == false)
                 .ToList();
 
             foreach (var msg in unreadReceivedMessages)
@@ -171,13 +174,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         
         try
         {
-            var message = new Message
+            var message = new MessageTextDTO
             {
                 Content = content,
                 ConversationId = SelectedConversation.ConversationId,
                 UtilisateurId = CurrentUser!.UtilisateurId,
                 Date = DateTime.Now,
-                SentbyCurrentUser = true,
+                SentByCurrentUser = true,
                 Lu = false // ✅ Pas encore lu par l'autre
             };
         
@@ -225,13 +228,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
             if (!exists)
             {
-                var newMessage = new Message
+                var newMessage = new MessageTextDTO
                 {
                     Content = message,
                     UtilisateurId = senderId,
                     Date = date,
                     ConversationId = conversationId,
-                    SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId,
+                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId,
                     Lu = false // ✅ Nouveau message non lu
                 };
 
@@ -307,7 +310,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         // ✅ CORRECTION 3 : L'autre utilisateur a lu nos messages
         if (userId != CurrentUser?.UtilisateurId)
         {
-            Conversation? targetConv = null;
+            ConversationDTO? targetConv = null;
         
             if (SelectedConversationId == conversationId && SelectedConversation != null)
             {
@@ -322,7 +325,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             {
                 // Marquer MES messages envoyés comme lus
                 var mySentMessages = targetConv.ListMessages
-                    .Where(m => m.UtilisateurId == CurrentUser!.UtilisateurId && m.SentbyCurrentUser == true && m.Lu == false)
+                    .Where(m => m.UtilisateurId == CurrentUser!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
                     .ToList();
             
                 if (mySentMessages.Any())
@@ -407,7 +410,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     }
 }
 // using System.Collections.ObjectModel;
-// using FrontBlazor.Models;
+// using Shared.DTO;
 // using FrontBlazor.Services.GenericIServices;
 // using FrontBlazor.Services.Interfaces;
 // using Microsoft.AspNetCore.Components;

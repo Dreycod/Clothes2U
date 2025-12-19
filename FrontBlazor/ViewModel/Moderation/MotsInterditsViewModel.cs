@@ -1,4 +1,4 @@
-using FrontBlazor.Models.Moderation;
+using Shared.DTO.MotInterdit;
 using FrontBlazor.Pages.Moderation;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Components;
 
 public class MotsInterditsViewModel : ModerationViewModel
 {
-    public List<MotInterdit> Mots { get; set; } = new List<MotInterdit>(); 
+    public List<MotInterditDTO> Mots { get; set; } = new List<MotInterditDTO>(); 
     private readonly IMotsInterditsService _motsInterditsService;
-    public MotInterdit motToAdd { get; set; } = new MotInterdit(); 
+    public MotInterditDTO motToAdd { get; set; } = new MotInterditDTO(); 
     public string? ErrorMessage { get; set; } 
 
     public MotsInterditsViewModel(
@@ -27,7 +27,7 @@ public class MotsInterditsViewModel : ModerationViewModel
     {
         await base.LoadAsync(); 
         IsLoading = true;
-        motToAdd = new MotInterdit();
+        motToAdd = new MotInterditDTO();
         
         try
         {
@@ -36,13 +36,13 @@ public class MotsInterditsViewModel : ModerationViewModel
             
             if (Mots == null)
             {
-                Mots = new List<MotInterdit>();
+                Mots = new List<MotInterditDTO>();
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erreur lors du chargement: {ex.Message}");
-            Mots = new List<MotInterdit>();
+            Mots = new List<MotInterditDTO>();
         }
         
         IsLoading = false;
@@ -90,7 +90,7 @@ public class MotsInterditsViewModel : ModerationViewModel
             if (addedMot != null)
             {
                 Mots.Add(addedMot);
-                motToAdd = new MotInterdit();
+                motToAdd = new MotInterditDTO();
                 NotifyStateChanged();
                 IsLoading = false;
                 return true;

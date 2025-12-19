@@ -1,4 +1,4 @@
-﻿using API.DTO.Recense;
+﻿using Shared.DTO.Recense;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;

@@ -1,4 +1,4 @@
-using FrontBlazor.Models;
+using Shared.DTO.Utilisateur;
 using FrontBlazor.Services.GenericIServices;
 using Microsoft.AspNetCore.Components;
 
@@ -21,7 +21,7 @@ public abstract class ModerationViewModel
     public virtual async Task LoadAsync()
     {
         IsLoading = true;
-        Utilisateur user = await _authService.GetCurrentUserAsync();
+        UtilisateurViewDTO user = (UtilisateurViewDTO)await _authService.GetCurrentUserAsync();
         if (user == null || user.RoleUtilisateur != "Admin" && user.RoleUtilisateur != "Modérateur")
         {
             _nav.NavigateTo("/");

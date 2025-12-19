@@ -1,4 +1,4 @@
-using API.DTO.SousCategorie;
+using Shared.DTO.SousCategorie;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;

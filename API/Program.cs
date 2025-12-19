@@ -1,22 +1,23 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using System.Text;
+using API.Hubs;
 using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository;
-using Microsoft.EntityFrameworkCore;
 using API.Models.Repository.Managers;
-using System.Text.Json.Serialization;
-using API.DTO;
-using API.Hubs;
 using API.Services;
 using API.Services.Notifications;
 using API.Services.Notifications.Observers;
 using API.Services.VerificationSrvceV2;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using Shared.DTO;
+using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
+using System.Reflection;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -238,7 +239,9 @@ builder.Services.AddScoped<ICaracteristiquesRepository<Marque>, MarqueManager>()
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
 builder.Services.AddScoped<IMotInterditRepository, MotInterditManager>();
 builder.Services.AddScoped<ISignalementRepository,  SignalementManager>();
-
+builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
+builder.Services.AddScoped<IDataRepository<Annonce, int>, AnnonceManager>();
+builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 
 //services
 builder.Services.AddHttpClient();
@@ -249,6 +252,7 @@ builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
 builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddHttpContextAccessor();
 
 

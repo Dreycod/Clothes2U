@@ -1,13 +1,13 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FrontBlazor.Models.Notification;
+using Shared.DTO.Notification;
 
 namespace FrontBlazor.Converters;
 
-public class NotificationJsonConverter : JsonConverter<Notification>
+public class NotificationJsonConverter : JsonConverter<NotificationDTO>
 {
-    public override Notification Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override NotificationDTO Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
@@ -16,13 +16,13 @@ public class NotificationJsonConverter : JsonConverter<Notification>
         {
             typeDiscriminator = libelleElement.GetString() ?? "";
         }
-        Notification notification = typeDiscriminator switch
+        NotificationDTO notification = typeDiscriminator switch
         {
-            "Administration" => new NotificationAdmin(),
-            "Avertissement" => new NotificationAvertissement(),
-            "Message" => new NotificationMessage(),
-            "Modification annonce" => new NotificationModificationAnnonce(),
-            "Nouvelle annonce" => new NotificationNouvelleAnnonce(),
+            "Administration" => new NotificationAdminDTO(),
+            "Avertissement" => new NotificationAvertissementDTO(),
+            "Message" => new NotificationMessageDTO(),
+            "Modification annonce" => new NotificationModificationAnnonceDTO(),
+            "Nouvelle annonce" => new NotificationNouvelleAnnonceDTO(),
             _ => throw new JsonException($"Type de notification inconnu: {typeDiscriminator}")
         };
         if (root.TryGetProperty("notificationId", out var notificationIdElement))
@@ -33,24 +33,24 @@ public class NotificationJsonConverter : JsonConverter<Notification>
             notification.EstLu = estLuElement.GetBoolean();
         switch (notification)
         {
-            case NotificationAdmin admin:
+            case NotificationAdminDTO admin:
                 if (root.TryGetProperty("adminText", out var adminTextElement))
                     admin.AdminText = adminTextElement.GetString();
                 break;
 
-            case NotificationAvertissement avertissement:
+            case NotificationAvertissementDTO avertissement:
                 if (root.TryGetProperty("messageAvertissement", out var messageAvertissementElement))
                     avertissement.MessageAvertissement = messageAvertissementElement.GetString();
                 break;
 
-            case NotificationMessage message:
+            case NotificationMessageDTO message:
                 if (root.TryGetProperty("conversationId", out var conversationIdElement))
                     message.ConversationId = conversationIdElement.GetInt32();
                 if (root.TryGetProperty("messagePreview", out var messagePreviewElement))
                     message.MessagePreview = messagePreviewElement.GetString();
                 break;
 
-            case NotificationModificationAnnonce modifAnnonce:
+            case NotificationModificationAnnonceDTO modifAnnonce:
                 if (root.TryGetProperty("modificationAnnonceId", out var modificationAnnonceIdElement))
                     modifAnnonce.ModificationAnnonceId = modificationAnnonceIdElement.GetInt32();
                 if (root.TryGetProperty("nomAuteur", out var nomAuteurElement))
@@ -59,7 +59,7 @@ public class NotificationJsonConverter : JsonConverter<Notification>
                     modifAnnonce.Title = titleElement.GetString();
                 break;
 
-            case NotificationNouvelleAnnonce nouvelleAnnonce:
+            case NotificationNouvelleAnnonceDTO nouvelleAnnonce:
                 if (root.TryGetProperty("nouvelleAnnonceId", out var nouvelleAnnonceIdElement))
                     nouvelleAnnonce.NouvelleAnnonceId = nouvelleAnnonceIdElement.GetInt32();
                 break;
@@ -68,7 +68,7 @@ public class NotificationJsonConverter : JsonConverter<Notification>
         return notification;
     }
 
-    public override void Write(Utf8JsonWriter writer, Notification value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, NotificationDTO value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
 
@@ -79,31 +79,31 @@ public class NotificationJsonConverter : JsonConverter<Notification>
 
         switch (value)
         {
-            case NotificationAdmin admin:
+            case NotificationAdminDTO admin:
                 if (admin.AdminText != null)
                     writer.WriteString("adminText", admin.AdminText);
                 break;
 
-            case NotificationAvertissement avertissement:
+            case NotificationAvertissementDTO avertissement:
                 if (avertissement.MessageAvertissement != null)
                     writer.WriteString("messageAvertissement", avertissement.MessageAvertissement);
                 break;
 
-            case NotificationMessage message:
-                if (message.ConversationId.HasValue)
-                    writer.WriteNumber("conversationId", message.ConversationId.Value);
+            case NotificationMessageDTO message:
+                if (String.IsNullOrEmpty(message.ConversationId.ToString()))
+                    writer.WriteNumber("conversationId", message.ConversationId);
                 if (message.MessagePreview != null)
                     writer.WriteString("messagePreview", message.MessagePreview);
                 break;
 
-            case NotificationModificationAnnonce modifAnnonce:
+            case NotificationModificationAnnonceDTO modifAnnonce:
                 writer.WriteNumber("modificationAnnonceId", modifAnnonce.ModificationAnnonceId);
                 writer.WriteString("nomAuteur", modifAnnonce.NomAuteur);
                 writer.WriteString("title", modifAnnonce.Title);
                 break;
 
-            case NotificationNouvelleAnnonce nouvelleAnnonce:
-                writer.WriteNumber("nouvelleAnnonceId", nouvelleAnnonce.NouvelleAnnonceId);
+            case NotificationNouvelleAnnonceDTO nouvelleAnnonce:
+                writer.WriteNumber("nouvelleAnnonceId", (decimal)nouvelleAnnonce.NouvelleAnnonceId);
                 break;
         }
 

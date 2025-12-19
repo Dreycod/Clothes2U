@@ -1,4 +1,4 @@
-﻿using API.DTO.Bloque;
+﻿using Shared.DTO.Bloque;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;

@@ -1,21 +1,22 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
+using Shared.DTO.Photo;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 
 namespace FrontBlazor.Services;
 
-public class MediaWebService : WritableService<Photo>, IMediasService<Photo>
+public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService<PhotoResponseDTO>
 {
     public MediaWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public async Task<Photo> GetPhotoAsync(int id)
+    public async Task<PhotoResponseDTO> GetPhotoAsync(int id)
     {
         var response = await GetWithCredentialsAsync($"Medias/Photos/{id}");
         response.EnsureSuccessStatusCode();
 
-        var photo = await response.Content.ReadFromJsonAsync<Photo>();
-        return photo ?? new Photo();
+        var photo = await response.Content.ReadFromJsonAsync<PhotoResponseDTO>();
+        return photo ?? new PhotoResponseDTO();
     }
 
     public string GetPhotoUrl(int photoId)

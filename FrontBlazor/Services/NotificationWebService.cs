@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.Json;
-using FrontBlazor.Models.Notification;
+using Shared.DTO.Notification;
 using FrontBlazor.Converters;
-using FrontBlazor.Models.Moderation;
+using Shared.DTO.Moderation;
 using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.Services;
@@ -17,7 +17,7 @@ public class NotificationWebService : BaseGenericService, INotificationService
         Converters = { new NotificationJsonConverter() }
     };
     public NotificationWebService(HttpClient httpClient) : base(httpClient) { }
-    public async Task<ObservableCollection<Notification>> GetAllAsync()
+    public async Task<ObservableCollection<NotificationDTO>> GetAllAsync()
     {
         try
         {
@@ -25,15 +25,15 @@ public class NotificationWebService : BaseGenericService, INotificationService
             response.EnsureSuccessStatusCode();
             
             var jsonString = await response.Content.ReadAsStringAsync();
-            var notificationsList = JsonSerializer.Deserialize<List<Notification>>(jsonString, JsonOptions);
+            var notificationsList = JsonSerializer.Deserialize<List<NotificationDTO>>(jsonString, JsonOptions);
             Console.WriteLine("Recuperation des données il y a : " +  notificationsList.Count + " notifications");
-            return new ObservableCollection<Notification>(notificationsList ?? new List<Notification>());
+            return new ObservableCollection<NotificationDTO>(notificationsList ?? new List<NotificationDTO>());
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erreur: {ex.Message}");
             Console.WriteLine($"StackTrace: {ex.StackTrace}");
-            return new ObservableCollection<Notification>();
+            return new ObservableCollection<NotificationDTO>();
         }
     }
     public async Task MarkAsRead()
@@ -45,7 +45,7 @@ public class NotificationWebService : BaseGenericService, INotificationService
         await DeleteWithCredentialsAsync($"Notification/{id}");
     }
 
-    public async Task CreateNotificationAvertissement(CreateAvertissementRequest request)
+    public async Task CreateNotificationAvertissement(CreateAvertissementRequestDTO request)
     {
         
 

@@ -1,4 +1,5 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
+using Shared.DTO.Utilisateur;
 using FrontBlazor.Pages;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
@@ -7,13 +8,13 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services;
 
-public class UtilisateurWebService : ReadableService<UtilisateurView>, IUtilisateurService
+public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtilisateurService
 {
     public UtilisateurWebService(HttpClient httpClient) : base(httpClient)
     {
     }
 
-    public async Task<UtilisateurView?> GetByLoginAsync(string login)
+    public async Task<UtilisateurViewDTO?> GetByLoginAsync(string login)
     {
         try
         {
@@ -28,7 +29,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurView>, IUtilisat
                 return null;
             }
 
-            var result = await response.Content.ReadFromJsonAsync<UtilisateurView>();
+            var result = await response.Content.ReadFromJsonAsync<UtilisateurViewDTO>();
             Console.WriteLine($"✅ User found: {result?.Login}");
             return result;
         }
@@ -39,7 +40,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurView>, IUtilisat
         }
     }
 
-    public async Task<UtilisateurView> GetUserById(int id)
+    public async Task<UtilisateurViewDTO> GetUserById(int id)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"Utilisateur/{id}");
         request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
@@ -53,7 +54,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurView>, IUtilisat
         }
 
 
-        var result = await response.Content.ReadFromJsonAsync<UtilisateurView>();
+        var result = await response.Content.ReadFromJsonAsync<UtilisateurViewDTO>();
         Console.WriteLine($"✅ User found: {result?.Login}");
         return result;
 

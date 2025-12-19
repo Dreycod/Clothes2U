@@ -1,14 +1,15 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
+using Shared.DTO.NoteUtilisateur;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http.Json;
 
 namespace FrontBlazor.Services
 {
-    public class NoteUtilisateurWebService : WritableService<NoteUtilisateur>, INoteUtilisateurService<NoteUtilisateur>
+    public class NoteUtilisateurWebService : WritableService<NoteUtilisateurDetailDTO>, INoteUtilisateurService<NoteUtilisateurDetailDTO>
     {
         public NoteUtilisateurWebService(HttpClient httpClient) : base(httpClient) {}
 
-        public async Task<HttpResponseMessage> AddNoteUtilisateur(NoteUtilisateurCreate noteUtilisateurCreate)
+        public async Task<HttpResponseMessage> AddNoteUtilisateur(NoteUtilisateurCreateDTO noteUtilisateurCreate)
         {
             var body = JsonContent.Create(noteUtilisateurCreate);
 
@@ -20,14 +21,14 @@ namespace FrontBlazor.Services
             return response;
         }
 
-        public async Task<List<NoteUtilisateur>?> GetAllNotesByUtilisateurId(int utilisateurId)
+        public async Task<List<NoteUtilisateurDetailDTO>?> GetAllNotesByUtilisateurId(int utilisateurId)
         {
-            return await _httpClient.GetFromJsonAsync<List<NoteUtilisateur>?>($"NoteUtilisateur/User/{utilisateurId}");
+            return await _httpClient.GetFromJsonAsync<List<NoteUtilisateurDetailDTO>?>($"NoteUtilisateur/User/{utilisateurId}");
         }
 
-        public async Task<NoteUtilisateur?> GetByIdAsync(int id)
+        public async Task<NoteUtilisateurDetailDTO?> GetByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<NoteUtilisateur>($"NoteUtilisateur/{id}");
+            return await _httpClient.GetFromJsonAsync<NoteUtilisateurDetailDTO>($"NoteUtilisateur/{id}");
         }
 
         // delete est dans WritableService

@@ -1,4 +1,4 @@
-﻿using API.DTO.NoteUtilisateur;
+﻿using Shared.DTO.NoteUtilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;

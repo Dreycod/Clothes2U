@@ -1,6 +1,7 @@
-﻿using FrontBlazor.Models;
-using FrontBlazor.Services;
+﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO;
+using Shared.DTO.Categorie;
 
 namespace FrontBlazor.ViewModel;
 public class CommercialCategoriesViewModel
@@ -8,14 +9,14 @@ public class CommercialCategoriesViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public Categorie currentCategorie = new Categorie();
+    public CategorieDetailDTO currentCategorie = new CategorieDetailDTO();
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    private ListableViewModel<Categorie> VM_Categorie;
+    private ListableViewModel<CategorieDetailDTO> VM_Categorie;
     public event Action? OnStateChange;
 
-    public CommercialCategoriesViewModel(ListableViewModel<Categorie> categorieService)
+    public CommercialCategoriesViewModel(ListableViewModel<CategorieDetailDTO> categorieService)
     {
         VM_Categorie = categorieService;
     }
@@ -33,14 +34,14 @@ public class CommercialCategoriesViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentCategorie = new Categorie();
+        currentCategorie = new CategorieDetailDTO();
         showModal = true;
     }
 
-    public void ShowEditModal(Categorie categorie)
+    public void ShowEditModal(CategorieDetailDTO categorie)
     {
         isEditing = true;
-        currentCategorie = new Categorie
+        currentCategorie = new CategorieDetailDTO
         {
             IdCategorie = categorie.IdCategorie,
             LibelleCategorie = categorie.LibelleCategorie,
@@ -49,7 +50,7 @@ public class CommercialCategoriesViewModel
         showModal = true;
     }
 
-    public void ShowDeleteModal(Categorie categorie)
+    public void ShowDeleteModal(CategorieDetailDTO categorie)
     {
         currentCategorie = categorie;
         showDeleteModal = true;
@@ -58,14 +59,14 @@ public class CommercialCategoriesViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentCategorie = new Categorie();
+        currentCategorie = new CategorieDetailDTO();
         errorMessage = string.Empty;
     }
 
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentCategorie = new Categorie();
+        currentCategorie = new CategorieDetailDTO();
     }
 
     public async Task SaveCategorie()

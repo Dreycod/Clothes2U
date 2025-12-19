@@ -1,6 +1,7 @@
-﻿using FrontBlazor.Models;
-using FrontBlazor.Services;
+﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO;
+using Shared.DTO.Couleur;
 
 namespace FrontBlazor.ViewModel;
 public class CommercialCouleursViewModel
@@ -8,14 +9,14 @@ public class CommercialCouleursViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public Couleur currentCouleur = new Couleur();
+    public CouleurDTO currentCouleur = new CouleurDTO();
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public ListableViewModel<Couleur> VM_Couleur { get; set; }
+    public ListableViewModel<CouleurDTO> VM_Couleur { get; set; }
     public event Action? OnStateChange;
 
-    public CommercialCouleursViewModel(ListableViewModel<Couleur> _CouleurViewModel)
+    public CommercialCouleursViewModel(ListableViewModel<CouleurDTO> _CouleurViewModel)
     {
         VM_Couleur = _CouleurViewModel;
     }
@@ -27,14 +28,14 @@ public class CommercialCouleursViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentCouleur = new Couleur();
+        currentCouleur = new CouleurDTO();
         showModal = true;
     }
 
-    public void ShowEditModal(Couleur couleur)
+    public void ShowEditModal(CouleurDTO couleur)
     {
         isEditing = true;
-        currentCouleur = new Couleur
+        currentCouleur = new CouleurDTO
         {
             CouleurId = couleur.CouleurId,
             Nom = couleur.Nom
@@ -42,7 +43,7 @@ public class CommercialCouleursViewModel
         showModal = true;
     }
 
-    public void ShowDeleteModal(Couleur couleur)
+    public void ShowDeleteModal(CouleurDTO couleur)
     {
         currentCouleur = couleur;
         showDeleteModal = true;
@@ -51,14 +52,14 @@ public class CommercialCouleursViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentCouleur = new Couleur();
+        currentCouleur = new CouleurDTO();
         errorMessage = string.Empty;
     }
 
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentCouleur = new Couleur();
+        currentCouleur = new CouleurDTO();
     }
 
     public async Task SaveCouleur()

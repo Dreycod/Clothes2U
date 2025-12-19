@@ -1,5 +1,5 @@
-using API.DTO;
-using API.DTO.Taille;
+using Shared.DTO.Marque;
+using Shared.DTO.Taille;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
@@ -102,7 +102,7 @@ public class MarqueController : ControllerBase
         }
         Marque updatedBrand = _mapper.Map<Marque>(brand);
 
-        await _marqueManager.UpdateAsync(brandToUpdate.Value, updatedBrand);
+        await _marqueManager.UpdateAsync(updatedBrand);
         return NoContent();
     }
 }

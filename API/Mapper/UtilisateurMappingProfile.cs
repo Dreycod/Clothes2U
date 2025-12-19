@@ -1,5 +1,5 @@
-using API.DTO.NoteUtilisateur;
-using API.DTO.Utilisateur;
+using Shared.DTO.NoteUtilisateur;
+using Shared.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using AutoMapper;
 

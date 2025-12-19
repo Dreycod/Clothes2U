@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
-using FrontBlazor.Models;
+using Shared.DTO;
+using Shared.DTO.Signalement;
 using FrontBlazor.Services.GenericIServices;
 
 namespace FrontBlazor.Services.Interfaces;
@@ -7,45 +8,45 @@ namespace FrontBlazor.Services.Interfaces;
 public class SignalementWebService : BaseGenericService, ISignalementService
 {
     public SignalementWebService(HttpClient httpClient) : base(httpClient) { }
-    public async Task<List<Signalement>> GetAllAsync()
+    public async Task<List<SignalementDTO>> GetAllAsync()
     {
         var response = await GetWithCredentialsAsync("Signalement");
         response.EnsureSuccessStatusCode();
-        var signalements = await response.Content.ReadFromJsonAsync<List<Signalement>>();
-        return signalements ??  new List<Signalement>();
+        var signalements = await response.Content.ReadFromJsonAsync<List<SignalementDTO>>();
+        return signalements ??  new List<SignalementDTO>();
     }
 
 
-    public async Task<List<Signalement>> GetAllByType(int typeId)
+    public async Task<List<SignalementDTO>> GetAllByType(int typeId)
     {
         var response = await GetWithCredentialsAsync($"Signalement/Type/{typeId}");
         response.EnsureSuccessStatusCode();
-        var signalements = await response.Content.ReadFromJsonAsync<List<Signalement>>();
-        return signalements ??  new List<Signalement>();
+        var signalements = await response.Content.ReadFromJsonAsync<List<SignalementDTO>>();
+        return signalements ??  new List<SignalementDTO>();
     }
 
-    public async Task<SignalementDetails> GetSignalementByIdAsync(int id)
+    public async Task<SignalementDetailsDTO> GetSignalementByIdAsync(int id)
     {
         var response = await GetWithCredentialsAsync($"Signalement/{id}");
         response.EnsureSuccessStatusCode();
-        var signalement = await response.Content.ReadFromJsonAsync<SignalementDetails>();
+        var signalement = await response.Content.ReadFromJsonAsync<SignalementDetailsDTO>();
         return signalement;
     }
-    public async Task<SignalementCreate> CreateSignalement(SignalementCreate signalement)
+    public async Task<SignalementCreateDTO> CreateSignalement(SignalementCreateDTO signalement)
     {
         var response = await PostWithCredentialsAsync("Signalement", JsonContent.Create(signalement));
         response.EnsureSuccessStatusCode();
-        var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementCreate>();
+        var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementCreateDTO>();
         return createdSignalement;
     }
 
-    public async Task<Signalement?> AddAsync(Signalement entity)
+    public async Task<SignalementDTO?> AddAsync(SignalementDTO entity)
     {
         await PostWithCredentialsAsync("Signalement", JsonContent.Create(entity));
         return entity;
     }
 
-    public Task UpdateAsync(Signalement updatedEntity)
+    public Task UpdateAsync(SignalementDTO updatedEntity)
     {
         throw new NotImplementedException();
     }

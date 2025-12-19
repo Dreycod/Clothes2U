@@ -1,12 +1,13 @@
-using API.DTO;
-using API.DTO.Annonce;
-using API.DTO.Categorie;
-using API.DTO.Couleur;
-using API.DTO.EtatArticle;
-using API.DTO.Recense;
-using API.DTO.SousCategorie;
-using API.DTO.StatutAnnonce;
-using API.DTO.Taille;
+using Shared.DTO;
+using Shared.DTO.Annonce;
+using Shared.DTO.Categorie;
+using Shared.DTO.Couleur;
+using Shared.DTO.EtatArticle;
+using Shared.DTO.Recense;
+using Shared.DTO.SousCategorie;
+using Shared.DTO.StatutAnnonce;
+using Shared.DTO.Taille;
+using Shared.DTO.Marque;
 using API.Models.EntityFramework;
 using AutoMapper;
 
@@ -49,9 +50,9 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.SousCategorie, opt => opt.MapFrom(src => src.SousCategorie.LibelleSousCategorie ?? "Inconnue"))
             .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
             .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title ?? "Sans titre"))
+            .ForMember(dest => dest.Titre, opt => opt.MapFrom(src => src.Title ?? "Sans titre"))
             .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
-            .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.Negociable))
+            .ForMember(dest => dest.EstNegociable, opt => opt.MapFrom(src => src.Negociable))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NombreLikes, opt => opt.MapFrom(src => src.UtilisateursFavoris.Count))
             .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))

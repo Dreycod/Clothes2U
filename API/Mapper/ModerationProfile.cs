@@ -1,4 +1,4 @@
-using API.DTO.MotInterdit;
+using Shared.DTO.MotInterdit;
 using API.Models.EntityFramework;
 using AutoMapper;
 

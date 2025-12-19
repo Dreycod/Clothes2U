@@ -1,4 +1,4 @@
-﻿using API.DTO.Signalement;
+﻿using Shared.DTO.Signalement;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;

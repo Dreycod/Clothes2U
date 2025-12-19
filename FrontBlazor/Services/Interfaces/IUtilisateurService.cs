@@ -1,10 +1,11 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.Services.Interfaces;
 
-public interface IUtilisateurService : IReadableService<UtilisateurView>
+public interface IUtilisateurService : IReadableService<UtilisateurViewDTO>
 {
-    Task<UtilisateurView?> GetByLoginAsync(string login);
-    Task<UtilisateurView> GetUserById(int id); // type of T.Name marche pas car UtilisaterView =/= Utilisateur
+    Task<UtilisateurViewDTO?> GetByLoginAsync(string login);
+    Task<UtilisateurViewDTO> GetUserById(int id); // type of T.Name marche pas car UtilisaterView =/= Utilisateur
 }

@@ -1,6 +1,7 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http.Json;
+using Shared.DTO.Bloque;
 
 namespace FrontBlazor.Services
 {
@@ -17,7 +18,7 @@ namespace FrontBlazor.Services
             var response = await PostWithCredentialsAsync("Bloque", body);
         }
 
-        public Task<Bloque?> AddAsync(Bloque entity)
+        public Task<BloqueDTO?> AddAsync(BloqueDTO entity)
         {
             throw new NotImplementedException();
         }
@@ -27,7 +28,7 @@ namespace FrontBlazor.Services
             await DeleteWithCredentialsAsync($"Bloque/{id}");
         }
 
-        public Task UpdateAsync(Bloque updatedEntity)
+        public Task UpdateAsync(BloqueDTO updatedEntity)
         {
             throw new NotImplementedException();
         }

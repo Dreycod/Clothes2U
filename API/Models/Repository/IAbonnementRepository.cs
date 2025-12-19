@@ -1,4 +1,4 @@
-﻿using API.DTO.Abonnement;
+﻿using Shared.DTO.Abonnement;
 
 namespace API.Models.Repository
 {

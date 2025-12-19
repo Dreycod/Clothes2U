@@ -1,5 +1,5 @@
-using API.DTO.Categorie;
-using API.DTO.Taille;
+using Shared.DTO.Categorie;
+using Shared.DTO.Taille;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;

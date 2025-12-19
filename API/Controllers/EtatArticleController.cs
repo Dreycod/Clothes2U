@@ -1,5 +1,5 @@
-﻿using API.DTO;
-using API.DTO.EtatArticle;
+﻿using Shared.DTO;
+using Shared.DTO.EtatArticle;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;

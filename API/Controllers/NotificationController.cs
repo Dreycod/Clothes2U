@@ -1,4 +1,4 @@
-using API.DTO.Notification;
+using Shared.DTO.Notification;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;

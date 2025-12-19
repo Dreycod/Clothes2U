@@ -1,7 +1,8 @@
-using FrontBlazor.Models;
+using Shared.DTO;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using System.Net.Http.Json;
 using System.Numerics;
+using Shared.Interfaces;
 
 namespace FrontBlazor.Services.GenericIServices;
 

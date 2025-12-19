@@ -1,4 +1,4 @@
-using API.DTO.Notification;
+using Shared.DTO.Notification;
 using API.Models.EntityFramework;
 using AutoMapper;
 

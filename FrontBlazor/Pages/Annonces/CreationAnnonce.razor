@@ -102,11 +102,11 @@
             else if (VM_Marque.Items != null && VM_Marque.Items.Any())
             {
                 <div class="button-grid">
-                    @foreach (Marque marque in VM_Marque.Items)
+                    @foreach (MarqueDTO marque in VM_Marque.Items)
                     {
                         <button type="button"
-                                class="category-btn @(selectedMarqueId == marque.MarqueId ? "active" : "")"
-                                @onclick="() => selectedMarqueId = marque.MarqueId">
+                                class="category-btn @(selectedMarqueId == marque.MarqueID ? "active" : "")"
+                                @onclick="() => selectedMarqueId = marque.MarqueID">
                             @marque.NomMarque
                         </button>
                     }
@@ -135,7 +135,7 @@
                     else if (VM_Taille.Items != null && VM_Taille.Items.Any())
                     {
                         <div class="size-buttons">
-                            @foreach (Taille taille in VM_Taille.Items)
+                            @foreach (TailleDTO taille in VM_Taille.Items)
                             {
                                 <button type="button"
                                         class="size-btn @(selectedTailleId == taille.TailleId ? "active" : "")"
@@ -161,7 +161,7 @@
                     {
                         <select class="form-input">
                             <option value="0">-- Sélectionnez une couleur --</option>
-                            @foreach (Couleur couleur in VM_Couleur.Items)
+                            @foreach (CouleurDTO couleur in VM_Couleur.Items)
                             {
                                 <option value="@couleur.CouleurId">@couleur.Nom</option>
                             }
@@ -189,7 +189,7 @@
             else if (VM_Genre.Items != null && VM_Genre.Items.Any())
             {
                 <div class="button-grid">
-                    @foreach (Genre genre in VM_Genre.Items)
+                    @foreach (GenreDTO genre in VM_Genre.Items)
                     {
                         <button type="button"
                                 class="category-btn @(selectedGenreId == genre.GenreId ? "active" : "")"
@@ -244,7 +244,7 @@
                                         @foreach (var sousCategorie in selectedCat.SousCategories)
                                         {
                                             <button type="button"
-                                                    class="category-btn @(selectedSousCategorieId == sousCategorie.SousCategorieId ? "active" : "")"
+                                                    class="category-btn @(selectedSousCategorieId == sousCategorie.SousCategorieId )"
                                                     @onclick="() => selectedSousCategorieId = sousCategorie.SousCategorieId">
                                                 @sousCategorie.LibelleSousCategorie
                                             </button>
@@ -314,13 +314,12 @@
 </div>
 
 @code {
-
     [Inject]
     private IAuthService authService { get; set; } = default!;
     [Inject]
-    private IMediasService<Photo> mediaService { get; set; } = default!;
+    private IMediasService<Shared.DTO.Photo.PhotoUploadDTO> mediaService { get; set; } = default!;
 
-    private Annonce newAnnonce = new Annonce();
+    private CreateAnnonceDTO newAnnonce = new CreateAnnonceDTO();
     private List<string> uploadedPhotos = new();
     private List<string> ErrorMessages = new List<string>();
     bool? HasCreated = null;
@@ -328,8 +327,8 @@
     // Properties that bind to UI and update newAnnonce
     private string articleName
     {
-        get => newAnnonce.Title ?? string.Empty;
-        set => newAnnonce.Title = value;
+        get => newAnnonce.Titre ?? string.Empty;
+        set => newAnnonce.Titre = value;
     }
 
     private decimal? price
@@ -340,8 +339,8 @@
 
     private bool isNegotiable
     {
-        get => newAnnonce.Negociable;
-        set => newAnnonce.Negociable = value;
+        get => newAnnonce.EstNegociable;
+        set => newAnnonce.EstNegociable = value;
     }
 
     private string description
@@ -356,13 +355,13 @@
         set => newAnnonce.UtilisateurId = value;
     }
 
-    private int? selectedMarqueId
+    private int selectedMarqueId
     {
         get => newAnnonce.MarqueId;
         set => newAnnonce.MarqueId = value;
     }
 
-    private int? selectedTailleId
+    private int selectedTailleId
     {
         get => newAnnonce.TailleId;
         set => newAnnonce.TailleId = value;
@@ -374,25 +373,25 @@
     //     set => newAnnonce.CouleurId = value;
     // }
 
-    private int? selectedGenreId
+    private int selectedGenreId
     {
         get => newAnnonce.GenreId;
         set => newAnnonce.GenreId = value;
     }
 
-    private int? selectedCategorieId
+    private int selectedCategorieId
     {
         get => newAnnonce.CategorieId;
         set => newAnnonce.CategorieId = value;
     }
 
-    private int? selectedSousCategorieId
+    private int selectedSousCategorieId
     {
         get => newAnnonce.SousCategorieId;
         set => newAnnonce.SousCategorieId = value;
     }
 
-    private int? selectedEtatArticleId
+    private int selectedEtatArticleId
     {
         get => newAnnonce.EtatId;
         set => newAnnonce.EtatId = value;
@@ -411,7 +410,7 @@
         var existingAnnonce = annonceStateService.GetEntity();
         if (existingAnnonce != null)
         {
-            newAnnonce = existingAnnonce;
+            // newAnnonce = existingAnnonce;
             // Photos will automatically populate through uploadedPhotos if needed
         }
     }
@@ -499,15 +498,15 @@
 
     private void SaveAnnonce()
     {
-        newAnnonce.DateAnnonce = DateTime.Now;
-        annonceStateService.SetEntity(newAnnonce);
+        // newAnnonce.DateAnnonce = DateTime.Now;
+        // annonceStateService.SetEntity(newAnnonce);
     }
 
     private List<string> ValidateAnnonce()
     {
         List<string> errorMessages = new List<string>();
 
-        if (string.IsNullOrWhiteSpace(newAnnonce.Title))
+        if (string.IsNullOrWhiteSpace(newAnnonce.Titre))
             errorMessages.Add("Le nom de l'article est obligatoire");
 
         if (string.IsNullOrWhiteSpace(newAnnonce.Description))
@@ -516,22 +515,22 @@
         if (newAnnonce.Prix <= 0)
             errorMessages.Add("Le prix doit être supérieur à 0");
 
-        if (!newAnnonce.MarqueId.HasValue || newAnnonce.MarqueId == 0)
+        if (newAnnonce.MarqueId == 0)
             errorMessages.Add("Veuillez sélectionner une marque");
 
-        if (!newAnnonce.TailleId.HasValue || newAnnonce.TailleId == 0)
+        if (newAnnonce.TailleId == 0)
             errorMessages.Add("Veuillez sélectionner une taille");
 
         // if (!newAnnonce.CouleurId.HasValue || newAnnonce.CouleurId == 0)
         //     errorMessages.Add("Veuillez sélectionner une couleur");
 
-        if (!newAnnonce.GenreId.HasValue || newAnnonce.GenreId == 0)
+        if (newAnnonce.GenreId == 0)
             errorMessages.Add("Veuillez sélectionner un genre");
 
-        if (!newAnnonce.EtatId.HasValue)
+        if (newAnnonce.EtatId == 0)
             errorMessages.Add("Veuillez sélectionner l'état de l'article");
 
-        if (!newAnnonce.CategorieId.HasValue || newAnnonce.CategorieId == 0)
+        if (newAnnonce.CategorieId == 0)
             errorMessages.Add("Veuillez sélectionner une catégorie");
 
         return errorMessages;
@@ -540,9 +539,9 @@
     private void PrintAnnonceDetails()
     {
         Console.WriteLine("Annonce Details:");
-        Console.WriteLine($"Title: {newAnnonce.Title}");
+        Console.WriteLine($"Title: {newAnnonce.Titre}");
         Console.WriteLine($"Price: {newAnnonce.Prix}");
-        Console.WriteLine($"Negotiable: {newAnnonce.Negociable}");
+        Console.WriteLine($"Negotiable: {newAnnonce.EstNegociable}");
         Console.WriteLine($"Brand ID: {newAnnonce.MarqueId}");
         Console.WriteLine($"Size ID: {newAnnonce.TailleId}");
         // Console.WriteLine($"Color ID: {newAnnonce.CouleurId}");
@@ -583,45 +582,45 @@
         newAnnonce.StatutAnnonceId = 1;
 
         // Créer l'annonce et récupérer l'ID
-        var createdAnnonce = await VM_CreationAnnonce.CreateAnnonceAsync(newAnnonce);
+        // var createdAnnonce = await VM_CreationAnnonce.CreateAnnonceAsync(newAnnonce);
 
-        if (createdAnnonce == null)
-        {
-            ErrorMessages.Add("L'annonce n'a pas pu être créée. Erreur API.");
-            HasCreated = false;
-            StateHasChanged();
-            return;
-        }
+        // if (createdAnnonce == null)
+        // {
+        //     ErrorMessages.Add("L'annonce n'a pas pu être créée. Erreur API.");
+        //     HasCreated = false;
+        //     StateHasChanged();
+        //     return;
+        // }
 
         // Mettre à jour newAnnonce avec l'annonce créée
-        newAnnonce = createdAnnonce;
+        // newAnnonce = createdAnnonce;
 
-        Console.WriteLine($"✅ Annonce créée avec l'ID: {newAnnonce.AnnonceId}");
+        // Console.WriteLine($"✅ Annonce créée avec l'ID: {newAnnonce.AnnonceId}");
 
         // Uploader les photos si disponibles
-        if (uploadedPhotos.Any())
-        {
-            Console.WriteLine($"🔄 Upload de {uploadedPhotos.Count} photos pour l'annonce {newAnnonce.AnnonceId}");
+        // if (uploadedPhotos.Any())
+        // {
+        //     Console.WriteLine($"🔄 Upload de {uploadedPhotos.Count} photos pour l'annonce {newAnnonce.AnnonceId}");
 
-            bool uploadSuccess = await mediaService.UploadMultiplePhotosAnnonceAsync(
-                newAnnonce.AnnonceId,
-                uploadedPhotos
-            );
+        //     bool uploadSuccess = await mediaService.UploadMultiplePhotosAnnonceAsync(
+        //         newAnnonce.AnnonceId,
+        //         uploadedPhotos
+        //     );
 
-            if (!uploadSuccess)
-            {
-                ErrorMessages.Add("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
-            }
-            else
-            {
-                Console.WriteLine($"✅ Toutes les photos ont été uploadées avec succès");
-            }
-        }
+        //     if (!uploadSuccess)
+        //     {
+        //         ErrorMessages.Add("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine($"✅ Toutes les photos ont été uploadées avec succès");
+        //     }
+        // }
 
-        HasCreated = true;
-        await Task.Delay(2000);
-        navigationManager.NavigateTo($"/profile/{currentUser.Login}");
-        StateHasChanged();
+        // HasCreated = true;
+        // await Task.Delay(2000);
+        // navigationManager.NavigateTo($"/profile/{currentUser.Login}");
+        // StateHasChanged();
     }
 
     private void Cancel()

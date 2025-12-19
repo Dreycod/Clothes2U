@@ -1,6 +1,7 @@
 ﻿using API.Models.EntityFramework;
 using API.Services.VerificationSrvceV2;
 using API.Models.Repository;
+using Shared.Enums;
 
 namespace API.Services.VerificationSrvceV2
 {
@@ -44,7 +45,7 @@ namespace API.Services.VerificationSrvceV2
                         return (false, "Numéro de téléphone requis", null);
 
                     user.Telephone = phoneNumber;
-                    await _userRepo.UpdateAsync(user, user);
+                    await _userRepo.UpdateAsync(user);
                 }
             }
 
@@ -102,7 +103,7 @@ namespace API.Services.VerificationSrvceV2
             else
                 user.ValidEmail = true;
 
-            await _userRepo.UpdateAsync(user, user);
+            await _userRepo.UpdateAsync(user);
             return (true, "Vérification réussie");
         }
 

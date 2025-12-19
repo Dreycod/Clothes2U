@@ -1,4 +1,4 @@
-using API.DTO.Utilisateur;
+using Shared.DTO.Utilisateur;
 using API.Models.Entity;
 using API.Models.EntityFramework;
 using API.Models.Repository;

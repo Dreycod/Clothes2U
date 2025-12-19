@@ -1,4 +1,4 @@
-@using FrontBlazor.Models.Moderation
+@using Shared.DTO.MotInterdit
 
 
 <link href="css/Components/WordTag.css" rel="stylesheet" />
@@ -15,13 +15,13 @@
     public MotsInterditsViewModel MotsInterditsViewModel { get; set; } = null!;
     
     [Parameter] 
-    public MotInterdit Word { get; set; } = null!;
+    public MotInterditDTO Word { get; set; } = null!;
     [Parameter]
     public EventCallback OnDeleted { get; set; }
 
     private async Task HandleDelete()
     {
-        await MotsInterditsViewModel.DeleteMotAsync(Word.MotinterditId);
+        await MotsInterditsViewModel.DeleteMotAsync(Word.MotInterditId);
         await OnDeleted.InvokeAsync();
     }
 }

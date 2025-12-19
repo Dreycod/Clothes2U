@@ -1,11 +1,12 @@
 
-using FrontBlazor.Models;
+using Shared.DTO;
+using Shared.DTO.Signalement;
 
 namespace FrontBlazor.Services.GenericIServices;
-public interface ISignalementService : IWritableService<Signalement> 
+public interface ISignalementService : IWritableService<SignalementDTO> 
 {
-    Task<List<Signalement>> GetAllAsync();
-    Task<List<Signalement>> GetAllByType(int typeId);
-    Task<SignalementDetails> GetSignalementByIdAsync(int id);
-    Task<SignalementCreate> CreateSignalement(SignalementCreate signalement);
+    Task<List<SignalementDTO>> GetAllAsync();
+    Task<List<SignalementDTO>> GetAllByType(int typeId);
+    Task<SignalementDetailsDTO> GetSignalementByIdAsync(int id);
+    Task<SignalementCreateDTO> CreateSignalement(SignalementCreateDTO signalement);
 }

@@ -1,30 +1,30 @@
-@using FrontBlazor.Models.Notification
+@using Shared.DTO.Notification
 
 <div class="notification-item @(Notification.EstLu ? "read" : "unread")" @onclick="HandleClick">
     <div class="notification-icon-wrapper">
         @switch (Notification)
         {
-            case NotificationAvertissement:
+            case NotificationAvertissementDTO:
                 <div class="notif-icon warning">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </div>
                 break;
-            case NotificationMessage:
+            case NotificationMessageDTO:
                 <div class="notif-icon message">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
                 break;
-            case NotificationAdmin:
+            case NotificationAdminDTO:
                 <div class="notif-icon admin">
                     <i class="bi bi-shield-fill-check"></i>
                 </div>
                 break;
-            case NotificationModificationAnnonce:
+            case NotificationModificationAnnonceDTO:
                 <div class="notif-icon modification">
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 break;
-            case NotificationNouvelleAnnonce:
+            case NotificationNouvelleAnnonceDTO:
                 <div class="notif-icon nouvelle">
                     <i class="bi bi-plus-circle-fill"></i>
                 </div>
@@ -35,23 +35,23 @@
     <div class="notification-body">
         @switch (Notification)
         {
-            case NotificationAvertissement notificationAvertissement:
+            case NotificationAvertissementDTO notificationAvertissement:
                 <div class="notif-title">Avertissement reçu</div>
                 <div class="notif-message">@notificationAvertissement.MessageAvertissement</div>
                 break;
-            case NotificationMessage notificationMessage:
+            case NotificationMessageDTO notificationMessage:
                 <div class="notif-title">Nouveau message</div>
                 <div class="notif-message">@notificationMessage.MessagePreview</div>
                 break;
-            case NotificationAdmin notificationAdmin:
+            case NotificationAdminDTO notificationAdmin:
                 <div class="notif-title">Message de l'administration</div>
                 <div class="notif-message">@notificationAdmin.AdminText</div>
                 break;
-            case NotificationModificationAnnonce notificationModificationAnnonce:
+            case NotificationModificationAnnonceDTO notificationModificationAnnonce:
                 <div class="notif-title">Annonce modifiée</div>
                 <div class="notif-message"><strong>@notificationModificationAnnonce.NomAuteur</strong> a modifié son annonce "@notificationModificationAnnonce.Title"</div>
                 break;
-            case NotificationNouvelleAnnonce notificationNouvelleAnnonce:
+            case NotificationNouvelleAnnonceDTO notificationNouvelleAnnonce:
                 <div class="notif-title">Nouvelle annonce</div>
                 <div class="notif-message"><strong>@notificationNouvelleAnnonce.NomAuteur</strong> a publié une nouvelle annonce</div>
                 break;
@@ -69,7 +69,7 @@
 
 @code {
     [Parameter] public NavBarViewModel Vm_NavBar { get; set; }
-    [Parameter] public Notification Notification { get; set; }
+    [Parameter] public NotificationDTO Notification { get; set; }
 
     private async Task HandleDelete()
     {

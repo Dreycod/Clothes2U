@@ -1,6 +1,8 @@
-using API.DTO.Conversation;
+using Shared.DTO.Conversation;
 using API.Models.EntityFramework;
 using AutoMapper;
+using Shared.DTO.Message;
+using System.Collections.ObjectModel;
 
 namespace API.Mapper;
 
@@ -28,7 +30,7 @@ public class ConversationMappingProfile : Profile
                         ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
                         : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
                 ));
-        CreateMap<Conversation, ConversationDetailDTO>()
+        CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix))
@@ -57,7 +59,7 @@ public class ConversationMappingProfile : Profile
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             Content = message.MessageTexte.Content ?? string.Empty,
-                            ImagesId = message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList() ?? new List<int>()
+                            ImagesId = new ObservableCollection<int>(message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList()) ?? new ObservableCollection<int>()
                         };
                     }
                     else if (message.MessageDemande != null)
@@ -89,7 +91,7 @@ public class ConversationMappingProfile : Profile
                         mappedMessages.Add(dto);
                     }
                 }
-                dest.ListMessages = mappedMessages;
+                dest.ListMessages = new ObservableCollection<MessageDTO>(mappedMessages);
             });
     }
 }

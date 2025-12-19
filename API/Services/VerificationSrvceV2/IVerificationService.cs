@@ -1,4 +1,5 @@
 ﻿using API.Models.EntityFramework;
+using Shared.Enums;
 
 namespace API.Services.VerificationSrvceV2
 {

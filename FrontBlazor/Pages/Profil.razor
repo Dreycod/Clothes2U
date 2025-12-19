@@ -95,7 +95,7 @@
                                 @if (!VM_Profil.IsSameUser)
                                 {
                                     <button class="btn-follow" @onclick="VM_Profil.ToggleAbonnement">
-                                        @(VM_Profil.ViewingUser.followeddByCurrentUser ? "Se désabonner" : "S'abonner")
+                                        @(VM_Profil.ViewingUser.FolloweddByCurrentUser ? "Se désabonner" : "S'abonner")
                                     </button>
                                 }
                             </div>
@@ -199,7 +199,7 @@
                         else if (VM_Profil.FavorisAnnonce != null && VM_Profil.FavorisAnnonce.Any())
                         {
                             <div class="products-grid">
-                                @foreach (Annonce annonce in VM_Profil.FavorisAnnonce)
+                                @foreach (AnnonceDTO annonce in VM_Profil.FavorisAnnonce)
                                 {
                                     <AnnonceCard annonceComponent="annonce"
                                                  OnToggleFavorite="VM_Profil.ToggleFavorite"
@@ -236,7 +236,7 @@
                         else if (VM_Profil.Avis != null && VM_Profil.Avis.Any())
                         {
                             <div class="reviews-list">
-                                @foreach (NoteUtilisateur avis in VM_Profil.Avis)
+                                @foreach (Shared.DTO.NoteUtilisateur.NoteUtilisateurDetailDTO avis in VM_Profil.Avis)
                                 {
                                     <div class="review-item">
                                         <div class="review-header">

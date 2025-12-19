@@ -1,4 +1,4 @@
-using API.DTO.StatutAnnonce;
+using Shared.DTO.StatutAnnonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;

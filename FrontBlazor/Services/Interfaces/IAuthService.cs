@@ -1,15 +1,16 @@
 using System.Net;
-using FrontBlazor.Models;
+using Shared.DTO;
 using System.Net.Http;
-using FrontBlazor.Models.LoginRegister;
+using Shared.DTO.LoginRegister;
+using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.Services.GenericIServices;
 
 public interface IAuthService
 {
-    public Task<HttpStatusCode> LoginAsync(LoginRequest compte);
-    public Task<AuthResult> SignUpAsync(RegisterRequest compte);
+    public Task<HttpStatusCode> LoginAsync(LoginRequestDTO compte);
+    public Task<AuthResult> SignUpAsync(RegisterRequestDTO compte);
     public Task LogoutAsync();
-    public Task<Utilisateur?> GetCurrentUserAsync();
+    public Task<UtilisateurDTO?> GetCurrentUserAsync();
     public string GetGoogleLoginUrl(string returnUrl = "/");
 }

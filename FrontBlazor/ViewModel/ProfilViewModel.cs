@@ -1,19 +1,24 @@
-using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Xml.Linq;
+using Shared.DTO.Favoris;
+using Shared.DTO.Abonnement;
+using Shared.DTO.Photo;
+using Shared.DTO.Annonce;
+using Shared.DTO.Utilisateur;
+using Shared.DTO.NoteUtilisateur;
 
 namespace FrontBlazor.ViewModel
 {
     public class ProfilViewModel
     {
         #region Variables
-        public UtilisateurView? ViewingUser { get; set; } = null;
-        public List<Annonce>? Annonces { get; set; } = null;
-        public List<NoteUtilisateur>? Avis { get; set; } = null;
-        public List<Annonce>? FavorisAnnonce { get; set; } = null;
+        public UtilisateurViewDTO? ViewingUser { get; set; } = null;
+        public List<AnnonceDTO>? Annonces { get; set; } = null;
+        public List<NoteUtilisateurDetailDTO>? Avis { get; set; } = null;
+        public List<AnnonceDTO>? FavorisAnnonce { get; set; } = null;
 
         public int AvisCount { get; set; } = 0;
         public bool IsSameUser { get; set; } = false;
@@ -21,13 +26,13 @@ namespace FrontBlazor.ViewModel
         public bool showDotsDropdown;
 
         private readonly IUtilisateurService _utilisateurService;
-        private readonly IAnnonceService<Annonce> _annonceService;
-        private readonly IFavorisService<Favoris> _favorisService;
-        private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
+        private readonly IAnnonceService<AnnonceDTO> _annonceService;
+        private readonly IFavorisService<FavorisDTO> _favorisService;
+        private readonly INoteUtilisateurService<NoteUtilisateurDetailDTO> _noteUtilisateurService;
         private readonly IAuthService _authService;
-        private readonly IAbonnementService<Abonnement> _abonnementService;
+        private readonly IAbonnementService<AbonnementDTO> _abonnementService;
         private readonly NavigationManager _navigationManager;
-        private readonly IMediasService<Photo> _mediaService;
+        private readonly IMediasService<PhotoUploadDTO> _mediaService;
         private readonly ISignalementService _signalementService;
         private readonly IBloqueService _bloqueService;
 
@@ -58,14 +63,14 @@ namespace FrontBlazor.ViewModel
 
         public ProfilViewModel(
             IUtilisateurService utilisateurService,
-            IAnnonceService<Annonce> annonceService,
-            IFavorisService<Favoris> favorisService,
-            INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+            IAnnonceService<AnnonceDTO> annonceService,
+            IFavorisService<FavorisDTO> favorisService,
+            INoteUtilisateurService<NoteUtilisateurDetailDTO> noteUtilisateurService,
             IAuthService authService,
-            IAbonnementService<Abonnement> abonnementService,
+            IAbonnementService<AbonnementDTO> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
-            IMediasService<Photo> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
+            IMediasService<PhotoUploadDTO> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -89,7 +94,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                UtilisateurView user = await _utilisateurService.GetByLoginAsync(login);
+                UtilisateurViewDTO user = await _utilisateurService.GetByLoginAsync(login);
 
                 if (user == null)
                 {
@@ -110,8 +115,8 @@ namespace FrontBlazor.ViewModel
                 IsLoadingArticles = true;
                 IsLoadingAvis = true;
 
-                IsBlockedByUser = user.blockedByCurrentUser;
-                IsFollowing = user.followeddByCurrentUser;
+                IsBlockedByUser = user.BlockedByCurrentUser;
+                IsFollowing = user.FolloweddByCurrentUser;
 
                 ViewingUser = user;
 
@@ -130,7 +135,7 @@ namespace FrontBlazor.ViewModel
                      })
                  };
 
-                Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
+                UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
                 {
                     IsSameUser = true;
@@ -162,7 +167,7 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
         }
 
-        public async Task ToggleFavorite(Annonce annonce)
+        public async Task ToggleFavorite(AnnonceDTO annonce)
         {
             if (CheckLoginStatus == null)
             {
@@ -204,8 +209,8 @@ namespace FrontBlazor.ViewModel
             if (ViewingUser == null) 
                 return;
 
-            bool wasFollowing = ViewingUser.followeddByCurrentUser;
-            ViewingUser.followeddByCurrentUser = !ViewingUser.followeddByCurrentUser;
+            bool wasFollowing = ViewingUser.FolloweddByCurrentUser;
+            ViewingUser.FolloweddByCurrentUser = !ViewingUser.FolloweddByCurrentUser;
 
             if (!wasFollowing)
             {
@@ -231,7 +236,7 @@ namespace FrontBlazor.ViewModel
             }
             catch
             {
-                ViewingUser.followeddByCurrentUser = wasFollowing;
+                ViewingUser.FolloweddByCurrentUser = wasFollowing;
                 if (!wasFollowing)
                 {
                     ViewingUser.Abonnes -= 1;
@@ -302,7 +307,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                NoteUtilisateurCreate newReview = new NoteUtilisateurCreate
+                NoteUtilisateurCreateDTO newReview = new NoteUtilisateurCreateDTO
                 {
                     CibleId = ViewingUser.UtilisateurId,
                     Note = SelectedRating,

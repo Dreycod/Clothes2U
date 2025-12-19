@@ -1,5 +1,5 @@
-using API.DTO;
-using API.DTO.Annonce;
+using Shared.DTO;
+using Shared.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
@@ -151,7 +151,7 @@ public class AnnonceController : ControllerBase
             return NotFound();
         }
         Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
-        await _annonceManager.UpdateAsync(annonceToUpdate, annonce);
+        await _annonceManager.UpdateAsync(annonce);
         var notificationEvent = new ModificationAnnonceEvent()
         {
             AnnonceId = annonce.AnnonceId,

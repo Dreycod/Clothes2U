@@ -104,15 +104,15 @@
                                             @(categorie.SousCategories?.Count ?? 0) sous-catégories
                                         </span>
                                     </td>
-                                    <td>@categorie.NombreProduits articles</td>
+                                    @* <td>@categorie.NombreProduits articles</td> *@
                                     <td>
                                         <div class="table-actions">
-                                            <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCategories.ShowEditModal(categorie)">
+                                            @* <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCategories.ShowEditModal(categorie)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialCategories.ShowDeleteModal(categorie)">
                                                 <i class="bi bi-trash"></i>
-                                            </button>
+                                            </button> *@
                                         </div>
                                     </td>
                                 </tr>

@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using FrontBlazor.Models;
-using FrontBlazor.Models.LoginRegister;
+using Shared.DTO;
+using Shared.DTO.Utilisateur;
 using FrontBlazor.Services.GenericIServices;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using Shared.DTO.LoginRegister;
 
 namespace FrontBlazor.Services;
 
@@ -13,7 +14,7 @@ public class AuthWebService : BaseGenericService, IAuthService
     {
     }
 
-    public async Task<Utilisateur?> GetCurrentUserAsync()
+    public async Task<UtilisateurDTO?> GetCurrentUserAsync()
     {
         try
         {
@@ -25,7 +26,7 @@ public class AuthWebService : BaseGenericService, IAuthService
             if (!response.IsSuccessStatusCode)
                 return null;
 
-            return await response.Content.ReadFromJsonAsync<Utilisateur>();
+            return await response.Content.ReadFromJsonAsync<UtilisateurDTO>();
         }
         catch
         {
@@ -33,7 +34,7 @@ public class AuthWebService : BaseGenericService, IAuthService
         }
     }
 
-    public async Task<AuthResult> SignUpAsync(RegisterRequest compte)
+    public async Task<AuthResult> SignUpAsync(RegisterRequestDTO compte)
     {
         try
         {
@@ -65,7 +66,7 @@ public class AuthWebService : BaseGenericService, IAuthService
         }
     }
 
-    public async Task<HttpStatusCode> LoginAsync(LoginRequest compte)
+    public async Task<HttpStatusCode> LoginAsync(LoginRequestDTO compte)
     {
         try
         {
@@ -117,12 +118,12 @@ public class AuthWebService : BaseGenericService, IAuthService
 
 public class LoginResponse
 {
-    public Utilisateur utilisateur { get; set; } = new();
+    public UtilisateurDTO utilisateur { get; set; } = new();
 }
 
 public class AuthResult
 {
     public bool Success { get; set; }
-    public Utilisateur? Utilisateur { get; set; }
+    public UtilisateurDTO? Utilisateur { get; set; }
     public string? ErrorMessage { get; set; }
 }

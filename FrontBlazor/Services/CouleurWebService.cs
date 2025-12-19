@@ -1,10 +1,11 @@
 using System.Net.Http.Json;
-using FrontBlazor.Models;
+using Shared.DTO;
 using FrontBlazor.Services.GenericIServices;
+using Shared.DTO.Couleur;
 
 namespace FrontBlazor.Services
 {
-    public class CouleurWebService : ReadableService<Couleur>, ICouleurService<Couleur>
+    public class CouleurWebService : ReadableService<CouleurDTO>, ICouleurService<CouleurDTO>
     {
         private readonly HttpClient _httpClient;
         public CouleurWebService(HttpClient httpClient) : base(httpClient)
@@ -13,11 +14,11 @@ namespace FrontBlazor.Services
         }
 
 
-        public async Task<List<Couleur>?> GetAllCouleurs()
+        public async Task<List<CouleurDTO>?> GetAllCouleurs()
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<List<Couleur>>("Couleur");
+                return await _httpClient.GetFromJsonAsync<List<CouleurDTO>>("Couleur");
             }
             catch (Exception ex)
             {
@@ -26,7 +27,7 @@ namespace FrontBlazor.Services
             }
         }
 
-        public Task<Couleur?> AddAsync(Couleur entity)
+        public Task<CouleurDTO?> AddAsync(CouleurDTO entity)
         {
             throw new NotImplementedException();
         }
@@ -36,7 +37,7 @@ namespace FrontBlazor.Services
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(Couleur updatedEntity)
+        public Task UpdateAsync(CouleurDTO updatedEntity)
         {
             throw new NotImplementedException();
         }

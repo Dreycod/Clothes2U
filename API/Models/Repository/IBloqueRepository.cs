@@ -1,4 +1,4 @@
-﻿using API.DTO.Bloque;
+﻿using Shared.DTO.Bloque;
 
 namespace API.Models.Repository
 {

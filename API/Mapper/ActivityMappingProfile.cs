@@ -1,7 +1,7 @@
-using API.DTO.Abonnement;
-using API.DTO.Bloque;
-using API.DTO.Favoris;
-using API.DTO.Visualisation;
+using Shared.DTO.Abonnement;
+using Shared.DTO.Bloque;
+using Shared.DTO.Favoris;
+using Shared.DTO.Visualisation;
 using API.Models.EntityFramework;
 using AutoMapper;
 

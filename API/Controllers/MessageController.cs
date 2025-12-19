@@ -1,4 +1,4 @@
-using API.DTO.Message;
+using Shared.DTO.Message;
 using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
@@ -233,7 +233,7 @@ public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTex
         var newMessage = _mapper.Map<Message>(message);
         newMessage.MessageLu = true; 
         
-        await _messageManager.UpdateAsync(message, newMessage);
+        await _messageManager.UpdateAsync(newMessage);
         
         // Notifier SignalR
         // Dans MessageController après avoir sauvegardé le message

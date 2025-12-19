@@ -1,9 +1,13 @@
-using FrontBlazor.Models;
-using FrontBlazor.Models.Moderation;
 using FrontBlazor.Pages.Moderation;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Shared.DTO;
+using Shared.DTO.Annonce;
+using Shared.DTO.Moderation;
+using Shared.DTO.NoteUtilisateur;
+using Shared.DTO.Signalement;
+using Shared.DTO.Utilisateur;
 using System.ComponentModel;
 
 namespace FrontBlazor.ViewModel.Moderation.Signalements;
@@ -11,9 +15,9 @@ namespace FrontBlazor.ViewModel.Moderation.Signalements;
 public class TraitementSignalementViewModel : ModerationViewModel, INotifyPropertyChanged
 {
     private readonly ISignalementService _signalementService;
-    private readonly IReadableService<UtilisateurView> _utilisateurService;
-    private readonly IAnnonceService<Annonce> _annonceService;
-    private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
+    private readonly IReadableService<UtilisateurViewDTO> _utilisateurService;
+    private readonly IAnnonceService<AnnonceDTO> _annonceService;
+    private readonly INoteUtilisateurService<NoteUtilisateurDTO> _noteUtilisateurService;
     private readonly INotificationService _notificationService;
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -21,9 +25,9 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
 
     public TraitementSignalementViewModel(
         ISignalementService signalementService,
-        IReadableService<UtilisateurView> utilisateurService,
-        IAnnonceService<Annonce> annonceService,
-        INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+        IReadableService<UtilisateurViewDTO> utilisateurService,
+        IAnnonceService<AnnonceDTO> annonceService,
+        INoteUtilisateurService<NoteUtilisateurDTO> noteUtilisateurService,
         INotificationService notificationService,
         IAuthService authService,
         NavigationManager nav)
@@ -36,10 +40,10 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         _signalementService = signalementService;
     }
 
-    public SignalementDetails Signalement { get; set; }
-    public NoteUtilisateur Avis { get; set; }
-    public Annonce Annonce { get; set; }
-    public UtilisateurView UtilisateurSignale { get; set; }
+    public SignalementDetailsDTO Signalement { get; set; }
+    public NoteUtilisateurDTO Avis { get; set; }
+    public AnnonceDTO Annonce { get; set; }
+    public UtilisateurViewDTO UtilisateurSignale { get; set; }
     
     private bool _showWarningModal;
     public bool ShowWarningModal
@@ -117,11 +121,11 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         
         switch (Signalement)
         {
-            case SignalementAnnonce sa:
+            case SignalementAnnonceDTO sa:
                 Annonce = await _annonceService.GetAnnonceDetailById(sa.AnnonceSignaleeId);
                 break;
 
-            case SignalementAvis sav:
+            case SignalementAvisDTO sav:
                 Avis = await _noteUtilisateurService.GetByIdAsync(sav.AvisId);
                 break;
         }
@@ -149,7 +153,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         try
         {
             await _notificationService.CreateNotificationAvertissement(
-                new CreateAvertissementRequest()
+                new CreateAvertissementRequestDTO()
                 {
                     MessageAvertissement = WarningMessage,
                     UtilisateurId = UtilisateurSignale.UtilisateurId

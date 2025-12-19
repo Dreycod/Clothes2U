@@ -37,8 +37,10 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
         utilisateur.Password = newPassword;
         await _context.SaveChangesAsync();
     }
-    public override async Task UpdateAsync(Utilisateur entityToUpdate, Utilisateur entity)
+    public override async Task UpdateAsync(Utilisateur entity)
     {
+        Utilisateur entityToUpdate = await GetByIdAsync(entity.UtilisateurId) 
+            ?? throw new ArgumentException($"Utilisateur with id {entity.UtilisateurId} not found");
         // Récupérer l'entité depuis le contexte si elle est déjà trackée
         var tracked = _context.Set<Utilisateur>().Local
             .FirstOrDefault(e => e.UtilisateurId == entityToUpdate.UtilisateurId);

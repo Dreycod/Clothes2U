@@ -1,7 +1,7 @@
 ﻿@page "/product/{Id:int}" 
 
 
-<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
+<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Titre ?? "Produit") - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
 <NavBar />
@@ -46,8 +46,8 @@
     }
     else if (VM_DetailAnnonce.AnnonceDetail != null && VM_DetailAnnonce.utilisateurAnnonce != null)
     {
-        Annonce annonce = VM_DetailAnnonce.AnnonceDetail;
-        UtilisateurView utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
+        AnnonceDetailDTO annonce = VM_DetailAnnonce.AnnonceDetail;
+        Shared.DTO.Utilisateur.UtilisateurViewDTO utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
 
         <div class="product-container">
             <!-- Left Side - Product Image -->
@@ -55,7 +55,7 @@
                 <div class="main-image">
                     @if (annonce.Photos != null && annonce.Photos.Any())
                     {
-                        <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
+                        <img src=annonce.Photos.First() alt="@annonce.Titre" />
                     }
                 </div>
                 <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
@@ -69,7 +69,7 @@
                 <div class="category-badge">@annonce.Categorie</div>
 
                 <!-- Title -->
-                <h1 class="product-title">@annonce.Title</h1>
+                <h1 class="product-title">@annonce.Titre</h1>
 
                 <!-- Brand & Price -->
                 <div class="brand-price-row">
@@ -79,7 +79,7 @@
 
                 <!-- Price Status - Based on Negociable property -->
                 <div class="price-status">
-                    @if (annonce.Negociable)
+                    @if (annonce.EstNegociable)
                     {
                         <span class="badge badge-negotiable">Prix négociable</span>
                     }
@@ -154,7 +154,7 @@
                         <button class="btn-secondary" @onclick="VM_DetailAnnonce.ContactSeller">
                             Contacter le vendeur
                         </button>
-                        @if (annonce.Negociable)
+                        @if (annonce.EstNegociable)
                         {
                             <button class="btn-secondary" @onclick="VM_DetailAnnonce.MakeOffer">
                                 Faire une offre
@@ -175,11 +175,11 @@
             <div class="similar-grid">
                 @if (VM_DetailAnnonce.similarProducts != null && VM_DetailAnnonce.similarProducts.Any())
                 {
-                    @foreach (Annonce similarAnnonce in VM_DetailAnnonce.similarProducts)
+                    @foreach (AnnonceDetailDTO similarAnnonce in VM_DetailAnnonce.similarProducts)
                     {
                         <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
                             <div class="product-image-container">
-                                <img class="product-image" src="@(VM_DetailAnnonce.GetPhoto(similarAnnonce.Photos.First()))"/>
+                                <img class="product-image" src="@(similarAnnonce.Photos.First())"/>
                                 <button class="wishlist-btn"
                                         @onclick:stopPropagation="true"
                                         @onclick="() => VM_DetailAnnonce.ToggleFavorite(similarAnnonce)">
@@ -187,7 +187,7 @@
                                 </button>
                             </div>
                             <div class="product-info">
-                                <h3 class="product-title">@similarAnnonce.Title</h3>
+                                <h3 class="product-title">@similarAnnonce.Titre</h3>
                                 <div class="product-meta">
                                     <span class="product-size">Taille @similarAnnonce.Taille</span>
                                     <span class="product-condition">@similarAnnonce.EtatArticle</span>

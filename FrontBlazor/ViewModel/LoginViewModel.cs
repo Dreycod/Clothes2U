@@ -1,6 +1,5 @@
-using FrontBlazor.Models;
-using FrontBlazor.Models.LoginRegister;
-using FrontBlazor.Models.StateServices;
+using Shared.DTO;
+using Shared.DTO.LoginRegister;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using System.ComponentModel.DataAnnotations;
@@ -27,7 +26,7 @@ public class LoginViewModel
 
         try
         {
-            RegisterRequest registerRequest = new RegisterRequest()
+            RegisterRequestDTO registerRequest = new RegisterRequestDTO()
             {
                 Login = RegisterUsername,
                 Email = RegisterEmail,
@@ -72,7 +71,7 @@ public class LoginViewModel
 
         try
         {
-            LoginRequest requestAuth = new LoginRequest()
+            LoginRequestDTO requestAuth = new LoginRequestDTO()
             {
                 Login = LoginEmail,
                 Password = LoginPassword

@@ -1,4 +1,4 @@
-using API.DTO.Utilisateur;
+using Shared.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
@@ -34,7 +34,7 @@ public class UtilisateurController :  ControllerBase
             return NotFound();
         }
         UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
-        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(id);
+        utilisateurDTO.FolloweddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(id);
         utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(id);
         return Ok(utilisateurDTO);
     }
@@ -48,7 +48,7 @@ public class UtilisateurController :  ControllerBase
         if (utilisateurToUpdate == null)
             return NotFound();
         _mapper.Map(utilisateurDTO, utilisateurToUpdate);
-        await _utilisateurManager.UpdateAsync(utilisateurToUpdate, utilisateurToUpdate);
+        await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
         return NoContent();
     }
 

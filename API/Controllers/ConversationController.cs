@@ -1,4 +1,4 @@
-using API.DTO.Conversation;
+using Shared.DTO.Conversation;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
@@ -31,14 +31,14 @@ public class ConversationController : ControllerBase
     
     [HttpGet("conversation/{id}")]
     [Authorize]
-    public async Task<ActionResult<ConversationDetailDTO>> GetById(int id)
+    public async Task<ActionResult<ConversationDTO>> GetById(int id)
     {
         var conversation = await _conversationManager.GetByIdAsync(id);
         if (conversation == null) return NotFound();
 
         var currentUserId = await _currentUserService.GetUserId();
 
-        var conversationDTO = _mapper.Map<ConversationDetailDTO>(conversation, opts =>
+        var conversationDTO = _mapper.Map<ConversationDTO>(conversation, opts =>
         {
             opts.Items["CurrentUserId"] = currentUserId;
         });
@@ -63,13 +63,13 @@ public class ConversationController : ControllerBase
     
     [HttpPost("annonce/{annonceId}")]
     [Authorize]
-    public async Task<ActionResult<ConversationDetailDTO>> GetOrCreate(int annonceId)
+    public async Task<ActionResult<ConversationDTO>> GetOrCreate(int annonceId)
     {
         var currentUserId = await _currentUserService.GetUserId();
         var conversation = await _conversationService.GetOrCreateConversation(annonceId, (int)currentUserId);
         
 
-        var dto = _mapper.Map<ConversationDetailDTO>(conversation, opt =>
+        var dto = _mapper.Map<ConversationDTO>(conversation, opt =>
         {
             opt.Items["CurrentUserId"] = currentUserId;
         });

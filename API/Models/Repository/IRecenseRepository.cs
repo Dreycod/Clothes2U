@@ -1,4 +1,4 @@
-﻿using API.DTO.Recense;
+﻿using Shared.DTO.Recense;
 
 namespace API.Models.Repository
 {

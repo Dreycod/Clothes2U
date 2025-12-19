@@ -1,28 +1,30 @@
 using FrontBlazor.Components.Moderation;
-using FrontBlazor.Models;
+using Shared.DTO;
 using FrontBlazor.Pages.Moderation;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Shared.DTO.Photo;
+using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel.Moderation;
 
 public class SignalementViewModel : ModerationViewModel
 {
     private readonly ISignalementService _signalementService;
-    private readonly IMediasService<Photo> _mediaService;
+    private readonly IMediasService<PhotoResponseDTO> _mediaService;
     private readonly NavigationManager _nav;
     
     public SignalementViewModel(ISignalementService signalementService,
         IAuthService authService,
-        IMediasService<Photo> mediasService,
+        IMediasService<PhotoResponseDTO> mediasService,
         NavigationManager nav) : base(authService, nav)
     {
         _signalementService = signalementService;
         _nav = nav;
     }
     
-    public List<Signalement> Signalements { get; set; } = new();
+    public List<SignalementDTO> Signalements { get; set; } = new();
     
     public int SelectedCategoryId { get; set; } = 0; 
 

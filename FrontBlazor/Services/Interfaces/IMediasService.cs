@@ -1,4 +1,4 @@
-using FrontBlazor.Models;
+using Shared.DTO.Photo;
 
 namespace FrontBlazor.Services.GenericIServices
 {

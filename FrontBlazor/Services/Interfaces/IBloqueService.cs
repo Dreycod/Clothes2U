@@ -1,8 +1,9 @@
-﻿using FrontBlazor.Models;
+﻿using Shared.DTO;
+using Shared.DTO.Bloque;
 
 namespace FrontBlazor.Services.GenericIServices;
 
-public interface IBloqueService : IWritableService<Bloque>
+public interface IBloqueService : IWritableService<BloqueDTO>
 {
     Task CreateBloque(int utilisateurBloqueId);
 

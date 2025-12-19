@@ -1,4 +1,4 @@
-using FrontBlazor.Models;
+using Shared.DTO;
 using FrontBlazor.Pages.Moderation;
 using FrontBlazor.Services.GenericIServices;
 using Microsoft.AspNetCore.Components;

@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
-using API.DTO;
-using API.DTO.Annonce;
+using Shared.DTO;
+using Shared.DTO.Annonce;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;

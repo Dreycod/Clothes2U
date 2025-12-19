@@ -1,5 +1,5 @@
-using API.DTO;
-using API.DTO.Favoris;
+using Shared.DTO;
+using Shared.DTO.Favoris;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;

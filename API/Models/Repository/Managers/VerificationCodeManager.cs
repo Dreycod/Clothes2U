@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Shared.Enums;
 
 namespace API.Models.Repository.Managers;
 

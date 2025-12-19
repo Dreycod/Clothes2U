@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
-using FrontBlazor.Models.Verification;
+using Shared.DTO.Verification;
+using Shared.Enums;
 
 namespace FrontBlazor.Services
 {

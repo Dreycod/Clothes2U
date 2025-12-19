@@ -1,4 +1,4 @@
-using API.DTO.Annonce;
+using Shared.DTO.Annonce;
 
 namespace API.Models.Repository;
 
