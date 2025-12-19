@@ -1,6 +1,12 @@
 ﻿@page "/testthreed"
 @implements IDisposable
+@using HomagGroup.Blazor3D.Enums
 @using HomagGroup.Blazor3D.Events
+@using HomagGroup.Blazor3D.Lights
+@using HomagGroup.Blazor3D.Maths
+@using HomagGroup.Blazor3D.Scenes
+@using HomagGroup.Blazor3D.Settings
+@using HomagGroup.Blazor3D.Viewers
 
 <h3>Example02</h3>
 
@@ -125,22 +131,23 @@
 
     private async Task OnLoadCustomModelAssetFolder()
     {
-        // if you need to control the loaded object uuid, generate it here.
         loadedObjectGuid = Guid.NewGuid();
+
         var settings = new ImportSettings
         {
-            Format = Import3DFormats.Obj,//choose appropriate format
-            FileURL = "../wwwroot/assets/delivery_truck.obj",// link to your model file
-            TextureURL = "../wwwroot/assets/delivery_truck_blue.png", // link to the texture or skip this,
-            Uuid = loadedObjectGuid //// skip this, or set null if you don't care the uuid of loaded mesh or group
+            Format = Import3DFormats.Obj,
+            FileURL = "/assets/delivery_truck.obj",   // ✅ HTTP path
+            TextureURL = "/assets/delivery_truck_blue.png",
+            Uuid = loadedObjectGuid
         };
+
         await View3D1.Import3DModelAsync(settings);
 
-        // set camera position to view your loaded model
         await View3D1.SetCameraPositionAsync(
-            new Vector3(0, 100, 250),// camera position
-            new Vector3(0, 50, 0));// optional camera target
+            new Vector3(0, 100, 250),
+            new Vector3(0, 50, 0));
     }
+
 
     private async Task OnLoadColladaButtonClick()
     {
