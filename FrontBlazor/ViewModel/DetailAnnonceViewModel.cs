@@ -15,22 +15,22 @@ namespace FrontBlazor.ViewModel;
 
 public class DetailAnnonceViewModel
 {
-    private readonly IAnnonceService<AnnonceDetailDTO> _annonceService;
-    private readonly IFavorisService<FavorisDTO> _favorisService;
+    private readonly IAnnonceService _annonceService;
+    private readonly IFavorisService<Favoris> _favorisService;
     private readonly IAuthService _authService;
-    private readonly IConversationService<ConversationDTO> _conversationService;
+    private readonly IConversationService<Conversation> _conversationService;
     private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
-    private readonly IMediasService<PhotoResponseDTO> _mediaService;
+    private readonly IMediasService<Photo> _mediaService;
     private readonly IVisualisationService _visualisationService;
     private readonly ISignalementService _signalementService;
 
     private CancellationTokenSource? _viewTimerCts;
 
-    public AnnonceDetailDTO? AnnonceDetail { get; set; }
-    public UtilisateurViewDTO? utilisateurAnnonce { get; set; }
-    public List<AnnonceDetailDTO>? similarProducts = null;
+    public AnnonceDetail? AnnonceDetail { get; set; }
+    public UtilisateurView? utilisateurAnnonce { get; set; }
+    public List<Annonce>? similarProducts = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
     public bool clickedShareButton { get; set; } = false;
@@ -40,13 +40,14 @@ public class DetailAnnonceViewModel
     public bool IsUserSuspended { get; set; } = false;
     public bool IsBlockedByUser { get; set; } = false;
     public bool ShowSignalerModal { get; set; } = false;
+    public string SignalementRaison { get; set; } = string.Empty;
     public bool IsSubmittingReport { get; set; } = false;
 
-    public DetailAnnonceViewModel(IAnnonceService<AnnonceDetailDTO> annonceService,
-        IFavorisService<FavorisDTO> favorisService, IAuthService authService,
+    public DetailAnnonceViewModel(IAnnonceService annonceService,
+        IFavorisService<Favoris> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
-        IConversationService<ConversationDTO> conversationService,
-        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<PhotoResponseDTO> mediasService
+        IConversationService<Conversation> conversationService,
+        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<Photo> mediasService
         , IVisualisationService visualisationService, ISignalementService signalementService)
     {
         _annonceService = annonceService;
@@ -79,11 +80,11 @@ public class DetailAnnonceViewModel
             }
 
             utilisateurAnnonce = await _utilisateurService.GetUserById(AnnonceDetail.UtilisateurId);
-            IsBlockedByUser = utilisateurAnnonce.BlockedByCurrentUser;
+            IsBlockedByUser = utilisateurAnnonce.blockedByCurrentUser;
             if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
                 IsUserSuspended = true;
 
-            UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
+            Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
             if (utilisateur != null && utilisateurAnnonce != null &&
                 utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
                 IsSameUser = true;
@@ -117,13 +118,14 @@ public class DetailAnnonceViewModel
             return true;
         return false;
     }
-    public async Task ToggleFavorite(AnnonceDetailDTO annonce)
+    public async Task ToggleFavorite(int id)
     {
         if (CheckLoginStatus == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
         }
+        AnnonceDetail annonce = await _annonceService.GetAnnonceDetailById(id);
 
         bool isFavorite = annonce.IsLikedByCurrentUser;
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
@@ -231,17 +233,18 @@ public class DetailAnnonceViewModel
     {
         ShowSignalerModal = !ShowSignalerModal;
     }
-    public async Task SubmitReport(string reason)
+    public async Task SubmitReport()
     {
         IsSubmittingReport = true;
         try
         {
-            SignalementAnnonceCreateDTO newReport = new SignalementAnnonceCreateDTO
+            SignalementCreate newReport = new SignalementCreate
             {
-                SignalementMotif = reason,
+                SignalementMotif = SignalementRaison,
+                AnnonceSignaleeId = AnnonceDetail.AnnonceId,
             };
 
-            await _signalementService.CreateSignalement(newReport);
+            SignalementCreate reuslt = await _signalementService.CreateSignalement(newReport);
         }
         catch (Exception ex)
         {

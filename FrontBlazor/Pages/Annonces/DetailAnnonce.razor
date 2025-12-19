@@ -1,7 +1,7 @@
-﻿@page "/product/{Id:int}" 
+﻿@page "/product/{Id:int}"
 
 
-<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Titre ?? "Produit") - Clothes2U</PageTitle>
+<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
 <!-- Navigation Bar -->
 <NavBar />
@@ -46,8 +46,8 @@
     }
     else if (VM_DetailAnnonce.AnnonceDetail != null && VM_DetailAnnonce.utilisateurAnnonce != null)
     {
-        AnnonceDetailDTO annonce = VM_DetailAnnonce.AnnonceDetail;
-        Shared.DTO.Utilisateur.UtilisateurViewDTO utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
+        AnnonceDetail annonce = VM_DetailAnnonce.AnnonceDetail;
+        UtilisateurView utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
 
         <div class="product-container">
             <!-- Left Side - Product Image -->
@@ -55,7 +55,7 @@
                 <div class="main-image">
                     @if (annonce.Photos != null && annonce.Photos.Any())
                     {
-                        <img src=annonce.Photos.First() alt="@annonce.Titre" />
+                        <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
                     }
                 </div>
                 <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
@@ -69,7 +69,7 @@
                 <div class="category-badge">@annonce.Categorie</div>
 
                 <!-- Title -->
-                <h1 class="product-title">@annonce.Titre</h1>
+                <h1 class="product-title">@annonce.Title</h1>
 
                 <!-- Brand & Price -->
                 <div class="brand-price-row">
@@ -79,7 +79,7 @@
 
                 <!-- Price Status - Based on Negociable property -->
                 <div class="price-status">
-                    @if (annonce.EstNegociable)
+                    @if (annonce.Negociable)
                     {
                         <span class="badge badge-negotiable">Prix négociable</span>
                     }
@@ -93,7 +93,7 @@
                 <div class="actions-row">
                     <button class="btn-action"
                             @onclick:stopPropagation="true"
-                            @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
+                            @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce.AnnonceId)">
                         <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                     </button>
                     <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
@@ -106,8 +106,8 @@
 
                 <!-- Seller Info -->
                 <div class="seller-section" @onclick="VM_DetailAnnonce.GotoProfile">
-                    <img class="seller-avatar" src="@(VM_DetailAnnonce.GetPhoto(utilisateur.PhotoProfilId))"/>
-                    <div class="seller-info"> 
+                    <img class="seller-avatar" src="@(VM_DetailAnnonce.GetPhoto(utilisateur.PhotoProfilId))" />
+                    <div class="seller-info">
                         <h3 class="seller-name">@(utilisateur.Login ?? "Vendeur")</h3>
                         <div class="seller-rating">
                             <i class="bi bi-star-fill"></i>
@@ -154,7 +154,7 @@
                         <button class="btn-secondary" @onclick="VM_DetailAnnonce.ContactSeller">
                             Contacter le vendeur
                         </button>
-                        @if (annonce.EstNegociable)
+                        @if (annonce.Negociable)
                         {
                             <button class="btn-secondary" @onclick="VM_DetailAnnonce.MakeOffer">
                                 Faire une offre
@@ -175,19 +175,19 @@
             <div class="similar-grid">
                 @if (VM_DetailAnnonce.similarProducts != null && VM_DetailAnnonce.similarProducts.Any())
                 {
-                    @foreach (AnnonceDetailDTO similarAnnonce in VM_DetailAnnonce.similarProducts)
+                    @foreach (Annonce similarAnnonce in VM_DetailAnnonce.similarProducts)
                     {
                         <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
                             <div class="product-image-container">
-                                <img class="product-image" src="@(similarAnnonce.Photos.First())"/>
+                                <img class="product-image" src="@(VM_DetailAnnonce.GetPhoto(similarAnnonce.Photos.First()))" />
                                 <button class="wishlist-btn"
                                         @onclick:stopPropagation="true"
-                                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(similarAnnonce)">
+                                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(similarAnnonce.AnnonceId)">
                                     <i class="bi bi-heart@(similarAnnonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                                 </button>
                             </div>
                             <div class="product-info">
-                                <h3 class="product-title">@similarAnnonce.Titre</h3>
+                                <h3 class="product-title">@similarAnnonce.Title</h3>
                                 <div class="product-meta">
                                     <span class="product-size">Taille @similarAnnonce.Taille</span>
                                     <span class="product-condition">@similarAnnonce.EtatArticle</span>
@@ -208,6 +208,56 @@
         </div>
     }
 </div>
+
+<!-- Add Review Modal -->
+@if (VM_DetailAnnonce.ShowSignalerModal)
+{
+    <div class="modal-overlay" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Ajouter un avis</h3>
+                <button class="modal-close" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Reason -->
+                <div class="form-group">
+                    <label class="form-label">Raison</label>
+                    <textarea class="form-textarea"
+                              placeholder="Partagez votre opinion sur cette annonce..."
+                              @bind="VM_DetailAnnonce.SignalementRaison"
+                              @bind:event="oninput"
+                              rows="6"></textarea>
+                </div>
+                @* 
+                @if (!string.IsNullOrEmpty(VM_Profil.ReviewErrorMessage))
+                {
+                    <div class="alert alert-error">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>@VM_Profil.ReviewErrorMessage</span>
+                    </div>
+                } *@
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_DetailAnnonce.ToggleSignalerModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_DetailAnnonce.SubmitReport" disabled="@VM_DetailAnnonce.IsSubmittingReport">
+                    @if (VM_Profil.IsSubmittingReview)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>Signaler l'annonce</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter]

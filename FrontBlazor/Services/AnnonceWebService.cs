@@ -8,37 +8,24 @@ using Shared.DTO.Annonce;
 
 namespace FrontBlazor.Services;
 
-public class AnnonceWebService : WritableService<AnnonceDTO>, IAnnonceService<AnnonceDTO>
+public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
     public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public async Task<List<AnnonceDTO>> GetActiveAnnonces()
+    public async Task<List<Annonce>> GetActiveAnnonces()
     {
         var response = await GetWithCredentialsAsync("Annonce/GetActiveAnnonces");
         response.EnsureSuccessStatusCode();
 
-        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
 
-        return annonces ?? new List<AnnonceDTO>();
-    }                                                                                                                                                                                                
-
-    public async Task<List<AnnonceDTO>?> GetAnnoncesByCategorieId(int Id)
-    {
-        return await _httpClient.GetFromJsonAsync<List<AnnonceDTO>>(
-            $"Annonce/ByCategorieId/{Id}"
-        );
+        return annonces ?? new List<Annonce>();
     }
-    public async Task<List<AnnonceDTO?>?> GetAnnoncesBySousCategoryId(int Id)
-    {
-        return await _httpClient.GetFromJsonAsync<List<AnnonceDTO>>(
-            $"Annonce/BySousCategorieId/{Id}"
-        );
-    }
-    public async Task<AnnonceDTO> GetAnnonceDetailById(int Id)
+    public async Task<AnnonceDetail> GetAnnonceDetailById(int Id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<AnnonceDTO>($"Annonce/id/{Id}");
+            return await _httpClient.GetFromJsonAsync<AnnonceDetail>($"Annonce/id/{Id}");
         }
         catch (HttpRequestException ex)
         {
@@ -46,14 +33,14 @@ public class AnnonceWebService : WritableService<AnnonceDTO>, IAnnonceService<An
             return null;
         }
     }
-    public async Task<List<AnnonceDTO?>?> GetAnnoncesByUserIdAsync(int userId)
+    public async Task<List<Annonce?>?> GetAnnoncesByUserIdAsync(int userId)
     {
         try
         {
             var response = await GetWithCredentialsAsync($"Annonce/ByUtilisateurId/{userId}");
             response.EnsureSuccessStatusCode();
-            var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
-            return annonces ?? new List<AnnonceDTO>();
+            var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+            return annonces ?? new List<Annonce>();
         }
         catch (HttpRequestException ex)
         {
@@ -62,12 +49,12 @@ public class AnnonceWebService : WritableService<AnnonceDTO>, IAnnonceService<An
         }
     }
 
-    public Task<AnnonceDTO> GetByIdAsync(int id)
+    public Task<Annonce> GetByIdAsync(int id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<AnnonceDTO>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 20)
+    public async Task<List<Annonce>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 20)
     {
         var queryParams = new List<KeyValuePair<string, string?>>();
 
@@ -106,18 +93,18 @@ public class AnnonceWebService : WritableService<AnnonceDTO>, IAnnonceService<An
         var response = await GetWithCredentialsAsync(url);
         response.EnsureSuccessStatusCode();
 
-        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
-        return annonces ?? new List<AnnonceDTO>();
+        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
+        return annonces ?? new List<Annonce>();
     }
 
-    public async Task<List<AnnonceDTO>> GetByFavorisUtilisateur()
+    public async Task<List<Annonce>> GetByFavorisUtilisateur()
     {
         var response = await GetWithCredentialsAsync("Annonce/ByFavorisUtilisateur");
         response.EnsureSuccessStatusCode();
 
-        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        var annonces = await response.Content.ReadFromJsonAsync<List<Annonce>>();
 
-        return annonces ?? new List<AnnonceDTO>();
+        return annonces ?? new List<Annonce>();
     }
 
     private void AddListToQuery(List<KeyValuePair<string, string?>> qp, string key, List<string>? values)
@@ -126,5 +113,15 @@ public class AnnonceWebService : WritableService<AnnonceDTO>, IAnnonceService<An
 
         foreach (var v in values)
             qp.Add(new(key, v));
+    }
+
+    public async Task CreateAnnonce(AnnonceCreate annonce)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task ModificationAnnonce(AnnonceCreate annonce)
+    {
+        throw new NotImplementedException();
     }
 }

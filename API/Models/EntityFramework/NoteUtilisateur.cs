@@ -23,6 +23,9 @@ public class NoteUtilisateur : IEntity
     [Column("notuti_date")]
     public DateTime DatePublication { get; set; }
 
+    [Column("notuti_statut")]
+    public bool Statut { get; set; }
+
     // id pour les relations
     [Column("notuti_noteur_id")]
     public int AuteurId { get; set; }
@@ -41,5 +44,8 @@ public class NoteUtilisateur : IEntity
     [InverseProperty(nameof(SignalementAvis.Avis))]
     public ICollection<SignalementAvis> Signalements { get; set; } = new List<SignalementAvis>();
 
+    //moderation
+    [InverseProperty(nameof(ElementDecisionAvis.Avis))]
+    public ICollection<ElementDecisionAvis> Decisions { get; set; } = new List<ElementDecisionAvis>();
     public int GetId() => NoteUtilisateurId;
 }

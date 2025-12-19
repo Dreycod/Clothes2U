@@ -89,8 +89,44 @@ public class PhotoService : IPhotoService
 
         _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
 
-        // Retourner le DTO de réponse
-        return new PhotoResponseDTO
+            await transaction.CommitAsync();
+            return photo;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    
+    public async Task<Photo> UploadMessagePhotoAsync(PhotoDTO photoDto, int messageId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            // Validation métier
+            var message = await _messageRepository.GetByIdAsync(messageId);
+            if (message == null)
+            {
+                throw new NotFoundException($"Message {messageId} introuvable");
+            }
+    
+            
+            // Création de la photo
+            var photo = await _photoRepository.AddPhotoAsync(photoDto);
+    
+            // Mise à jour de l'utilisateur
+            var messageContientImage = new MessageContientImage
+            {
+                MessageId = messageId,
+                PhotoId = photo.PhotoId
+            };
+            
+            await _messageContientImageRepository.AddAsync(messageContientImage);
+            await transaction.CommitAsync();
+            return photo;
+        }
+        catch
         {
             PhotoId = photo.PhotoId,
             Url = $"/api/Medias/Photos/{photo.PhotoId}",

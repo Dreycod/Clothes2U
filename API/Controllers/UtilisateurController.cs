@@ -68,14 +68,26 @@ public class UtilisateurController :  ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<UtilisateurViewDTO>> GetByLogin(string login)
     {
-        var utilisateurs = await _utilisateurManager.GetAllAsync();
-        var utilisateur = utilisateurs.FirstOrDefault(u =>
-            u.Login.Equals(login, StringComparison.OrdinalIgnoreCase));
-
+        Utilisateur? utilisateur = await _utilisateurManager.GetUtilisateurByLogin(login);
         if (utilisateur == null)
             return NotFound();
 
-        var utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(utilisateurDTO.UtilisateurId);
+        utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(utilisateurDTO.UtilisateurId);
+        return Ok(utilisateurDTO);
+    }
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
+    {
+        Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateur == null)
+        {
+            return NotFound();
+        }
+        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        utilisateurDTO.followeddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(id);
+        utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(id);
         return Ok(utilisateurDTO);
     }
 }

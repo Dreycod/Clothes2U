@@ -18,7 +18,11 @@ public class Message : IEntity
     
     [Column("mes_lu")]
     public bool MessageLu { get; set; }
-    
+
+    //statut du message : true = actif , false = invisible/supprim�
+    [Column("mes_statut")]
+    public bool MessageStatut { get; set; }
+
     //relation avec id
     [Column("mes_utilisateur_id")]
     public int UtilisateurId { get; set; }
@@ -39,16 +43,24 @@ public class Message : IEntity
     [InverseProperty(nameof(NotificationMessage.Message))]
     public virtual ICollection<NotificationMessage> NotificationsMessage { get; set; } = new List<NotificationMessage>();
     
+   
     //relation avec les class child : 
-    
+
     [InverseProperty(nameof(MessageDemande.Message))]
     public virtual MessageDemande? MessageDemande { get; set; }
 
     [InverseProperty(nameof(MessageTexte.Message))]
     public virtual MessageTexte? MessageTexte { get; set; }
+    
+    // [InverseProperty(nameof(MessageTexte.Photos))]
+    // public virtual ICollection<string> Photos { get; set; }
 
     [InverseProperty(nameof(MessageValidation.Message))]
     public virtual MessageValidation? MessageValidation { get; set; }
+    
+    //moderation
+    [InverseProperty(nameof(ElementDecisionMessage.Message))]
+    public ICollection<ElementDecisionMessage> Decisions{ get; set; } = new List<ElementDecisionMessage>();
     
     public int GetId() => MessageId;
 }

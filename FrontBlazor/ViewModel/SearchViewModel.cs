@@ -1,12 +1,6 @@
 using System.Collections.ObjectModel;
-using Shared.DTO;
-using Shared.DTO.Notification;
-using Shared.DTO.Annonce;
-using Shared.DTO.Favoris;
-using Shared.DTO.Marque;
-using Shared.DTO.Categorie;
-using Shared.DTO.Taille;
-using Shared.DTO.EtatArticle;
+using FrontBlazor.Models;
+using FrontBlazor.Models.Notification;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
@@ -17,26 +11,26 @@ namespace FrontBlazor.ViewModel
 {
     public class SearchAnnonceViewModel
     {
-        private readonly IAnnonceService<AnnonceDTO> _annonceService;
-        private readonly IFavorisService<FavorisDTO> _favorisService;
-        private readonly INotificationService _notificationService;
+        private readonly IAnnonceService _annonceService;
+        private readonly IFavorisService<Favoris> _favorisService;
+        private readonly INotificationService _notificationPopUpService;
         private CancellationTokenSource _searchCts;
         private CancellationTokenSource _filterCts;
 
         public event Action? OnStateChange;
 
         #region ViewModels
-        public ListableViewModel<CategorieDTO> VM_Categorie { get; set; }
-        public ListableViewModel<GenreDTO> VM_Genre { get; set; }
-        public ListableViewModel<MarqueDTO> VM_Marque { get; set; }
-        public ListableViewModel<TailleDTO> VM_Taille { get; set; }
-        public ListableViewModel<EtatArticleDTO> VM_Etat { get; set; }
+        public ListableViewModel<Categorie> VM_Categorie { get; set; }
+        public ListableViewModel<Genre> VM_Genre { get; set; }
+        public ListableViewModel<Marque> VM_Marque { get; set; }
+        public ListableViewModel<Taille> VM_Taille { get; set; }
+        public ListableViewModel<EtatArticle> VM_Etat { get; set; }
         public NavigationManager NavigationManager { get; set; }
         public LoginViewModel VM_Login { get; set; }
         #endregion
 
         #region Properties
-        public List<AnnonceDTO> Annonces { get; set; } = new();
+        public List<Annonce> Annonces { get; set; } = new();
         public bool IsLoading { get; set; } = false;
         public string? ErrorMessage { get; set; }
         public string? Query { get; set; }
@@ -59,15 +53,15 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         public SearchAnnonceViewModel(
-            IAnnonceService<AnnonceDTO> annonceService, 
-            IFavorisService<FavorisDTO> favorisService, 
-            ListableViewModel<CategorieDTO> vM_Categorie, 
-            ListableViewModel<MarqueDTO> vM_Marque, 
-            ListableViewModel<EtatArticleDTO> vM_Etat,
-            ListableViewModel<GenreDTO> vM_Genre,
-            ListableViewModel<TailleDTO> vM_Taille, 
+            IAnnonceService annonceService, 
+            IFavorisService<Favoris> favorisService, 
+            ListableViewModel<Categorie> vM_Categorie, 
+            ListableViewModel<Marque> vM_Marque, 
+            ListableViewModel<EtatArticle> vM_Etat,
+            ListableViewModel<Genre> vM_Genre,
+            ListableViewModel<Taille> vM_Taille, 
             NavigationManager navManager, 
-            INotificationService notificationService,
+            INotificationService notificationPopUpService,
             LoginViewModel vM_Login)
         {
             _annonceService = annonceService;
@@ -78,7 +72,7 @@ namespace FrontBlazor.ViewModel
             VM_Taille = vM_Taille;
             VM_Etat =  vM_Etat;
             NavigationManager = navManager;
-            _notificationService = notificationService;
+            _notificationPopUpService = notificationPopUpService;
             VM_Login = vM_Login;
         }
 
@@ -217,7 +211,7 @@ namespace FrontBlazor.ViewModel
 
             var result = await _annonceService.GetAnnonceByFilter(filterRequest, CurrentPage, ItemsPerPage);
             
-            Annonces = result ?? new List<AnnonceDTO>();
+            Annonces = result ?? new List<Annonce>();
             NotifyStateChanged();
         }
 

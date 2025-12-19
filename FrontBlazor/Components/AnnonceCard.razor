@@ -1,15 +1,18 @@
-﻿@using Shared.DTO.Photo
-@inject IMediasService<PhotoResponseDTO> MediasService
+﻿@inject IMediasService<Photo> MediasService
+@inject IAuthService AuthService
 
 <div class="product-card" @onclick="OnClick">
     <div class="product-image-container">
         <img class="product-image" src="@PhotoUrl" />
 
-        <button class="wishlist-btn"
-                @onclick:stopPropagation="true"
-                @onclick="ToggleFavorite">
-            <i class="bi bi-heart@(IsFavorite ? "-fill" : "")"></i>
-        </button>
+        @if (!IsOwner)
+        {
+            <button class="wishlist-btn"
+                    @onclick:stopPropagation="true"
+                    @onclick="ToggleFavorite">
+                <i class="bi bi-heart@(IsFavorite ? "-fill" : "")"></i>
+            </button>
+        }
     </div>
 
     <div class="product-info">
@@ -28,13 +31,17 @@
 </div>
 
 @code {
-    [Parameter] public AnnonceDTO annonceComponent { get; set; }
-    [Parameter] public EventCallback<AnnonceDTO> OnToggleFavorite { get; set; }
-    [Parameter] public EventCallback<AnnonceDTO> OnClickAnnonce { get; set; }
-    [Inject] DetailAnnonceViewModel DetailVM { get; set; }
 
-    private string PhotoUrl => annonceComponent.Photos.First();
+    [Parameter] public Annonce annonceComponent { get; set; }
+    [Parameter] public EventCallback<Annonce> OnToggleFavorite { get; set; }
+    [Parameter] public EventCallback<Annonce> OnClickAnnonce { get; set; }
+
+    private string PhotoUrl => annonceComponent.Photos.Any() && annonceComponent.Photos.First() > 0
+                                 ? MediasService.GetPhotoUrl(annonceComponent.Photos.First())
+                                 : "";
     private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
+
+    public bool IsOwner { get; set; } = false;
 
     private async Task ToggleFavorite()
     {

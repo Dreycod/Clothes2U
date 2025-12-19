@@ -35,9 +35,18 @@ public class Utilisateur : IEntity
     
     [Column("uti_valid_telephone")]
     public bool  ValidTelephone { get; set; }
-    
+
+    [Column("uti_preference_notif_mail")]
+    public bool PreferenceNotifMail { get; set; }
+
+    [Column("uti_preference_theme")]
+    public bool PreferenceTheme { get; set; }
+
+    [Column("uti_preference_cookies")]
+    public bool PreferenceCookies { get; set; }
+
     //id de relation
-    
+
     [Column("uti_adresse_id")]
     public int? AdresseId { get; set; }
 
@@ -90,12 +99,6 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Abonnement.UtilisateurSuivis))]
     public virtual ICollection<Abonnement> Abonnes { get; set; } = new List<Abonnement>();
     
-    [InverseProperty(nameof(Decision_suspension.UtilisateurSuspendu))]
-    public virtual ICollection<Decision_suspension> LesSuspensions { get; set; } = new List<Decision_suspension>();
-    
-    [InverseProperty(nameof(Decision_suspension.Decisionnaire))]
-    public virtual ICollection<Decision_suspension> LesDecisions { get; set; } = new List<Decision_suspension>();
-    
     [ForeignKey(nameof(StatutId))]
     [InverseProperty(nameof(StatutUtilisateur.Utilisateurs))]
     public virtual StatutUtilisateur Statut { get; set; } = null!;
@@ -114,14 +117,18 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Vend.UtilisateurVendeur))]
     public virtual ICollection<Vend> Ventes { get; set; } = new List<Vend>();
 
-    [InverseProperty(nameof(DemandeRestauration.Plaignant))]
-    public virtual ICollection<DemandeRestauration> DemandesRestauration { get; set; } = new List<DemandeRestauration>();
-
     [InverseProperty(nameof(Visualisation.UtilisateurVisu))]
     public virtual ICollection<Visualisation> Visualisations { get; set; } = new List<Visualisation>();
     
     [InverseProperty(nameof(VerificationCode.Utilisateur))]
     public virtual ICollection<VerificationCode> VerificationCodes { get; set; } = new List<VerificationCode>();
+
+    //moderation
+    [InverseProperty(nameof(Decision.Moderateur))]
+    public virtual ICollection<Decision> DecisionsModerateur { get; set; } = new List<Decision>();
+
+    [InverseProperty(nameof(Decision.Utilisateur))]
+    public virtual ICollection<Decision> DecisionsUtilisateurSanctionne { get; set; } = new List<Decision>();
 
     public int GetId() => UtilisateurId;
 }

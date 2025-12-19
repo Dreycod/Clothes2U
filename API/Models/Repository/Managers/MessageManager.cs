@@ -64,3 +64,10 @@ public class MessageValidationManager : GenericCRUDManager<MessageValidation>
 {
     public MessageValidationManager(Clothes2UDbContext context) : base(context) {}
 }
+
+public class MessageContientImageManager : GenericCRUDManager<MessageContientImage>
+{
+    public MessageContientImageManager(Clothes2UDbContext context) : base(context)
+    {
+    }
+}

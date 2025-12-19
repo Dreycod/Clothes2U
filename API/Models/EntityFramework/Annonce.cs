@@ -102,9 +102,6 @@ public class Annonce : IEntity
     [NavigationProperty]
     public virtual ICollection<Illustre_Annonce> Photos { get; set; } = new List<Illustre_Annonce>();
     
-    [InverseProperty(nameof(Decision_suspension.AnnonceSuspendu))]
-    public virtual ICollection<Decision_suspension> Decisions { get; set; } = new List<Decision_suspension>();
-    
     [InverseProperty(nameof(Favoris.Annonce))]
     [NavigationProperty]
     public virtual ICollection<Favoris> UtilisateursFavoris { get; set; } = new List<Favoris>();
@@ -123,7 +120,11 @@ public class Annonce : IEntity
 
     [InverseProperty(nameof(Visualisation.AnnonceVisu))]
     public virtual ICollection<Visualisation> LesVisualisations { get; set; } = new List<Visualisation>();
-
+    //moderation
+    [InverseProperty(nameof(ElementDecisionAnnonce.Annonce))]
+    public virtual ICollection<ElementDecisionAnnonce> Decisions { get; set; } = new List<ElementDecisionAnnonce>();
+    
+    
     [InverseProperty(nameof(Recense.Annonce))]
     [NavigationProperty]
     public virtual ICollection<Recense> Tags { get; set; } = new List<Recense>();

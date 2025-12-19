@@ -26,6 +26,11 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
             .AsSplitQuery();
     }
 
+    public async Task<Utilisateur> GetUtilisateurByLogin(string login)
+    {
+        return await  BaseUtilisateurQuery().FirstOrDefaultAsync(u => u.Login == login);
+    }
+
     public override async Task<Utilisateur?> GetByIdAsync(int id)
     {
         return await BaseUtilisateurQuery()
@@ -41,22 +46,17 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
     {
         Utilisateur entityToUpdate = await GetByIdAsync(entity.UtilisateurId) 
             ?? throw new ArgumentException($"Utilisateur with id {entity.UtilisateurId} not found");
-        // Récupérer l'entité depuis le contexte si elle est déjà trackée
+        // R�cup�rer l'entit� depuis le contexte si elle est d�j� track�e
         var tracked = _context.Set<Utilisateur>().Local
             .FirstOrDefault(e => e.UtilisateurId == entityToUpdate.UtilisateurId);
 
         if (tracked == null)
         {
-            // Si pas trackée, attacher l'entité reçue
             _context.Set<Utilisateur>().Attach(entityToUpdate);
             tracked = entityToUpdate;
         }
-
-        // IMPORTANT : Marquer manuellement seulement les propriétés modifiées
         var entry = _context.Entry(tracked);
     
-        // Copier uniquement les propriétés non-null du DTO (déjà mappées dans tracked)
-        // On ne touche PAS à StatutId et RoleId
         if (!string.IsNullOrEmpty(entity.Email))
             entry.Property(u => u.Email).IsModified = true;
     
@@ -74,8 +74,6 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
     
         if (entity.PhotoId.HasValue)
             entry.Property(u => u.PhotoId).IsModified = true;
-
-        // NE JAMAIS marquer StatutId et RoleId comme modifiés
         entry.Property(u => u.StatutId).IsModified = false;
         entry.Property(u => u.RoleId).IsModified = false;
 

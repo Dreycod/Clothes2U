@@ -22,7 +22,7 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
     public string GetPhotoUrl(int photoId)
     {
         var baseUrl = _httpClient.BaseAddress?.ToString();
-        return $"{baseUrl}Medias/Photos/{photoId}";
+        return $"{baseUrl}Medias/Photos/{photoId}" ?? "";
     }
 
     public async Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, string fileName)
@@ -117,5 +117,29 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
 
         Console.WriteLine($"📊 Résultat: {successCount}/{photosDataUrls.Count} photos uploadées");
         return allSuccess;
+    
     }
+
+    public async Task<bool> UploadPhotoMessageAsync(int messageId, byte[] imageBytes, string fileName)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            using var fileContent = new ByteArrayContent(imageBytes);
+
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            content.Add(fileContent, "File", fileName);
+
+            var response = await PostWithCredentialsAsync($"Medias/uploadMessagePhoto/{messageId}", content);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erreur upload photo annonce: {ex.Message}");
+            return false;
+        }
+    }
+    
+        
 }

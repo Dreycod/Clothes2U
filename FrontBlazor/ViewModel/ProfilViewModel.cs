@@ -26,13 +26,13 @@ namespace FrontBlazor.ViewModel
         public bool showDotsDropdown;
 
         private readonly IUtilisateurService _utilisateurService;
-        private readonly IAnnonceService<AnnonceDTO> _annonceService;
-        private readonly IFavorisService<FavorisDTO> _favorisService;
-        private readonly INoteUtilisateurService<NoteUtilisateurDetailDTO> _noteUtilisateurService;
+        private readonly IAnnonceService _annonceService;
+        private readonly IFavorisService<Favoris> _favorisService;
+        private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
         private readonly IAuthService _authService;
-        private readonly IAbonnementService<AbonnementDTO> _abonnementService;
+        private readonly IAbonnementService<Abonnement> _abonnementService;
         private readonly NavigationManager _navigationManager;
-        private readonly IMediasService<PhotoUploadDTO> _mediaService;
+        private readonly IMediasService<Photo> _mediaService;
         private readonly ISignalementService _signalementService;
         private readonly IBloqueService _bloqueService;
 
@@ -63,14 +63,14 @@ namespace FrontBlazor.ViewModel
 
         public ProfilViewModel(
             IUtilisateurService utilisateurService,
-            IAnnonceService<AnnonceDTO> annonceService,
-            IFavorisService<FavorisDTO> favorisService,
-            INoteUtilisateurService<NoteUtilisateurDetailDTO> noteUtilisateurService,
+            IAnnonceService annonceService,
+            IFavorisService<Favoris> favorisService,
+            INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
             IAuthService authService,
-            IAbonnementService<AbonnementDTO> abonnementService,
+            IAbonnementService<Abonnement> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
-            IMediasService<PhotoUploadDTO> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
+            IMediasService<Photo> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -94,7 +94,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                UtilisateurViewDTO user = await _utilisateurService.GetByLoginAsync(login);
+                UtilisateurView user = await _utilisateurService.GetByLoginAsync(login);
 
                 if (user == null)
                 {
@@ -115,10 +115,10 @@ namespace FrontBlazor.ViewModel
                 IsLoadingArticles = true;
                 IsLoadingAvis = true;
 
-                IsBlockedByUser = user.BlockedByCurrentUser;
-                IsFollowing = user.FolloweddByCurrentUser;
+                IsBlockedByUser = user.blockedByCurrentUser;
+                IsFollowing = user.followeddByCurrentUser;
 
-                ViewingUser = user;
+                 ViewingUser = user;
 
                 var tasks = new List<Task>
                  {
@@ -135,12 +135,14 @@ namespace FrontBlazor.ViewModel
                      })
                  };
 
-                UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
+                Utilisateur? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
                 {
                     IsSameUser = true;
                     IsLoadingFavoris = true;
+                    Console.WriteLine("Task 1");
                     FavorisAnnonce = await _annonceService.GetByFavorisUtilisateur();
+                    Console.WriteLine("Task 1");
                     IsLoadingFavoris = false;
                 }
                 else
@@ -167,7 +169,7 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
         }
 
-        public async Task ToggleFavorite(AnnonceDTO annonce)
+        public async Task ToggleFavorite(Annonce annonce)
         {
             if (CheckLoginStatus == null)
             {
@@ -209,17 +211,8 @@ namespace FrontBlazor.ViewModel
             if (ViewingUser == null) 
                 return;
 
-            bool wasFollowing = ViewingUser.FolloweddByCurrentUser;
-            ViewingUser.FolloweddByCurrentUser = !ViewingUser.FolloweddByCurrentUser;
-
-            if (!wasFollowing)
-            {
-                ViewingUser.Abonnes += 1;
-            }
-            else
-            {
-                ViewingUser.Abonnes -= 1;
-            }
+            bool wasFollowing = ViewingUser.followeddByCurrentUser;
+            ViewingUser.followeddByCurrentUser = !ViewingUser.followeddByCurrentUser;
 
             NotifyStateChanged();
 
@@ -227,16 +220,18 @@ namespace FrontBlazor.ViewModel
             {
                 if (!wasFollowing)
                 {
+                    ViewingUser.Abonnes += 1;
                     await _abonnementService.AddAbonnement(ViewingUser.UtilisateurId);
                 }
                 else
                 {
+                    ViewingUser.Abonnes -= 1;
                     await _abonnementService.DeleteAbonnement(ViewingUser.UtilisateurId);
                 }
             }
             catch
             {
-                ViewingUser.FolloweddByCurrentUser = wasFollowing;
+                ViewingUser.followeddByCurrentUser = wasFollowing;
                 if (!wasFollowing)
                 {
                     ViewingUser.Abonnes -= 1;
@@ -307,7 +302,7 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                NoteUtilisateurCreateDTO newReview = new NoteUtilisateurCreateDTO
+                NoteUtilisateurCreate newReview = new NoteUtilisateurCreate
                 {
                     CibleId = ViewingUser.UtilisateurId,
                     Note = SelectedRating,
@@ -383,18 +378,16 @@ namespace FrontBlazor.ViewModel
             _navigationManager.Refresh(true);
         }
 
-        public void SignalerUtilisateur()
+        public async void SignalerUtilisateur()
         {
-            //showDotsDropdown = false;
-            //Signalement signalement = new Signalement
-            //{
-            //     SignalementDate = DateTime.Now,
-            //     SignalementMotif = "Inappropri",
-            //    public string Type { get; set; } = null!;
-            //    public string LoginUtilisateurSignale { get; set; } = null!;
-            //    public int? PhotoProfilUtilisateurId { get; set; }
-            //  };
-            //_signalementService.AddAsync(signalement);
+            showDotsDropdown = false;
+            SignalementUtilisateurCreate signalement = new SignalementUtilisateurCreate
+            {
+                SignalementMotif = "Inapproprié",
+                UtilisateurSignaleId = ViewingUser!.UtilisateurId,
+            };
+
+            await _signalementService.CreateSignalement(signalement);
             
         }
 

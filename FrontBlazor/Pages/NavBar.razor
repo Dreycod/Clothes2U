@@ -56,7 +56,7 @@
                                     }
                                     else
                                     {
-                                        @foreach (var notification in Vm_NavBar.notifications.OrderByDescending(n => n.DateCreation))
+                                        @foreach (var notification in Vm_NavBar.notifications)
                                         {
                                             <NotificationComponent
                                                 Vm_NavBar="Vm_NavBar"

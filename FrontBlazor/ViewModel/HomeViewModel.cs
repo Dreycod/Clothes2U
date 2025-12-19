@@ -10,8 +10,8 @@ namespace FrontBlazor.ViewModel
 {
     public class HomeViewModel
     {
-        private readonly IAnnonceService<AnnonceDTO> _annonceService;
-        private readonly IFavorisService<FavorisDTO> _favorisService;
+        private readonly IAnnonceService _annonceService;
+        private readonly IFavorisService<Favoris> _favorisService;
         private readonly IAuthService _authService;
         private readonly NavigationManager _navigationManager;
 
@@ -21,11 +21,7 @@ namespace FrontBlazor.ViewModel
         public string? ErrorMessage { get; set; }
         public string SuccessMessage { get; set; } = string.Empty;
 
-        public HomeViewModel(
-            IAnnonceService<AnnonceDTO> annonceService,
-            IFavorisService<FavorisDTO> favorisService,
-            IAuthService authService,
-            NavigationManager navigationManager)
+        public HomeViewModel(IAnnonceService annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
