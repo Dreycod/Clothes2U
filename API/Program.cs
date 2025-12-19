@@ -239,7 +239,7 @@ builder.Services.AddScoped<ICaracteristiquesRepository<Marque>, MarqueManager>()
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
 builder.Services.AddScoped<IMotInterditRepository, MotInterditManager>();
 builder.Services.AddScoped<ISignalementRepository,  SignalementManager>();
-
+builder.Services.AddScoped<IDecisionRepository, DecisionManager>();
 
 //services
 builder.Services.AddHttpClient();
