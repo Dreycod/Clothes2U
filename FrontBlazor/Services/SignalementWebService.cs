@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using FrontBlazor.Models;
 using FrontBlazor.Services.GenericIServices;
 
@@ -33,6 +34,11 @@ public class SignalementWebService : BaseGenericService, ISignalementService
     }
     public async Task<SignalementCreate> CreateSignalement(SignalementCreate signalement)
     {
+
+        Console.WriteLine(
+            JsonSerializer.Serialize(signalement)
+        );
+
         var response = await PostWithCredentialsAsync("Signalement", JsonContent.Create(signalement));
         response.EnsureSuccessStatusCode();
         var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementCreate>();
