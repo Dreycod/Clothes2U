@@ -80,12 +80,14 @@ public class PhotoService : IPhotoService
 
     public async Task<PhotoResponseDTO> SaveComptePhotoAsync(int utilisateurId, PhotoUploadDTO photoDto)
     {
-        // Vérifier que le compte existe
-        var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
-        if (utilisateur == null)
+        try
         {
-            throw new NotFoundException($"Compte {utilisateurId} introuvable");
-        }
+            // Vérifier que le compte existe
+            var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
+            if (utilisateur == null)
+            {
+                throw new NotFoundException($"Compte {utilisateurId} introuvable");
+            }
 
         // Créer la photo
         var photo = await _photoRepository.AddPhotoAsync(photoDto);
@@ -116,6 +118,7 @@ public class PhotoService : IPhotoService
             {
                 throw new NotFoundException($"Message {messageId} introuvable");
             }
+    
             
             // Création de la photo
             var photo = await _photoRepository.AddPhotoAsync(photoDto);
