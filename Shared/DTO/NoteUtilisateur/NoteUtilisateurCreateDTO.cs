@@ -1,4 +1,6 @@
-﻿namespace Shared.DTO.NoteUtilisateur
+﻿using Shared.Interfaces;
+
+namespace Shared.DTO.NoteUtilisateur
 {
     public class NoteUtilisateurCreateDTO
     {

@@ -59,7 +59,7 @@ public class ConversationMappingProfile : Profile
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             Content = message.MessageTexte.Content ?? string.Empty,
-                            ImagesId = new ObservableCollection<int>(message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList()) ?? new ObservableCollection<int>()
+                            Photos = new List<int>(message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList()) ?? new List<int>()
                         };
                     }
                     else if (message.MessageDemande != null)

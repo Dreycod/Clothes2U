@@ -6,26 +6,26 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services;
 
-public class MessageWebService : WritableService<MessageDTO>, IMessageService<MessageDTO>
+public class MessageWebService : WritableService<MessageTextDTO>, IMessageService
 {
     public MessageWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public Task<MessageDTO> GetByIdAsync(int id)
+    public Task<MessageTextDTO> GetByIdAsync(int id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<List<MessageDTO>?> GetMessagesByConversationId(int id)
+    public Task<List<MessageTextDTO>?> GetMessagesByConversationId(int id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<MessageDTO?>> GetMessagesByUserId(int id)
+    public async Task<List<MessageTextDTO?>> GetMessagesByUserId(int id)
     {
-        return await _httpClient.GetFromJsonAsync<List<MessageDTO?>>(
-       $"Message/utilisateur/{id}");
+        return await _httpClient.GetFromJsonAsync<List<MessageTextDTO?>>(
+            $"Message/utilisateur/{id}");
     }
-    public async Task<HttpResponseMessage> PostMessageTexte(MessageDTO message)
+    public async Task<HttpResponseMessage> PostMessageTexte(MessageTextePostDTO message)
     {
         var body = JsonContent.Create(message);
         return await PostWithCredentialsAsync($"Message/texte",body);

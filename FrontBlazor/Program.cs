@@ -16,6 +16,7 @@ using Shared.DTO.Conversation;
 using Shared.DTO.Couleur;
 using Shared.DTO.Favoris;
 using Shared.DTO.NoteUtilisateur;
+using Shared.DTO.Photo;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -32,14 +33,14 @@ builder.Services.AddScoped<ISignalementService, SignalementWebService>();
 builder.Services.AddScoped<IBloqueService, BloqueWebService>();
 builder.Services.AddScoped<ICategorieService<CategorieDTO>, CategorieWebService>();
 builder.Services.AddScoped<IConversationService<ConversationDTO>, ConversationWebService>();
-builder.Services.AddScoped<IMessageService<MessageDTO>, MessageWebService>();
+builder.Services.AddScoped<IMessageService, MessageWebService>();
 builder.Services.AddScoped<ICouleurService<CouleurDTO>, CouleurWebService>();
 builder.Services.AddScoped<IFavorisService<FavorisDTO>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService, AnnonceWebService>();
 builder.Services.AddScoped<IUtilisateurService, UtilisateurWebService>();
 builder.Services.AddScoped<IAbonnementService<AbonnementDTO>, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
-builder.Services.AddScoped<IMediasService<Photo>, MediaWebService>();
+builder.Services.AddScoped<IMediasService<PhotoResponseDTO>, MediaWebService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
@@ -50,7 +51,7 @@ builder.Services.AddSingleton<ISignalRService>(sp =>
     return new SignalRWebService();
 });
 
-builder.Services.AddScoped<INoteUtilisateurService<NoteUtilisateurDTO>, NoteUtilisateurWebService>();
+builder.Services.AddScoped<INoteUtilisateurService, NoteUtilisateurWebService>();
 
 builder.Services.AddScoped(typeof(ListableViewModel<>));
 builder.Services.AddScoped(typeof(WritableService<>));

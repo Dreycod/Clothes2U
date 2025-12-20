@@ -8,22 +8,23 @@ using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Shared.DTO.Photo;
 
 namespace FrontBlazor.ViewModel;
 
 public class MessagerieViewModel : ComponentBase, IDisposable
 {
-    private readonly IConversationService<Conversation> _conversationService;
+    private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IAuthService _authService;
-    public readonly IMediasService<Photo> _mediaService;
-    private readonly IMessageService<Message> _messageService;
+    public readonly IMediasService<PhotoUploadDTO> _mediaService;
+    private readonly IMessageService _messageService;
     public readonly ISignalRService _signalRService;
     private readonly NavigationManager _nav;
 
-    public ObservableCollection<Conversation> Conversations { get; private set; } = new();
-    public Conversation? SelectedConversation { get; private set; }
+    public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
+    public ConversationDTO? SelectedConversation { get; private set; }
     public int? SelectedConversationId { get; private set; }
-    public Utilisateur? CurrentUser { get; private set; }
+    public UtilisateurDTO? CurrentUser { get; private set; }
 
     public string NewMessage { get; set; } = "";
     public IBrowserFile? SelectedFile { get; set; }
@@ -40,10 +41,10 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private bool _typingNotified = false;
 
     public MessagerieViewModel(
-        IConversationService<Conversation> conversationService,
+        IConversationService<ConversationDTO> conversationService,
         IAuthService authService,
-        IMessageService<Message> messageService,
-        IMediasService<Photo> mediaService,
+        IMessageService messageService,
+        IMediasService<PhotoUploadDTO> mediaService,
         NavigationManager nav,
         ISignalRService signalRService)
     {
@@ -85,7 +86,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
 
         var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
-        Conversations = data != null ? new ObservableCollection<Conversation>(data) : new ObservableCollection<Conversation>();
+        Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
 
         await _signalRService.StartAsync();
         
@@ -110,13 +111,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         {
             SelectedConversation = conv;
             if (conv.ListMessages == null)
-                conv.ListMessages = new ObservableCollection<Message>();
-            else if (conv.ListMessages is not ObservableCollection<Message>)
-                conv.ListMessages = new ObservableCollection<Message>(conv.ListMessages);
+                conv.ListMessages = new ObservableCollection<MessageDTO>();
+            else if (conv.ListMessages is not ObservableCollection<MessageDTO>)
+                conv.ListMessages = new ObservableCollection<MessageDTO>(conv.ListMessages);
         }
         else
         {
-            SelectedConversation = new Conversation { ListMessages = new ObservableCollection<Message>() };
+            SelectedConversation = new ConversationDTO() { ListMessages = new ObservableCollection<MessageDTO>() };
         }
 
         var listConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
@@ -136,7 +137,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         if (SelectedConversation?.ListMessages != null)
         {
             var unreadReceivedMessages = SelectedConversation.ListMessages
-                .Where(m => m.SentbyCurrentUser == false && m.Lu == false)
+                .Where(m => m.SentByCurrentUser == false && m.Lu == false)
                 .ToList();
 
             foreach (var msg in unreadReceivedMessages)
@@ -144,7 +145,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                 try
                 {
                     // Appeler l'API pour mettre à jour en base
-                    await _messageService.MaskAsRead(msg.MessageId);
+                    await _messageService.MaskAsRead(msg.MessageId.Value);
                     
                     // Mettre à jour localement seulement si l'API a réussi
                     msg.Lu = true;
@@ -175,14 +176,11 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         
         try
         {
-            var message = new Message
+            var message = new MessageTextePostDTO()
             {
                 Content = content,
                 ConversationId = SelectedConversation.ConversationId,
                 UtilisateurId = CurrentUser!.UtilisateurId,
-                Date = DateTime.Now,
-                SentbyCurrentUser = true,
-                Lu = false 
             };
         
             await _messageService.PostMessageTexte(message);
@@ -203,9 +201,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
                 }
             }
-            
-            var conversation = await _conversationService.GetConversationDetailById(conv.ConversationId);
-            var lastMessages =  conversation.ListMessages.LastOrDefault();
+            var lastMessages =  conv.ListMessages.LastOrDefault();
             if (images != null && lastMessages.MessageId != null)
             {
                 var bytes = await ConvertIBrowserFileToBytesAsync(images);
@@ -217,17 +213,17 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     fileName
                 );
                 
-                var updatedConversation = await _conversationService.GetConversationDetailById(conv.ConversationId);
-                var updatedMesssage = updatedConversation.ListMessages.FirstOrDefault(m => m.MessageId == lastMessages.MessageId);
-                if (updatedMesssage != null)
-                {
-                    var localMessage = SelectedConversation.ListMessages?.FirstOrDefault(m => m.MessageId == lastMessages.MessageId);
-
-                    if (localMessage != null)
-                    {
-                        localMessage.Photos = updatedMesssage.Photos;
-                    }
-                }
+                // var updatedConversation = await _conversationService.GetConversationDetailById(conv.ConversationId);
+                // var updatedMesssage = updatedConversation.ListMessages.FirstOrDefault(m => m.MessageId == lastMessages.MessageId);
+                // if (updatedMesssage != null)
+                // {
+                //     var localMessage = SelectedConversation.ListMessages?.FirstOrDefault(m => m.MessageId == lastMessages.MessageId);
+                //
+                //     if (localMessage != null)
+                //     {
+                //         localMessage. = updatedMesssage.Photos;
+                //     }
+                // }
             }
         }
         catch (Exception ex)
@@ -245,21 +241,21 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
         {
             var exists = SelectedConversation.ListMessages?.Any(m =>
-                m.UtilisateurId == senderId &&
-                m.Content == message &&
+                m.SenderId == senderId &&
+                //m.Content == message &&
                 m.Date.HasValue &&
                 Math.Abs((m.Date.Value - date).TotalSeconds) < 2
             ) ?? false;
 
             if (!exists)
             {
-                var newMessage = new Message
+                var newMessage = new MessageTextDTO()
                 {
                     Content = message,
-                    UtilisateurId = senderId,
+                    SenderId = senderId,
                     Date = date,
-                    ConversationId = conversationId,
-                    SentbyCurrentUser = senderId == CurrentUser?.UtilisateurId,
+                    //ConversationId = conversationId,
+                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId,
                     Lu = false // ✅ Nouveau message non lu
                 };
 
@@ -277,7 +273,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     try
                     {
                         // Appeler l'API
-                        await _messageService.MaskAsRead(newMessage.MessageId);
+                        await _messageService.MaskAsRead(newMessage.MessageId.Value);
                         
                         // Mettre à jour localement seulement si l'API a réussi
                         newMessage.Lu = true;
@@ -324,7 +320,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         // L'autre utilisateur a lu nos messages
         if (userId != CurrentUser?.UtilisateurId)
         {
-            Conversation? targetConv = null;
+            ConversationDTO? targetConv = null;
         
             if (SelectedConversationId == conversationId && SelectedConversation != null)
             {
@@ -339,7 +335,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             {
                 // Marquer MES messages envoyés comme lus
                 var mySentMessages = targetConv.ListMessages
-                    .Where(m => m.UtilisateurId == CurrentUser!.UtilisateurId && m.SentbyCurrentUser == true && m.Lu == false)
+                    .Where(m => m.SenderId == CurrentUser!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
                     .ToList();
             
                 if (mySentMessages.Any())

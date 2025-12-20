@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 
 namespace FrontBlazor.Services
 {
-    public class NoteUtilisateurWebService : WritableService<NoteUtilisateurDetailDTO>, INoteUtilisateurService<NoteUtilisateurDetailDTO>
+    public class NoteUtilisateurWebService : WritableService<NoteUtilisateurDTO>, INoteUtilisateurService
     {
         public NoteUtilisateurWebService(HttpClient httpClient) : base(httpClient) {}
 
@@ -21,12 +21,12 @@ namespace FrontBlazor.Services
             return response;
         }
 
-        public async Task<List<NoteUtilisateurDetailDTO>?> GetAllNotesByUtilisateurId(int utilisateurId)
+        public async Task<List<NoteUtilisateurDTO>?> GetAllNotesByUtilisateurId(int utilisateurId)
         {
-            return await _httpClient.GetFromJsonAsync<List<NoteUtilisateurDetailDTO>?>($"NoteUtilisateur/User/{utilisateurId}");
+            return await _httpClient.GetFromJsonAsync<List<NoteUtilisateurDTO>?>($"NoteUtilisateur/User/{utilisateurId}");
         }
 
-        public async Task<NoteUtilisateurDetailDTO?> GetByIdAsync(int id)
+        public async Task<NoteUtilisateurDTO?> GetByIdAsync(int id)
         {
             return await _httpClient.GetFromJsonAsync<NoteUtilisateurDetailDTO>($"NoteUtilisateur/{id}");
         }
