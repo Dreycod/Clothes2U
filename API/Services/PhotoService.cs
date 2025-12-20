@@ -73,26 +73,27 @@ public class PhotoService : IPhotoService
 
     public async Task<PhotoResponseDTO> SaveComptePhotoAsync(int utilisateurId, PhotoUploadDTO photoDto)
     {
-        // Vérifier que le compte existe
-        var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
-        if (utilisateur == null)
+        try
         {
-            throw new NotFoundException($"Compte {utilisateurId} introuvable");
-        }
+            // Vérifier que le compte existe
+            var utilisateur = await _utilisateurRepository.GetByIdAsync(utilisateurId);
+            if (utilisateur == null)
+            {
+                throw new NotFoundException($"Compte {utilisateurId} introuvable");
+            }
 
-        // Créer la photo
-        var photo = await _photoRepository.AddPhotoAsync(photoDto);
+            // Créer la photo
+            var photo = await _photoRepository.AddPhotoAsync(photoDto);
 
-        // Associer la photo au compte
-        utilisateur.PhotoId = photo.PhotoId;
-        await _utilisateurRepository.UpdateAsync(utilisateur);
+            // Associer la photo au compte
+            utilisateur.PhotoId = photo.PhotoId;
+            await _utilisateurRepository.UpdateAsync(utilisateur);
 
-        _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
+            _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
 
             await transaction.CommitAsync();
             return photo;
-        }
-        catch
+        }catch(NotFoundException ex)
         {
             await transaction.RollbackAsync();
             throw;
