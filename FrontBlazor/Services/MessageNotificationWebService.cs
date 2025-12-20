@@ -1,11 +1,12 @@
-using FrontBlazor.Models;
+// using FrontBlazor.Models;
 using FrontBlazor.Services.Interfaces;
+using Shared.DTO.Message;
 
 namespace FrontBlazor.Services;
 
 public class MessageNotificationWebService : IMessageNotificationService
 {
-    public event Action<MessageDTO>? OnMessageReceived;
+    public event Action<MessageTextDTO>? OnMessageReceived;
     public event Action? OnUnreadCountChanged;
     private readonly List<int> _unreadConversations = new();
     public int UnreadCount => _unreadConversations.Count;
@@ -21,13 +22,13 @@ public class MessageNotificationWebService : IMessageNotificationService
         }
 
         // Créer la notification
-        var notification = new MessageDTO
+        var notification = new MessageTextDTO()
         {
             ConversationId = conversationId,
             SenderName = senderName,
-            Content = messageContent.Length > 50 
-                ? messageContent.Substring(0, 50) + "..." 
-                : messageContent,
+            // Content = messageContent.Length > 50 
+            //     ? messageContent.Substring(0, 50) + "..." 
+            //     : messageContent,
             Date = DateTime.UtcNow
         };
 

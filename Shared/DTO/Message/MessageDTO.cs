@@ -13,6 +13,8 @@ public abstract class MessageDTO : IEntity
     public abstract string TypeMessage { get; }
     public bool SentByCurrentUser { get; set; }
     public int SenderId { get; set; }
+    public string? SenderName { get; set; }
+    public int ConversationId { get; set; }
     
     public int GetId()
     {
@@ -23,7 +25,7 @@ public abstract class MessageDTO : IEntity
 public class MessageTextDTO : MessageDTO
 {
     public override string TypeMessage => "Texte";
-    public string SenderName { get; set; }
+    //public string SenderName { get; set; }
     public string Content { get; set; }
     public List<int> Photos { get; set; }
 }
@@ -31,8 +33,8 @@ public class MessageTextDTO : MessageDTO
 public class MessagePropositionDTO : MessageDTO
 {
     public override string TypeMessage => "Proposition";
-    public int SenderId { get; set; }
-    public string SenderName { get; set; }
+    // public int SenderId { get; set; }
+    // public string SenderName { get; set; }
     public int? OffreParenteId { get; set; }
     public double PrixProposer { get; set; }
 }
