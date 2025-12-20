@@ -89,22 +89,22 @@ public class PhotoService : IPhotoService
                 throw new NotFoundException($"Compte {utilisateurId} introuvable");
             }
 
-        // Créer la photo
-        var photo = await _photoRepository.AddPhotoAsync(photoDto);
+            // Créer la photo
+            var photo = await _photoRepository.AddPhotoAsync(photoDto);
 
-        // Associer la photo au compte
-        utilisateur.PhotoId = photo.PhotoId;
-        await _utilisateurRepository.UpdateAsync(utilisateur);
+            // Associer la photo au compte
+            utilisateur.PhotoId = photo.PhotoId;
+            await _utilisateurRepository.UpdateAsync(utilisateur);
 
-        _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
+            _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
             //await transaction.CommitAsync();
-        return photo;
-        
-        // catch
-        // {
-        //     //await transaction.RollbackAsync();
-        //     throw;
-        // }
+            return photo;
+        }
+        catch(Exception exception)
+        {
+            //await transaction.RollbackAsync();
+            throw exception;
+        }
     }
     
     public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto, int messageId)
