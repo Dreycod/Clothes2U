@@ -82,21 +82,26 @@
                     {
                         @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages)
                         {
-                            <div class="message @(message.SentbyCurrentUser == true ? "sent" : "received")">
-                                <p class="message-text">
-                                    @message.Content
-                                </p>
-                                @if (message.Photos != null && message.Photos.Any())
+                            <div class="message @(message.SentByCurrentUser ? "sent" : "received")">
+                                @if (message.TypeMessage == "Texte")
                                 {
-                                    @foreach (var photo in message.Photos)
+                                    MessageTextDTO newmessage = message as MessageTextDTO;
+                                    <p class="message-text">
+                                        @newmessage.Content
+                                    </p>
+                                    @if (newmessage.Photos != null && newmessage.Photos.Any())
                                     {
-                                        <img class="product-image" src="@VM_Messagerie._mediaService.GetPhotoUrl(photo)" />
+                                        @foreach (var photo in newmessage.Photos)
+                                        {
+                                            <img class="product-image" src="@VM_Messagerie._mediaService.GetPhotoUrl(photo)"/>
+                                        }
                                     }
                                 }
+                                
                                 <div class="message-info">
                                     <span class="message-time">@message.Date</span>
                                     @* ✅ CORRECTION ICI : IsRead au lieu de Lu *@
-                                    @if (message.SentbyCurrentUser == true && message.Lu == true)
+                                    @if (message.SentByCurrentUser && message.Lu == true)
                                     {
                                         <span class="message-read">✔✔</span>
                                     }
