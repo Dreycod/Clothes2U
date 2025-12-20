@@ -9,6 +9,7 @@ using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Signalement;
 using Shared.DTO.Utilisateur;
 using System.ComponentModel;
+using Shared.DTO.Photo;
 
 namespace FrontBlazor.ViewModel.Moderation.Signalements;
 
@@ -17,10 +18,10 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     private readonly ISignalementService _signalementService;
     private readonly IUtilisateurService _utilisateurService;
     private readonly IAnnonceService _annonceService;
-    private readonly INoteUtilisateurService<NoteUtilisateur> _noteUtilisateurService;
+    private readonly INoteUtilisateurService _noteUtilisateurService;
     private readonly INotificationService _notificationService;
     private readonly NavigationManager _nav;
-    private readonly IMediasService<Photo> _mediasService;
+    private readonly IMediasService<PhotoDTO> _mediasService;
     public event PropertyChangedEventHandler PropertyChanged;
     public event Action OnStateChanged;
 
@@ -28,8 +29,8 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         ISignalementService signalementService,
         IUtilisateurService utilisateurService,
         IAnnonceService annonceService,
-        IMediasService<Photo> mediasService,
-        INoteUtilisateurService<NoteUtilisateur> noteUtilisateurService,
+        IMediasService<PhotoDTO> mediasService,
+        INoteUtilisateurService noteUtilisateurService,
         INotificationService notificationService,
         IAuthService authService,
         NavigationManager nav)
@@ -44,12 +45,12 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         _nav = nav;
     }
 
-    public SignalementDetails Signalement { get; set; }
+    public SignalementDetailsDTO Signalement { get; set; }
     public string? PhotoProfilUrl { get; set; }
     public List<string> PhotosUrl { get; set; } = new();
-    public NoteUtilisateur Avis { get; set; }
-    public AnnonceDetail Annonce { get; set; }
-    public UtilisateurView UtilisateurSignale { get; set; }
+    public NoteUtilisateurDetailDTO Avis { get; set; }
+    public AnnonceDetailDTO Annonce { get; set; }
+    public UtilisateurViewDTO UtilisateurSignale { get; set; }
     
     private bool _showWarningModal;
     public bool ShowWarningModal
@@ -127,12 +128,12 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         
         switch (Signalement)
         {
-            case SignalementAnnonce sa:
+            case SignalementAnnonceDTO sa:
                 Annonce = await _annonceService.GetAnnonceDetailById(sa.AnnonceSignaleeId);
                 PhotosUrl = await GetPhotosUrl();
                 break;
 
-            case SignalementAvis sav:
+            case SignalementAvisDTO sav:
                 Avis = await _noteUtilisateurService.GetByIdAsync(sav.AvisId);
                 break;
         }
@@ -188,7 +189,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         try
         {
             await _notificationService.CreateNotificationAvertissement(
-                new CreateAvertissementRequest()
+                new CreateAvertissementRequestDTO()
                 {
                     MessageAvertissement = WarningMessage,
                     UtilisateurId = UtilisateurSignale.UtilisateurId

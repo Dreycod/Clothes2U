@@ -3,8 +3,8 @@ using Shared.DTO.NoteUtilisateur;
 
 namespace FrontBlazor.Services.GenericIServices;
 
-public interface INoteUtilisateurService : IReadableService<NoteUtilisateurDTO>, IWritableService<NoteUtilisateurDTO>
+public interface INoteUtilisateurService : IReadableService<NoteUtilisateurDetailDTO>, IWritableService<NoteUtilisateurDTO>
 {
-    Task<List<NoteUtilisateurDTO>?> GetAllNotesByUtilisateurId(int utilisateurId);
+    Task<List<NoteUtilisateurDetailDTO>?> GetAllNotesByUtilisateurId(int utilisateurId);
     Task<HttpResponseMessage> AddNoteUtilisateur(NoteUtilisateurCreateDTO noteUtilisateurCreate);
 }

@@ -11,7 +11,7 @@ namespace FrontBlazor.ViewModel
     public class HomeViewModel
     {
         private readonly IAnnonceService _annonceService;
-        private readonly IFavorisService<Favoris> _favorisService;
+        private readonly IFavorisService<FavorisDTO> _favorisService;
         private readonly IAuthService _authService;
         private readonly NavigationManager _navigationManager;
 
@@ -21,7 +21,7 @@ namespace FrontBlazor.ViewModel
         public string? ErrorMessage { get; set; }
         public string SuccessMessage { get; set; } = string.Empty;
 
-        public HomeViewModel(IAnnonceService annonceService, IFavorisService<Favoris> favorisService, IAuthService authService)
+        public HomeViewModel(IAnnonceService annonceService, IFavorisService<FavorisDTO> favorisService, IAuthService authService, NavigationManager navigationManager)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
@@ -61,7 +61,7 @@ namespace FrontBlazor.ViewModel
                 if (result != null && result.Any())
                 {
                     Annonces = result;
-                    SuccessMessage = "Chargement réussi.";
+                    SuccessMessage = "Chargement rï¿½ussi.";
 
                     // Print all of result in console for debugging
                     foreach (AnnonceDTO annonce in result)

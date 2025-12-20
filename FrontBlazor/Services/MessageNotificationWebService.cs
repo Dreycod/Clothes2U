@@ -5,7 +5,7 @@ namespace FrontBlazor.Services;
 
 public class MessageNotificationWebService : IMessageNotificationService
 {
-    public event Action<Message>? OnMessageReceived;
+    public event Action<MessageDTO>? OnMessageReceived;
     public event Action? OnUnreadCountChanged;
     private readonly List<int> _unreadConversations = new();
     public int UnreadCount => _unreadConversations.Count;
@@ -21,7 +21,7 @@ public class MessageNotificationWebService : IMessageNotificationService
         }
 
         // Créer la notification
-        var notification = new Message
+        var notification = new MessageDTO
         {
             ConversationId = conversationId,
             SenderName = senderName,

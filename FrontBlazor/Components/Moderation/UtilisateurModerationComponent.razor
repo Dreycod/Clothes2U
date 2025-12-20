@@ -1,4 +1,5 @@
 @using FrontBlazor.Models
+@using Shared.DTO.Utilisateur
 
 <div class="utilisateur-detail">
     <div class="section">
@@ -165,8 +166,8 @@
 </style>
 
 @code {
+    [Parameter]public UtilisateurViewDTO utilisateur { get; set; }
     [Parameter]
-    public UtilisateurView utilisateur { get; set; }
-    [Parameter]
+    
     public string PhotoProfilUrl { get; set; }
 }

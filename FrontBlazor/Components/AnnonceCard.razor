@@ -1,4 +1,5 @@
-﻿@inject IMediasService<Photo> MediasService
+﻿@using Shared.DTO.Photo
+@inject IMediasService<PhotoDTO> MediasService
 @inject IAuthService AuthService
 
 <div class="product-card" @onclick="OnClick">

@@ -29,11 +29,11 @@ namespace FrontBlazor.ViewModel
         private readonly IUtilisateurService _utilisateurService;
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
-        private readonly INoteUtilisateurService<NoteUtilisateurDTO> _noteUtilisateurService;
+        private readonly INoteUtilisateurService _noteUtilisateurService;
         private readonly IAuthService _authService;
         private readonly IAbonnementService<AbonnementDTO> _abonnementService;
         private readonly NavigationManager _navigationManager;
-        private readonly IMediasService<Photo> _mediaService;
+        private readonly IMediasService<PhotoDTO> _mediaService;
         private readonly ISignalementService _signalementService;
         private readonly IBloqueService _bloqueService;
 
@@ -66,12 +66,12 @@ namespace FrontBlazor.ViewModel
             IUtilisateurService utilisateurService,
             IAnnonceService annonceService,
             IFavorisService<FavorisDTO> favorisService,
-            INoteUtilisateurService<NoteUtilisateurDTO> noteUtilisateurService,
+            INoteUtilisateurService noteUtilisateurService,
             IAuthService authService,
             IAbonnementService<AbonnementDTO> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
-            IMediasService<Photo> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
+            IMediasService<PhotoDTO> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
