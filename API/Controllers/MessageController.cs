@@ -2,6 +2,7 @@ using Shared.DTO.Message;
 using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using API.Services.Notifications;
 using API.Services.Notifications.Events;
 using AutoMapper;
@@ -21,6 +22,7 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageDemande, int> _messageDemandeManager;
     private readonly IDataRepository<MessageValidation, int> _messageValidationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
+    private readonly IPhotoService _photoService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub> _hubContext;
@@ -31,6 +33,7 @@ public class MessageController : ControllerBase
         IConversationRepository<Conversation, int> conversationManager,
         IDataRepository<MessageDemande, int> messageDemandeManager,
         IDataRepository<MessageValidation, int> messageValidationManager,
+        IPhotoService photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
         IHubContext<ChatHub> hubContext)
@@ -41,6 +44,7 @@ public class MessageController : ControllerBase
         _messageDemandeManager = messageDemandeManager;
         _messageValidationManager = messageValidationManager;
         _notificationService = notificationMessageManager;
+        _photoService = photoService;
         _mapper = mapper;
         _hubContext = hubContext;
     }
@@ -64,11 +68,6 @@ public class MessageController : ControllerBase
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
 {
-    Console.WriteLine($"[MessageController] 📨 PostMessageTexte called:");
-    Console.WriteLine($"  - ConversationId: {dto.ConversationId}");
-    Console.WriteLine($"  - UserId: {dto.UtilisateurId}");
-    Console.WriteLine($"  - Content: {dto.Content}");
-    
     if (!ModelState.IsValid)
         return BadRequest(ModelState);
 
@@ -90,7 +89,19 @@ public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTex
     
     await _messageTexteManager.AddAsync(messageTexte);
     
+    if (dto.Photos != null)
+    {
+        var messageId = message.MessageId;
+        foreach(var photo in dto.Photos)
+        {
+            await _photoService.UploadMessagePhotoAsync(photo, messageId);
+        }
+    }
+    
     var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+
+    
+    
     if (conversation != null)
     {
         int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
@@ -106,7 +117,7 @@ public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTex
             await _notificationService.NotifyAsync(notificationEvent);
             
             // 🔥 BROADCASTER VIA SIGNALR
-            Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
+            //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
             
             await _hubContext.Clients
                 .Group($"conversation_{message.ConversationId}")

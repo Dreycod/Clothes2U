@@ -140,9 +140,9 @@ public class MediasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadMessagePhoto([FromForm] PhotoDTO photoDto, int messageId)
+    public async Task<IActionResult> UploadMessagePhoto([FromForm] PhotoUploadDTO photoDto, int messageId)
     {
-        if (photoDto?.File == null)
+        if (photoDto?.Base64Data == null)
         {
             return BadRequest(new { message = "Fichier requis" });
         }
@@ -150,7 +150,7 @@ public class MediasController : ControllerBase
         try
         {
             var photo = await _photoService.UploadMessagePhotoAsync(photoDto, messageId);
-            return File(photo.Image, "image/jpeg");
+            return File(photo.Url, "image/jpeg");
         }
         catch (NotFoundException ex)
         {

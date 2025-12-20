@@ -5,11 +5,12 @@ namespace API.Services;
 
 public interface IPhotoService
 {
-    // Récupération d'une photo
+    // Rï¿½cupï¿½ration d'une photo
     Task<Photo?> GetPhotoAsync(int id);
 
-    // Nouvelles méthodes avec les nouveaux DTOs
+    // Nouvelles mï¿½thodes avec les nouveaux DTOs
     Task<PhotoResponseDTO> SavePhotoAsync(int annonceId, PhotoUploadDTO photoDto);
     Task<PhotoResponseDTO> SaveComptePhotoAsync(int compteId, PhotoUploadDTO photoDto);
+    Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto, int messageId);
     Task<bool> DeletePhotoAsync(int id);
 }

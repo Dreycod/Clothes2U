@@ -1,3 +1,5 @@
+using Shared.DTO.Photo;
+
 namespace Shared.DTO.Message;
 
 public abstract class MessagePostDTO
@@ -10,7 +12,7 @@ public abstract class MessagePostDTO
 public class MessageTextePostDTO : MessagePostDTO
 {
     public string Content { get; set; }
-    public List<int>? Photos { get; set; }
+    public List<PhotoUploadDTO>? Photos { get; set; }
 }
 
 public class MessageDemandePostDTO : MessagePostDTO

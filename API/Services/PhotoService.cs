@@ -10,27 +10,34 @@ namespace API.Services;
 
 public class PhotoService : IPhotoService
 {
-    private readonly IPhotoRepository<Photo, int> _photoRepository;
+    private readonly IPhotoRepository<PhotoResponseDTO, int> _photoRepository;
     private readonly IDataRepository<Annonce, int> _annonceRepository;
     private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
+    private readonly IDataRepository<Message, int> _messageRepository;
+    private readonly IDataRepository<MessageContientImage, int> _messageContientImageRepository;
     private readonly ILogger<PhotoService> _logger;
 
     public PhotoService(
-        IPhotoRepository<Photo, int> photoRepository,
+        IPhotoRepository<PhotoResponseDTO, int> photoRepository,
         IDataRepository<Annonce, int> annonceRepository,
         IDataRepository<Utilisateur, int> utilisateurRepository,
+        IDataRepository<Message, int> messageRepository,
+        IDataRepository<MessageContientImage, int> messageContientImageRepository,
         ILogger<PhotoService> logger)
     {
         _photoRepository = photoRepository;
         _annonceRepository = annonceRepository;
         _utilisateurRepository = utilisateurRepository;
+        _messageRepository = messageRepository;
+        _messageContientImageRepository = messageContientImageRepository;
         _logger = logger;
     }
 
-    public async Task<Photo?> GetPhotoAsync(int id)
-    {
-        return await _photoRepository.GetByIdAsync(id);
-    }
+     public async Task<Photo?> GetPhotoAsync(int id)
+     {
+         return null;
+         //return await _photoRepository.GetByIdAsync(id);
+     }
 
     public async Task<PhotoResponseDTO> SavePhotoAsync(int annonceId, PhotoUploadDTO photoDto)
     {
@@ -88,20 +95,19 @@ public class PhotoService : IPhotoService
         await _utilisateurRepository.UpdateAsync(utilisateur);
 
         _logger.LogInformation("Photo {PhotoId} associée au compte {CompteId}", photo.PhotoId, utilisateurId);
-
-            await transaction.CommitAsync();
-            return photo;
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+            //await transaction.CommitAsync();
+        return photo;
+        
+        // catch
+        // {
+        //     //await transaction.RollbackAsync();
+        //     throw;
+        // }
     }
     
-    public async Task<Photo> UploadMessagePhotoAsync(PhotoDTO photoDto, int messageId)
+    public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto, int messageId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        //using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             // Validation métier
@@ -110,7 +116,6 @@ public class PhotoService : IPhotoService
             {
                 throw new NotFoundException($"Message {messageId} introuvable");
             }
-    
             
             // Création de la photo
             var photo = await _photoRepository.AddPhotoAsync(photoDto);
@@ -123,16 +128,17 @@ public class PhotoService : IPhotoService
             };
             
             await _messageContientImageRepository.AddAsync(messageContientImage);
-            await transaction.CommitAsync();
+            //await transaction.CommitAsync();
             return photo;
         }
         catch
         {
-            PhotoId = photo.PhotoId,
-            Url = $"/api/Medias/Photos/{photo.PhotoId}",
-            FileName = photoDto.FileName,
-            DateUpload = DateTime.UtcNow
-        };
+            return null;
+            // PhotoId = photo.PhotoId,
+            // Url = $"/api/Medias/Photos/{photo.PhotoId}",
+            // FileName = photoDto.FileName,
+            // DateUpload = DateTime.UtcNow
+        }
     }
 
     public async Task<bool> DeletePhotoAsync(int id)
