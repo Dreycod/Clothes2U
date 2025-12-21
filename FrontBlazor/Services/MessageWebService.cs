@@ -3,6 +3,8 @@ using Shared.DTO.Message;
 using FrontBlazor.Services.GenericIServices;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.Sockets;
+using Shared.DTO.Conversation;
 
 namespace FrontBlazor.Services;
 
@@ -15,9 +17,10 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         throw new NotImplementedException();
     }
 
-    public Task<List<MessageTextDTO>?> GetMessagesByConversationId(int id)
+    public async Task<List<MessageTextDTO>?> GetMessagesByConversationId(int id)
     {
         throw new NotImplementedException();
+        //return await _httpClient.GetFromJsonAsync<MessageDTO>($"Message/{id}");
     }
 
     public async Task<List<MessageTextDTO?>> GetMessagesByUserId(int id)
@@ -39,6 +42,12 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         {
             Console.WriteLine($"❌ Failed to mark message {messageId} as read. Status: {response.StatusCode}");
         }
+    }
+    
+    public async Task<MessageDTO> GetLastMessageByConversationId(int id)
+    {
+        var conversationDto = await _httpClient.GetFromJsonAsync<ConversationDTO>($"Conversation/conversation/{id}");
+        return conversationDto.ListMessages.LastOrDefault();
     }
 
 }

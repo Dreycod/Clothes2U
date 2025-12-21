@@ -140,17 +140,32 @@ public class MediasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadMessagePhoto([FromForm] PhotoUploadDTO photoDto, int messageId)
+    public async Task<IActionResult> UploadMessagePhoto(int messageId, IFormFile file)
     {
-        if (photoDto?.Base64Data == null)
+        if (file == null || file.Length == 0)
         {
             return BadRequest(new { message = "Fichier requis" });
         }
 
+        if (file.Length > 5_242_880) // 5 MB
+        {
+            return BadRequest("Le fichier est trop volumineux (max 5MB)");
+        }
+
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            return BadRequest("Le fichier doit être une image");
+        }
+
         try
         {
-            var photo = await _photoService.UploadMessagePhotoAsync(photoDto, messageId);
-            return File(photo.Url, "image/jpeg");
+            // Convertir IFormFile en PhotoUploadDTO
+            var photoDto = await ConvertFormFileToDTO(file);
+
+            // Sauvegarder via le service
+            var savedPhoto = await _photoService.UploadMessagePhotoAsync(messageId, photoDto);
+
+            return Ok(savedPhoto);
         }
         catch (NotFoundException ex)
         {
@@ -158,6 +173,7 @@ public class MediasController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Erreur lors de l'upload pour message {MessageId}", messageId);
             return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }

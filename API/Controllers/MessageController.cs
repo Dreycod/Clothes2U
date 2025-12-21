@@ -94,7 +94,7 @@ public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTex
         var messageId = message.MessageId;
         foreach(var photo in dto.Photos)
         {
-            await _photoService.UploadMessagePhotoAsync(photo, messageId);
+            await _photoService.UploadMessagePhotoAsync(messageId, photo);
         }
     }
     

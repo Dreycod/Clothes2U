@@ -35,8 +35,7 @@ public class PhotoService : IPhotoService
 
      public async Task<Photo?> GetPhotoAsync(int id)
      {
-         return null;
-         //return await _photoRepository.GetByIdAsync(id);
+         return await _photoRepository.GetByIdAsync(id);
      }
 
     public async Task<PhotoResponseDTO> SavePhotoAsync(int annonceId, PhotoUploadDTO photoDto)
@@ -107,7 +106,7 @@ public class PhotoService : IPhotoService
         }
     }
     
-    public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto, int messageId)
+    public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(int messageId, PhotoUploadDTO photoDto)
     {
         //using var transaction = await _context.Database.BeginTransactionAsync();
         try
