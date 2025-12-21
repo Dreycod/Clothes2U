@@ -10,7 +10,7 @@ namespace API.Services;
 
 public class PhotoService : IPhotoService
 {
-    private readonly IPhotoRepository<PhotoResponseDTO, int> _photoRepository;
+    private readonly IPhotoRepository _photoRepository;
     private readonly IDataRepository<Annonce, int> _annonceRepository;
     private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
     private readonly IDataRepository<Message, int> _messageRepository;
@@ -18,7 +18,7 @@ public class PhotoService : IPhotoService
     private readonly ILogger<PhotoService> _logger;
 
     public PhotoService(
-        IPhotoRepository<PhotoResponseDTO, int> photoRepository,
+        IPhotoRepository photoRepository,
         IDataRepository<Annonce, int> annonceRepository,
         IDataRepository<Utilisateur, int> utilisateurRepository,
         IDataRepository<Message, int> messageRepository,

@@ -33,7 +33,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IAbonnementService<AbonnementDTO> _abonnementService;
         private readonly NavigationManager _navigationManager;
-        private readonly IMediasService<PhotoDTO> _mediaService;
+        private readonly IMediasService _mediaService;
         private readonly ISignalementService _signalementService;
         private readonly IBloqueService _bloqueService;
 
@@ -71,7 +71,7 @@ namespace FrontBlazor.ViewModel
             IAbonnementService<AbonnementDTO> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
-            IMediasService<PhotoDTO> mediasService, ISignalementService signalementService, IBloqueService bloqueService)
+            IMediasService mediasService, ISignalementService signalementService, IBloqueService bloqueService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;

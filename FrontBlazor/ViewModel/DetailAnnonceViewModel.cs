@@ -22,7 +22,7 @@ public class DetailAnnonceViewModel
     private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _navigationManager;
     private readonly ClipboardService _clipboardService;
-    private readonly IMediasService<PhotoDTO> _mediaService;
+    private readonly IMediasService _mediaService;
     private readonly IVisualisationService _visualisationService;
     private readonly ISignalementService _signalementService;
 
@@ -47,7 +47,7 @@ public class DetailAnnonceViewModel
         IFavorisService<FavorisDTO> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
         IConversationService<ConversationDTO> conversationService,
-        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService<PhotoDTO> mediasService
+        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService mediasService
         , IVisualisationService visualisationService, ISignalementService signalementService)
     {
         _annonceService = annonceService;

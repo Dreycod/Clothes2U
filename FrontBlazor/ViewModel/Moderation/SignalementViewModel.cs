@@ -12,12 +12,12 @@ namespace FrontBlazor.ViewModel.Moderation;
 public class SignalementViewModel : ModerationViewModel
 {
     private readonly ISignalementService _signalementService;
-    private readonly IMediasService<PhotoResponseDTO> _mediaService;
+    private readonly IMediasService _mediaService;
     private readonly NavigationManager _nav;
     
     public SignalementViewModel(ISignalementService signalementService,
         IAuthService authService,
-        IMediasService<PhotoResponseDTO> mediasService,
+        IMediasService mediasService,
         NavigationManager nav) : base(authService, nav)
     {
         _signalementService = signalementService;

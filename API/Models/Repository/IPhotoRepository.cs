@@ -3,8 +3,8 @@ using API.Models.EntityFramework;
 
 namespace API.Models.Repository.Managers;
 
-public interface IPhotoRepository<TEntity, TIdentifier> : IDataRepository<TEntity, TIdentifier>
+public interface IPhotoRepository : IDataRepository<Photo, int>
 {
-    Task<TEntity?> GetByIdWithRelationsAsync(TIdentifier id);
-    Task<TEntity> AddPhotoAsync(PhotoUploadDTO photoDto);
+    Task<Photo?> GetByIdWithRelationsAsync(int id);
+    Task<PhotoResponseDTO> AddPhotoAsync(PhotoUploadDTO photoDto);
 }

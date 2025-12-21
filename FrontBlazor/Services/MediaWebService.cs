@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 
 namespace FrontBlazor.Services;
 
-public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService<PhotoResponseDTO>
+public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
 {
     public MediaWebService(HttpClient httpClient) : base(httpClient) { }
 

@@ -16,7 +16,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 {
     private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IAuthService _authService;
-    public readonly IMediasService<PhotoUploadDTO> _mediaService;
+    public readonly IMediasService _mediaService;
     private readonly IMessageService _messageService;
     public readonly ISignalRService _signalRService;
     private readonly NavigationManager _nav;
@@ -44,7 +44,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IConversationService<ConversationDTO> conversationService,
         IAuthService authService,
         IMessageService messageService,
-        IMediasService<PhotoUploadDTO> mediaService,
+        IMediasService mediaService,
         NavigationManager nav,
         ISignalRService signalRService)
     {

@@ -21,7 +21,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     private readonly INoteUtilisateurService _noteUtilisateurService;
     private readonly INotificationService _notificationService;
     private readonly NavigationManager _nav;
-    private readonly IMediasService<PhotoDTO> _mediasService;
+    private readonly IMediasService _mediasService;
     public event PropertyChangedEventHandler PropertyChanged;
     public event Action OnStateChanged;
 
@@ -29,7 +29,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         ISignalementService signalementService,
         IUtilisateurService utilisateurService,
         IAnnonceService annonceService,
-        IMediasService<PhotoDTO> mediasService,
+        IMediasService mediasService,
         INoteUtilisateurService noteUtilisateurService,
         INotificationService notificationService,
         IAuthService authService,

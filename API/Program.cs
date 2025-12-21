@@ -18,6 +18,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using Shared.DTO.Photo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -218,7 +219,7 @@ builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurManager>();
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
-builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
+builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
@@ -240,7 +241,7 @@ builder.Services.AddScoped<ICaracteristiquesRepository<Marque>, MarqueManager>()
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
 builder.Services.AddScoped<IMotInterditRepository, MotInterditManager>();
 builder.Services.AddScoped<ISignalementRepository,  SignalementManager>();
-builder.Services.AddScoped<IPhotoRepository<Photo, int>, PhotoManager>();
+builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Annonce, int>, AnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 

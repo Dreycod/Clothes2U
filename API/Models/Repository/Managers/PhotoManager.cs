@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
 
-public class PhotoManager : GenericCRUDManager<Photo>, IPhotoRepository<Photo, int>
+public class PhotoManager : GenericCRUDManager<Photo>, IPhotoRepository
 {
     public PhotoManager(Clothes2UDbContext context) : base(context) { }
 
@@ -16,9 +16,9 @@ public class PhotoManager : GenericCRUDManager<Photo>, IPhotoRepository<Photo, i
             .FirstOrDefaultAsync(p => p.PhotoId == id);
     }
 
-    public async Task<Photo> AddPhotoAsync(PhotoUploadDTO photoDto)
+    public async Task<PhotoResponseDTO> AddPhotoAsync(PhotoUploadDTO photoDto)
     {
-        // Décoder le Base64 en bytes
+        // Dï¿½coder le Base64 en bytes
         byte[] imageBytes;
 
         try
@@ -43,7 +43,14 @@ public class PhotoManager : GenericCRUDManager<Photo>, IPhotoRepository<Photo, i
 
         _context.Photos.Add(photo);
         await _context.SaveChangesAsync();
+        
+        PhotoResponseDTO returnPhoto = new PhotoResponseDTO
+        {
+            PhotoId = photo.PhotoId,
+            Url = $"/api/Medias/Photos/{photo.PhotoId}",
+            FileName = photoDto.FileName
+        };
 
-        return photo;
+        return returnPhoto;
     }
 }

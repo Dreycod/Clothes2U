@@ -317,7 +317,7 @@
     [Inject]
     private IAuthService authService { get; set; } = default!;
     [Inject]
-    private IMediasService<Shared.DTO.Photo.PhotoUploadDTO> mediaService { get; set; } = default!;
+    private IMediasService mediaService { get; set; } = default!;
 
     private CreateAnnonceDTO newAnnonce = new CreateAnnonceDTO();
     private List<string> uploadedPhotos = new();
