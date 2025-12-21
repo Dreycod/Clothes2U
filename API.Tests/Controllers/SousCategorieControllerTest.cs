@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using API.Controllers;
-using API.DTO.SousCategorie;
+//using API.DTO.SousCategorie;
 using API.Mapper;
 using API.Models;
 using API.Models.EntityFramework;
@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shared.DTO.SousCategorie;
 
 namespace API.Tests.Controllers;
 
