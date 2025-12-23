@@ -24,4 +24,10 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
     {
         return await BaseDecisionQuery().Where(d => d.ModerateurId == id).ToListAsync();
     }
+    public async Task<Decision> AddAsync(Decision decision)
+    {
+        _context.Decisions.Add(decision);
+        await _context.SaveChangesAsync();
+        return decision;
+    }
 }

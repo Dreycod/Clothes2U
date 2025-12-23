@@ -1,5 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace Shared.DTO.Decision;
 
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$typeDecision")]
+[JsonDerivedType(typeof(DecisionAvertissementPostDTO), "avertissement")]
+[JsonDerivedType(typeof(SanctionSuspensionPostDTO), "sanctionsuspension")]
+[JsonDerivedType(typeof(SanctionBannissementPostDTO), "sanctionbannissement")]
 public abstract class DecisionPostDTO
 {
     public int UtlisateurId { get; set; }
