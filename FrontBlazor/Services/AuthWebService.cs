@@ -14,7 +14,7 @@ public class AuthWebService : BaseGenericService, IAuthService
     {
     }
 
-    public async Task<UtilisateurDTO?> GetCurrentUserAsync()
+    public async Task<UtilisateurViewDTO?> GetCurrentUserAsync()
     {
         try
         {
@@ -26,7 +26,7 @@ public class AuthWebService : BaseGenericService, IAuthService
             if (!response.IsSuccessStatusCode)
                 return null;
 
-            return await response.Content.ReadFromJsonAsync<UtilisateurDTO>();
+            return await response.Content.ReadFromJsonAsync<UtilisateurViewDTO>();
         }
         catch
         {

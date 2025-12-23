@@ -244,7 +244,7 @@ builder.Services.AddScoped<ISignalementRepository,  SignalementManager>();
 builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Annonce, int>, AnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
-
+builder.Services.AddScoped<IDecisionRepository,  DecisionManager>();
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
