@@ -93,14 +93,9 @@ public class LoginController : ControllerBase
                 return Unauthorized("Utilisateur inconnu.");
             return Unauthorized("Votre mot de passe est incorrect.");
         }
-            
 
-        var utilisateur = auth.user;
-
-        // Génération JWT
+        Utilisateur utilisateur = await _utilisateurManager.GetUtilisateurByLogin(auth.user.Login);
         var tokenString = _loginService.GenerateJwtToken(utilisateur);
-
-        // Cookie HttpOnly
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
@@ -109,8 +104,6 @@ public class LoginController : ControllerBase
             Expires = DateTime.Now.AddMinutes(30)
         };
         Response.Cookies.Append("authToken", tokenString, cookieOptions);
-
-        // Retour direct de l'utilisateur
         return Ok(utilisateur);
     }
 
@@ -143,12 +136,8 @@ public class LoginController : ControllerBase
             Dateinscription = DateTime.UtcNow,
             RoleId = 1
         };
-
         await _utilisateurManager.AddAsync(newUser);
-
-        // JWT
         var tokenString = _loginService.GenerateJwtToken(newUser);
-
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
@@ -157,8 +146,7 @@ public class LoginController : ControllerBase
             Expires = DateTime.Now.AddMinutes(30)
         };
         Response.Cookies.Append("authToken", tokenString, cookieOptions);
-
-        return Ok(newUser); // Retour direct
+        return Ok(newUser); 
     }
 
     [HttpPost("logout")]
@@ -293,39 +281,27 @@ public class LoginController : ControllerBase
 
         try
         {
-            // 1. Échanger le code contre un access token
             var tokenResponse = await ExchangeCodeForToken(code);
             Console.WriteLine($"✅ Access token obtenu");
-
-            // 2. Récupérer les infos utilisateur depuis Google
             var userInfo = await GetGoogleUserInfo(tokenResponse.AccessToken);
             Console.WriteLine($"✅ User info: {userInfo.Email}");
-
-            // 3. Créer ou récupérer l'utilisateur
             var utilisateur = await GetOrCreateUtilisateur(userInfo);
             Console.WriteLine($"✅ Utilisateur: {utilisateur.Login}");
-
-            // 4. Générer le JWT
             var jwtToken = _loginService.GenerateJwtToken(utilisateur);
             Console.WriteLine($"✅ JWT généré");
-
-            // 5. Créer le cookie
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // true en production
+                Secure = false, 
                 SameSite = SameSiteMode.Lax,
                 Expires = DateTime.Now.AddMinutes(30),
                 Path = "/"
             };
             Response.Cookies.Append("authToken", jwtToken, cookieOptions);
             Console.WriteLine($"✅ Cookie authToken créé");
-
-            // 6. Rediriger vers le front
             var returnUrl = string.IsNullOrEmpty(state) ? "/" : state;
             var finalUrl = $"{_config["FrontendUrl"]}{returnUrl}";
             Console.WriteLine($"🔀 Redirection vers: {finalUrl}");
-
             return Redirect(finalUrl);
         }
         catch (Exception ex)
@@ -334,8 +310,6 @@ public class LoginController : ControllerBase
             return Redirect($"{_config["FrontendUrl"]}/login?error=server_error");
         }
     }
-
-    // Méthodes privées helper
     private async Task<GoogleTokenResponse> ExchangeCodeForToken(string code)
     {
         var clientId = _config["Authentication:Google:ClientId"];

@@ -25,7 +25,6 @@ public class ModerationMappingProfile : Profile
             .ForMember(dest => dest.DateDecision, opt => opt.MapFrom(src => src.DecisionDate))
             .ConstructUsing((src, context) =>
             {
-                // Déterminer le type de décision à créer
                 if (src.DecisionAvertissement != null)
                 {
                     return new DecisionAvertissementPostDTO
@@ -58,8 +57,6 @@ public class ModerationMappingProfile : Profile
                 
                 throw new InvalidOperationException("Type de décision inconnu");
             });
-
-        // Mapping ElementDecision vers le bon type d'ElementDecisionDTO
         CreateMap<ElementDecision, ElementDecisionDTO>()
             .ConstructUsing((src, context) =>
             {
