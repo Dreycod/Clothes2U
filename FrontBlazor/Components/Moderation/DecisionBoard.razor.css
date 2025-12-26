@@ -1,5 +1,3 @@
-
-
 /* Fix pour la mise en page du traitement de signalement */
 #content_board {
     background: white;
@@ -24,4 +22,65 @@
     max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+}
+
+/* Styles pour le champ de jours */
+.suspend-date-group {
+    margin: 20px 0;
+}
+
+.suspend-date-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.suspend-days-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    transition: border-color 0.2s;
+}
+
+.suspend-days-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.suspend-days-input::-webkit-outer-spin-button,
+.suspend-days-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.suspend-days-input {
+    -moz-appearance: textfield;
+}
+
+.help-text {
+    display: block;
+    margin-top: 8px;
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.suspend-confirm {
+    background-color: #ff9800;
+}
+
+.suspend-confirm:hover:not(:disabled) {
+    background-color: #f57c00;
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

@@ -41,7 +41,10 @@ else
                     </UtilisateurModerationComponent>
                     break;
                 case SignalementMessageDTO signalementMessage:
-                    <p>@VM_traitementSignalement.Message.content</p>
+                    <MessageModerationComponent
+                        message="@VM_traitementSignalement.Message"
+                        PhotosUrl="@VM_traitementSignalement.PhotosUrl">
+                    </MessageModerationComponent>
                     break;
             }
         </div>

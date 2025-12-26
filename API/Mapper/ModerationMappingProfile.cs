@@ -22,7 +22,6 @@ public class ModerationMappingProfile : Profile
         CreateMap<MotInterdit, MotInterditDTO>().ReverseMap();
         CreateMap<Decision, DecisionPostDTO>()
             .ForMember(dest => dest.UtlisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
-            .ForMember(dest => dest.DateDecision, opt => opt.MapFrom(src => src.DecisionDate))
             .ConstructUsing((src, context) =>
             {
                 if (src.DecisionAvertissement != null)
@@ -30,7 +29,6 @@ public class ModerationMappingProfile : Profile
                     return new DecisionAvertissementPostDTO
                     {
                         UtlisateurId = src.UtilisateurId,
-                        DateDecision = src.DecisionDate
                     };
                 }
                 else if (src.DecisionSanction?.SanctionSuspension != null)
@@ -39,7 +37,6 @@ public class ModerationMappingProfile : Profile
                     return new SanctionSuspensionPostDTO
                     {
                         UtlisateurId = src.UtilisateurId,
-                        DateDecision = src.DecisionDate,
                         DateFinSuspension = src.DecisionSanction.SanctionSuspension.DateFinSuspension,
                         ElementDecision = elementDto
                     };
@@ -50,7 +47,6 @@ public class ModerationMappingProfile : Profile
                     return new SanctionBannissementPostDTO
                     {
                         UtlisateurId = src.UtilisateurId,
-                        DateDecision = src.DecisionDate,
                         ElementDecision = elementDto
                     };
                 }

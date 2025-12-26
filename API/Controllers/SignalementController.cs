@@ -104,7 +104,19 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
+        }
+
+        [HttpDelete("Delete/{id}")]
+        [Authorize(Roles = "Admin, Moderateur")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            Signalement signalement = await _signalementManager.GetByIdAsync(id);
+            if (signalement == null)
+            {
+                return NotFound();
+            }
+            await _signalementManager.DeleteAsync(signalement);
+            return NoContent();
         }
 
        

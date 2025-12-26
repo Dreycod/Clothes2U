@@ -10,7 +10,6 @@ namespace Shared.DTO.Decision;
 public abstract class DecisionPostDTO
 {
     public int UtlisateurId { get; set; }
-    public DateTime DateDecision { get; set; }
 }
 
 public class DecisionAvertissementPostDTO : DecisionPostDTO { }

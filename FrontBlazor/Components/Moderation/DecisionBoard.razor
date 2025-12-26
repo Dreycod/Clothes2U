@@ -82,14 +82,16 @@
             </div>
 
             <div class="suspend-date-group">
-                <label for="suspend-date">Date de fin de suspension</label>
+                <label for="suspend-days">Nombre de jours de suspension</label>
                 <input 
-                    id="suspend-date"
-                    type="datetime-local" 
-                    class="suspend-date-input" 
-                    value="@VM_Traitement.SuspendEndDate?.ToString("yyyy-MM-ddTHH:mm")"
-                    @onchange="@((ChangeEventArgs e) => VM_Traitement.SuspendEndDate = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value.ToString()))"
-                    min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                    id="suspend-days"
+                    type="number" 
+                    class="suspend-days-input" 
+                    @bind="VM_Traitement.SuspendDays"
+                    min="1"
+                    max="365"
+                    placeholder="Nombre de jours" />
+                <small class="help-text">Entre 1 et 365 jours</small>
             </div>
 
             <div class="modal-actions">

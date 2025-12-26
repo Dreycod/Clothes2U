@@ -46,7 +46,7 @@ builder.Services.AddScoped<IStateService<AnnonceDTO>, AnnonceStateService>();
 builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
-
+builder.Services.AddScoped<IDecisionService, DecisionWebService>();
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>
 {

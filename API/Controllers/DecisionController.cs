@@ -39,8 +39,8 @@ public class DecisionController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Moderateur")]
-    public async Task<ActionResult<DecisionPostDTO>> CreateDecision(DecisionPostDTO decisionDTO)
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
     {
         try
         {
@@ -49,13 +49,6 @@ public class DecisionController : ControllerBase
             {
                 return Unauthorized("Utilisateur non authentifié");
             }
-
-            Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
-            if (user.Role.RoleUtilisateurLibelle != "Moderateur")
-            {
-                return Unauthorized("Utilisateur non moderateur");
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -64,7 +57,7 @@ public class DecisionController : ControllerBase
             {
                 ModerateurId = userId.Value,
                 UtilisateurId = decisionDTO.UtlisateurId,
-                DecisionDate = decisionDTO.DateDecision
+                DecisionDate = DateTime.UtcNow
             };
             switch (decisionDTO)
             {
