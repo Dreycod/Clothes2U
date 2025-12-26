@@ -52,9 +52,9 @@ public class LoginService : ILoginService
             new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
             new Claim("userId", utilisateur.UtilisateurId.ToString()),
             new Claim("login", utilisateur.Login),
+            new Claim(ClaimTypes.Role, utilisateur.Role.RoleUtilisateurLibelle),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
-
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],

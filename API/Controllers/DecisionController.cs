@@ -17,17 +17,20 @@ namespace API.Controllers;
 public class DecisionController : ControllerBase
 {
     private readonly IDecisionRepository _decisionManager;
+    private readonly IUtilisateurRepository _utilisateurManager;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
 
-    public DecisionController(IDecisionRepository decisionManager,ICurrentUserService currentUserService, IMapper mapper)
+    public DecisionController(IDecisionRepository decisionManager,ICurrentUserService currentUserService,IUtilisateurRepository utilisateurManager, IMapper mapper)
     {
         _currentUserService =  currentUserService;
+        _utilisateurManager =  utilisateurManager;
         _decisionManager = decisionManager;
         _mapper = mapper;
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult<ActionResult<DecisionDTO>>> GetAllDecisionsByModerateurId(int id)
     {
         IEnumerable<Decision> decisions = await _decisionManager.GetAllDecisionsByModerateurId(id);
@@ -35,8 +38,8 @@ public class DecisionController : ControllerBase
         return Ok(decisionsDTO);
     }
 
-   [HttpPost]
-    [Authorize]
+    [HttpPost]
+    [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult<DecisionPostDTO>> CreateDecision(DecisionPostDTO decisionDTO)
     {
         try
@@ -47,20 +50,22 @@ public class DecisionController : ControllerBase
                 return Unauthorized("Utilisateur non authentifié");
             }
 
+            Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
+            if (user.Role.RoleUtilisateurLibelle != "Moderateur")
+            {
+                return Unauthorized("Utilisateur non moderateur");
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            // Création de la décision de base
             var decision = new Decision
             {
                 ModerateurId = userId.Value,
                 UtilisateurId = decisionDTO.UtlisateurId,
                 DecisionDate = decisionDTO.DateDecision
             };
-
-            // Traitement selon le type de décision
             switch (decisionDTO)
             {
                 case DecisionAvertissementPostDTO avertissement:
@@ -78,8 +83,6 @@ public class DecisionController : ControllerBase
                 default:
                     return BadRequest("Type de décision non reconnu");
             }
-
-            // Sauvegarde dans la base de données
             var createdDecision = await _decisionManager.AddAsync(decision);
             var resultDTO = _mapper.Map<DecisionPostDTO>(createdDecision);
 
