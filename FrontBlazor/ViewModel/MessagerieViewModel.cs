@@ -235,7 +235,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
     }
 
-    private async void HandleMessageReceived(int conversationId, int senderId, string message, DateTime date)
+    private async void HandleMessageReceived(int conversationId, int senderId, string message, List<int> photoIds, DateTime date)
     {
         if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
         {
@@ -255,6 +255,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     Date = date,
                     //ConversationId = conversationId,
                     SentByCurrentUser = senderId == CurrentUser?.UtilisateurId,
+                    Photos = photoIds,
                     Lu = false // ✅ Nouveau message non lu
                 };
 

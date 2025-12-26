@@ -5,19 +5,12 @@ namespace API.Hubs;
 public class ChatHub : Hub
 {
     // Cette méthode n'est plus utilisée directement - c'est le controller qui broadcast
-    public async Task SendMessage(int conversationId, int senderId, string message)
+    public async Task SendMessage(int conversationId, int senderId, string message, List<int> photoIds)
     {
-        Console.WriteLine($"[Hub] 📨 SendMessage called (method direct):");
-        Console.WriteLine($"  - ConversationId: {conversationId}");
-        Console.WriteLine($"  - SenderId: {senderId}");
-        Console.WriteLine($"  - Message: {message}");
-        
         var date = DateTime.UtcNow;
-        
+
         await Clients.Group($"conversation_{conversationId}")
-            .SendAsync("ReceiveMessage", conversationId, senderId, message, date);
-        
-        Console.WriteLine($"[Hub] ✅ Message broadcasted");
+            .SendAsync("ReceiveMessage", conversationId, senderId, message, photoIds, date);
     }
 
     public async Task JoinConversation(int conversationId)

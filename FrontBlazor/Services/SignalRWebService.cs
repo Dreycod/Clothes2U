@@ -8,7 +8,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     private HubConnection? _hubConnection;
     private readonly string _hubUrl;
 
-    public event Action<int, int, string, DateTime>? OnMessageReceived;
+    public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
 
@@ -82,18 +82,19 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
             // ===== ÉCOUTE DES MESSAGES DU SERVEUR =====
             
             // Réception d'un nouveau message
-            _hubConnection.On<int, int, string, DateTime>("ReceiveMessage", 
-                (conversationId, senderId, message, date) =>
-            {
-                Console.WriteLine($"[SignalR] 📨 ReceiveMessage event received:");
-                Console.WriteLine($"  - ConversationId: {conversationId}");
-                Console.WriteLine($"  - SenderId: {senderId}");
-                Console.WriteLine($"  - Message: {message}");
-                Console.WriteLine($"  - Date: {date}");
-                Console.WriteLine($"  - Subscribers: {OnMessageReceived?.GetInvocationList().Length ?? 0}");
-                
-                OnMessageReceived?.Invoke(conversationId, senderId, message, date);
-            });
+            _hubConnection.On<int, int, string, List<int>, DateTime>(
+                "ReceiveMessage",
+                (conversationId, senderId, message, photos, date) =>
+                {
+                    Console.WriteLine($"[SignalR] 📨 ReceiveMessage event received:");
+                    Console.WriteLine($"  - ConversationId: {conversationId}");
+                    Console.WriteLine($"  - SenderId: {senderId}");
+                    Console.WriteLine($"  - Message: {message}");
+                    Console.WriteLine($"  - Photos: {string.Join(", ", photos)}");
+                    Console.WriteLine($"  - Date: {date}");
+
+                    OnMessageReceived?.Invoke(conversationId, senderId, message, photos, date);
+                });
 
             // Notification qu'un utilisateur est en train d'écrire
             _hubConnection.On<int, int, string>("UserTyping", (conversationId, userId, userName) =>
@@ -200,29 +201,19 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
         }
     }
 
-    public async Task SendMessage(int conversationId, int senderId, string message)
+    public async Task SendMessage(int conversationId, int senderId, string message, List<int> photoIds)
     {
         if (_hubConnection == null || !IsConnected)
-        {
-            Console.WriteLine($"[SignalR] ❌ Cannot send message: not connected");
             throw new InvalidOperationException("SignalR connection is not established");
-        }
 
-        try
-        {
-            Console.WriteLine($"[SignalR] Sending message:");
-            Console.WriteLine($"  - ConversationId: {conversationId}");
-            Console.WriteLine($"  - SenderId: {senderId}");
-            Console.WriteLine($"  - Message: {message}");
-            
-            await _hubConnection.InvokeAsync("SendMessage", conversationId, senderId, message);
-            Console.WriteLine($"[SignalR] ✅ Message sent successfully");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[SignalR] ❌ Error sending message: {ex.Message}");
-            throw;
-        }
+        Console.WriteLine($"[SignalR] Sending message:");
+        Console.WriteLine($"  - ConversationId: {conversationId}");
+        Console.WriteLine($"  - SenderId: {senderId}");
+        Console.WriteLine($"  - Message: {message}");
+        Console.WriteLine($"  - Photos: {string.Join(", ", photoIds)}");
+
+        await _hubConnection.InvokeAsync("SendMessage", conversationId, senderId, message, photoIds);
+        Console.WriteLine($"[SignalR] ✅ Message sent successfully");
     }
 
     public async Task NotifyTyping(int conversationId, int userId, string userName)

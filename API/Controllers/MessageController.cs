@@ -92,11 +92,13 @@ public class MessageController : ControllerBase
          await _messageTexteManager.AddAsync(messageTexte);
          
          var listMessageContientPhotos = new List<MessageContientImage>();
+         var photoIds = new List<int>();
          if (dto.Photos != null)
          {
              foreach (var photoDto in dto.Photos)
              {
                  var photo = await _photoService.UploadMessagePhotoAsync(photoDto);
+                 photoIds.Add(photo.PhotoId);
                  if (photo != null)
                  {
                      await _messageContientImageManager.AddAsync(
@@ -141,7 +143,7 @@ public class MessageController : ControllerBase
                          message.ConversationId, 
                          message.UtilisateurId, 
                          dto.Content, 
-                         messageTexte.Photos,
+                         photoIds,
                          message.MessageDate);
                  
                  Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
