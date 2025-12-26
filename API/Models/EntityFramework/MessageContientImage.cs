@@ -12,15 +12,15 @@ public class MessageContientImage : IEntity
     public int  MessageContientImageId { get; set; }
     
     //id des autres tables : 
-    [Column("messconima_message_id")]
-    public int MessageId { get; set; }
+    [Column("messconima_message_texte_id")]
+    public int MessageTexteId { get; set; }
     
     [Column("messconima_image_id")]
     public int PhotoId { get; set; }
     
     //relation avec les autres tables : 
     
-    [ForeignKey(nameof(MessageId))]
+    [ForeignKey(nameof(MessageTexteId))]
     [InverseProperty(nameof(MessageTexte.Photos))]
     public virtual MessageTexte Message{ set; get; }
     

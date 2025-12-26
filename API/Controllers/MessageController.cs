@@ -22,6 +22,7 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageDemande, int> _messageDemandeManager;
     private readonly IDataRepository<MessageValidation, int> _messageValidationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
+    private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoService _photoService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
@@ -33,6 +34,7 @@ public class MessageController : ControllerBase
         IConversationRepository<Conversation, int> conversationManager,
         IDataRepository<MessageDemande, int> messageDemandeManager,
         IDataRepository<MessageValidation, int> messageValidationManager,
+        IDataRepository<MessageContientImage, int> messageContientImageManager,
         IPhotoService photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
@@ -44,6 +46,7 @@ public class MessageController : ControllerBase
         _messageDemandeManager = messageDemandeManager;
         _messageValidationManager = messageValidationManager;
         _notificationService = notificationMessageManager;
+        _messageContientImageManager = messageContientImageManager;
         _photoService = photoService;
         _mapper = mapper;
         _hubContext = hubContext;
@@ -61,88 +64,102 @@ public class MessageController : ControllerBase
         }
         return null;
     }
-    
     [Authorize]
-[HttpPost("texte")]
-[ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
-[ProducesResponseType(StatusCodes.Status400BadRequest)]
-public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
-{
-    if (!ModelState.IsValid)
-        return BadRequest(ModelState);
-
-    var message = new Message
-    {
-        MessageDate = DateTime.UtcNow,
-        MessageLu = false,
-        UtilisateurId = dto.UtilisateurId,
-        ConversationId = dto.ConversationId
-    };
-    
-    await _messageManager.AddAsync(message);
-
-    var messageTexte = new MessageTexte
-    {
-        MessageId = message.MessageId,
-        Content = dto.Content
-    };
-    
-    await _messageTexteManager.AddAsync(messageTexte);
-    
-    if (dto.Photos != null)
-    {
-        var messageId = message.MessageId;
-        foreach(var photo in dto.Photos)
-        {
-            await _photoService.UploadMessagePhotoAsync(messageId, photo);
-        }
-    }
-    
-    var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
-
-    
-    
-    if (conversation != null)
-    {
-        int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
-        if (targetUserId != null)
-        {
-            var notificationEvent = new NewMessageEvent
-            {
-                TargetUserId = (int)targetUserId,
-                MessageId = message.MessageId,
-                SenderId = dto.UtilisateurId,
-                MessagePreview = dto.Content.Substring(0, Math.Min(50, dto.Content.Length))
-            };
-            await _notificationService.NotifyAsync(notificationEvent);
-            
-            // 🔥 BROADCASTER VIA SIGNALR
-            //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
-            
-            await _hubContext.Clients
-                .Group($"conversation_{message.ConversationId}")
-                .SendAsync("ReceiveMessage", 
-                    message.ConversationId, 
-                    message.UtilisateurId, 
-                    dto.Content, 
-                    message.MessageDate);
-            
-            Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
-        }
-        else
-        {
-            Console.WriteLine($"[MessageController] ❌ Target user not found");
-            return BadRequest("Utilisateur non autorisé pour cette conversation");
-        }
-    }
-    else
-    {
-        Console.WriteLine($"[MessageController] ❌ Conversation {dto.ConversationId} not found");
-        return BadRequest("Conversation introuvable");
-    }
-    
-    return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
-}
+    [HttpPost("texte")]
+    [ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MessageTextePostDTO>> PostMessageTexte(MessageTextePostDTO dto)
+     {
+         if (!ModelState.IsValid)
+             return BadRequest(ModelState);
+ 
+         var message = new Message
+         {
+             MessageDate = DateTime.UtcNow,
+             MessageLu = false,
+             UtilisateurId = dto.UtilisateurId,
+             ConversationId = dto.ConversationId
+         };
+         
+         await _messageManager.AddAsync(message);
+        
+         var messageTexte = new MessageTexte
+         {
+             MessageId = message.MessageId,
+             Content = dto.Content,
+         };
+         
+         await _messageTexteManager.AddAsync(messageTexte);
+         
+         var listMessageContientPhotos = new List<MessageContientImage>();
+         if (dto.Photos != null)
+         {
+             foreach (var photoDto in dto.Photos)
+             {
+                 var photo = await _photoService.UploadMessagePhotoAsync(photoDto);
+                 if (photo != null)
+                 {
+                     await _messageContientImageManager.AddAsync(
+                         new MessageContientImage
+                         {
+                             MessageTexteId = messageTexte.MessageTexteId, 
+                             PhotoId = photo.PhotoId
+                         });
+                 }
+             }
+ 
+         }
+         
+         messageTexte.Photos = listMessageContientPhotos;
+         
+         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+ 
+         
+         
+         if (conversation != null)
+         {
+             int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+             if (targetUserId != null)
+             {
+                 var notificationEvent = new NewMessageEvent
+                 {
+                     TargetUserId = (int)targetUserId,
+                     MessageId = message.MessageId,
+                     SenderId = dto.UtilisateurId,
+                     MessagePreview = string.IsNullOrWhiteSpace(dto.Content)
+                         ? "📷 Photo"
+                         : dto.Content[..Math.Min(50, dto.Content.Length)]
+                 };
+                 await _notificationService.NotifyAsync(notificationEvent);
+                 
+                 // 🔥 BROADCASTER VIA SIGNALR
+                 //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
+                 
+                 await _hubContext.Clients
+                     .Group($"conversation_{message.ConversationId}")
+                     .SendAsync("ReceiveMessage", 
+                         message.ConversationId, 
+                         message.UtilisateurId, 
+                         dto.Content, 
+                         messageTexte.Photos,
+                         message.MessageDate);
+                 
+                 Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
+             }
+             else
+             {
+                 Console.WriteLine($"[MessageController] ❌ Target user not found");
+                 return BadRequest("Utilisateur non autorisé pour cette conversation");
+             }
+         }
+         else
+         {
+             Console.WriteLine($"[MessageController] ❌ Conversation {dto.ConversationId} not found");
+             return BadRequest("Conversation introuvable");
+         }
+         
+         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+     }
 
     [HttpPost("demande")]
     [ProducesResponseType(typeof(MessageDemandePostDTO), StatusCodes.Status201Created)]

@@ -1,7 +1,9 @@
 using Shared.DTO.Photo;
 using API.Exceptions;
+using API.Hubs;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace API.Controllers;
 
@@ -11,11 +13,13 @@ public class MediasController : ControllerBase
 {
     private readonly IPhotoService _photoService;
     private readonly ILogger<MediasController> _logger;
-
-    public MediasController(IPhotoService photoService, ILogger<MediasController> logger)
+    private readonly IHubContext<ChatHub> _hubContext;
+    
+    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IHubContext<ChatHub> hubContext)
     {
         _photoService = photoService;
         _logger = logger;
+        _hubContext = hubContext;
     }
 
     [HttpGet("Photos/{id}")]
@@ -161,10 +165,20 @@ public class MediasController : ControllerBase
         {
             // Convertir IFormFile en PhotoUploadDTO
             var photoDto = await ConvertFormFileToDTO(file);
+            
+            
 
             // Sauvegarder via le service
-            var savedPhoto = await _photoService.UploadMessagePhotoAsync(messageId, photoDto);
-
+            var savedPhoto = await _photoService.UploadMessagePhotoAsync(photoDto);
+            
+            // await _hubContext.Clients
+            //     .Group($"conversation_{message.ConversationId}")
+            //     .SendAsync("ReceiveMessage", 
+            //         message.ConversationId, 
+            //         message.UtilisateurId, 
+            //         dto.Content, 
+            //         message.MessageDate);
+            
             return Ok(savedPhoto);
         }
         catch (NotFoundException ex)
@@ -191,6 +205,8 @@ public class MediasController : ControllerBase
             {
                 return NotFound($"Photo {id} introuvable");
             }
+            
+            
 
             return NoContent();
         }

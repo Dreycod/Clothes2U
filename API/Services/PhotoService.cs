@@ -106,40 +106,37 @@ public class PhotoService : IPhotoService
         }
     }
     
-    public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(int messageId, PhotoUploadDTO photoDto)
+    public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto)
     {
         //using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             // Validation métier
-            var message = await _messageRepository.GetByIdAsync(messageId);
-            if (message == null)
-            {
-                throw new NotFoundException($"Message {messageId} introuvable");
-            }
+            // var message = await _messageRepository.GetByIdAsync(messageId);
+            // if (message == null)
+            // {
+            //     throw new NotFoundException($"Message {messageId} introuvable");
+            // }
     
             
             // Création de la photo
             var photo = await _photoRepository.AddPhotoAsync(photoDto);
     
             // Mise à jour de l'utilisateur
-            var messageContientImage = new MessageContientImage
-            {
-                MessageId = messageId,
-                PhotoId = photo.PhotoId
-            };
-            
-            await _messageContientImageRepository.AddAsync(messageContientImage);
+            // var messageContientImage = new MessageContientImage
+            // {
+            //     MessageId = messageId,
+            //     PhotoId = photo.PhotoId
+            // };
+            //
+            // await _messageContientImageRepository.AddAsync(messageContientImage);
             //await transaction.CommitAsync();
             return photo;
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
-            // PhotoId = photo.PhotoId,
-            // Url = $"/api/Medias/Photos/{photo.PhotoId}",
-            // FileName = photoDto.FileName,
-            // DateUpload = DateTime.UtcNow
+            Console.WriteLine(ex);
+            throw; 
         }
     }
 

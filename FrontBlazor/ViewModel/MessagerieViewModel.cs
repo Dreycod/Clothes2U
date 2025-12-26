@@ -27,7 +27,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public UtilisateurDTO? CurrentUser { get; private set; }
 
     public string NewMessage { get; set; } = "";
-    public IBrowserFile? SelectedFile { get; set; }
+    public List<IBrowserFile> SelectedFile { get; set; }
     public bool IsLoading { get; private set; } = false;
     public bool IsTyping { get; private set; } = false;
     public string TypingUserName { get; private set; } = "";
@@ -176,16 +176,38 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         
         try
         {
+            List<PhotoUploadDTO>? photoDto = new List<PhotoUploadDTO>();
+            if (images != null)
+            {
+                foreach (var image in images)
+                {
+                    var bytes = await ConvertIBrowserFileToBytesAsync(image);
+
+                    var photo = new PhotoUploadDTO
+                    {
+                        FileName = image.Name,
+                        ContentType = image.ContentType,
+                        FileSize = image.Size,
+                        Base64Data = Convert.ToBase64String(bytes)
+                    };
+                    photoDto.Add(photo);
+                }
+                
+            }
+                
+            
             var message = new MessageTextePostDTO()
             {
                 Content = content,
                 ConversationId = SelectedConversation.ConversationId,
                 UtilisateurId = CurrentUser!.UtilisateurId,
+                Photos = photoDto
             };
         
             await _messageService.PostMessageTexte(message);
             
             var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
+            
             if (conv != null)
             {
                 conv.LastMessage = content;
@@ -201,30 +223,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
                 }
             }
-            var lastMessages =  conv.ListMessages.LastOrDefault();
-            if (images != null && lastMessages.MessageId != null)
-            {
-                var bytes = await ConvertIBrowserFileToBytesAsync(images);
-                var fileName = images.Name;
-
-                await _mediaService.UploadPhotoMessageAsync(
-                    (int)lastMessages.MessageId,
-                    bytes,
-                    fileName
-                );
-                
-                // var updatedConversation = await _conversationService.GetConversationDetailById(conv.ConversationId);
-                // var updatedMesssage = updatedConversation.ListMessages.FirstOrDefault(m => m.MessageId == lastMessages.MessageId);
-                // if (updatedMesssage != null)
-                // {
-                //     var localMessage = SelectedConversation.ListMessages?.FirstOrDefault(m => m.MessageId == lastMessages.MessageId);
-                //
-                //     if (localMessage != null)
-                //     {
-                //         localMessage. = updatedMesssage.Photos;
-                //     }
-                // }
-            }
+            
         }
         catch (Exception ex)
         {

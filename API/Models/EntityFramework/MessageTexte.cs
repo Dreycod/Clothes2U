@@ -24,7 +24,7 @@ public class MessageTexte : IEntity
     public virtual Message Message{ set; get; }
     
     [InverseProperty(nameof(MessageContientImage.Message))]
-    public virtual ICollection<MessageContientImage>? Photos { get; set; } = new List<MessageContientImage>();
+    public virtual ICollection<MessageContientImage>? Photos { get; set; } 
     
     public int GetId() => MessageTexteId;
 }

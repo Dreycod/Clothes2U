@@ -129,7 +129,7 @@
 
                 <!-- Message Input -->
                 <div class="message-input-area">
-                    <InputFile OnChange="OnImageSelected" accept="image/*"/>
+                    <InputFile OnChange="OnImageSelected" accept="image/*" multiple />
                     <input type="text"
                            class="message-input"
                            placeholder="Ecrivez votre message ici..."
@@ -236,8 +236,8 @@
         VM_Messagerie.HandleTyping(new KeyboardEventArgs());
     }
     
-    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    private void OnImageSelected(InputFileChangeEventArgs e)
     {
-        VM_Messagerie.SelectedFile = e.File;
+        VM_Messagerie.SelectedFile = e.GetMultipleFiles().ToList();
     }
 }

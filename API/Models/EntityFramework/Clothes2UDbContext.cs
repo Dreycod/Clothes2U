@@ -485,7 +485,7 @@ public partial class Clothes2UDbContext : DbContext
     
             entity.HasOne(e => e.Message)
                 .WithMany(m => m.Photos)
-                .HasForeignKey(e => e.MessageId)
+                .HasForeignKey(e => e.MessageTexteId)
                 .OnDelete(DeleteBehavior.Cascade);
     
             entity.HasOne(e => e.Photo)
@@ -493,7 +493,7 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.PhotoId) 
                 .OnDelete(DeleteBehavior.Restrict);
             
-            entity.HasIndex(e => new { e.MessageId, e.PhotoId })
+            entity.HasIndex(e => new { e.MessageTexteId, e.PhotoId })
                 .IsUnique();
         });
         
