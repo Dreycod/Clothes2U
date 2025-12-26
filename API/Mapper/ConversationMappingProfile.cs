@@ -10,6 +10,14 @@ public class ConversationMappingProfile : Profile
 {
     public ConversationMappingProfile()
     {
+        CreateMap<Message, MessageSignalementDTO>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.content, opt => opt.MapFrom(src => src.MessageTexte.Content))
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => 
+                src.MessageTexte.Photos != null 
+                    ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList() 
+                    : new List<int>()));
+            
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>

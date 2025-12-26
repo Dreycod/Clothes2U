@@ -53,6 +53,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Signalement> Signalements { get; set; }
     public DbSet<SignalementAnnonce> SignalementAnnonces { get; set; }
     public DbSet<SignalementAvis>  SignalementAvises { get; set; }
+    public DbSet<SignalementMessage> SignalementsMessages { get; set; }
     public DbSet<SignalementUtilisateur> SignalementUtilisateurs { get; set; }
     public DbSet<SousCategorie>  SousCategories { get; set; }
     public DbSet<StatutAnnonce> StatutAnnonces { get; set; }
@@ -477,6 +478,11 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(d => d.Message)
                 .HasForeignKey(d => d.MessageId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasMany(m => m.Signalements)
+                .WithOne(sm => sm.Message)
+                .HasForeignKey(sm => sm.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         modelBuilder.Entity<MessageContientImage>(entity =>
@@ -999,6 +1005,14 @@ public partial class Clothes2UDbContext : DbContext
                 .HasDatabaseName("idx_signalement_avis_avis");
         });
 
+        modelBuilder.Entity<SignalementMessage>(entity =>
+        {
+            entity.HasKey(e => e.SignalementMessageId);
+            entity.HasOne(sm => sm.Message)
+                .WithMany(m => m.Signalements)
+                .HasForeignKey(sm => sm.MessageId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
         // Configuration de SignalementUtilisateur
         modelBuilder.Entity<SignalementUtilisateur>(entity =>
         {

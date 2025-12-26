@@ -5,6 +5,7 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO.Message;
 
 namespace API.Controllers;
 
@@ -75,6 +76,19 @@ public class ConversationController : ControllerBase
         });
 
         return Ok(dto);
+    }
+
+    [HttpGet("messageById/{id}")]
+    [Authorize(Roles = "Admin,Moderateur")]
+    public async Task<ActionResult<MessageSignalementDTO>> GetMessageById(int id)
+    {
+        Message message =  await _messageManager.GetByIdAsync(id);
+        if (message == null)
+        {
+            return NotFound();
+        }
+        MessageSignalementDTO messageDTO =  _mapper.Map<MessageSignalementDTO>(message);
+        return messageDTO;
     }
     
 }

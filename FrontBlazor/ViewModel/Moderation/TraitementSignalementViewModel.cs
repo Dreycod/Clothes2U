@@ -9,6 +9,8 @@ using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Signalement;
 using Shared.DTO.Utilisateur;
 using System.ComponentModel;
+using Shared.DTO.Conversation;
+using Shared.DTO.Message;
 using Shared.DTO.Photo;
 
 namespace FrontBlazor.ViewModel.Moderation.Signalements;
@@ -19,6 +21,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     private readonly IUtilisateurService _utilisateurService;
     private readonly IAnnonceService _annonceService;
     private readonly INoteUtilisateurService _noteUtilisateurService;
+    private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly INotificationService _notificationService;
     private readonly NavigationManager _nav;
     private readonly IMediasService _mediasService;
@@ -28,6 +31,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     public TraitementSignalementViewModel(
         ISignalementService signalementService,
         IUtilisateurService utilisateurService,
+        IConversationService<ConversationDTO> conversationService,
         IAnnonceService annonceService,
         IMediasService mediasService,
         INoteUtilisateurService noteUtilisateurService,
@@ -39,6 +43,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         _utilisateurService = utilisateurService;
         _notificationService = notificationService;
         _annonceService = annonceService;
+        _conversationService = conversationService;
         _noteUtilisateurService = noteUtilisateurService;
         _signalementService = signalementService;
         _mediasService = mediasService;
@@ -50,6 +55,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     public List<string> PhotosUrl { get; set; } = new();
     public NoteUtilisateurDetailDTO Avis { get; set; }
     public AnnonceDetailDTO Annonce { get; set; }
+    public MessageSignalementDTO Message { get; set; }
     public UtilisateurViewDTO UtilisateurSignale { get; set; }
     
     private bool _showWarningModal;
@@ -136,6 +142,10 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
             case SignalementAvisDTO sav:
                 Avis = await _noteUtilisateurService.GetByIdAsync(sav.AvisId);
                 break;
+            case SignalementMessageDTO sm:
+                Message = await _conversationService.GetMessageById(sm.MessageId);
+                break;
+                
         }
         
         UtilisateurSignale = await _utilisateurService.GetUserById(Signalement.UtilisateurSignaleId);

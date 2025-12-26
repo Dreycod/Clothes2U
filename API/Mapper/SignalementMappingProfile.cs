@@ -23,7 +23,9 @@ public class SignalementMappingProfile : Profile
                         ? src.SignalementsAnnonce.Annonce.Utilisateur.Login
                         : src.SignalementsAvis != null
                             ? src.SignalementsAvis.Avis.Auteur.Login
-                            : "Inconnu"
+                            : src.SignalementsMessage != null
+                                ? src.SignalementsMessage.Message.Utilisateur.Login
+                                : "Inconnu"
             ))
             .ForMember(dest => dest.PhotoProfilUtilisateurId, opt => opt.MapFrom(src =>
                 src.SignalementsUtilisateur != null
@@ -32,7 +34,9 @@ public class SignalementMappingProfile : Profile
                         ? src.SignalementsAnnonce.Annonce.Utilisateur.PhotoId
                         : src.SignalementsAvis != null
                             ? src.SignalementsAvis.Avis.Auteur.PhotoId
-                            : null
+                            : src.SignalementsMessage != null
+                                ? src.SignalementsMessage.Message.Utilisateur.PhotoId
+                                : null
             ));
 
         CreateMap<Signalement, SignalementDetailsDTO>()
@@ -68,6 +72,16 @@ public class SignalementMappingProfile : Profile
                         SignalementDate = src.SignalementDate,
                         SignalementMotif = src.SignalementMotif,
                         UtilisateurSignaleId = src.SignalementsUtilisateur.UtilisateurSignale.UtilisateurId
+                    };
+                }else if (src.SignalementsMessage != null)
+                {
+                    return new SignalementMessageDTO
+                    {
+                        SignalementId = src.SignalementId,
+                        SignalementDate = src.SignalementDate,
+                        SignalementMotif = src.SignalementMotif,
+                        UtilisateurSignaleId = src.SignalementsMessage.Message.Utilisateur.UtilisateurId,
+                        MessageId = src.SignalementsMessage.Message.MessageId
                     };
                 }
 

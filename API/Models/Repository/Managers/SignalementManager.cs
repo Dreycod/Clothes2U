@@ -23,6 +23,8 @@ namespace API.Models.Repository.Managers
                 .ThenInclude(av => av.Auteur)
                 .Include(s => s.SignalementsUtilisateur)  
                 .ThenInclude(su => su.UtilisateurSignale)
+                .Include(sm => sm.SignalementsMessage)
+                .ThenInclude(m => m.Message)
                 .AsSplitQuery();
         }
 

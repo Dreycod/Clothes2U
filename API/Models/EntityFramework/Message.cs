@@ -61,6 +61,8 @@ public class Message : IEntity
     //moderation
     [InverseProperty(nameof(ElementDecisionMessage.Message))]
     public ICollection<ElementDecisionMessage> Decisions{ get; set; } = new List<ElementDecisionMessage>();
-    
+    //signalements 
+    [InverseProperty(nameof(SignalementMessage.Message))]
+    public virtual ICollection<SignalementMessage> Signalements { get; set; } = new List<SignalementMessage>();
     public int GetId() => MessageId;
 }

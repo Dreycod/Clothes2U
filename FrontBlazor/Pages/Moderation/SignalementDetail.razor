@@ -39,7 +39,9 @@ else
                         utilisateur="VM_traitementSignalement.UtilisateurSignale"
                         PhotoProfilUrl="@VM_traitementSignalement.PhotoProfilUrl">
                     </UtilisateurModerationComponent>
-
+                    break;
+                case SignalementMessageDTO signalementMessage:
+                    <p>@VM_traitementSignalement.Message.content</p>
                     break;
             }
         </div>
@@ -51,8 +53,7 @@ else
     </div>
 }
 @code {
-    [Parameter]
-    public int Id { get; set; }
+    [Parameter] public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

@@ -41,7 +41,8 @@ public class Signalement : IEntity
 
     [InverseProperty(nameof(SignalementUtilisateur.Signalement))]
     public virtual SignalementUtilisateur? SignalementsUtilisateur { get; set; }
-
+    [InverseProperty(nameof(SignalementMessage.Signalement))]
+    public virtual SignalementMessage? SignalementsMessage { get; set; }
     public int GetId() => SignalementId;
 
 }

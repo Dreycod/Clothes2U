@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Shared.DTO;
 using Shared.DTO.Conversation;
 using System.Net.Http.Json;
+using Shared.DTO.Message;
 
 namespace FrontBlazor.Services;
 
@@ -42,6 +43,21 @@ public class ConversationWebService: WritableService<ConversationDTO>, IConversa
             return conversations ?? new List<ConversationDTO?>();
         }
         catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<MessageSignalementDTO> GetMessageById(int id)
+    {
+        try
+        {
+            var response = await  GetWithCredentialsAsync($"Conversation/messageById/{id}");
+            response.EnsureSuccessStatusCode();
+            MessageSignalementDTO messageDTO = await response.Content.ReadFromJsonAsync<MessageSignalementDTO>();
+            return messageDTO;
+        }
+        catch 
         {
             return null;
         }
