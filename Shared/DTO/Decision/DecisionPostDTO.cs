@@ -9,15 +9,13 @@ namespace Shared.DTO.Decision;
 [JsonDerivedType(typeof(SanctionBannissementPostDTO), "sanctionbannissement")]
 public abstract class DecisionPostDTO
 {
-    public int UtlisateurId { get; set; }
+    public ElementDecisionDTO ElementDecision { get; set; }
+    public int UtilisateurId { get; set; }
 }
 
 public class DecisionAvertissementPostDTO : DecisionPostDTO { }
 
-public abstract class DecisionSanctionPostDTO : DecisionPostDTO
-{
-    public ElementDecisionDTO ElementDecision { get; set; }
-}
+public abstract class DecisionSanctionPostDTO : DecisionPostDTO { }
 public class SanctionBannissementPostDTO : DecisionSanctionPostDTO{}
 
 public class SanctionSuspensionPostDTO : DecisionSanctionPostDTO

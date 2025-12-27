@@ -34,8 +34,6 @@ namespace API.Models.EntityFramework
         [InverseProperty(nameof(SanctionBannissement.DecisionSanction))]
         public virtual SanctionBannissement? SanctionBannissement { get; set; } 
         
-        //relation avec la table Element de decision
-        [InverseProperty(nameof(ElementDecision.DecisionSanction))]
-        public virtual ElementDecision ElementDecision { get; set; } = null!; 
+        
     }
 }

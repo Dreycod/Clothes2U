@@ -48,5 +48,12 @@ namespace API.Models.Repository.Managers
             return await BaseNoteQuery()
                 .FirstOrDefaultAsync(n => n.NoteUtilisateurId == id);
         }
+        public async Task SuspendElement(int id)
+        {
+            NoteUtilisateur noteUtilisateur = _context.NoteUtilisateurs.Find(id);
+            noteUtilisateur.Statut = false;
+            _context.NoteUtilisateurs.Update(noteUtilisateur);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -79,7 +79,9 @@
 .suspend-confirm:hover:not(:disabled) {
     background-color: #f57c00;
 }
-
+.ban-confirm{
+    background: #dc2626;
+}
 .btn-confirm:disabled {
     opacity: 0.5;
     cursor: not-allowed;

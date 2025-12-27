@@ -36,5 +36,8 @@ public class Decision : IEntity
     [InverseProperty(nameof(DecisionSanction.Decision))]
     public virtual DecisionSanction? DecisionSanction { get; set; } 
     
+    //relation avec la table Element de decision
+    [InverseProperty(nameof(ElementDecision.Decision))]
+    public virtual ElementDecision ElementDecision { get; set; } = null!; 
     public int GetId() => DecisionId;
 }

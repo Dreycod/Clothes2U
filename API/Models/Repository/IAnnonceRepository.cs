@@ -2,7 +2,7 @@ using Shared.DTO.Annonce;
 
 namespace API.Models.Repository;
 
-public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IDataRepository<TEntity, TIdentifier>
+public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IDataRepository<TEntity, TIdentifier>, ISuspendRepository
 {
     Task<IEnumerable<TEntity>> GetActiveAnnonces();
 

@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.Json;
 using Shared.DTO.Notification;
-using FrontBlazor.Converters;
 using Shared.DTO.Moderation;
 using FrontBlazor.Services.Interfaces;
 
@@ -13,8 +12,7 @@ public class NotificationWebService : BaseGenericService, INotificationService
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new NotificationJsonConverter() }
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
     public NotificationWebService(HttpClient httpClient) : base(httpClient) { }
     public async Task<ObservableCollection<NotificationDTO>> GetAllAsync()
@@ -26,7 +24,6 @@ public class NotificationWebService : BaseGenericService, INotificationService
             
             var jsonString = await response.Content.ReadAsStringAsync();
             var notificationsList = JsonSerializer.Deserialize<List<NotificationDTO>>(jsonString, JsonOptions);
-            Console.WriteLine("Recuperation des données il y a : " +  notificationsList.Count + " notifications");
             return new ObservableCollection<NotificationDTO>(notificationsList ?? new List<NotificationDTO>());
         }
         catch (Exception ex)

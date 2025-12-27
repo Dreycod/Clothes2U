@@ -61,6 +61,7 @@ namespace API.Controllers
             }
             var entity = _mapper.Map<NoteUtilisateur>(dto);
             entity.AuteurId = (int)userId;
+            entity.Statut = true;
             await _noteUtilisateurManager.AddAsync(entity);
 
             return CreatedAtAction(nameof(GetById), new { id = entity.NoteUtilisateurId },

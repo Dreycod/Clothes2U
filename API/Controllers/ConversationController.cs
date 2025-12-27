@@ -79,7 +79,7 @@ public class ConversationController : ControllerBase
     }
 
     [HttpGet("messageById/{id}")]
-    [Authorize(Roles = "Admin,Moderateur")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<MessageSignalementDTO>> GetMessageById(int id)
     {
         Message message =  await _messageManager.GetByIdAsync(id);

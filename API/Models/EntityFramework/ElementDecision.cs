@@ -12,12 +12,12 @@ public class ElementDecision : IEntity
     public int ElementDecisionId { get; set; }
     
     [Column("eledec_sanction_id")]
-    public int DecisionSanctionId { get; set; }
+    public int DecisionId { get; set; }
     
     //relation avec la table DecisionSanction
-    [ForeignKey(nameof(DecisionSanctionId))]
-    [InverseProperty(nameof(DecisionSanction.ElementDecision))]
-    public virtual DecisionSanction DecisionSanction { get; set; } = null!;
+    [ForeignKey(nameof(DecisionId))]
+    [InverseProperty(nameof(Decision.ElementDecision))]
+    public virtual Decision Decision { get; set; } = null!;
     
     
     //relation avec les autres elements de décision : 

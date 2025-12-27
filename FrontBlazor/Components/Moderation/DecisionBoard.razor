@@ -109,7 +109,25 @@
         </div>
     </div>
 }
-
+@if (VM_Traitement.ShowBanModal)
+{
+    <div class="modal-overlay" @onclick="VM_Traitement.CloseBanModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <h3>Voulez vous vraiment bannir cet utilisateur ? </h3>
+            <div class="modal-actions">
+                <button class="btn-cancel" @onclick="VM_Traitement.CloseBanModal">
+                    Annuler
+                </button>
+                <button 
+                    class="btn-confirm ban-confirm" 
+                    @onclick="VM_Traitement.BanUserAsync">
+                    <i class="bi bi-clock-history"></i>
+                    Confirmer le bannissement
+                </button>
+            </div>
+        </div>
+    </div>
+}
 @code {
     [Parameter]
     public TraitementSignalementViewModel VM_Traitement { get; set; }

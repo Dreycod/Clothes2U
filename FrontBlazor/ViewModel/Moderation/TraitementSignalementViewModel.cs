@@ -9,6 +9,7 @@ using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Signalement;
 using Shared.DTO.Utilisateur;
 using System.ComponentModel;
+using System.Text.Json;
 using Shared.DTO.Conversation;
 using Shared.DTO.Decision;
 using Shared.DTO.Message;
@@ -188,9 +189,16 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     public async Task SendWarningAsync()
     {
         if (!CanSendWarning) return;
-
         try
         {
+            var elementDecision = CreateElementDecision();
+            DecisionAvertissementPostDTO decision = new DecisionAvertissementPostDTO
+            {
+                UtilisateurId = UtilisateurSignale.UtilisateurId,
+                ElementDecision = elementDecision
+
+            };
+            await _decisionService.AddDecision(decision);
             await _notificationService.CreateNotificationAvertissement(
                 new CreateAvertissementRequestDTO()
                 {
@@ -198,10 +206,9 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
                     UtilisateurId = UtilisateurSignale.UtilisateurId
                 }
             );
+            //await _signalementService.DeleteAsync(Signalement.SignalementId);
             CloseWarningModal();
             _nav.NavigateTo("/moderation/signalements");
-            
-            
         }
         catch (Exception ex)
         {
@@ -219,11 +226,12 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         
             var sanction = new SanctionSuspensionPostDTO
             {
-                UtlisateurId = UtilisateurSignale.UtilisateurId,
+                UtilisateurId = UtilisateurSignale.UtilisateurId,
                 DateFinSuspension = DateTime.UtcNow.AddDays(SuspendDays),
                 ElementDecision = elementDecision
             };
-            var response = await _decisionService.AddDecision(sanction);
+            await _decisionService.AddDecision(sanction);
+            await _signalementService.DeleteAsync(Signalement.SignalementId);
             CloseSuspendModal();
             _nav.NavigateTo("/moderation/signalements");
         }
@@ -263,6 +271,15 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     {
         try
         {
+            var elementDecision = CreateElementDecision();
+        
+            var sanction = new SanctionBannissementPostDTO()
+            {
+                UtilisateurId = UtilisateurSignale.UtilisateurId,
+                ElementDecision = elementDecision
+            };
+            await _decisionService.AddDecision(sanction);
+            await _signalementService.DeleteAsync(Signalement.SignalementId);
             _nav.NavigateTo("/moderation/signalements");
             CloseBanModal();
         }

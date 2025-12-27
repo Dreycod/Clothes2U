@@ -317,6 +317,10 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(ds => ds.Decision)
                 .HasForeignKey<DecisionSanction>(ds => ds.DecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(d => d.ElementDecision)
+                .WithOne(ed => ed.Decision)
+                .HasForeignKey<ElementDecision>(ed => ed.DecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DecisionAvertissement>(entity =>
@@ -335,11 +339,6 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(d => d.SanctionSuspension)
                 .WithOne(ss => ss.DecisionSanction)
                 .HasForeignKey<SanctionSuspension>(ss => ss.DecisionSanctionId)  
-                .OnDelete(DeleteBehavior.Cascade);
-    
-            entity.HasOne(d => d.ElementDecision)
-                .WithOne(ed => ed.DecisionSanction)
-                .HasForeignKey<ElementDecision>(ed => ed.DecisionSanctionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

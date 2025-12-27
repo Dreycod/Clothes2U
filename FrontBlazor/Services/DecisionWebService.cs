@@ -20,13 +20,6 @@ public class DecisionWebService : BaseGenericService, IDecisionService
 
     public async Task<HttpResponseMessage> AddDecision(DecisionPostDTO decision)
     {
-        var json = JsonSerializer.Serialize(decision, new JsonSerializerOptions
-        {
-            WriteIndented = true 
-        });
-
-        Console.WriteLine("JSON envoyé à l'API :");
-        Console.WriteLine(json);
         var body = JsonContent.Create(decision);
         return await PostWithCredentialsAsync("Decision", body);
     }

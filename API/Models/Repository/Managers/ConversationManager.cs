@@ -82,4 +82,12 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .FirstOrDefaultAsync();
     }
     
+    public async Task SuspendElement(int id)
+    {
+        Message message = _context.Messages.Find(id);
+        message.MessageStatut = false;
+        _context.Messages.Update(message);
+        await _context.SaveChangesAsync();
+    }
+    
 }

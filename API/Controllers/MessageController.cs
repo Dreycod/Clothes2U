@@ -51,19 +51,6 @@ public class MessageController : ControllerBase
         _mapper = mapper;
         _hubContext = hubContext;
     }
-    private int? GetConnectedUserId()
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int id))
-            {
-                return id;
-            }
-        }
-        return null;
-    }
     [Authorize]
     [HttpPost("texte")]
     [ProducesResponseType(typeof(MessageTextePostDTO), StatusCodes.Status201Created)]
@@ -77,6 +64,7 @@ public class MessageController : ControllerBase
          {
              MessageDate = DateTime.UtcNow,
              MessageLu = false,
+             MessageStatut = true,
              UtilisateurId = dto.UtilisateurId,
              ConversationId = dto.ConversationId
          };

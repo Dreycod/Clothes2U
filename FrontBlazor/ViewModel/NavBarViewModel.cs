@@ -61,6 +61,15 @@ namespace FrontBlazor.ViewModel
             if (showDropDownNotification)
             {
                 var result = await _notificationService.GetAllAsync();
+                foreach (var notif in result)
+                {
+                    switch (notif)
+                    {
+                        case NotificationAdminDTO ad:
+                            Console.WriteLine(ad.AdminText);
+                            break;
+                    }
+                }
                 notifications = result ?? new ObservableCollection<NotificationDTO>();
                 NotifyStateChanged(); 
             }

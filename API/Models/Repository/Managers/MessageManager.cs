@@ -11,6 +11,7 @@ public class MessageManager :  GenericCRUDManager<Message>
     {
         return _context.Messages
             .Include(m => m.MessageTexte)
+            .ThenInclude(mt => mt.Photos)
             .Include(m => m.MessageDemande)
             .Include(m => m.MessageValidation)
             .AsSplitQuery();

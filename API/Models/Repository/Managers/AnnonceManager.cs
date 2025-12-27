@@ -166,4 +166,13 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             _ => query.OrderByDescending(a => a.DateAnnonce)
         };
     }
+
+    public async Task SuspendElement(int id)
+    {
+        Console.WriteLine("----------------------------------------------------> et oui on est la");
+        Annonce annonce = _context.Annonces.Find(id);
+        annonce.StatutAnnonceId = 2;
+        _context.Annonces.Update(annonce);
+        await _context.SaveChangesAsync();
+    }
 }

@@ -19,40 +19,43 @@ public class ModerationMappingProfile : Profile
                 src.DecisionSanction != null && src.DecisionSanction.SanctionSuspension != null ? "Suspension" :
                 "Inconnu"
             ));
+            
         CreateMap<MotInterdit, MotInterditDTO>().ReverseMap();
+        
         CreateMap<Decision, DecisionPostDTO>()
-            .ForMember(dest => dest.UtlisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ConstructUsing((src, context) =>
             {
+                var elementDto = context.Mapper.Map<ElementDecisionDTO>(src.ElementDecision);
+                
                 if (src.DecisionAvertissement != null)
                 {
                     return new DecisionAvertissementPostDTO
                     {
-                        UtlisateurId = src.UtilisateurId,
+                        UtilisateurId = src.UtilisateurId,
+                        ElementDecision = elementDto
                     };
                 }
                 else if (src.DecisionSanction?.SanctionSuspension != null)
                 {
-                    var elementDto = context.Mapper.Map<ElementDecisionDTO>(src.DecisionSanction.ElementDecision);
                     return new SanctionSuspensionPostDTO
                     {
-                        UtlisateurId = src.UtilisateurId,
+                        UtilisateurId = src.UtilisateurId,
                         DateFinSuspension = src.DecisionSanction.SanctionSuspension.DateFinSuspension,
                         ElementDecision = elementDto
                     };
                 }
                 else if (src.DecisionSanction?.SanctionBannissement != null)
                 {
-                    var elementDto = context.Mapper.Map<ElementDecisionDTO>(src.DecisionSanction.ElementDecision);
                     return new SanctionBannissementPostDTO
                     {
-                        UtlisateurId = src.UtilisateurId,
+                        UtilisateurId = src.UtilisateurId,
                         ElementDecision = elementDto
                     };
                 }
                 
                 throw new InvalidOperationException("Type de décision inconnu");
             });
+            
         CreateMap<ElementDecision, ElementDecisionDTO>()
             .ConstructUsing((src, context) =>
             {

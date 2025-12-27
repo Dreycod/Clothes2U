@@ -5,6 +5,7 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO;
 using Shared.DTO.Decision;
 
 namespace API.Controllers;
@@ -17,15 +18,25 @@ namespace API.Controllers;
 public class DecisionController : ControllerBase
 {
     private readonly IDecisionRepository _decisionManager;
-    private readonly IUtilisateurRepository _utilisateurManager;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly INoteUtilisateurRepository _noteUtilisateurManager;
+    private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
 
-    public DecisionController(IDecisionRepository decisionManager,ICurrentUserService currentUserService,IUtilisateurRepository utilisateurManager, IMapper mapper)
+    public DecisionController(
+        IDecisionRepository decisionManager,
+        ICurrentUserService currentUserService,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
+        INoteUtilisateurRepository noteUtilisateurManager,
+        IConversationRepository<Conversation, int> conversationManager,
+        IMapper mapper)
     {
         _currentUserService =  currentUserService;
-        _utilisateurManager =  utilisateurManager;
         _decisionManager = decisionManager;
+        _annonceManager = annonceManager;
+        _noteUtilisateurManager = noteUtilisateurManager;
+        _conversationManager = conversationManager;
         _mapper = mapper;
     }
 
@@ -42,6 +53,7 @@ public class DecisionController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
     {
+        Console.WriteLine("-------------------------------------------------------- Fonction ----------------------------------------------------------");
         try
         {
             int? userId = await _currentUserService.GetUserId();
@@ -55,8 +67,9 @@ public class DecisionController : ControllerBase
             }
             var decision = new Decision
             {
+                ElementDecision = await CreateElementDecision(decisionDTO.ElementDecision),
                 ModerateurId = userId.Value,
-                UtilisateurId = decisionDTO.UtlisateurId,
+                UtilisateurId = decisionDTO.UtilisateurId,
                 DecisionDate = DateTime.UtcNow
             };
             switch (decisionDTO)
@@ -102,12 +115,9 @@ public class DecisionController : ControllerBase
 
     private async Task<Decision> CreateSanctionSuspension(Decision decision, SanctionSuspensionPostDTO dto)
     {
-        var elementDecision = await CreateElementDecision(dto.ElementDecision);
-
         var sanction = new DecisionSanction
         {
             EstEnCours = true,
-            ElementDecision = elementDecision
         };
 
         sanction.SanctionSuspension = new SanctionSuspension
@@ -115,8 +125,6 @@ public class DecisionController : ControllerBase
             DateFinSuspension = dto.DateFinSuspension,
             DecisionSanction = sanction
         };
-
-        elementDecision.DecisionSanction = sanction;
         decision.DecisionSanction = sanction;
 
         return decision;
@@ -124,20 +132,15 @@ public class DecisionController : ControllerBase
 
     private async Task<Decision> CreateSanctionBannissement(Decision decision, SanctionBannissementPostDTO dto)
     {
-        var elementDecision = await CreateElementDecision(dto.ElementDecision);
-
         var sanction = new DecisionSanction
         {
             EstEnCours = true,
-            ElementDecision = elementDecision
         };
 
         sanction.SanctionBannissement = new SanctionBannissement
         {
             DecisionSanction = sanction
         };
-
-        elementDecision.DecisionSanction = sanction;
         decision.DecisionSanction = sanction;
 
         return decision;
@@ -145,11 +148,15 @@ public class DecisionController : ControllerBase
 
     private async Task<ElementDecision> CreateElementDecision(ElementDecisionDTO dto)
     {
+        Console.WriteLine("-------------------------------------------------------- element ----------------------------------------------------------");
         var elementDecision = new ElementDecision();
 
         switch (dto)
         {
             case ElementDecisionAnnonceDTO annonce:
+                Console.WriteLine("-------------------------------------------------------- appelle ----------------------------------------------------------");
+                await _annonceManager.SuspendElement(annonce.AnnonceId);
+                Console.WriteLine("-------------------------------------------------------- reception ----------------------------------------------------------");
                 elementDecision.ElementDecisionAnnonce = new ElementDecisionAnnonce
                 {
                     AnnonceId = annonce.AnnonceId
@@ -157,6 +164,7 @@ public class DecisionController : ControllerBase
                 break;
 
             case ElementDecisionMessageDTO message:
+                await _conversationManager.SuspendElement(message.MessageId);
                 elementDecision.ElementDecisionMessage = new ElementDecisionMessage
                 {
                     MessageId = message.MessageId
@@ -164,6 +172,7 @@ public class DecisionController : ControllerBase
                 break;
 
             case ElementAvisDTO avis:
+                await _noteUtilisateurManager.SuspendElement(avis.AvisId);
                 elementDecision.ElementDecisionAvis = new ElementDecisionAvis
                 {
                     AvisId = avis.AvisId

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Shared.DTO.Notification;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "libelleType")]
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$typeNotif")]
 [JsonDerivedType(typeof(NotificationAdminDTO), "Administration")]
 [JsonDerivedType(typeof(NotificationAvertissementDTO), "Avertissement")]
 [JsonDerivedType(typeof(NotificationMessageDTO), "Message")]
@@ -12,31 +12,26 @@ public abstract class NotificationDTO
 {
     public int NotificationId { get; set; }
     public DateTime DateCreation { get; set; }
-    public abstract string LibelleType { get;  }
     public bool EstLu { get; set; }
 }
 
 public class NotificationAdminDTO : NotificationDTO
 {
-    public override string LibelleType => "Administration";
     public String AdminText { get; set; }
 }
 
 public class NotificationAvertissementDTO : NotificationDTO
 {
-    public override string LibelleType => "Avertissement";
     public string MessageAvertissement  { get; set; } = null!;
 }
 public class NotificationMessageDTO  : NotificationDTO
 {
-    public override string LibelleType => "Message";
     public int ConversationId { get; set; }
     public string MessagePreview { get; set; } 
 }
 
 public class NotificationModificationAnnonceDTO : NotificationDTO
 {
-    public override string LibelleType => "Modification annonce";
     public int ModificationAnnonceId { get; set; }
     public string NomAuteur { get; set; }
     public string Title {get; set;}
@@ -44,7 +39,6 @@ public class NotificationModificationAnnonceDTO : NotificationDTO
 
 public class NotificationNouvelleAnnonceDTO : NotificationDTO
 {
-    public override string LibelleType => "Nouvelle annonce";
     public string NomAuteur { get; set; }
     public int? NouvelleAnnonceId { get; set; }
 }
