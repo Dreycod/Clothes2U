@@ -87,7 +87,13 @@ namespace API.Models.Repository.Managers
             return await GetByIdAsync(signalement.SignalementId) 
                    ?? throw new InvalidOperationException("Le signalement créé n'a pas pu être récupéré");
         }
-        
 
-    }
+        public async Task DeleteSignalementByUserId(int id)
+        {
+            IEnumerable<Signalement> signalements = await BaseQuery().Where(s => s.SignalementsAnnonce.Annonce.UtilisateurId == id || s.SignalementsAvis.Avis.AuteurId == id || s.SignalementsMessage.Message.UtilisateurId == id || s.SignalementsUtilisateur.UtilisateurSignaleId == id).ToListAsync();
+            _context.Signalements.RemoveRange(signalements);
+            await _context.SaveChangesAsync();
+        }
+
+    }   
 }

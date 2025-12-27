@@ -30,4 +30,14 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
         await _context.SaveChangesAsync();
         return decision;
     }
+
+    public async Task<IEnumerable<Decision>> GetAllDecisionByUserId(int id)
+    {
+        return BaseDecisionQuery().Where(d => d.UtilisateurId == id).ToList();   
+    }
+
+    public async Task<IEnumerable<Decision>> GetAllActiveDecisionByUserId(int id)
+    {
+        return BaseDecisionQuery().Where(d => d.UtilisateurId == id && d.DecisionAvertissement == null && d.DecisionSanction.EstEnCours).ToList();
+    }
 }

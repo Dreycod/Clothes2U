@@ -19,6 +19,7 @@ public class DecisionController : ControllerBase
 {
     private readonly IDecisionRepository _decisionManager;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly ISignalementRepository _signalementManager;
     private readonly INoteUtilisateurRepository _noteUtilisateurManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IMapper _mapper;
@@ -26,6 +27,7 @@ public class DecisionController : ControllerBase
 
     public DecisionController(
         IDecisionRepository decisionManager,
+        ISignalementRepository signalementManager,
         ICurrentUserService currentUserService,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
         INoteUtilisateurRepository noteUtilisateurManager,
@@ -33,6 +35,7 @@ public class DecisionController : ControllerBase
         IMapper mapper)
     {
         _currentUserService =  currentUserService;
+        _signalementManager = signalementManager;
         _decisionManager = decisionManager;
         _annonceManager = annonceManager;
         _noteUtilisateurManager = noteUtilisateurManager;
@@ -55,10 +58,9 @@ public class DecisionController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
     {
-        Console.WriteLine("-------------------------------------------------------- Fonction ----------------------------------------------------------");
         try
         {
             int? userId = await _currentUserService.GetUserId();
@@ -84,10 +86,12 @@ public class DecisionController : ControllerBase
                     break;
 
                 case SanctionSuspensionPostDTO suspension:
+                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateSanctionSuspension(decision, suspension);
                     break;
 
                 case SanctionBannissementPostDTO bannissement:
+                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateSanctionBannissement(decision, bannissement);
                     break;
 
@@ -150,18 +154,13 @@ public class DecisionController : ControllerBase
 
         return decision;
     }
-
     private async Task<ElementDecision> CreateElementDecision(ElementDecisionDTO dto)
     {
-        Console.WriteLine("-------------------------------------------------------- element ----------------------------------------------------------");
         var elementDecision = new ElementDecision();
-
         switch (dto)
         {
             case ElementDecisionAnnonceDTO annonce:
-                Console.WriteLine("-------------------------------------------------------- appelle ----------------------------------------------------------");
                 await _annonceManager.SuspendElement(annonce.AnnonceId);
-                Console.WriteLine("-------------------------------------------------------- reception ----------------------------------------------------------");
                 elementDecision.ElementDecisionAnnonce = new ElementDecisionAnnonce
                 {
                     AnnonceId = annonce.AnnonceId
@@ -191,7 +190,6 @@ public class DecisionController : ControllerBase
             default:
                 throw new ArgumentException("Type d'élément de décision non reconnu");
         }
-
         return elementDecision;
     }
 }
