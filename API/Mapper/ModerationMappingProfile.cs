@@ -18,7 +18,15 @@ public class ModerationMappingProfile : Profile
                 src.DecisionSanction != null && src.DecisionSanction.SanctionBannissement != null ? "Bannissement" :
                 src.DecisionSanction != null && src.DecisionSanction.SanctionSuspension != null ? "Suspension" :
                 "Inconnu"
-            ));
+            ))
+            .ForMember(dest => dest.Statut, opt => opt.MapFrom(src => 
+                    src.DecisionSanction != null ? (bool?)src.DecisionSanction.EstEnCours : null
+            ))
+            .ForMember(dest => dest.FinSuspension, opt => opt.MapFrom(src => 
+                src.DecisionSanction.SanctionSuspension != null ? (DateTime?)src.DecisionSanction.SanctionSuspension.DateFinSuspension : null
+                ))
+            
+            ;
             
         CreateMap<MotInterdit, MotInterditDTO>().ReverseMap();
         

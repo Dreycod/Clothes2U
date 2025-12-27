@@ -42,9 +42,14 @@ public class DecisionController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin,Moderateur")]
-    public async Task<ActionResult<ActionResult<DecisionDTO>>> GetAllDecisionsByModerateurId(int id)
+    public async Task<ActionResult<ActionResult<DecisionDTO>>> GetAllDecisionsByModerateurId()
     {
-        IEnumerable<Decision> decisions = await _decisionManager.GetAllDecisionsByModerateurId(id);
+        int? userId = await _currentUserService.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        IEnumerable<Decision> decisions = await _decisionManager.GetAllDecisionsByModerateurId((int)userId);
         IEnumerable<DecisionDTO> decisionsDTO = _mapper.Map<IEnumerable<DecisionDTO>>(decisions);
         return Ok(decisionsDTO);
     }

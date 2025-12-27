@@ -8,9 +8,12 @@ namespace FrontBlazor.Services;
 public class DecisionWebService : BaseGenericService, IDecisionService
 {
     public DecisionWebService(HttpClient httpClient) : base(httpClient){}
-    public async Task<DecisionDTO> GetAllDecisionByModeratorIdAsync(int id)
+    public async Task<List<DecisionDTO>> GetAllDecisionByModeratorIdAsync()
     {
-        throw new NotImplementedException();
+        var response = await GetWithCredentialsAsync("Decision");
+        response.EnsureSuccessStatusCode();
+        var sanctions = await response.Content.ReadFromJsonAsync<List<DecisionDTO>>();
+        return sanctions;
     }
 
     public async Task<DecisionDetailDTO> GetDecisionDetailAsync(int DecisionId)

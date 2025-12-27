@@ -1,0 +1,137 @@
+﻿@page "/moderation/sanctions"
+@using Shared.DTO.Decision
+@inject SanctionsViewModel SanctionsViewModel
+@layout ModerationLayout
+
+<PageTitle>Historique des sanctions - Modération</PageTitle>
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/loading.css" rel="stylesheet" />
+
+@if (SanctionsViewModel.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <main class="mod-content">
+        <h1 class="mod-page-title">Historique des sanctions</h1>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab @(sanctionFilter == "all" ? "active" : "")" @onclick='() => sanctionFilter = "all"'>
+                Toutes 
+            </button>
+            <button class="filter-tab @(sanctionFilter == "warnings" ? "active" : "")" @onclick='() => sanctionFilter = "warnings"'>
+                Avertissements
+            </button>
+            <button class="filter-tab @(sanctionFilter == "suspensions" ? "active" : "")" @onclick='() => sanctionFilter = "suspensions"'>
+                Suspensions 
+            </button>
+            <button class="filter-tab @(sanctionFilter == "bans" ? "active" : "")" @onclick='() => sanctionFilter = "bans"'>
+                Bannissements
+            </button>
+        </div>
+
+        <!-- Sanctions Table -->
+        <div class="table-container">
+            @if (GetFilteredDecisions().Any())
+            {
+                <table class="sanctions-table">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Type</th>
+                            <th>Modérateur</th>
+                            <th>Date</th>
+                            <th>Fin suspension</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var decision in GetFilteredDecisions())
+                        {
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <span>@decision.LoginUtilisateur</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="sanction-badge @GetSanctionClass(decision.TypeDecision)">
+                                        @decision.TypeDecision
+                                    </span>
+                                </td>
+                                <td>Modérateur</td>
+                                <td>@decision.DateDecision.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (decision.FinSuspension.HasValue)
+                                    {
+                                        @decision.FinSuspension.Value.ToString("dd/MM/yyyy HH:mm")
+                                    }
+                                    else if (decision.TypeDecision == "Bannissement")
+                                    {
+                                        <span>Permanent</span>
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (decision.Statut.HasValue)
+                                    {
+                                        <span class="status-badge @(decision.Statut.Value ? "active" :  "expired")">
+                                            @(decision.Statut.Value ? "Active" : "Expirée")
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>Aucune sanction trouvée</p>
+                </div>
+            }
+        </div>
+    </main>
+}
+
+@code {
+    private string sanctionFilter = "all";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SanctionsViewModel.LoadAsync();
+    }
+
+    private IEnumerable<DecisionDTO> GetFilteredDecisions()
+    {
+        if (SanctionsViewModel.Decisions == null)
+            return Enumerable.Empty<DecisionDTO>();
+
+        return sanctionFilter switch
+        {
+            "warnings" => SanctionsViewModel.Decisions.Where(d => d.TypeDecision == "Avertissement"),
+            "suspensions" => SanctionsViewModel.Decisions.Where(d => d.TypeDecision == "Suspension"),
+            "bans" => SanctionsViewModel.Decisions.Where(d => d.TypeDecision == "Bannissement"),
+            _ => SanctionsViewModel.Decisions
+        };
+    }
+
+    private string GetSanctionClass(string typeDecision)
+    {
+        return typeDecision?.ToLower() switch
+        {
+            "avertissement" => "avertissement",
+            "suspension" => "suspension",
+            "bannissement" => "bannissement",
+            _ => ""
+        };
+    }
+}
