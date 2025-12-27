@@ -13,7 +13,7 @@ using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel
 {
-    public class ProfilViewModel
+    public class ProfilViewModel : BaseViewModel
     {
         #region Variables
         public UtilisateurViewDTO? ViewingUser { get; set; } = null;
@@ -72,6 +72,7 @@ namespace FrontBlazor.ViewModel
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
             IMediasService mediasService, ISignalementService signalementService, IBloqueService bloqueService)
+        : base(authService, navigationManager )
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -92,7 +93,7 @@ namespace FrontBlazor.ViewModel
             IsLoading = true;
             UserNotFound = false;
             UserSuspended = false;
-
+            await VerifiyAccountAsync();
             try
             {
                 UtilisateurViewDTO user = await _utilisateurService.GetByLoginAsync(login);

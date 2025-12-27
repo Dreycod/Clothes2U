@@ -168,6 +168,10 @@
     public void ToggleRegisterPassword() => ShowRegisterPassword = !ShowRegisterPassword;
     public void ToggleConfirmPassword() => ShowConfirmPassword = !ShowConfirmPassword;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_Connexion.VerifiyAccountAsync();
+    }
     public async Task OnLoginClicked()
     {
         ErrorMessage = SuccessMessage = string.Empty;

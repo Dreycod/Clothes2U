@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel
 {
-    public class HomeViewModel
+    public class HomeViewModel :  BaseViewModel
     {
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
@@ -22,6 +22,7 @@ namespace FrontBlazor.ViewModel
         public string SuccessMessage { get; set; } = string.Empty;
 
         public HomeViewModel(IAnnonceService annonceService, IFavorisService<FavorisDTO> favorisService, IAuthService authService, NavigationManager navigationManager)
+        : base(authService, navigationManager)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
@@ -47,7 +48,7 @@ namespace FrontBlazor.ViewModel
         {
             ErrorMessage = SuccessMessage = string.Empty;
             IsLoading = true;
-
+            await VerifiyAccountAsync();
             FilterDTO filter = new FilterDTO
             {
                 SortBy = SortField.DateAnnonce,

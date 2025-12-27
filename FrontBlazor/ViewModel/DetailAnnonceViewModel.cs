@@ -13,7 +13,7 @@ using Microsoft.JSInterop;
 
 namespace FrontBlazor.ViewModel;
 
-public class DetailAnnonceViewModel
+public class DetailAnnonceViewModel : BaseViewModel
 {
     private readonly IAnnonceService _annonceService;
     private readonly IFavorisService<FavorisDTO> _favorisService;
@@ -49,6 +49,7 @@ public class DetailAnnonceViewModel
         IConversationService<ConversationDTO> conversationService,
         ClipboardService clipboardService, NavigationManager navigationManager, IMediasService mediasService
         , IVisualisationService visualisationService, ISignalementService signalementService)
+        : base(authService, navigationManager)
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
@@ -66,7 +67,7 @@ public class DetailAnnonceViewModel
     {
         IsLoading = true;
         ErrorMessage = null;
-
+        await VerifiyAccountAsync();
         try
         {
             AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);

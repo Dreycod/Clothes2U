@@ -47,6 +47,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IMediasService mediaService,
         NavigationManager nav,
         ISignalRService signalRService)
+    
     {
         _conversationService = conversationService;
         _authService = authService;

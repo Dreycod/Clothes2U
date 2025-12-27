@@ -4,14 +4,16 @@ using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel;
 
-public class LoginViewModel
+public class LoginViewModel : BaseViewModel
 
 {
     private readonly IAuthService _authService;
-    public LoginViewModel(IAuthService authService)
+    public LoginViewModel(IAuthService authService, NavigationManager navigationManager)
+        : base(authService, navigationManager)
     {
         _authService = authService;
     }

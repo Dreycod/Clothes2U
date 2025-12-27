@@ -14,7 +14,7 @@ using Shared.DTO.Taille;
 
 namespace FrontBlazor.ViewModel
 {
-    public class SearchAnnonceViewModel
+    public class SearchAnnonceViewModel : BaseViewModel
     {
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
@@ -59,6 +59,7 @@ namespace FrontBlazor.ViewModel
 
         public SearchAnnonceViewModel(
             IAnnonceService annonceService, 
+            IAuthService authService,
             IFavorisService<FavorisDTO> favorisService, 
             ListableViewModel<CategorieDTO> vM_Categorie, 
             ListableViewModel<MarqueDTO> vM_Marque, 
@@ -68,6 +69,7 @@ namespace FrontBlazor.ViewModel
             NavigationManager navManager, 
             INotificationService notificationPopUpService,
             LoginViewModel vM_Login)
+        : base(authService, navManager)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
@@ -103,6 +105,7 @@ namespace FrontBlazor.ViewModel
         private async Task LoadAsync()
         {
             IsLoading = true;
+            await VerifiyAccountAsync();
             NotifyStateChanged();
 
             await VM_Categorie.LoadAsync();
