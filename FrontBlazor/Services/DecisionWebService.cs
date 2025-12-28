@@ -18,7 +18,10 @@ public class DecisionWebService : BaseGenericService, IDecisionService
 
     public async Task<DecisionDetailDTO> GetDecisionDetailAsync(int DecisionId)
     {
-        throw new NotImplementedException();
+        var response = await GetWithCredentialsAsync($"Decision/{DecisionId}");
+        response.EnsureSuccessStatusCode();
+        var sanction = await response.Content.ReadFromJsonAsync<DecisionDetailDTO>();
+        return sanction;
     }
 
     public async Task<HttpResponseMessage> AddDecision(DecisionPostDTO decision)

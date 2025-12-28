@@ -1,0 +1,67 @@
+@page "/moderation/demandes-restauration"
+@using FrontBlazor.ViewModel.Moderation
+@inject DemandesRestaurationViewModel DemandesRestaurationViewModel
+@layout ModerationLayout
+
+<PageTitle>Demandes de restauration - Modération</PageTitle>
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/loading.css" rel="stylesheet" />
+
+@if (DemandesRestaurationViewModel.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <main class="mod-content">
+        <h1 class="mod-page-title">Demandes de restauration</h1>
+
+        @if (DemandesRestaurationViewModel.DemandeRestaurations.Any())
+        {
+            <div class="reports-container">
+                @foreach (var demande in DemandesRestaurationViewModel.DemandeRestaurations)
+                {
+                    <div class="report-card">
+                        <div class="report-header">
+                            <div class="report-user">
+                                <div>
+                                    <h3>@demande.LoginUtilisateur</h3>
+                                    <p class="report-reason">a demandé une <span class="reason-highlight">restauration de compte</span></p>
+                                </div>
+                            </div>
+                            <button class="btn-view" @onclick="() => VoirDemande(demande.DemandeRestaurationId)">
+                                Visualiser
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>Aucune demande de restauration en attente</p>
+            </div>
+        }
+    </main>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        DemandesRestaurationViewModel.OnStateChanged += StateHasChanged;
+        await DemandesRestaurationViewModel.LoadAsync();
+    }
+
+    private void VoirDemande(int demandeId)
+    {
+        DemandesRestaurationViewModel.NavigateTo($"/moderation/demande-restauration/{demandeId}");
+    }
+
+    public void Dispose()
+    {
+        DemandesRestaurationViewModel.OnStateChanged -= StateHasChanged;
+    }
+}

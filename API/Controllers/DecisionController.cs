@@ -57,6 +57,23 @@ public class DecisionController : ControllerBase
         return Ok(decisionsDTO);
     }
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(DecisionSuspensionDetailDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DecisionBannissementDetailDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [Authorize(Roles = "Admin,Moderateur")]
+    public async Task<ActionResult<DecisionDetailDTO>> GetDecisionById(int id)
+    {
+        Decision decision = await _decisionManager.GetByIdAsync(id);
+        if (decision == null)
+        {
+            return NotFound();
+        }
+        DecisionDetailDTO decisionDTO = _mapper.Map<DecisionDetailDTO>(decision);
+        if (decisionDTO == null) return NotFound();
+        return Ok(decisionDTO);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
@@ -151,7 +168,6 @@ public class DecisionController : ControllerBase
             DecisionSanction = sanction
         };
         decision.DecisionSanction = sanction;
-
         return decision;
     }
     private async Task<ElementDecision> CreateElementDecision(ElementDecisionDTO dto)

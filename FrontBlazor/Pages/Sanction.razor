@@ -1,6 +1,138 @@
-@page "/Sanction"
-<h3>Sanction</h3>
+@page "/sanction"
+@inject SanctionedUserViewModel ViewModel
+
+<PageTitle>Compte Suspendu</PageTitle>
+
+<link href="css/sanction.css" rel="stylesheet" />
+
+@if (ViewModel.IsLoading)
+{
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+}
+else
+{
+    <div class="sanction-container">
+        <div class="sanction-card">
+            <div class="warning-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h1 class="sanction-title">Compte Suspendu</h1>
+
+            <div class="sanction-message">
+                <p>Votre compte a été suspendu suite à un ou plusieurs manquements à nos conditions d'utilisation.</p>
+                <p>Vous ne pouvez plus accéder aux fonctionnalités de la plateforme pendant la durée de cette suspension.</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>@ViewModel.SuccessMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle-fill"></i>
+                    <span>@ViewModel.ErrorMessage</span>
+                </div>
+            }
+
+            @if (!ViewModel.DemandeSubmitted)
+            {
+                <div class="action-buttons">
+                    @if (!ViewModel.ShowDemandeForm)
+                    {
+                        <button class="btn btn-primary" @onclick="ViewModel.ToggleDemandeForm">
+                            <i class="bi bi-envelope"></i>
+                            Demander une restauration
+                        </button>
+                    }
+                    <button class="btn btn-secondary" @onclick="ViewModel.HandleLogout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Se déconnecter
+                    </button>
+                </div>
+                
+                @if (ViewModel.ShowDemandeForm)
+                {
+                    <div class="demande-form">
+                        <h2 class="form-title">Demande de restauration</h2>
+                        <p class="form-description">
+                            Expliquez les raisons pour lesquelles vous souhaitez que votre compte soit restauré. 
+                            Notre équipe de modération examinera votre demande.
+                        </p>
+
+                        <div class="form-group">
+                            <label for="message">Votre message (minimum 20 caractères)</label>
+                            <textarea 
+                                id="message"
+                                class="form-control" 
+                                rows="6" 
+                                maxlength="1000"
+                                placeholder="Décrivez votre situation et expliquez pourquoi votre compte devrait être restauré..."
+                                @bind="ViewModel.MessageDemande"
+                                disabled="@ViewModel.IsSubmitting"></textarea>
+                            <small class="char-count">@ViewModel.MessageDemande.Length / 1000 caractères</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button 
+                                class="btn btn-primary" 
+                                @onclick="ViewModel.SoumettreDemandeAsync"
+                                disabled="@ViewModel.IsSubmitting">
+                                @if (ViewModel.IsSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    <span>Envoi en cours...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-send-fill me-2"></i>
+                                    <span>Envoyer la demande</span>
+                                }
+                            </button>
+                            <button 
+                                class="btn btn-outline-secondary" 
+                                @onclick="ViewModel.ToggleDemandeForm"
+                                disabled="@ViewModel.IsSubmitting">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="success-state">
+                    <div class="success-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <p class="success-text">
+                        Votre demande a été envoyée. Vous serez notifié par email de la décision de notre équipe.
+                    </p>
+                    <button class="btn btn-secondary" @onclick="ViewModel.HandleLogout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Se déconnecter
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+}
 
 @code {
-    
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.OnStateChanged += StateHasChanged;
+        await ViewModel.LoadAsync();
+    }
+
+    public void Dispose()
+    {
+        ViewModel.OnStateChanged -= StateHasChanged;
+    }
 }

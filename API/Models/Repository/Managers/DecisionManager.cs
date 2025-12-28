@@ -17,6 +17,14 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
             .ThenInclude(s => s.SanctionBannissement)
             .Include(d => d.DecisionSanction)
             .ThenInclude(s => s.SanctionSuspension)
+            .Include(d => d.ElementDecision)
+            .ThenInclude(e => e.ElementDecisionAnnonce)
+            .Include(d => d.ElementDecision)
+            .ThenInclude(e => e.ElementDecisionAvis)
+            .Include(d => d.ElementDecision)
+            .ThenInclude(e => e.ElementDecisionMessage)
+            .Include(d => d.ElementDecision)
+            .ThenInclude(e => e.ElementDecisionUtilisateur)
             .AsSplitQuery();
     }
 
@@ -31,13 +39,14 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
         return decision;
     }
 
-    public async Task<IEnumerable<Decision>> GetAllDecisionByUserId(int id)
+    public async override Task<Decision> GetByIdAsync(int id)
     {
-        return BaseDecisionQuery().Where(d => d.UtilisateurId == id).ToList();   
+        return await BaseDecisionQuery().FirstOrDefaultAsync(d => d.DecisionId == id);
     }
 
-    public async Task<IEnumerable<Decision>> GetAllActiveDecisionByUserId(int id)
+    public async Task<Decision> GetActiveDecisionByUserId(int id)
     {
-        return BaseDecisionQuery().Where(d => d.UtilisateurId == id && d.DecisionAvertissement == null && d.DecisionSanction.EstEnCours).ToList();
+        return await BaseDecisionQuery().Where(d => d.UtilisateurId == id && d.DecisionAvertissement == null && d.DecisionSanction.EstEnCours).FirstOrDefaultAsync();   
     }
+    
 }

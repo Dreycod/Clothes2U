@@ -18,6 +18,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Decision> Decisions { get; set; }
     public DbSet<DecisionAvertissement> DecisionsAvertissement { get; set; }
     public DbSet<DecisionSanction> DecisionsSanction { get; set; }
+    public DbSet<DemandeRestauration> DemandesRestauration { get; set; }
     public DbSet<ElementDecision> ElementsDecision { get; set; }
     public DbSet<ElementDecisionAnnonce> ElementsDecisionAnnonce { get; set; }
     public DbSet<ElementDecisionAvis>  ElementsDecisionAvis { get; set; }
@@ -321,6 +322,10 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(ed => ed.Decision)
                 .HasForeignKey<ElementDecision>(ed => ed.DecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(d => d.DemandeRestauration)
+                .WithOne(ed => ed.Decision)
+                .HasForeignKey<DemandeRestauration>(dr => dr.DecisionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DecisionAvertissement>(entity =>
@@ -339,6 +344,15 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(d => d.SanctionSuspension)
                 .WithOne(ss => ss.DecisionSanction)
                 .HasForeignKey<SanctionSuspension>(ss => ss.DecisionSanctionId)  
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<DemandeRestauration>(entity =>
+        {
+            entity.HasKey(d => d.DemandeRestaurationId);
+            
+            entity.HasOne(dr => dr.Decision)
+                .WithOne(d => d.DemandeRestauration)
+                .HasForeignKey<DemandeRestauration>(dr => dr.DecisionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

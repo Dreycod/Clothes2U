@@ -95,5 +95,66 @@ public class ModerationMappingProfile : Profile
                 
                 throw new InvalidOperationException("Type d'élément de décision inconnu");
             });
+        
+        
+       CreateMap<Decision, DecisionDetailDTO>()
+            .ConstructUsing((src, context) =>
+            {
+                var elementDto = context.Mapper.Map<ElementDecisionDTO>(src.ElementDecision);
+                
+                if (src.DecisionSanction?.SanctionSuspension != null)
+                {
+                    return new DecisionSuspensionDetailDTO
+                    {
+                        DateSanction = src.DecisionDate,
+                        DateFinSuspension = src.DecisionSanction.SanctionSuspension.DateFinSuspension,
+                        ElementDecision = elementDto
+                    };
+                }
+                else if (src.DecisionSanction?.SanctionBannissement != null)
+                {
+                    return new DecisionBannissementDetailDTO
+                    {
+                        DateSanction = src.DecisionDate,
+                        ElementDecision = elementDto
+                    };
+                }
+                
+                throw new InvalidOperationException("Type de décision sanction inconnu");
+            });
+            
+        CreateMap<ElementDecision, ElementDecisionDTO>()
+            .ConstructUsing((src, context) =>
+            {
+                if (src.ElementDecisionAnnonce != null)
+                {
+                    return new ElementDecisionAnnonceDTO
+                    {
+                        AnnonceId = src.ElementDecisionAnnonce.AnnonceId
+                    };
+                }
+                else if (src.ElementDecisionMessage != null)
+                {
+                    return new ElementDecisionMessageDTO
+                    {
+                        MessageId = src.ElementDecisionMessage.MessageId
+                    };
+                }
+                else if (src.ElementDecisionAvis != null)
+                {
+                    return new ElementAvisDTO
+                    {
+                        AvisId = src.ElementDecisionAvis.AvisId
+                    };
+                }
+                else if (src.ElementDecisionUtilisateur != null)
+                {
+                    return new ElementUtilisateurDTO();
+                }
+                
+                throw new InvalidOperationException("Type d'élément de décision inconnu");
+            });
+
+
     }
 }

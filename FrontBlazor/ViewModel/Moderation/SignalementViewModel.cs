@@ -26,10 +26,11 @@ public class SignalementViewModel : ModerationViewModel
     
     public List<SignalementDTO> Signalements { get; set; } = new();
     
-    public int SelectedCategoryId { get; set; } = 0; 
+    public int SelectedCategoryId { get; set; } = 0;
 
-    public async Task LoadSignalements()
+    public async override Task LoadAsync()
     {
+        base.LoadAsync();
         IsLoading = true;
         try
         {
@@ -51,7 +52,7 @@ public class SignalementViewModel : ModerationViewModel
     public async Task ChangeCategory(int categoryId)
     {
         SelectedCategoryId = categoryId;
-        await LoadSignalements();
+        await LoadAsync();
     }
 
     public async Task VoirSignalement(int id)

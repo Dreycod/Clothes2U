@@ -39,5 +39,10 @@ public class Decision : IEntity
     //relation avec la table Element de decision
     [InverseProperty(nameof(ElementDecision.Decision))]
     public virtual ElementDecision ElementDecision { get; set; } = null!; 
+    
+    //demande restauration
+    [InverseProperty(nameof(DemandeRestauration.Decision))]
+    public virtual DemandeRestauration? DemandeRestauration { get; set; } 
+    
     public int GetId() => DecisionId;
 }

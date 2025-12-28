@@ -1,10 +1,7 @@
-﻿namespace Shared.DTO.DemandeRestauration
+namespace Shared.DTO.DemandeRestauration;
+
+public class DemandeRestaurationDTO
 {
-    public class DemandeRestaurationDTO
-    {
-        public int DemandeRestaurationId { get; set; }
-        public int UtilisateurId { get; set; }
-        public int SuspensionId { get; set; }
-        public string? DemandeRestaurationText { get; set; }
-    }
+    public int DemandeRestaurationId { get; set; }
+    public string LoginUtilisateur { get; set; }
 }

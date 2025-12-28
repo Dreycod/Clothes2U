@@ -144,7 +144,7 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
                 break;
         }
         UtilisateurSignale = await _utilisateurService.GetUserById(Signalement.UtilisateurSignaleId);
-        PhotoProfilUrl = await GetPhotoProfilUrl(); 
+            PhotoProfilUrl = await GetPhotoProfilUrl(); 
         NotifyStateChanged();
     }
 
@@ -206,7 +206,6 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
                     UtilisateurId = UtilisateurSignale.UtilisateurId
                 }
             );
-            //await _signalementService.DeleteAsync(Signalement.SignalementId);
             CloseWarningModal();
             _nav.NavigateTo("/moderation/signalements");
         }

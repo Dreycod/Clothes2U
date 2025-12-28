@@ -1,0 +1,22 @@
+@page "/moderation/demande-restauration/{Id:int}"
+@using FrontBlazor.ViewModel.Moderation
+@inject DemandeRestaurationDetailViewModel DemandeRestaurationDetailViewModel
+@layout ModerationLayout
+
+<PageTitle>Détail de la demande - Modération</PageTitle>
+
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/loading.css" rel="stylesheet" />
+
+
+<h3>BONJOUR</h3>
+
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DemandeRestaurationDetailViewModel.LoadDemandeAsync(Id);
+    }
+}

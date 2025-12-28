@@ -47,6 +47,7 @@ builder.Services.AddScoped<VerificationService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
 builder.Services.AddScoped<IDecisionService, DecisionWebService>();
+builder.Services.AddScoped<IDemandeRestaurationService, DemandeRestaurationWebService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>
@@ -78,6 +79,9 @@ builder.Services.AddScoped<NavBarViewModel>();
 builder.Services.AddScoped<SignalementViewModel>();
 builder.Services.AddScoped<TraitementSignalementViewModel>();
 builder.Services.AddScoped<SanctionsViewModel>();
+builder.Services.AddScoped<SanctionedUserViewModel>();
+builder.Services.AddScoped<DemandesRestaurationViewModel>();
+builder.Services.AddScoped<DemandeRestaurationDetailViewModel>();
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });
 

@@ -35,5 +35,7 @@ namespace API.Models.EntityFramework
         public virtual SanctionBannissement? SanctionBannissement { get; set; } 
         
         
+        
+        
     }
 }
