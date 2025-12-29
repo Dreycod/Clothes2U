@@ -113,6 +113,52 @@
                                 <span>@(VM_Profil.ViewingUser.MoyenneAvis) (@(VM_Profil.AvisCount) avis)</span>
                             </div>
                         </div>
+                        @if (VM_Profil.IsSameUser)
+                        {
+                            <div class="profile-preferences">
+
+                                <button class="btn-toggle"
+                                        @onclick="VM_Profil.ToggleNotifMailPreference"
+                                        disabled="@(!VM_Profil.ViewingUser.ValidEmail || VM_Profil.IsUpdatingNotifMail)">
+
+                                    @if (VM_Profil.IsUpdatingNotifMail)
+                                    {
+                                        <span class="spinner-small-inline"></span>
+                                        <span> Mise à jour...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-envelope"></i>
+                                        <span>
+                                            Notifications email :
+                                            <strong>
+                                                @(VM_Profil.ViewingUser.PreferenceNotifMail ? "ON" : "OFF")
+                                            </strong>
+                                        </span>
+                                    }
+                                </button>
+
+                                @if (!VM_Profil.ViewingUser.ValidEmail)
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>
+                                            Vous devez vérifier votre adresse email pour activer les notifications.
+                                        </span>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(VM_Profil.NotifMailErrorMessage))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-x-circle"></i>
+                                        <span>@VM_Profil.NotifMailErrorMessage</span>
+                                    </div>
+                                }
+
+                            </div>
+                        }
+
                     </div>
                 </div>
 

@@ -60,6 +60,8 @@ namespace FrontBlazor.ViewModel
         public string FollowButtonText => IsFollowing ? "Se désabonner" : "Suivre";
 
         public event Action? OnStateChanged;
+        public bool IsUpdatingNotifMail { get; set; } = false;
+        public string? NotifMailErrorMessage { get; set; }
         #endregion
 
         public ProfilViewModel(
@@ -379,6 +381,48 @@ namespace FrontBlazor.ViewModel
             ShowBloqueModal = false;
             _navigationManager.Refresh(true);
         }
+
+        public async Task ToggleNotifMailPreference()
+        {
+            // Sécurité front
+            if (!IsSameUser || ViewingUser == null)
+                return;
+
+            // Règle métier : email vérifié
+            if (!ViewingUser.ValidEmail)
+            {
+                NotifMailErrorMessage = "Vous devez vérifier votre adresse email pour activer les notifications.";
+                NotifyStateChanged();
+                return;
+            }
+
+            IsUpdatingNotifMail = true;
+            NotifMailErrorMessage = null;
+            NotifyStateChanged();
+
+            bool newValue = !ViewingUser.PreferenceNotifMail;
+
+            try
+            {
+                await _utilisateurService.UpdateNotifMailPreferenceAsync(
+                    ViewingUser.UtilisateurId,
+                    newValue);
+
+                // Mise à jour locale si succès API
+                ViewingUser.PreferenceNotifMail = newValue;
+            }
+            catch (Exception ex)
+            {
+                NotifMailErrorMessage = "Erreur lors de la mise à jour de la préférence.";
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                IsUpdatingNotifMail = false;
+                NotifyStateChanged();
+            }
+        }
+
 
         public async void SignalerUtilisateur()
         {

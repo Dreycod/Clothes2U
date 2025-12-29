@@ -57,6 +57,7 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.ValidEmail, opt => opt.MapFrom(src => src.ValidEmail))
             .ForMember(dest => dest.ValidTelephone, opt => opt.MapFrom(src => src.ValidTelephone))
             .ForMember(dest => dest.StatutId, opt => opt.MapFrom(src => src.StatutId))
+            .ForMember(dest => dest.PreferenceNotifMail, opt => opt.MapFrom(src => src.PreferenceNotifMail))
             .ReverseMap();
             
     }

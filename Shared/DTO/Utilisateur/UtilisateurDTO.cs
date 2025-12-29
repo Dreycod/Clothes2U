@@ -11,4 +11,5 @@ public class UtilisateurDTO
     public bool ValidEmail { get; set; }
     public bool ValidTelephone { get; set; }
     public int? StatutId { get; set; }
+    public bool PreferenceNotifMail { get; set; }
 }

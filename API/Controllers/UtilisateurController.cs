@@ -57,6 +57,30 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
 
+    [Authorize]
+    [HttpPut("{id}/notif-mail")]
+    public async Task<IActionResult> UpdateNotifMailPreference(
+    int id,
+    [FromBody] UpdateNotifMailDTO dto)
+    {
+        // Sécurité : seul l'utilisateur lui-même
+        if ((await _currentUserService.GetUserId()) != id)
+            return Forbid();
+
+        var utilisateur = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateur == null)
+            return NotFound();
+
+        if (!utilisateur.ValidEmail)
+            return BadRequest("Email non vérifié");
+
+        utilisateur.PreferenceNotifMail = dto.PreferenceNotifMail;
+        await _utilisateurManager.UpdateAsync(utilisateur);
+
+        return NoContent();
+    }
+
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {

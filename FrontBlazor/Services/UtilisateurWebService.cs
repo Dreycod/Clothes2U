@@ -60,4 +60,31 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
 
         
     }
+
+    public async Task UpdateNotifMailPreferenceAsync(int userId, bool preference)
+    {
+        var dto = new UpdateNotifMailDTO
+        {
+            PreferenceNotifMail = preference
+        };
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"Utilisateur/{userId}/notif-mail")
+        {
+            Content = JsonContent.Create(dto)
+        };
+
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+        var response = await _httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"❌ UpdateNotifMailPreference failed: {error}");
+            throw new Exception(error);
+        }
+    }
+
 }

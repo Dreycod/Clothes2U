@@ -137,7 +137,9 @@ public class LoginController : ControllerBase
             RoleId = 1
         };
         await _utilisateurManager.AddAsync(newUser);
-        var tokenString = _loginService.GenerateJwtToken(newUser);
+        var utilisateurComplet = await _utilisateurManager
+            .GetUtilisateurByLogin(newUser.Login);
+        var tokenString = _loginService.GenerateJwtToken(utilisateurComplet);
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
