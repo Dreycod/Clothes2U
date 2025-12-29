@@ -3,6 +3,10 @@
     min-height: calc(100vh - 70px);
 }
 
+input[type="file"] {
+    display: none !important;
+}
+
 .messages-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -414,4 +418,190 @@
     border-radius: 50%;
     display: inline-block;
     margin-left: 4px;
+}
+
+/* Preview des photos sélectionnées */
+.photo-preview-container {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+    border-top: 1px solid #e0e0e0;
+    background: #fafafa;
+    flex-wrap: wrap;
+}
+
+.photo-preview {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 18px;
+    text-align: center;
+}
+
+/* Bouton ajout photo */
+.photo-upload-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.photo-upload-btn:hover {
+    background: #e0e0e0;
+}
+
+.photo-upload-btn i {
+    font-size: 20px;
+    color: #666;
+}
+
+/* Input file invisible */
+.hidden-file-input {
+    display: none;
+}
+
+/* ... (garder tous les styles existants) ... */
+
+/* ✅ CORRECTIONS POUR LE BOUTON PHOTO */
+
+/* Wrapper pour le bouton photo */
+.photo-upload-wrapper {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+/* Input file complètement invisible */
+.hidden-file-input {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/* Label qui sert de bouton visible */
+.photo-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+}
+
+.photo-upload-btn:hover {
+    background: #e0e0e0;
+}
+
+.photo-upload-btn i {
+    font-size: 20px;
+    color: #666;
+}
+
+/* ✅ CORRECTIONS POUR LA PREVIEW DES PHOTOS */
+
+.photo-preview-container {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e0e0e0;
+    background: #fafafa;
+    flex-wrap: wrap;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.photo-preview {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #ddd;
+    background: white;
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Bouton de suppression avec meilleure visibilité */
+.photo-remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 59, 48, 0.9);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 22px;
+    text-align: center;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.photo-remove-btn:hover {
+    background: rgba(255, 59, 48, 1);
+    transform: scale(1.1);
+}
+
+.photo-remove-btn:active {
+    transform: scale(0.95);
+}
+
+/* Zone de message input avec meilleur alignement */
+.message-input-area {
+    padding: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
