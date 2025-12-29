@@ -126,10 +126,23 @@
                         </div>
                     }
                 </div>
+                
 
-                <!-- Message Input -->
+                <!-- Message Input - SECTION CORRIGÉE -->
                 <div class="message-input-area">
-                    <InputFile OnChange="OnImageSelected" accept="image/*" multiple />
+                    <!-- Bouton upload photo avec meilleure visibilité -->
+                    <div class="photo-upload-wrapper">
+                        <InputFile class="hidden-file-input"
+                                   id="@($"photo-input-{VM_Messagerie.SelectedConversation.ConversationId}")"
+                                   OnChange="OnImageSelected"
+                                   accept="image/*"
+                                   multiple />
+                        <label for="@($"photo-input-{VM_Messagerie.SelectedConversation.ConversationId}")" 
+                               class="photo-upload-btn">
+                            <i class="bi bi-image"></i>
+                        </label>
+                    </div>
+    
                     <input type="text"
                            class="message-input"
                            placeholder="Ecrivez votre message ici..."
@@ -140,6 +153,28 @@
                         <i class="bi bi-send"></i>
                     </button>
                 </div>
+
+                <!-- Preview des photos avec suppression corrigée -->
+                @if (VM_Messagerie.SelectedFilePreviews.Any())
+                {
+                    <div class="photo-preview-container">
+                        @for (int i = 0; i < VM_Messagerie.SelectedFilePreviews.Count; i++)
+                        {
+                            var index = i; // Capture de la variable pour le closure
+                            <div class="photo-preview">
+                                <img src="@VM_Messagerie.SelectedFilePreviews[i].PreviewBase64" 
+                                     alt="Preview" />
+                                <button type="button"
+                                        class="photo-remove-btn"
+                                        @onclick="() => RemovePhoto(index)"
+                                        @onclick:preventDefault="true"
+                                        @onclick:stopPropagation="true">
+                                    ×
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
             }
             else
             {
@@ -236,8 +271,15 @@
         VM_Messagerie.HandleTyping(new KeyboardEventArgs());
     }
     
-    private void OnImageSelected(InputFileChangeEventArgs e)
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
     {
-        VM_Messagerie.SelectedFile = e.GetMultipleFiles().ToList();
+        await VM_Messagerie.OnImagesSelectedAsync(e);
+    }
+    
+    private void RemovePhoto(int index)
+    {
+        Console.WriteLine($"[Page] 🗑️ Removing photo at index {index}");
+        VM_Messagerie.RemoveSelectedPhotoAt(index);
+        StateHasChanged();
     }
 }

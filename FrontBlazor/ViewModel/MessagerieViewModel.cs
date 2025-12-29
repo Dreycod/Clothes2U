@@ -28,6 +28,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
     public string NewMessage { get; set; } = "";
     public List<IBrowserFile> SelectedFile { get; set; }
+    public List<(IBrowserFile File, string PreviewBase64)> SelectedFilePreviews { get; set; } = new();
     public bool IsLoading { get; private set; } = false;
     public bool IsTyping { get; private set; } = false;
     public string TypingUserName { get; private set; } = "";
@@ -170,8 +171,9 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             return;
         
         var content = NewMessage.Trim();
-        var images = SelectedFile;
-        SelectedFile = null;
+        var images = SelectedFile?.ToList();
+        SelectedFile?.Clear();
+        SelectedFilePreviews.Clear();
         NewMessage = "";
         NotifyStateChanged();
         
@@ -415,4 +417,35 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             .CopyToAsync(ms);
         return ms.ToArray();
     }
+    
+    public async Task OnImagesSelectedAsync(InputFileChangeEventArgs e)
+    {
+        SelectedFilePreviews.Clear();
+        SelectedFile = e.GetMultipleFiles().ToList();
+
+        foreach (var file in SelectedFile)
+        {
+            using var ms = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(ms);
+
+            var base64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+            SelectedFilePreviews.Add((file, base64));
+        }
+
+        NotifyStateChanged();
+    }
+    
+    public void RemoveSelectedPhotoAt(int index)
+    {
+        if (index < 0 || index >= SelectedFilePreviews.Count)
+            return;
+
+        SelectedFilePreviews.RemoveAt(index);
+
+        if (SelectedFile != null && index < SelectedFile.Count)
+            SelectedFile.RemoveAt(index);
+
+        NotifyStateChanged();
+    }
+    
 }
