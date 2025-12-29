@@ -94,11 +94,12 @@ namespace API.Controllers
                 );
                 var result = _mapper.Map<SignalementDetailsDTO>(createdSignalement);
 
-                return CreatedAtAction(
-                    nameof(GetById),
-                    new { id = createdSignalement.SignalementId },
-                    result
-                );
+                return new ObjectResult(result)
+                {
+                    StatusCode = StatusCodes.Status201Created,
+                    DeclaredType = typeof(SignalementDetailsDTO)
+                };
+
             }
             catch (Exception ex)
             {

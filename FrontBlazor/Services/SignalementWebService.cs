@@ -33,16 +33,11 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         var signalement = await response.Content.ReadFromJsonAsync<SignalementDetailsDTO>();
         return signalement;
     }
-    public async Task<SignalementCreateDTO> CreateSignalement(SignalementCreateDTO signalement)
+    public async Task<SignalementDetailsDTO> CreateSignalement(SignalementCreateDTO signalement)
     {
-
-        Console.WriteLine(
-            JsonSerializer.Serialize(signalement)
-        );
-
         var response = await PostWithCredentialsAsync("Signalement", JsonContent.Create(signalement));
         response.EnsureSuccessStatusCode();
-        var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementCreateDTO>();
+        var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementDetailsDTO>();
         return createdSignalement;
     }
 

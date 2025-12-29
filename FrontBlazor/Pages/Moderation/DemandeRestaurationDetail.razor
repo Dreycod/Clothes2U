@@ -68,8 +68,15 @@ else
                     break;
             }
         </div>
-
+        @if (!string.IsNullOrEmpty(DemandeRestaurationDetailViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                <i class="bi bi-x-circle-fill"></i>
+                <span>@DemandeRestaurationDetailViewModel.ErrorMessage</span>
+            </div>
+        }
         <div class="decision-panel">
+            
             <button class="btn-decision btn-accepter" @onclick="() => DemandeRestaurationDetailViewModel.SubmitDecision(true)">
                 ✓ Accepter la restauration
             </button>

@@ -7,10 +7,10 @@ namespace Shared.DTO.Signalement;
 [JsonDerivedType(typeof(SignalementAnnonceCreateDTO), "annonce")]
 [JsonDerivedType(typeof(SignalementAvisCreateDTO), "avis")]
 [JsonDerivedType(typeof(SignalementUtilisateurCreateDTO), "utilisateur")]
+[JsonDerivedType(typeof(SignalementMessageCreateDTO), "message")]
 public abstract class SignalementCreateDTO
 {
     public string SignalementMotif { get; set; } = null!;
-    public int TypeSignalementId { get; set; }
 }
 
 public class SignalementAnnonceCreateDTO : SignalementCreateDTO
@@ -26,4 +26,8 @@ public class SignalementAvisCreateDTO : SignalementCreateDTO
 public class SignalementUtilisateurCreateDTO : SignalementCreateDTO
 {
     public int UtilisateurSignaleId { get; set; }
+}
+public class SignalementMessageCreateDTO : SignalementCreateDTO
+{
+    public int MessageId { get; set; }
 }

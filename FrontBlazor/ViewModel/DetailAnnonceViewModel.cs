@@ -245,7 +245,7 @@ public class DetailAnnonceViewModel : BaseViewModel
                 AnnonceSignaleeId = AnnonceDetail.AnnonceId,
             };
 
-            SignalementCreateDTO reuslt = await _signalementService.CreateSignalement(newReport);
+            SignalementDetailsDTO reuslt = await _signalementService.CreateSignalement(newReport);
         }
         catch (Exception ex)
         {
