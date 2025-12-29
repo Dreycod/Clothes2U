@@ -73,7 +73,8 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
     
         if (entity.PhotoId.HasValue)
             entry.Property(u => u.PhotoId).IsModified = true;
-        entry.Property(u => u.StatutId).IsModified = false;
+        tracked.StatutId = entity.StatutId;
+        entry.Property(u => u.StatutId).IsModified = true;
         entry.Property(u => u.RoleId).IsModified = false;
 
         await _context.SaveChangesAsync();

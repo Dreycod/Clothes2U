@@ -70,24 +70,18 @@ public class SanctionedUserViewModel
             NotifyStateChanged();
             return false;
         }
-
         IsSubmitting = true;
         ErrorMessage = null;
         SuccessMessage = null;
         NotifyStateChanged();
-
         var response = await _demandeRestaurationService.AddDemandeRestauration(MessageDemande);
-
         IsSubmitting = false;
-
         if (!response.Success)
         {
             ErrorMessage = response.ErrorMessage;
             NotifyStateChanged();
             return false;
         }
-
-        // Succès
         DemandeSubmitted = true;
         ShowDemandeForm = false;
         SuccessMessage = "Votre demande de restauration a été envoyée avec succès. Notre équipe de modération l'examinera dans les plus brefs délais.";

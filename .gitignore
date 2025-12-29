@@ -48,3 +48,5 @@
 /API/bin/Debug/net8.0/API.pdb
 /API/bin/Debug/net8.0/API.staticwebassets.endpoints.json
 /API/bin/Debug/net8.0
+/API.Tests
+/Shared/obj/Debug/net8.0
