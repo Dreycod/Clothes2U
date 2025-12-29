@@ -9,6 +9,7 @@ using API.Services.Notifications.Events;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using API.Services.VerificationSrvceV2;
 
 namespace API.Controllers;
 
@@ -21,14 +22,16 @@ public class AnnonceController : ControllerBase
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly INotificationMailService _notificationMailService;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService)
+    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService, INotificationMailService notificationMailService)
     {
         _annonceManager = manager;
         _favorisRepository = favorisManager;
         _mapper = mapper;
         _notificationService = notificationService;
         _currentUserService = currentUserService;
+        _notificationMailService = notificationMailService;
     }
 
     private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
@@ -159,6 +162,7 @@ public class AnnonceController : ControllerBase
             
         };
         await _notificationService.NotifyAsync(notificationEvent);
+        await _notificationMailService.NotifyAnnonceUpdatedAsync(annonce);
         return NoContent();
     }
     
@@ -189,6 +193,7 @@ public class AnnonceController : ControllerBase
             
         };
         await _notificationService.NotifyAsync(notificationEvent);
+        await _notificationMailService.NotifyNewAnnonceAsync(annonce);
         return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
 

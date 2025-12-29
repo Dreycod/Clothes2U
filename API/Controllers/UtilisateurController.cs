@@ -5,6 +5,7 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using API.Services.VerificationSrvceV2;
 
 namespace API.Controllers;
 
@@ -17,13 +18,15 @@ public class UtilisateurController :  ControllerBase
     private readonly IAbonnementRepository<Abonnement, int>  _abonnementManager; 
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
+    private readonly INotificationMailService _mailService;
 
-    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper)
+    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper, INotificationMailService mailService)
     {
         _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _mailService = mailService;
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
@@ -45,10 +48,12 @@ public class UtilisateurController :  ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
+        int oldStatut = utilisateurToUpdate.StatutId;
         if (utilisateurToUpdate == null)
             return NotFound();
         _mapper.Map(utilisateurDTO, utilisateurToUpdate);
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
+        await _mailService.NotifyUserStatusChangedAsync(utilisateurToUpdate, oldStatut);
         return NoContent();
     }
 
