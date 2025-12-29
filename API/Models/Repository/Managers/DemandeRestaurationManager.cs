@@ -22,11 +22,21 @@ public class DemandeRestaurationManager : GenericCRUDManager<DemandeRestauration
 
     public async override Task<IEnumerable<DemandeRestauration>> GetAllAsync()
     {
-        return await BaseDemandeRestaurationQuery().ToListAsync();
+        return await BaseDemandeRestaurationQuery().Where(d => d.Status == "En cours").ToListAsync();
     }
 
     public async Task<DemandeRestauration> GetActiveDemandeRestaurationByUserId(int id)
     {
         return await BaseDemandeRestaurationQuery().FirstOrDefaultAsync(dr => dr.Decision.UtilisateurId == id);
+    }
+    public override async Task UpdateAsync(DemandeRestauration entity)
+    {
+        var entityToUpdate = await _context.DemandesRestauration
+                                 .FirstOrDefaultAsync(dr => dr.DemandeRestaurationId == entity.GetId())
+                             ?? throw new ArgumentException($"Entity with id {entity.GetId()} not found");
+            
+        _context.DemandesRestauration.Attach(entityToUpdate);
+        _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
+        await _context.SaveChangesAsync();
     }
 }

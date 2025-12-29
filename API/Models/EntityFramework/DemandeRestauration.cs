@@ -14,6 +14,9 @@ public class DemandeRestauration : IEntity
     [Column("demres_message")]
     public string Message { get; set; }
     
+    [Column("demres_statut")]
+    public string Status { get; set; }
+    
     //relation avec les autres tables  :
     
     [Column("demres_decision_id")]
@@ -23,5 +26,5 @@ public class DemandeRestauration : IEntity
     [InverseProperty(nameof(Decision.DemandeRestauration))]
     public virtual Decision Decision { get; set; } = null!;
     
-    public int GetId() => DecisionId;
+    public int GetId() => DemandeRestaurationId;
 }

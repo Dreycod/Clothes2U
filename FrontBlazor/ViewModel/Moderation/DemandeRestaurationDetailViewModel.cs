@@ -24,7 +24,6 @@ public class DemandeRestaurationDetailViewModel : ModerationViewModel, INotifyPr
     private readonly NavigationManager _nav;
     private readonly IMediasService _mediasService;
     public event PropertyChangedEventHandler PropertyChanged;
-    public event Action OnStateChanged;
 
     public DemandeRestaurationDetailViewModel(
         IUtilisateurService utilisateurService,
@@ -39,6 +38,7 @@ public class DemandeRestaurationDetailViewModel : ModerationViewModel, INotifyPr
         : base(authService, nav)
     {
         _utilisateurService = utilisateurService;
+        _demandeRestaurationService = demandeRestaurationService;
         _annonceService = annonceService;
         _conversationService = conversationService;
         _decisionService =  decisionService;
@@ -53,17 +53,19 @@ public class DemandeRestaurationDetailViewModel : ModerationViewModel, INotifyPr
     public NoteUtilisateurDetailDTO Avis { get; set; }
     public AnnonceDetailDTO Annonce { get; set; }
     public MessageSignalementDTO Message { get; set; }
-    public UtilisateurViewDTO UtilisateurSignale { get; set; }
     public string? PhotoProfilUrl { get; set; }
     public List<string> PhotosUrl { get; set; } = new();
+    public string ErrorMessage { get; set; }
+    public bool IsSubmitting { get; set; }
 
     public async Task LoadDemandeAsync(int id)
     {
         IsLoading = true;
         await base.LoadAsync();
+        Console.WriteLine("ON EST A L'ID : " + id);
         Demande = await _demandeRestaurationService.GetDemandeRestaurationDetail(id);
         Decision = await _decisionService.GetDecisionDetailAsync(Demande.DecisionId);
-        Utilisateur = await _utilisateurService.GetUserById(Demande.DecisionId);
+        Utilisateur = await _utilisateurService.GetUserById(Demande.UtilisateurId);
         switch (Decision.ElementDecision)
         {
             case ElementDecisionAnnonceDTO ea:
@@ -78,13 +80,9 @@ public class DemandeRestaurationDetailViewModel : ModerationViewModel, INotifyPr
                 Avis = await _noteUtilisateurService.GetByIdAsync(eavis.AvisId);
                 break;
         }
-        Utilisateur = await _utilisateurService.GetUserById(Demande.UtilisateurId);
         PhotoProfilUrl = await GetPhotoProfilUrl(); 
         IsLoading = false;
     }
-    
-    
-    
     private async Task<List<string>> GetPhotosUrl(List<int> photosId)
     {
         List<string> photoUrls = new List<string>();
@@ -104,4 +102,33 @@ public class DemandeRestaurationDetailViewModel : ModerationViewModel, INotifyPr
         return _mediasService.GetPhotoUrl(Utilisateur.PhotoProfilId);
     }
 
+    public async Task<bool> SubmitDecision(bool decision)
+    {
+        Console.WriteLine("Demande : " + Demande.DemandeRestaurationId);
+        Console.WriteLine("Utilisateur : " + Utilisateur.UtilisateurId);
+        DecisionDemandeRestaurationDTO decisionDemandeRestauration = new DecisionDemandeRestaurationDTO
+        {
+            DemandeId = Demande.DemandeRestaurationId,
+            IsRestored = decision,
+            UtilisateurId = Utilisateur.UtilisateurId
+        };
+        ErrorMessage = null;
+        IsSubmitting = true;
+        NotifyStateChanged();
+        var response = await _demandeRestaurationService.SubmitDecisionDemande(decisionDemandeRestauration);
+        if (!response.Success)
+        {
+            ErrorMessage = response.ErrorMessage;
+            NotifyStateChanged();
+            return false;
+        }
+        _nav.NavigateTo("/moderation/demandes-restauration");
+        return true;
+    }
+    public event Action? OnStateChanged;
+    
+    private void NotifyStateChanged()
+    {
+        OnStateChanged?.Invoke();
+    }
 }

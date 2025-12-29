@@ -15,6 +15,7 @@ public class DemandeRestaurationMappingProfile : Profile
         CreateMap<DemandeRestauration, DemandeRestaurationDetailDTO>()
             .ForMember(dest => dest.DecisionId, opt => opt.MapFrom(src => src.DecisionId))
             .ForMember(dest => dest.DemandeRestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId))
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.Decision.UtilisateurId))
             .ReverseMap();
     }

@@ -107,7 +107,6 @@ namespace FrontBlazor.ViewModel
             IsLoading = true;
             await VerifiyAccountAsync();
             NotifyStateChanged();
-
             await VM_Categorie.LoadAsync();
             await VM_Marque.LoadAsync();
             await VM_Genre.LoadAsync();

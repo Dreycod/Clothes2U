@@ -21,9 +21,12 @@ public abstract class BaseViewModel
     public async Task VerifiyAccountAsync()
     {
         var user =  await _authService.GetCurrentUserAsync();
-        if (user != null && user.StatutId != 1)
+        if (user != null)
         {
-            _nav.NavigateTo("/Sanction");
+            if (user.StatutId != 1)
+            {
+                _nav.NavigateTo("/Sanction");
+            }  
         }
     }
 }

@@ -1,5 +1,7 @@
 @page "/moderation/demande-restauration/{Id:int}"
 @using FrontBlazor.ViewModel.Moderation
+@using Shared.DTO.Decision
+@using FrontBlazor.Components.Moderation
 @inject DemandeRestaurationDetailViewModel DemandeRestaurationDetailViewModel
 @layout ModerationLayout
 
@@ -7,10 +9,76 @@
 
 <link rel="stylesheet" href="/css/moderation-shared.css" />
 <link href="css/loading.css" rel="stylesheet" />
+<link href="css/Moderation/DemandeRestauration.css" rel="stylesheet"/>
 
+@if (DemandeRestaurationDetailViewModel.IsLoading)
+{
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+}
+else
+{
+    <div class="demande-container">
+        <div class="demande-header">
+            <h3>Demande de @DemandeRestaurationDetailViewModel.Utilisateur.Login</h3>
+            <h4>Sanctionné le @DemandeRestaurationDetailViewModel.Decision.DateSanction.ToString("dd/MM/yyyy à HH:mm")</h4>
+            @switch (DemandeRestaurationDetailViewModel.Decision)
+            {
+                case DecisionSuspensionDetailDTO suspension:
+                    <h4>Type : Suspension jusqu'au @suspension.DateFinSuspension.ToString("dd/MM/yyyy")</h4>
+                    break;
+                case DecisionBannissementDetailDTO:
+                    <h4>Type : Bannissement permanent</h4>
+                    break;
+            }
+        </div>
 
-<h3>BONJOUR</h3>
+        <div class="demande-message">
+            <h4>Message de l'utilisateur :</h4>
+            <p>@DemandeRestaurationDetailViewModel.Demande.Message</p>
+        </div>
 
+        <div class="element-decision">
+            <h4>Élément qui a été signalé :</h4>
+            @switch (DemandeRestaurationDetailViewModel.Decision.ElementDecision)
+            {
+                case ElementDecisionAnnonceDTO eda:
+                    <AnnonceModerationViewComponent
+                        annonce="DemandeRestaurationDetailViewModel.Annonce"
+                        PhotosUrl="DemandeRestaurationDetailViewModel.PhotosUrl">
+                    </AnnonceModerationViewComponent>
+                    break;
+                case ElementAvisDTO ea:
+                    <AvisModerationComponent
+                        note="DemandeRestaurationDetailViewModel.Avis">
+                    </AvisModerationComponent>
+                    break;
+                case ElementUtilisateurDTO eu:
+                    <UtilisateurModerationComponent
+                        utilisateur="DemandeRestaurationDetailViewModel.Utilisateur"
+                        PhotoProfilUrl="@DemandeRestaurationDetailViewModel.PhotoProfilUrl">
+                    </UtilisateurModerationComponent>
+                    break;
+                case ElementDecisionMessageDTO edm:
+                    <MessageModerationComponent
+                        message="@DemandeRestaurationDetailViewModel.Message"
+                        PhotosUrl="@DemandeRestaurationDetailViewModel.PhotosUrl">
+                    </MessageModerationComponent>
+                    break;
+            }
+        </div>
+
+        <div class="decision-panel">
+            <button class="btn-decision btn-accepter" @onclick="() => DemandeRestaurationDetailViewModel.SubmitDecision(true)">
+                ✓ Accepter la restauration
+            </button>
+            <button class="btn-decision btn-refuser" @onclick="() => DemandeRestaurationDetailViewModel.SubmitDecision(false)">
+                ✗ Refuser la demande
+            </button>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter] public int Id { get; set; }

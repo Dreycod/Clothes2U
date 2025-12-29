@@ -62,7 +62,7 @@ public class DecisionController : ControllerBase
     [ProducesResponseType(typeof(DecisionBannissementDetailDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize(Roles = "Admin,Moderateur")]
-    public async Task<ActionResult<DecisionDetailDTO>> GetDecisionById(int id)
+    public async Task<ActionResult> GetDecisionById(int id)
     {
         Decision decision = await _decisionManager.GetByIdAsync(id);
         if (decision == null)
@@ -70,8 +70,11 @@ public class DecisionController : ControllerBase
             return NotFound();
         }
         DecisionDetailDTO decisionDTO = _mapper.Map<DecisionDetailDTO>(decision);
-        if (decisionDTO == null) return NotFound();
-        return Ok(decisionDTO);
+        return new ObjectResult(decisionDTO)
+        {
+            StatusCode = StatusCodes.Status200OK,
+            DeclaredType = typeof(DecisionDetailDTO)
+        };
     }
 
     [HttpPost]
