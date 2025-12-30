@@ -35,6 +35,9 @@ public class Notification : IEntity
     [InverseProperty(nameof(NotificationAdmin.LaNotification))]
     public virtual NotificationAdmin? NotificationAdmins { get; set; } 
     
+    [InverseProperty(nameof(NotificationProposition.Notification))]
+    public virtual NotificationProposition NotificationProposition{ get; set; } 
+    
     [InverseProperty(nameof(NotificationAvertissement.LaNotification))]
     public virtual NotificationAvertissement? NotificationAvertissements { get; set; }
     [InverseProperty(nameof(NotificationMessage.LaNotification))]

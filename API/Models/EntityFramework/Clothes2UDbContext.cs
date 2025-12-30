@@ -44,6 +44,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
     public DbSet<NotificationModificationAnnonce> NotificationModificationAnnonces { get; set; }
     public DbSet<NotificationNouvelleAnnonce> NotificationNouvelleAnnonces { get; set; }
+    public DbSet<NotificationProposition> NotificationsProposition { get; set; }
     public DbSet<NotificationType> NotificationTypes { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
@@ -496,6 +497,10 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(sm => sm.Message)
                 .HasForeignKey(sm => sm.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(m => m.NotificationsMessage)
+                .WithOne(nm => nm.Message)
+                .HasForeignKey(nm => nm.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         modelBuilder.Entity<MessageContientImage>(entity =>
@@ -565,14 +570,12 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(m => m.MessageValidation)
                 .HasForeignKey<MessageValidation>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // Relation MessageValidation -> MessageDemande (One-to-One obligatoire)
-            // Déjà configurée dans MessageDemande ci-dessus
+            
             entity.HasOne(e => e.PropositionValidee)
                 .WithOne(d => d.Validation)
                 .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
                 .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired(); // La validation doit obligatoirement pointer vers une proposition
+                .IsRequired(); 
         });
 
         modelBuilder.Entity<Mesure>(entity =>
@@ -676,6 +679,11 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey<NotificationMessage>(nm => nm.NotificationId)
                 .OnDelete(DeleteBehavior.Cascade);
             
+            entity.HasOne(n => n.NotificationProposition)
+                .WithOne(nm => nm.Notification)
+                .HasForeignKey<NotificationProposition>(np => np.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
             entity.HasOne(n => n.NotificationModifications)
                 .WithOne(nm => nm.LaNotification)
                 .HasForeignKey<NotificationModificationAnnonce>(nm => nm.NotificationId)
@@ -756,30 +764,21 @@ public partial class Clothes2UDbContext : DbContext
     modelBuilder.Entity<NotificationMessage>(entity =>
     {
         entity.ToTable("t_e_notification_message_notmes");
-        
         entity.HasKey(e => e.NotificationMessageId);
-        
+    
         entity.Property(e => e.NotificationMessageId)
             .HasColumnName("notmes_id")
             .ValueGeneratedOnAdd();
-        
+    
         entity.Property(e => e.MessageId)
             .HasColumnName("notmes_message_id")
             .IsRequired();
-        
+    
         entity.Property(e => e.NotificationId)
             .HasColumnName("notmes_notification_id")
             .IsRequired();
-        
-        // Index unique pour garantir qu'une notification n'a qu'un seul message
-        entity.HasIndex(e => e.NotificationId)
-            .IsUnique();
-        
-        // Relation avec Message
-        entity.HasOne(nm => nm.Message)
-            .WithMany(m => m.NotificationsMessage)
-            .HasForeignKey(nm => nm.MessageId)
-            .OnDelete(DeleteBehavior.Restrict);
+    
+        entity.HasIndex(e => e.NotificationId).IsUnique();
     });
     
     // Configuration de NotificationModificationAnnonce
@@ -840,6 +839,15 @@ public partial class Clothes2UDbContext : DbContext
             .WithMany(a => a.NotificationsNouvelleAnnonces)
             .HasForeignKey(nn => nn.AnnonceId)
             .OnDelete(DeleteBehavior.Restrict);
+    });
+    modelBuilder.Entity<NotificationProposition>(entity =>
+    {
+        entity.HasKey(e => e.NotificationPropositionId);
+        
+        entity.HasOne(n => n.MessageDemande)
+            .WithOne(m => m.NotificationProposition)
+            .HasForeignKey<NotificationProposition>(n => n.PropositionId)
+            .OnDelete(DeleteBehavior.NoAction);
     });
         
         

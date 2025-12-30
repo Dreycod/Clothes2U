@@ -33,6 +33,10 @@ public class MessageDemande : IEntity
     [InverseProperty(nameof(MessageValidation.PropositionValidee))]
     public virtual MessageValidation? Validation{ set; get; }
     
+    //notification : 
+    [InverseProperty(nameof(NotificationProposition.MessageDemande))]
+    public virtual NotificationProposition? NotificationProposition{ set; get; }
+    
     [InverseProperty(nameof(MessageDemande.Offre))]
     public virtual ICollection<MessageDemande>? ContreOffres { get; set; } = new List<MessageDemande>();
     
