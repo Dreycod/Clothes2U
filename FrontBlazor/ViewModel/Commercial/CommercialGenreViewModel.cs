@@ -26,6 +26,12 @@ public class CommercialGenresViewModel
     public async Task LoadAsync()
     {
         await VM_Genre.LoadWithDetailsAsync();
+        if (VM_Genre.Items != null)
+        {
+            VM_Genre.Items = VM_Genre.Items
+                .OrderBy(c => c.GenreId)
+                .ToList();
+        }
     }
 
     public void ShowAddModal()

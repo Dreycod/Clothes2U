@@ -25,6 +25,12 @@ public class CommercialCouleursViewModel
     public async Task LoadAsync()
     {
         await VM_Couleur.LoadAsync();
+        if (VM_Couleur.Items != null)
+        {
+            VM_Couleur.Items = VM_Couleur.Items
+                .OrderBy(c => c.CouleurId)
+                .ToList();
+        }
     }
 
     public void ShowAddModal()

@@ -26,6 +26,13 @@ public class CommercialCategoriesViewModel
     public async Task LoadAsync()
     {
         await VM_Categorie.LoadWithDetailsAsync();
+
+        if (VM_Categorie.Items != null)
+        {
+            VM_Categorie.Items = VM_Categorie.Items
+                .OrderBy(c => c.IdCategorie)
+                .ToList();
+        }
     }
 
     public void ShowAddModal()

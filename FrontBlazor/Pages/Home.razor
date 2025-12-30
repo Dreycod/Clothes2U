@@ -31,8 +31,8 @@ else
             @if (VM_Home.IsLoading)
             {
                 <div class="loading-state">
-                    <div class="spinner-large"></div>
-                    <p>Chargement des annonces...</p>
+                    <div class="spinner-small"></div>
+                    <span>Chargement des annonces...</span>
                 </div>
             }
             else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -45,9 +45,9 @@ else
             }
             else if (VM_Home.Annonces == null || !VM_Home.Annonces.Any())
             {
-                <div class="empty-state">
-                    <i class="bi bi-search"></i>
-                    <p>Aucune annonce trouvée</p>
+                <div class="loading-state">
+                    <div class="spinner-small"></div>
+                    <span>Chargement des annonces...</span>
                 </div>
             }
             else

@@ -27,6 +27,12 @@ public class CommercialMarquesViewModel
     public async Task LoadAsync()
     {
         await VM_Marque.LoadAsync();
+        if (VM_Marque.Items != null)
+        {
+            VM_Marque.Items = VM_Marque.Items
+                .OrderBy(c => c.MarqueID)
+                .ToList();
+        }
     }
 
     public void ShowAddModal()

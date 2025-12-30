@@ -34,19 +34,15 @@ public class CommercialSousCategoriesViewModel
     public void LoadAllSubcategories()
     {
         allSubcategories.Clear();
-        if (VM_Categorie.Items != null)
-        {
-            foreach (var category in VM_Categorie.Items)
-            {
-                if (category.SousCategories != null)
-                {
-                    foreach (var subcat in category.SousCategories)
-                    {
-                        allSubcategories.Add((subcat, category));
-                    }
-                }
-            }
-        }
+
+        if (VM_Categorie.Items == null)
+            return;
+
+        allSubcategories = VM_Categorie.Items
+            .Where(c => c.SousCategories != null)
+            .SelectMany(c => c.SousCategories.Select(sc => (subcat: sc, category: c)))
+            .OrderBy(x => x.subcat.SousCategorieId)
+            .ToList();
     }
 
     public void ShowAddModal()

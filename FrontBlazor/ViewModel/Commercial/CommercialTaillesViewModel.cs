@@ -30,6 +30,12 @@ public class CommercialTaillesViewModel
     public async Task LoadAsync()
     {
         await VM_Taille.LoadAsync();
+        if (VM_Taille.Items != null)
+        {
+            VM_Taille.Items = VM_Taille.Items
+                .OrderBy(c => c.TailleId)
+                .ToList();
+        }
         await VM_Categorie.LoadAsync();
     }
 
