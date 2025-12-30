@@ -371,18 +371,6 @@
 
 /* ===== SIMILAR PRODUCTS SECTION ===== */
 
-.similar-section {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-}
-
-.similar-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin: 0 0 1.5rem 0;
-}
 
 /* Similar Products Grid - ALWAYS 4 columns regardless of item count */
 .similar-grid {
@@ -525,29 +513,6 @@
     }
 }
 
-@media (max-width: 768px) {
-    .details-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .action-buttons {
-        grid-template-columns: 1fr;
-    }
-
-    /* 2 columns on tablets */
-    .similar-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-
-    .product-container {
-        padding: 1.5rem 1rem;
-    }
-
-    .similar-section {
-        padding: 1.5rem 1rem;
-    }
-}
 
 @media (max-width: 480px) {
     /* 2 columns on mobile */
@@ -726,3 +691,64 @@
     .form-textarea::placeholder {
         color: #999;
     }
+
+
+
+
+
+
+/* Section Container */
+.similar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* Section Header */
+.similar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.similar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #333;
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 0.5rem 0 0 0;
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.carousel-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.carousel-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.carousel-btn i {
+    font-size: 1rem;
+    color: #333;
+}

@@ -60,8 +60,6 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 
         if (!string.IsNullOrWhiteSpace(filterDto.MotCle))
             queryParams.Add(new("MotCle", filterDto.MotCle));
-
-        // Listes : Marques, Categories, etc.
         AddListToQuery(queryParams, "Marques", filterDto.Marques);
         AddListToQuery(queryParams, "Categories", filterDto.Categories);
         AddListToQuery(queryParams, "SousCategories", filterDto.SousCategories);
@@ -76,18 +74,14 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         if (filterDto.PrixMax.HasValue)
             queryParams.Add(new("PrixMax", filterDto.PrixMax.Value.ToString(CultureInfo.InvariantCulture)));
 
-        // Enums 
         if (filterDto.SortBy.HasValue)
             queryParams.Add(new("SortBy", ((int)filterDto.SortBy.Value).ToString()));
 
-        // SortOrder n'est pas nullable (donc on send tj)
         queryParams.Add(new("SortOrder", ((int)filterDto.SortOrder).ToString()));
 
-        // Pagination 
         queryParams.Add(new("page", page.ToString()));
         queryParams.Add(new("pageSize", pageSize.ToString()));
 
-        //Construit l'URL finale : Annonce/productByFilter?MotCle=...&Marques=...&...
         var url = QueryHelpers.AddQueryString("Annonce/productByFilter", queryParams);
 
         var response = await GetWithCredentialsAsync(url);
@@ -123,5 +117,22 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
     public async Task ModificationAnnonce(CreateAnnonceDTO annonce)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page = 1, int pageSize = 30)
+    {
+        var queryParams = new List<KeyValuePair<string, string?>>();
+
+        queryParams.Add(new("annonceId", annonceId.ToString()));
+        queryParams.Add(new("page", page.ToString()));
+        queryParams.Add(new("pageSize", pageSize.ToString()));
+
+        var url = QueryHelpers.AddQueryString("Annonce/similarAnnonces", queryParams);
+
+        var response = await GetWithCredentialsAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? new List<AnnonceDTO>();
     }
 }

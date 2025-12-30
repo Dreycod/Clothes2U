@@ -232,4 +232,26 @@ public class AnnonceController : ControllerBase
     
         return Ok(annoncesDTO);
     }
+    [AllowAnonymous]
+    [HttpGet("similarAnnonces")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetSimilarAnnonces(
+        [FromQuery] int annonceId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30)
+    {
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
+        }
+        int? userId = await _currentUserService.GetUserId();
+        var annonces = await _annonceManager.GetSimilarAsync(annonceId, page, pageSize, userId);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        annoncesDTO = await LikeAnnonce(annoncesDTO);
+    
+        return Ok(annoncesDTO);
+    }
+    
 }

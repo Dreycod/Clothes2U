@@ -30,7 +30,7 @@ public class DetailAnnonceViewModel : BaseViewModel
 
     public AnnonceDetailDTO? AnnonceDetail { get; set; }
     public UtilisateurViewDTO? utilisateurAnnonce { get; set; }
-    public List<AnnonceDTO>? similarProducts = null;
+    public List<AnnonceDTO>? similarAnnonces = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
     public bool clickedShareButton { get; set; } = false;
@@ -42,6 +42,7 @@ public class DetailAnnonceViewModel : BaseViewModel
     public bool ShowSignalerModal { get; set; } = false;
     public string SignalementRaison { get; set; } = string.Empty;
     public bool IsSubmittingReport { get; set; } = false;
+    public bool IsLoadingSimilar { get; set; }
 
     public DetailAnnonceViewModel(IAnnonceService annonceService,
         IFavorisService<FavorisDTO> favorisService, IAuthService authService,
@@ -67,6 +68,8 @@ public class DetailAnnonceViewModel : BaseViewModel
     {
         IsLoading = true;
         ErrorMessage = null;
+        IsLoadingSimilar = true;
+        PageNumber = 1;
         await VerifiyAccountAsync();
         try
         {
@@ -84,6 +87,8 @@ public class DetailAnnonceViewModel : BaseViewModel
             IsBlockedByUser = utilisateurAnnonce.BlockedByCurrentUser;
             if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
                 IsUserSuspended = true;
+            
+            
 
             UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
             if (utilisateur != null && utilisateurAnnonce != null &&
@@ -92,7 +97,6 @@ public class DetailAnnonceViewModel : BaseViewModel
 
             else
                 IsSameUser = false;
-
         }
         catch (Exception ex)
         {
@@ -103,15 +107,9 @@ public class DetailAnnonceViewModel : BaseViewModel
         {
             IsLoading = false;
         }
-    }
-    public async Task GetSimilarProductsAsync()
-    {
-        //// For future try to make a good filter that grabs the infos, also using GetByIds etc
-        //// For future try to make a good filter that grabs the infos, also using GetByIds etc
-        //FilterDTO filterDTO = new FilterDTO();
-        //filterDTO.MotCle = AnnonceDetail.Title;
 
-        //similarProducts = await _annonceService.GetAnnonceByFilter(filterDTO, page: 1, pageSize: 3);
+        similarAnnonces = await _annonceService.GetSimilarAnnonces(id, PageNumber, 4);
+        IsLoadingSimilar = false;
     }
     public async Task<bool> CheckLoginStatus()
     {
@@ -256,6 +254,35 @@ public class DetailAnnonceViewModel : BaseViewModel
             IsSubmittingReport = false;
             ShowSignalerModal = false;
 
+        }
+    }
+    public event Action? OnChange;
+
+    private void NotifyStateChanged() => OnChange?.Invoke();
+    
+    public int PageNumber { get; set; }
+    public async Task PreviousSimilar()
+    {
+        Console.WriteLine($"PageNumber: {PageNumber}");
+        if (PageNumber > 1)
+        {
+            PageNumber--;
+            similarAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId,PageNumber,4);
+        }
+        NotifyStateChanged();
+    }
+    public async Task NextSimilar()
+    {
+        Console.WriteLine($"PageNumber: {PageNumber}");
+        if (similarAnnonces.Count == 4)
+        {
+            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId,PageNumber++,4 );
+            if (newAnnonces.Count > 0)
+            {
+                PageNumber++;
+                similarAnnonces = newAnnonces;
+                NotifyStateChanged();
+            }
         }
     }
 }

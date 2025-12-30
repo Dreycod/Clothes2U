@@ -2,9 +2,10 @@
 @using Shared.DTO.Utilisateur
 
 
-<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
-<!-- Navigation Bar -->
+
+
+<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 <NavBar />
 
 <div class="product-detail-page">
@@ -20,7 +21,7 @@
         <div class="error-container">
             <i class="bi bi-exclamation-circle"></i>
             <p>@VM_DetailAnnonce.ErrorMessage</p>
-            <button class="btn-retry" @onclick="LoadProduct">Réessayer</button>
+            <button class="btn-retry" @onclick="() => VM_DetailAnnonce.LoadAnnonceDetailAsync(Id)">Réessayer</button>
         </div>
     }
     @if (VM_DetailAnnonce.IsUserSuspended)
@@ -169,42 +170,48 @@
                 }
             </div>
         </div>
-
-        <!-- Similar Products Section -->
         <div class="similar-section">
-            <h2 class="similar-title">Produits Similaires</h2>
-            <div class="similar-grid">
-                @if (VM_DetailAnnonce.similarProducts != null && VM_DetailAnnonce.similarProducts.Any())
-                {
-                    @foreach (AnnonceDTO similarAnnonce in VM_DetailAnnonce.similarProducts)
+            <div class="similar-container">
+
+                <div class="similar-header">
+                    <h2 class="similar-title">Annonces similaires</h2>
+
+                    <div class="carousel-controls">
+                        <button class="carousel-btn"
+                                @onclick="VM_DetailAnnonce.PreviousSimilar">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+
+                        <button class="carousel-btn"
+                                @onclick="VM_DetailAnnonce.NextSimilar">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+
+                    </div>
+                </div>
+                
+                <div class="similar-grid">
+                    @if (VM_DetailAnnonce.IsLoadingSimilar)
                     {
-                        <div class="product-card" @onclick="() => VM_DetailAnnonce.NavigateToProduct(similarAnnonce.AnnonceId)">
-                            <div class="product-image-container">
-                                <img class="product-image" src="@(VM_DetailAnnonce.GetPhoto(similarAnnonce.Photos.First()))" />
-                                <button class="wishlist-btn"
-                                        @onclick:stopPropagation="true"
-                                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(similarAnnonce.AnnonceId)">
-                                    <i class="bi bi-heart@(similarAnnonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
-                                </button>
-                            </div>
-                            <div class="product-info">
-                                <h3 class="product-title">@similarAnnonce.Titre</h3>
-                                <div class="product-meta">
-                                    <span class="product-size">Taille @similarAnnonce.Taille</span>
-                                    <span class="product-condition">@similarAnnonce.EtatArticle</span>
-                                </div>
-                                <div class="product-footer">
-                                    <span class="product-price">@similarAnnonce.Prix€</span>
-                                    <span class="product-seller">par @(similarAnnonce.NomAuteur ?? "Vendeur")</span>
-                                </div>
-                            </div>
+                        <div class="loading-container">
+                            <div class="spinner-large"></div>
+                            <p>Chargement des annonces similaires...</p>
                         </div>
                     }
-                }
-                else
-                {
-                    <p>Aucun produit similaire disponible</p>
-                }
+                    else if(VM_DetailAnnonce.similarAnnonces != null && VM_DetailAnnonce.similarAnnonces.Any())
+                    {
+                        @foreach (AnnonceDTO similairAnnonce in VM_DetailAnnonce.similarAnnonces)
+                        {
+                            <AnnonceCard annonceComponent="similairAnnonce"
+                                         OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                        }
+                    }
+                    else
+                    {
+                        <p>Aucun produit similaire disponible</p>
+                    }
+                </div>
             </div>
         </div>
     }
@@ -232,14 +239,6 @@
                               @bind:event="oninput"
                               rows="6"></textarea>
                 </div>
-                @* 
-                @if (!string.IsNullOrEmpty(VM_Profil.ReviewErrorMessage))
-                {
-                    <div class="alert alert-error">
-                        <i class="bi bi-exclamation-circle"></i>
-                        <span>@VM_Profil.ReviewErrorMessage</span>
-                    </div>
-                } *@
             </div>
 
             <div class="modal-actions">
@@ -264,16 +263,7 @@
     [Parameter]
     public int Id { get; set; }
 
-    private bool isFavorite = false;
-
     protected override async Task OnInitializedAsync()
-    {
-        await LoadProduct();
-        // TODO: Load similar products based on category
-        await VM_DetailAnnonce.GetSimilarProductsAsync();
-    }
-
-    private async Task LoadProduct()
     {
         await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
     }

@@ -167,9 +167,78 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         };
     }
 
+    public async Task<IEnumerable<Annonce>> GetSimilarAsync(int annonceId, int page, int pageSize, int? currentUserId = null)
+    {
+        var referenceData = await _context.Annonces
+            .AsNoTracking()
+            .Where(a => a.AnnonceId == annonceId)
+            .Select(a => new
+            {
+                a.SousCategorieId,
+                a.CategorieId,
+                a.MarqueId,
+                a.GenreId,
+                a.TailleId,
+                a.EtatId,
+                a.Prix,
+                TagIds = a.Tags.Select(t => t.TagId).ToList(),
+                CouleurIds = a.Couleurs.Select(c => c.CouleurId).ToList()
+            })
+            .FirstOrDefaultAsync();
+        
+        if (referenceData == null)
+            return Enumerable.Empty<Annonce>();
+
+        var query = BaseAnnonceQuery()
+            .Where(a => a.AnnonceId != annonceId)
+            .Where(a => a.Statut.StatutLibelle == "En Ligne")
+            .Where(a => a.Utilisateur.Statut.StatutLibelle == "Actif");
+
+        if (currentUserId.HasValue)
+        {
+            query = query.Where(a => !_context.Bloques
+                .Any(b => b.UtilisateurBloqueurId == currentUserId.Value && 
+                          b.UtilisateurBloqueId == a.UtilisateurId));
+        }
+        var annoncesWithBasicScore = await query
+            .Select(a => new
+            {
+                Annonce = a,
+                BasicScore = 
+                    (a.SousCategorieId == referenceData.SousCategorieId ? 50 : 0) +
+                    (a.CategorieId == referenceData.CategorieId ? 30 : 0) +
+                    (a.MarqueId == referenceData.MarqueId ? 20 : 0) +
+                    (a.GenreId == referenceData.GenreId ? 15 : 0) +
+                    (a.TailleId == referenceData.TailleId ? 10 : 0) +
+                    (a.EtatId == referenceData.EtatId ? 10 : 0) +
+                    (a.Prix >= referenceData.Prix * 0.7m && 
+                     a.Prix <= referenceData.Prix * 1.3m ? 15 : 0)
+            })
+            .Where(x => x.BasicScore > 0)
+            .OrderByDescending(x => x.BasicScore)
+            .ThenByDescending(x => x.Annonce.DateAnnonce)
+            .Take(pageSize * 3)
+            .ToListAsync();
+        var annoncesWithFullScore = annoncesWithBasicScore
+            .Select(item => new
+            {
+                item.Annonce,
+                FullScore = item.BasicScore +
+                    item.Annonce.Tags.Count(at => referenceData.TagIds.Contains(at.TagId)) * 5 +
+                    item.Annonce.Couleurs.Count(ac => referenceData.CouleurIds.Contains(ac.CouleurId)) * 3
+            })
+            .OrderByDescending(x => x.FullScore)
+            .ThenByDescending(x => x.Annonce.DateAnnonce)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => x.Annonce)
+            .ToList();
+
+        return annoncesWithFullScore;
+    }
+
     public async Task SuspendElement(int id)
     {
-        Console.WriteLine("----------------------------------------------------> et oui on est la");
         Annonce annonce = _context.Annonces.Find(id);
         annonce.StatutAnnonceId = 2;
         _context.Annonces.Update(annonce);
