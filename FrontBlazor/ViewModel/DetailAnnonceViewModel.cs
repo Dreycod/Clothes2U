@@ -263,7 +263,6 @@ public class DetailAnnonceViewModel : BaseViewModel
     public int PageNumber { get; set; }
     public async Task PreviousSimilar()
     {
-        Console.WriteLine($"PageNumber: {PageNumber}");
         if (PageNumber > 1)
         {
             PageNumber--;
@@ -273,10 +272,9 @@ public class DetailAnnonceViewModel : BaseViewModel
     }
     public async Task NextSimilar()
     {
-        Console.WriteLine($"PageNumber: {PageNumber}");
         if (similarAnnonces.Count == 4)
         {
-            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId,PageNumber++,4 );
+            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId,PageNumber + 1,4 );
             if (newAnnonces.Count > 0)
             {
                 PageNumber++;
