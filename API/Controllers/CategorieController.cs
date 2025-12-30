@@ -1,10 +1,10 @@
-using Shared.DTO;
-using Shared.DTO.Categorie;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO;
+using Shared.DTO.Categorie;
  
 namespace API.Controllers;
 
@@ -43,4 +43,66 @@ public class CategorieController : ControllerBase
         return Ok(categoriesDTO);
     }
 
+    [HttpPost]
+    [ProducesResponseType(typeof(Categorie), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Categorie>> AddCategorie([FromBody] CategorieDTO Categorie)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        Categorie _Categorie = _mapper.Map<Categorie>(Categorie);
+
+        await _categorieManager.AddAsync(_Categorie);
+        return CreatedAtAction(nameof(GetById), new { id = _Categorie.CategorieId }, _Categorie);
+    }
+    [HttpDelete("id/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteCategorie(int id)
+    {
+        Categorie? CategorieToDelete = await _categorieManager.GetByIdAsync(id);
+        if (CategorieToDelete == null)
+        {
+            return NotFound();
+        }
+        await _categorieManager.DeleteAsync(CategorieToDelete);
+        return NoContent();
+    }
+    [HttpPut("id/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> PutCategorie(int id, [FromBody] CategorieDTO Categorie)
+    {
+        if (id != Categorie.IdCategorie)
+        {
+            return BadRequest();
+        }
+        ActionResult<Categorie?> CategorieToUpdate = await _categorieManager.GetByIdAsync(id);
+
+        if (CategorieToUpdate.Value == null)
+        {
+            return NotFound();
+        }
+        Categorie updatedCategorie = _mapper.Map<Categorie>(Categorie);
+
+        await _categorieManager.UpdateAsync(updatedCategorie);
+        return NoContent();
+    }
+
+    [HttpGet("id/{id}")]
+    [ProducesResponseType(typeof(Categorie), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Categorie>> GetById(int id)
+    {
+        var Categorie = await _categorieManager.GetByIdAsync(id);
+        if (Categorie == null)
+            return NotFound();
+        return Ok(Categorie);
+    }
 }

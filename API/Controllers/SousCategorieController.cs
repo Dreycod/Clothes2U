@@ -35,7 +35,7 @@ public class SousCategorieController : ControllerBase
     [ProducesResponseType(typeof(SousCategorie), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<SousCategorie>> AddSousCategorie([FromBody] SousCategorieDTO SousCategorie)
+    public async Task<ActionResult<SousCategorie>> AddSousCategorie([FromBody] SousCategoriePostDTO SousCategorie)
     {
         if (!ModelState.IsValid)
         {
@@ -64,7 +64,7 @@ public class SousCategorieController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PutSousCategorie(int id, [FromBody] SousCategorieDTO SousCategorie)
+    public async Task<IActionResult> PutSousCategorie(int id, [FromBody] SousCategoriePostDTO SousCategorie)
     {
         if (id != SousCategorie.SousCategorieId)
         {
