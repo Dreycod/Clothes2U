@@ -8,5 +8,6 @@ namespace API.Models.Repository
         Task<IEnumerable<Signalement>> GetByTypeAsync(int typeId);
         Task<Signalement> CreateWithRelationsAsync(Signalement signalement, int? annonceId, int? avisId, int? utilisateurSignaleId);
         Task DeleteSignalementByUserId(int id);
+        Task<int> GetSignalementCount();
     }
 }

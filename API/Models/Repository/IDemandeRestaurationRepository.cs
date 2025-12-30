@@ -6,5 +6,6 @@ namespace API.Models.Repository
     : IDataRepository<TEntity, TIdentifier>
     {
         Task<DemandeRestauration> GetActiveDemandeRestaurationByUserId(TIdentifier id);
+        Task<int> GetDemandeRestaurationCount();
     }
 }

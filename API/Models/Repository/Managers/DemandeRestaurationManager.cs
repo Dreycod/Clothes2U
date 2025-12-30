@@ -1,4 +1,4 @@
-using API.Models.EntityFramework;
+﻿using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
@@ -38,5 +38,10 @@ public class DemandeRestaurationManager : GenericCRUDManager<DemandeRestauration
         _context.DemandesRestauration.Attach(entityToUpdate);
         _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> GetDemandeRestaurationCount()
+    {
+        return await _context.DemandesRestauration.Where(d => d.Status == "En cours").CountAsync();
     }
 }

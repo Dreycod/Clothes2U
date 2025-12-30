@@ -95,5 +95,9 @@ namespace API.Models.Repository.Managers
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int> GetSignalementCount()
+        {
+            return await _context.Signalements.CountAsync();
+        }
     }   
 }

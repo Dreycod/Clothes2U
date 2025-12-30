@@ -256,6 +256,7 @@ builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 

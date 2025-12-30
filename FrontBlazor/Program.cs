@@ -44,6 +44,7 @@ builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<IMediasService, MediaWebService>();
 builder.Services.AddScoped<IStateService<AnnonceDTO>, AnnonceStateService>();
 builder.Services.AddScoped<VerificationService>();
+builder.Services.AddScoped<IModerationDashboardService, ModerationDashBoardWebService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
 builder.Services.AddScoped<IDecisionService, DecisionWebService>();

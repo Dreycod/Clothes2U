@@ -79,4 +79,9 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> GetSuspendUserCount()
+    {
+        return await _context.Utilisateurs.Where(u => u.Statut.StatutLibelle == "Suspendu").CountAsync();
+    }
 }
