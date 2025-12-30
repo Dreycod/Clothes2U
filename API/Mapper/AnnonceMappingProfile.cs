@@ -87,6 +87,13 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
             .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
             .ReverseMap();
+        CreateMap<Couleur, CouleurDTO>()
+            .ForMember(dest => dest.CouleurId, opt => opt.MapFrom(src => src.CouleurId))
+            .ForMember(dest => dest.Nom, opt => opt.MapFrom(src => src.Nom))
+            .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
+             .ReverseMap()
+            .ForMember(dest => dest.Annonces, opt => opt.Ignore());
+
         CreateMap<Categorie, CategorieDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
             .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))

@@ -99,7 +99,7 @@
                                 <tr>
                                     <td>#@couleur.CouleurId</td>
                                     <td><strong>@couleur.Nom</strong></td>
-                                    <td>@VM_CommercialCouleurs.GetArticleCount(couleur.CouleurId) articles</td>
+                                    <td>@couleur.NombreProduits articles</td>
                                     <td>
                                         <div class="table-actions">
                                             <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCouleurs.ShowEditModal(couleur)">

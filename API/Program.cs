@@ -213,9 +213,9 @@ builder.Services.AddAutoMapper(cfg => {
 }, Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ICaracteristiquesRepository<Categorie>, CategorieManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Genre>, GenreManager>();
+builder.Services.AddScoped<ICaracteristiquesRepository<Couleur>, CouleurManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
-builder.Services.AddScoped<IDataRepository<Couleur, int>, CouleurManager>();
 builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurManager>();
 builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();

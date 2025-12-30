@@ -1,8 +1,9 @@
 using Shared.DTO.SousCategorie;
+using Shared.Interfaces;
 
 namespace Shared.DTO.Categorie;
 
-public class CategorieDTO
+public class CategorieDTO: IEntity
 {
     public int IdCategorie { get; set; }
     public string LibelleCategorie { get; set; } = null!;
