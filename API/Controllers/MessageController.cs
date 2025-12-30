@@ -104,8 +104,6 @@ public class MessageController : ControllerBase
          
          var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
  
-         
-         
          if (conversation != null)
          {
              int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
@@ -172,11 +170,51 @@ public class MessageController : ControllerBase
         var messageDemande = new MessageDemande
         {
             MessageId = message.MessageId,
-            DemandeId = dto.DemandeId
+            DemandeId = dto.DemandeId,
+            PrixPropose = dto.PrixPropose
         };
         
         await _messageDemandeManager.AddAsync(messageDemande);
+        
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
 
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                var notificationEvent = new NewMessageEvent
+                {
+                    TargetUserId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    SenderId = dto.UtilisateurId,
+                    MessagePreview = "Une demande de prix a été envoyé"
+                };
+                await _notificationService.NotifyAsync(notificationEvent);
+
+                // 🔥 BROADCASTER VIA SIGNALR
+                //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
+
+                await _hubContext.Clients
+                    .Group($"conversation_{message.ConversationId}")
+                    .SendAsync("ReceiveMessage",
+                        message.ConversationId,
+                        message.UtilisateurId,
+                        "Une demande de prix a été envoyé",
+                        null,
+                        message.MessageDate);
+            }
+            else
+            {
+                    Console.WriteLine($"[MessageController] ❌ Target user not found");
+                    return BadRequest("Utilisateur non autorisé pour cette conversation");
+            }
+            }
+        else
+        {
+            Console.WriteLine($"[MessageController] ❌ Conversation {dto.ConversationId} not found");
+            return BadRequest("Conversation introuvable");
+        }
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
 

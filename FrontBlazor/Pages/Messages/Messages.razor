@@ -72,9 +72,35 @@
                                 </h3>
                             </NavLink> 
                             <p class="product-price">@VM_Messagerie.SelectedConversation.Prix €</p>
+                            <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
+                                Proposer un prix
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                @if (showPriceModal)
+                {
+                    <div class="price-popover">
+                        <div class="price-popover-header">
+                            <span>Proposer un prix</span>
+                            <button class="close-btn" @onclick="ClosePriceModal">×</button>
+                        </div>
+
+                        <input type="number"
+                               class="price-input"
+                               @bind="proposedPrice"
+                               min="0"
+                               step="0.5"
+                               placeholder="Ex : 120 €" />
+
+                        <div class="popover-actions">
+                            <button class="btn-confirm" @onclick="ConfirmPriceProposal">
+                                Envoyer
+                            </button>
+                        </div>
+                    </div>
+                }
 
                 <!-- Messages Area -->
                 <div class="messages-area" @ref="messagesContainer">
@@ -97,6 +123,28 @@
                                             <img class="product-image" src="@VM_Messagerie._mediaService.GetPhotoUrl(photo)"/>
                                         }
                                     }
+                                }
+                                else if (message.TypeMessage == "Demande")
+                                {
+                                    MessageDemandeDTO newmessage = message as MessageDemandeDTO;
+                                    
+                                        @if (message.SentByCurrentUser)
+                                        {
+                                            <p class="message-text">
+                                                Vous avez demandé de changer <br/>
+                                                <p>@newmessage.PrixPropose</p><p style="text-decoration: line-through">@VM_Messagerie.SelectedConversation.Prix</p>
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <p class="message-text">
+                                                Vous avez reçu une demande de changement de prix <br/>
+                                                <p>@newmessage.PrixPropose</p><p style="text-decoration: line-through">@VM_Messagerie.SelectedConversation.Prix</p>
+                                            </p>
+                                        }
+                                            
+                                        
+                                    
                                 }
                                 
                                 <div class="message-info">
@@ -187,6 +235,8 @@
 </div>
 
 @code {
+    private bool showPriceModal = false;
+    private double proposedPrice;
     private ElementReference messagesContainer;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -281,5 +331,21 @@
         Console.WriteLine($"[Page] 🗑️ Removing photo at index {index}");
         VM_Messagerie.RemoveSelectedPhotoAt(index);
         StateHasChanged();
+    }
+    
+    private void ClosePriceModal()
+    {
+        showPriceModal = false;
+        proposedPrice = 0;
+    }
+
+    private void ConfirmPriceProposal()
+    {
+        if (proposedPrice > 0)
+        {
+            VM_Messagerie.SendProposition(proposedPrice);
+            StateHasChanged();
+            ClosePriceModal();
+        }
     }
 }

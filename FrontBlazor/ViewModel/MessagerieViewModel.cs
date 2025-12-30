@@ -237,6 +237,52 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             NotifyStateChanged();
         }
     }
+    
+    public async Task SendProposition(double newPrice)
+    {
+        if (SelectedConversation.Prix * 0.7 > newPrice)
+        {
+            return;
+        }
+
+        try
+        {
+            MessageDemandePostDTO messageDemandePostDto = new MessageDemandePostDTO
+            {
+                ConversationId = SelectedConversationId!.Value,
+                PrixPropose = newPrice,
+                UtilisateurId = CurrentUser!.UtilisateurId
+            };
+        
+            _messageService.PostMessageDemande(messageDemandePostDto);
+        
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
+            
+            if (conv != null)
+            {
+                conv.LastMessage = "demande";
+                conv.HasNewMessages = false;
+
+                try
+                {
+                    Conversations.Remove(conv);
+                    Conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur envoi message: {ex.Message}");
+        }
+        finally
+        {
+            NotifyStateChanged();
+        }
+    }
 
     private async void HandleMessageReceived(int conversationId, int senderId, string message, List<int> photoIds, DateTime date)
     {
@@ -349,13 +395,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     }
                     NotifyStateChanged();
                 }
-                else
-                {
-                }
             }
-        }
-        else
-        {
         }
     }
 
@@ -447,5 +487,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
         NotifyStateChanged();
     }
+
+    
     
 }

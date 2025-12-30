@@ -10,7 +10,7 @@ public class MessageMapperProfile : Profile
     {
         CreateMap<Message, MessageDTO>()
             .Include<Message, MessageTextDTO>()
-            .Include<Message, MessagePropositionDTO>()
+            .Include<Message, MessageDemandeDTO>()
             .Include<Message, MessageValidationDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
@@ -57,7 +57,7 @@ public class MessageMapperProfile : Profile
                         : new List<int>()
                 ));
         
-        CreateMap<Message, MessagePropositionDTO>()
+        CreateMap<Message, MessageDemandeDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
             .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
@@ -65,7 +65,7 @@ public class MessageMapperProfile : Profile
             .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Utilisateur.Login))
             .ForMember(dest => dest.SentByCurrentUser, opt => opt.MapFrom((src, dest, _, context) =>
                 src.UtilisateurId == (int)context.Items["CurrentUserId"]))
-            .ForMember(dest => dest.PrixProposer, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.PrixPropose, opt => opt.MapFrom(src =>
                 src.MessageDemande != null ? src.MessageDemande.PrixPropose : 0))
             .ForMember(dest => dest.OffreParenteId, opt => opt.MapFrom(src =>
                 src.MessageDemande != null ? src.MessageDemande.DemandeId : null));

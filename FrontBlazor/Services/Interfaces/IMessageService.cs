@@ -8,6 +8,7 @@ public interface IMessageService : IReadableService<MessageTextDTO>, IWritableSe
     Task<List<MessageTextDTO>?> GetMessagesByConversationId(int id);
     Task<List<MessageTextDTO>?> GetMessagesByUserId(int id);
     Task<HttpResponseMessage> PostMessageTexte(MessageTextePostDTO message);
+    Task<HttpResponseMessage> PostMessageDemande(MessageDemandePostDTO message);
     Task<MessageDTO> GetLastMessageByConversationId(int id);
     Task MaskAsRead(int messageId);
 

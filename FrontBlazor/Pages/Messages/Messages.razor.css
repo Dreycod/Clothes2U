@@ -605,3 +605,74 @@ input[type="file"] {
     align-items: center;
     gap: 1rem;
 }
+
+.price-proposal-btn {
+    margin-left: 12px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+}
+
+.price-proposal-btn:hover {
+    background: #f4f4f4;
+}
+
+/* Popover */
+.price-popover {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 220px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 1000;
+}
+
+/* Header */
+.price-popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* Input */
+.price-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Actions */
+.popover-actions {
+    text-align: right;
+}
+
+.btn-confirm {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    background-color: #2563eb;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-confirm:hover {
+    background-color: #1e4ed8;
+}

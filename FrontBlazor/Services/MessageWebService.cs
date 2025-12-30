@@ -33,6 +33,12 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         var body = JsonContent.Create(message);
         return await PostWithCredentialsAsync($"Message/texte",body);
     }
+    
+    public async Task<HttpResponseMessage> PostMessageDemande(MessageDemandePostDTO message)
+    {
+        var body = JsonContent.Create(message);
+        return await PostWithCredentialsAsync($"Message/demande",body);
+    }
 
     public async Task MaskAsRead(int messageId)
     {

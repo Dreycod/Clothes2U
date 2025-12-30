@@ -72,7 +72,7 @@ public class ConversationMappingProfile : Profile
                     }
                     else if (message.MessageDemande != null)
                     {
-                        dto = new MessagePropositionDTO
+                        dto = new MessageDemandeDTO
                         {
                             MessageId = message.MessageId,
                             Date = message.MessageDate,
@@ -80,7 +80,7 @@ public class ConversationMappingProfile : Profile
                             SenderId = message.UtilisateurId,
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
-                            PrixProposer = message.MessageDemande.PrixPropose,
+                            PrixPropose = message.MessageDemande.PrixPropose,
                             OffreParenteId = message.MessageDemande.DemandeId
                         };
                     }
