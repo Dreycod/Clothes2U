@@ -66,7 +66,6 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         AddListToQuery(queryParams, "Genre", filterDto.Genre);
         AddListToQuery(queryParams, "Etats", filterDto.Etats);
         AddListToQuery(queryParams, "Tailles", filterDto.Tailles);
-        AddListToQuery(queryParams, "Etats", filterDto.Etats);
 
         if (filterDto.PrixMin.HasValue)
             queryParams.Add(new("PrixMin", filterDto.PrixMin.Value.ToString(CultureInfo.InvariantCulture)));
@@ -83,7 +82,7 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         queryParams.Add(new("pageSize", pageSize.ToString()));
 
         var url = QueryHelpers.AddQueryString("Annonce/productByFilter", queryParams);
-
+        Console.WriteLine(filterDto.Etats);
         var response = await GetWithCredentialsAsync(url);
         response.EnsureSuccessStatusCode();
 
