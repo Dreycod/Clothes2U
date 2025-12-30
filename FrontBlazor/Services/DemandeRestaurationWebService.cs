@@ -36,6 +36,7 @@ public class DemandeRestaurationWebService : BaseGenericService,  IDemandeRestau
         try
         {
             var body = JsonContent.Create(demande);
+            body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
             var response = await PostWithCredentialsAsync("DemandeRestauration", body);
             
             if (!response.IsSuccessStatusCode)

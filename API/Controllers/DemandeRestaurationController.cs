@@ -124,10 +124,6 @@ public class DemandeRestaurationController : ControllerBase
                 {
                     return NotFound($"Utilisateur {decisionDemandeRestauration.UtilisateurId} introuvable.");
                 }
-                Console.WriteLine("-------------------------------------------------------------------");
-                Console.WriteLine(utilisateur.UtilisateurId);
-                Console.WriteLine(demande.DemandeRestaurationId);
-                
                 utilisateur.StatutId = 1;
                 await _utilisateurManager.UpdateAsync(utilisateur);
                 demande.Status = "Accepté";
