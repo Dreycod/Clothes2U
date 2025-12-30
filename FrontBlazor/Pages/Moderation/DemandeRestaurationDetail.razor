@@ -7,7 +7,7 @@
 
 <PageTitle>Détail de la demande - Modération</PageTitle>
 
-<link rel="stylesheet" href="/css/moderation-shared.css" />
+<link rel="stylesheet" href="/css/Moderation/moderation-shared.css" />
 <link href="css/loading.css" rel="stylesheet" />
 <link href="css/Moderation/DemandeRestauration.css" rel="stylesheet"/>
 
@@ -70,9 +70,11 @@ else
         </div>
         @if (!string.IsNullOrEmpty(DemandeRestaurationDetailViewModel.ErrorMessage))
         {
-            <div class="alert alert-danger">
-                <i class="bi bi-x-circle-fill"></i>
-                <span>@DemandeRestaurationDetailViewModel.ErrorMessage</span>
+            <div class="alert-wrapper">
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle-fill"></i>
+                    <span>@DemandeRestaurationDetailViewModel.ErrorMessage</span>
+                </div>
             </div>
         }
         <div class="decision-panel">
@@ -86,6 +88,25 @@ else
         </div>
     </div>
 }
+
+<style>
+
+    .alert-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .alert-wrapper .alert {
+        width: fit-content;
+        max-width: 80%;
+        padding: 12px 18px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
 
 @code {
     [Parameter] public int Id { get; set; }

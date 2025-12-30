@@ -40,18 +40,6 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementDetailsDTO>();
         return createdSignalement;
     }
-
-    public async Task<SignalementDTO?> AddAsync(SignalementDTO entity)
-    {
-        await PostWithCredentialsAsync("Signalement", JsonContent.Create(entity));
-        return entity;
-    }
-
-    public Task UpdateAsync(SignalementDTO updatedEntity)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task DeleteAsync(int id)
     {
         await DeleteWithCredentialsAsync($"Signalement/Delete/{id}");
