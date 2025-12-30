@@ -9,14 +9,14 @@ public class CommercialCategoriesViewModel
     public bool showModal = false;
     public bool showDeleteModal = false;
     public bool isEditing = false;
-    public CategorieDetailDTO currentCategorie = new CategorieDetailDTO();
+    public CategorieDTO currentCategorie = new CategorieDTO();
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    private ListableViewModel<CategorieDetailDTO> VM_Categorie;
+    private ListableViewModel<CategorieDTO> VM_Categorie;
     public event Action? OnStateChange;
 
-    public CommercialCategoriesViewModel(ListableViewModel<CategorieDetailDTO> categorieService)
+    public CommercialCategoriesViewModel(ListableViewModel<CategorieDTO> categorieService)
     {
         VM_Categorie = categorieService;
     }
@@ -34,14 +34,14 @@ public class CommercialCategoriesViewModel
     public void ShowAddModal()
     {
         isEditing = false;
-        currentCategorie = new CategorieDetailDTO();
+        currentCategorie = new CategorieDTO();
         showModal = true;
     }
 
-    public void ShowEditModal(CategorieDetailDTO categorie)
+    public void ShowEditModal(CategorieDTO categorie)
     {
         isEditing = true;
-        currentCategorie = new CategorieDetailDTO
+        currentCategorie = new CategorieDTO
         {
             IdCategorie = categorie.IdCategorie,
             LibelleCategorie = categorie.LibelleCategorie,
@@ -50,7 +50,7 @@ public class CommercialCategoriesViewModel
         showModal = true;
     }
 
-    public void ShowDeleteModal(CategorieDetailDTO categorie)
+    public void ShowDeleteModal(CategorieDTO categorie)
     {
         currentCategorie = categorie;
         showDeleteModal = true;
@@ -59,14 +59,14 @@ public class CommercialCategoriesViewModel
     public void CloseModal()
     {
         showModal = false;
-        currentCategorie = new CategorieDetailDTO();
+        currentCategorie = new CategorieDTO();
         errorMessage = string.Empty;
     }
 
     public void CloseDeleteModal()
     {
         showDeleteModal = false;
-        currentCategorie = new CategorieDetailDTO();
+        currentCategorie = new CategorieDTO();
     }
 
     public async Task SaveCategorie()

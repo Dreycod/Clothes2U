@@ -17,10 +17,10 @@ public class CommercialTaillesViewModel
     public string errorMessage = string.Empty;
 
     private ListableViewModel<TailleDTO> VM_Taille;
-    private ListableViewModel<CategorieDetailDTO> VM_Categorie;
+    private ListableViewModel<CategorieDTO> VM_Categorie;
     public event Action? OnStateChange;
 
-    public CommercialTaillesViewModel(ListableViewModel<TailleDTO> tailleService, ListableViewModel<CategorieDetailDTO> categorieService)
+    public CommercialTaillesViewModel(ListableViewModel<TailleDTO> tailleService, ListableViewModel<CategorieDTO> categorieService)
     {
         VM_Taille = tailleService;
         VM_Categorie = categorieService;

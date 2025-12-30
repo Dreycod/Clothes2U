@@ -26,7 +26,7 @@ public class CommercialMarquesViewModel
 
     public async Task LoadAsync()
     {
-        await VM_Marque.LoadWithDetailsAsync();
+        await VM_Marque.LoadAsync();
     }
 
     public void ShowAddModal()

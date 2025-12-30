@@ -76,8 +76,7 @@ public class AnnonceMappingProfile : Profile
         
         CreateMap<EtatArticle, EtatArticleDTO>();
 
-        CreateMap<Marque, MarqueDTO>().ReverseMap();
-        CreateMap<Marque, MarqueDetailDTO>()
+        CreateMap<Marque, MarqueDTO>()
             .ForMember(dest => dest.MarqueID, opt => opt.MapFrom(src => src.MarqueId))
             .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
             .ReverseMap()
@@ -88,12 +87,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.LibelleSousCategorie, opt => opt.MapFrom(src => src.LibelleSousCategorie))
             .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie))
             .ReverseMap();
-
         CreateMap<Categorie, CategorieDTO>()
-            .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
-            .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))
-            .ForMember(dest => dest.SousCategories, opt => opt.MapFrom(src => src.SousCategories));
-        CreateMap<Categorie, CategorieDetailDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
             .ForMember(dest => dest.LibelleCategorie, opt => opt.MapFrom(src => src.LibelleCategorie))
             .ForMember(dest => dest.SousCategories, opt => opt.MapFrom(src => src.SousCategories))

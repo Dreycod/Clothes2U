@@ -28,19 +28,9 @@ public class MarqueController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<MarqueDTO>> GetAllMarques()
     {
-        IEnumerable<Marque> marques = await _marqueManager.GetAllAsync();
+        IEnumerable<Marque> marques = await _marqueManager.GetAllWithDetailsAsync();
         IEnumerable<MarqueDTO> marquesDTO = _mapper.Map<IEnumerable<MarqueDTO>>(marques);
         return Ok(marquesDTO);
-    }
-
-    [HttpGet("details")]
-    [ProducesResponseType(typeof(IEnumerable<MarqueDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<MarqueDetailDTO>> GetAllMarquesWithDetails()
-    {
-        IEnumerable<Marque> marques = await _marqueManager.GetAllWithDetailsAsync();
-        IEnumerable<MarqueDetailDTO> marquesDetailDTO = _mapper.Map<IEnumerable<MarqueDetailDTO>>(marques);
-        return Ok(marquesDetailDTO  );
     }
 
     [HttpGet("id/{id}")]

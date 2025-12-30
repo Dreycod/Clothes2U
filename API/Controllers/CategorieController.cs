@@ -33,15 +33,14 @@ public class CategorieController : ControllerBase
         IEnumerable<CategorieDTO> categoriesDTO = _mapper.Map<IEnumerable<CategorieDTO>>(categories);
         return Ok(categoriesDTO);
     }
-
-    [HttpGet("details")]
-    [ProducesResponseType(typeof(IEnumerable<CategorieDetailDTO>), StatusCodes.Status200OK)]
+    [HttpGet("detail")]
+    [ProducesResponseType(typeof(IEnumerable<Categorie>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<CategorieDetailDTO>> GetAllCategoriesWithDetails()
+    public async Task<ActionResult<IEnumerable<CategorieDTO>>> GetAllCategorieDetails()
     {
         IEnumerable<Categorie> categories = await _categorieManager.GetAllWithDetailsAsync();
-        IEnumerable<CategorieDetailDTO> categoriesdetailDTO = _mapper.Map<IEnumerable<CategorieDetailDTO>>(categories);
-        return Ok(categoriesdetailDTO);
+        IEnumerable<CategorieDTO> categoriesDTO = _mapper.Map<IEnumerable<CategorieDTO>>(categories);
+        return Ok(categoriesDTO);
     }
 
 }

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Xml.Linq;
 
 namespace FrontBlazor.Services.GenericIServices;
 
@@ -9,10 +10,21 @@ public class ListableService<T >: BaseGenericService, IListableService<T> where 
     
     public virtual async Task<List<T>?> GetAllAsync()
     {
-        return await _httpClient.GetFromJsonAsync<List<T>>($"{typeof(T).Name}");
+        string name = typeof(T).Name;
+        if (name.EndsWith("DTO"))
+        {
+            name = name.Substring(0, name.Length - 3);
+        }
+        return await _httpClient.GetFromJsonAsync<List<T>>($"{name}");
+
     }
     public virtual async Task<List<T>?> GetAllWithDetailsAsync()
     {
-        return await _httpClient.GetFromJsonAsync<List<T>>($"{typeof(T).Name}/details");
+        string name = typeof(T).Name;
+        if (name.EndsWith("DTO"))
+        {
+            name = name.Substring(0, name.Length - 3);
+        }
+        return await _httpClient.GetFromJsonAsync<List<T>>($"{name}/details");
     }
 }

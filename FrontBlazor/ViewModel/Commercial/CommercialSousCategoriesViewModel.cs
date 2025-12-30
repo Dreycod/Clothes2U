@@ -15,12 +15,12 @@ public class CommercialSousCategoriesViewModel
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public List<(SousCategorieDTO Subcategory, CategorieDetailDTO ParentCategory)> allSubcategories = new();
-    private ListableViewModel<CategorieDetailDTO> VM_Categorie;
+    public List<(SousCategorieDTO Subcategory, CategorieDTO ParentCategory)> allSubcategories = new();
+    private ListableViewModel<CategorieDTO> VM_Categorie;
 
 
     public event Action? OnStateChange;
-    public CommercialSousCategoriesViewModel(ListableViewModel<CategorieDetailDTO> categorieService)
+    public CommercialSousCategoriesViewModel(ListableViewModel<CategorieDTO> categorieService)
     {
         VM_Categorie = categorieService;
     }

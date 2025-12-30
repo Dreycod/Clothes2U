@@ -6,7 +6,8 @@ public class CategorieDTO
 {
     public int IdCategorie { get; set; }
     public string LibelleCategorie { get; set; } = null!;
-    
+    public int? NombreProduits { get; set; }
+
     public ICollection<SousCategorieDTO> SousCategories { get; set; } = new List<SousCategorieDTO>();
     public int GetId()
     {

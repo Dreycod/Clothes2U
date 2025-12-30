@@ -73,6 +73,7 @@
             }
 
             <!-- Colors Grid -->
+
             <div class="colors-grid-section">
                 @if (VM_Couleur.IsLoading)
                 {
@@ -83,26 +84,36 @@
                 }
                 else if (VM_Couleur.Items != null && VM_Couleur.Items.Any())
                 {
-                    <div class="colors-grid">
-                        @foreach (var couleur in VM_Couleur.Items)
-                        {
-                            <div class="color-card">
-                                <div class="color-preview" style="background-color: @VM_CommercialCouleurs.GetColorHex(couleur.Nom);"></div>
-                                <div class="color-info">
-                                    <h3>@couleur.Nom</h3>
-                                    <p>@VM_CommercialCouleurs.GetArticleCount(couleur.CouleurId) articles</p>
-                                </div>
-                                <div class="color-actions">
-                                    <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCouleurs.ShowEditModal(couleur)">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialCouleurs.ShowDeleteModal(couleur)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        }
-                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom de la marque</th>
+                                <th>Nombre d'articles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var couleur in VM_Couleur.Items)
+                            {
+                                <tr>
+                                    <td>#@couleur.CouleurId</td>
+                                    <td><strong>@couleur.Nom</strong></td>
+                                    <td>@VM_CommercialCouleurs.GetArticleCount(couleur.CouleurId) articles</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCouleurs.ShowEditModal(couleur)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Supprimer" @onclick="() => VM_CommercialCouleurs.ShowDeleteModal(couleur)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 }
                 else
                 {

@@ -13,7 +13,14 @@ public class WritableService<T> : BaseGenericService, IWritableService<T>  where
     
     public virtual async Task<T?> AddAsync(T entity)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{_httpClient.BaseAddress}{typeof(T).Name}")
+        string name = typeof(T).Name;
+
+        if (name.EndsWith("DTO"))
+        {
+            name = name.Substring(0, name.Length - 3);
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_httpClient.BaseAddress}{name}")
         {
             Content = JsonContent.Create(entity)
         };
@@ -30,14 +37,25 @@ public class WritableService<T> : BaseGenericService, IWritableService<T>  where
 
     public virtual async Task UpdateAsync( T updatedEntity)
     {
+        string name = typeof(T).Name;
+        if (name.EndsWith("DTO"))
+        {
+            name = name.Substring(0, name.Length - 3);
+        }
+
         var body = JsonContent.Create(updatedEntity);
-        var response = await PutWithCredentialsAsync($"{_httpClient.BaseAddress}{typeof(T).Name}/id/{updatedEntity.GetId()}", body);
+        var response = await PutWithCredentialsAsync($"{_httpClient.BaseAddress}{name}/id/{updatedEntity.GetId()}", body);
         response.EnsureSuccessStatusCode();
     }
 
     public virtual async Task DeleteAsync(int id)
     {
-        var response = await DeleteWithCredentialsAsync($"{_httpClient.BaseAddress}{typeof(T).Name}/id/{id}");
+        string name = typeof(T).Name;
+        if (name.EndsWith("DTO"))
+        {
+            name = name.Substring(0, name.Length - 3);
+        }
+        var response = await DeleteWithCredentialsAsync($"{_httpClient.BaseAddress}{name}/id/{id}");
         response.EnsureSuccessStatusCode();
     }
 }

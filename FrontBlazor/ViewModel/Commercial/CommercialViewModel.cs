@@ -22,12 +22,12 @@ public class CommercialViewModel
 
     #region ViewModels
     ListableViewModel<MarqueDTO> VM_Marque;
-    ListableViewModel<CategorieDetailDTO> VM_Categorie;
+    ListableViewModel<CategorieDTO> VM_Categorie;
     ListableViewModel<CouleurDTO> VM_Couleurs;
     ListableViewModel<TailleDTO> VM_Tailles;
     #endregion
     public Action? OnStateChange;
-    public CommercialViewModel(NavigationManager navigationManager, ListableViewModel<CouleurDTO> vM_Couleurs, ListableViewModel<MarqueDTO> vM_Marque, ListableViewModel<CategorieDetailDTO> vM_Categorie, ListableViewModel<TailleDTO> vM_Tailles)
+    public CommercialViewModel(NavigationManager navigationManager, ListableViewModel<CouleurDTO> vM_Couleurs, ListableViewModel<MarqueDTO> vM_Marque, ListableViewModel<CategorieDTO> vM_Categorie, ListableViewModel<TailleDTO> vM_Tailles)
     {
         _navigationManager = navigationManager;
         VM_Couleurs = vM_Couleurs;
