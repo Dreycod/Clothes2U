@@ -17,13 +17,15 @@ public class CommercialTaillesViewModel
     public string errorMessage = string.Empty;
 
     private ListableViewModel<TailleDTO> VM_Taille;
+    private WritableService<TailleDTO> TailleService;
     private ListableViewModel<CategorieDTO> VM_Categorie;
     public event Action? OnStateChange;
 
-    public CommercialTaillesViewModel(ListableViewModel<TailleDTO> tailleService, ListableViewModel<CategorieDTO> categorieService)
+    public CommercialTaillesViewModel(ListableViewModel<TailleDTO> tailleService, ListableViewModel<CategorieDTO> categorieService, WritableService<TailleDTO> _tailleService )
     {
         VM_Taille = tailleService;
         VM_Categorie = categorieService;
+        TailleService = _tailleService;
     }
     public async Task LoadAsync()
     {
@@ -92,12 +94,12 @@ public class CommercialTaillesViewModel
 
             if (isEditing)
             {
-                // TODO: Update taille via API
+                await TailleService.UpdateAsync(currentTaille);
                 successMessage = "Taille modifiée avec succès";
             }
             else
             {
-                // TODO: Create taille via API
+                await TailleService.AddAsync(currentTaille);
                 successMessage = "Taille ajoutée avec succès";
             }
 
@@ -120,7 +122,7 @@ public class CommercialTaillesViewModel
     {
         try
         {
-            // TODO: Delete taille via API
+            await TailleService.DeleteAsync(currentTaille.TailleId);
             successMessage = $"Taille {currentTaille.Libelletaille} supprimée avec succès";
             CloseDeleteModal();
             await VM_Taille.LoadAsync();
@@ -143,12 +145,6 @@ public class CommercialTaillesViewModel
     {
         var category = VM_Categorie.Items?.FirstOrDefault(c => c.IdCategorie == categorieId);
         return category?.LibelleCategorie ?? "Non spécifiée";
-    }
-
-    public int GetArticleCount(int tailleId)
-    {
-        // TODO: Get actual article count from API
-        return new Random(tailleId).Next(15, 120);
     }
 }
 

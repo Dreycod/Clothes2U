@@ -70,11 +70,13 @@ public class AnnonceMappingProfile : Profile
         
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         
-        CreateMap<Couleur, CouleurDTO>();
-        
-        CreateMap<Taille, TailleDTO>();
-        
-        CreateMap<EtatArticle, EtatArticleDTO>();
+        CreateMap<Taille, TailleDTO>()
+            .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
+            .ReverseMap()
+            .ForMember(dest => dest.Annonces, opt => opt.Ignore());
+
+
+        CreateMap<EtatArticle, EtatArticleDTO>().ReverseMap();
 
         CreateMap<Marque, MarqueDTO>()
             .ForMember(dest => dest.MarqueID, opt => opt.MapFrom(src => src.MarqueId))
