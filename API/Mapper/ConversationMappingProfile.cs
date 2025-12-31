@@ -81,7 +81,9 @@ public class ConversationMappingProfile : Profile
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             PrixPropose = message.MessageDemande.PrixPropose,
-                            OffreParenteId = message.MessageDemande.DemandeId
+                            OffreParenteId = message.MessageDemande.DemandeId,
+                            EstAcceptee = message.MessageDemande.EstAcceptee,
+                            EstRepondue = message.MessageDemande.EstRepondue
                         };
                     }
                     else if (message.MessageValidation != null)
@@ -91,6 +93,7 @@ public class ConversationMappingProfile : Profile
                             MessageId = message.MessageId,
                             Date = message.MessageDate,
                             Lu = message.MessageLu,
+                            EstAcceptee = message.MessageValidation.EstAcceptee,
                             PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
                         };
                     }

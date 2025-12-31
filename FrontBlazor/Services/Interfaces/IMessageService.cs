@@ -11,5 +11,6 @@ public interface IMessageService : IReadableService<MessageTextDTO>, IWritableSe
     Task<HttpResponseMessage> PostMessageDemande(MessageDemandePostDTO message);
     Task<MessageDTO> GetLastMessageByConversationId(int id);
     Task MaskAsRead(int messageId);
-
+    Task AcceptPriceProposal(int messageId);
+    Task DeclinePriceProposal(int messageId);
 }

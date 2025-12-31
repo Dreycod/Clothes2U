@@ -23,5 +23,5 @@ public class MessageDemandePostDTO : MessagePostDTO
 
 public class MessageValidationPostDTO : MessagePostDTO
 {
-    // Propriétés spécifiques si nécessaire
+    public int MessageDemandeId { get; set; }
 }

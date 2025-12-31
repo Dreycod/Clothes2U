@@ -7,6 +7,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 {
     private HubConnection? _hubConnection;
     private readonly string _hubUrl;
+    public event Action<int, int, bool>? OnProposalResponse;
 
     public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
@@ -275,5 +276,36 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     {
         Console.WriteLine("[SignalR] DisposeAsync called");
         await StopAsync();
+    }
+    public async Task NotifyProposalResponse(int conversationId, int messageId, bool accepted)
+    {
+        if (_hubConnection?.State == HubConnectionState.Connected)
+        {
+            try
+            {
+                await _hubConnection.InvokeAsync(
+                    "NotifyProposalResponse", 
+                    conversationId, 
+                    messageId, 
+                    accepted
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SignalR] ❌ Error notifying proposal response: {ex.Message}");
+            }
+        }
+    }
+    
+    private void SetupHandlers()
+    {
+        // ... vos handlers existants ...
+        
+        _hubConnection.On<int, int, bool>("ProposalResponseReceived", 
+            (conversationId, messageId, accepted) =>
+            {
+                Console.WriteLine($"[SignalR] 📨 Proposal response received: Conv={conversationId}, Msg={messageId}, Accepted={accepted}");
+                OnProposalResponse?.Invoke(conversationId, messageId, accepted);
+            });
     }
 }

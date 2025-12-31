@@ -126,25 +126,94 @@
                                 }
                                 else if (message.TypeMessage == "Demande")
                                 {
-                                    MessageDemandeDTO newmessage = message as MessageDemandeDTO;
+                                    MessageDemandeDTO demande = message as MessageDemandeDTO;
                                     
-                                        @if (message.SentByCurrentUser)
+                                    <div class="price-proposal-card @(message.SentByCurrentUser ? "sent-proposal" : "received-proposal")">
+                                        <!-- Icône et titre -->
+                                        <div class="proposal-header">
+                                            <i class="bi bi-tag-fill proposal-icon"></i>
+                                            <span class="proposal-title">
+                                                @if (message.SentByCurrentUser)
+                                                {
+                                                    <text>Proposition de prix envoyée</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Nouvelle proposition de prix</text>
+                                                }
+                                            </span>
+                                        </div>
+
+                                        <!-- Prix proposé vs prix original -->
+                                        <div class="price-comparison">
+                                            <div class="proposed-price">
+                                                <span class="price-label">Prix proposé</span>
+                                                <span class="price-value">@demande.PrixPropose €</span>
+                                            </div>
+                                            <i class="bi bi-arrow-right price-arrow"></i>
+                                            <div class="original-price">
+                                                <span class="price-label">Prix initial</span>
+                                                <span class="price-value strikethrough">@VM_Messagerie.SelectedConversation.Prix €</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Économie réalisée -->
+                                        @{
+                                            var savings = VM_Messagerie.SelectedConversation.Prix - demande.PrixPropose;
+                                            var savingsPercent = (savings / VM_Messagerie.SelectedConversation.Prix) * 100;
+                                        }
+                                        @if (savings > 0)
                                         {
-                                            <p class="message-text">
-                                                Vous avez demandé de changer <br/>
-                                                <p>@newmessage.PrixPropose</p><p style="text-decoration: line-through">@VM_Messagerie.SelectedConversation.Prix</p>
-                                            </p>
+                                            <div class="savings-badge">
+                                                <i class="bi bi-piggy-bank-fill"></i>
+                                                Économie de @string.Format("{0:F2}", savings) € (-@string.Format("{0:F0}", savingsPercent)%)
+                                            </div>
+                                        }
+
+                                        <!-- Statut et actions -->
+                                        @if (demande.EstRepondue)
+                                        {
+                                            @if (demande.EstAcceptee)
+                                            {
+                                                <div class="proposal-status accepted">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    <span>Proposition acceptée</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="proposal-status rejected">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                    <span>Proposition refusée</span>
+                                                </div>
+                                            }
                                         }
                                         else
                                         {
-                                            <p class="message-text">
-                                                Vous avez reçu une demande de changement de prix <br/>
-                                                <p>@newmessage.PrixPropose</p><p style="text-decoration: line-through">@VM_Messagerie.SelectedConversation.Prix</p>
-                                            </p>
+                                            @if (!message.SentByCurrentUser)
+                                            {
+                                                <!-- Boutons d'action pour le destinataire -->
+                                                <div class="proposal-actions">
+                                                    <button class="btn-accept" @onclick="() => AcceptProposal(demande.MessageId.Value)">
+                                                        <i class="bi bi-check-lg"></i>
+                                                        Accepter
+                                                    </button>
+                                                    <button class="btn-decline" @onclick="() => DeclineProposal(demande.MessageId.Value)">
+                                                        <i class="bi bi-x-lg"></i>
+                                                        Refuser
+                                                    </button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <!-- Message en attente pour l'envoyeur -->
+                                                <div class="proposal-status pending">
+                                                    <i class="bi bi-clock-fill"></i>
+                                                    <span>En attente de réponse...</span>
+                                                </div>
+                                            }
                                         }
-                                            
-                                        
-                                    
+                                    </div>
                                 }
                                 
                                 <div class="message-info">
@@ -346,6 +415,36 @@
             VM_Messagerie.SendProposition(proposedPrice);
             StateHasChanged();
             ClosePriceModal();
+        }
+    }
+    
+    // À ajouter dans la section @code de Messages.razor
+
+    private async Task AcceptProposal(int messageId)
+    {
+        try
+        {
+            await VM_Messagerie.AcceptPriceProposal(messageId);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Page] ❌ Error accepting proposal: {ex.Message}");
+            // Optionnel : afficher un message d'erreur à l'utilisateur
+        }
+    }
+
+    private async Task DeclineProposal(int messageId)
+    {
+        try
+        {
+            await VM_Messagerie.DeclinePriceProposal(messageId);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Page] ❌ Error declining proposal: {ex.Message}");
+            // Optionnel : afficher un message d'erreur à l'utilisateur
         }
     }
 }

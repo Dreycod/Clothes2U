@@ -38,10 +38,15 @@ public class MessageDemandeDTO : MessageDTO
     // public string SenderName { get; set; }
     public int? OffreParenteId { get; set; }
     public double PrixPropose { get; set; }
+    public bool EstAcceptee { get; set; } = false;
+    public bool EstRepondue { get; set; } = false;
 }
 
 public class MessageValidationDTO : MessageDTO
 {
     public override string TypeMessage => "Validation";
+    public int MessageDemandeId { get; set; }
+    public MessageDemandeDTO? Demande { get; set; }
+    public bool EstAcceptee { get; set; }
     public double PrixValide { get; set; }
 }
