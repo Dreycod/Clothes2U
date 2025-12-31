@@ -99,5 +99,6 @@ namespace API.Models.Repository.Managers
         {
             return await _context.Signalements.CountAsync();
         }
+        
     }   
 }

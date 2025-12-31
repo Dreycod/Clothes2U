@@ -144,6 +144,7 @@ public class DecisionController : ControllerBase
 
     private async Task<Decision> CreateSanctionSuspension(Decision decision, SanctionSuspensionPostDTO dto)
     {
+        Console.WriteLine("--------------------------------------------------------------------------------------------------- suspension");
         var sanction = new DecisionSanction
         {
             EstEnCours = true,
@@ -161,6 +162,7 @@ public class DecisionController : ControllerBase
 
     private async Task<Decision> CreateSanctionBannissement(Decision decision, SanctionBannissementPostDTO dto)
     {
+        Console.WriteLine("--------------------------------------------------------------------------------------------------- bannissement");
         var sanction = new DecisionSanction
         {
             EstEnCours = true,

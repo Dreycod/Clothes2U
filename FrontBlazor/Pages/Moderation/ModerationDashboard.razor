@@ -126,18 +126,48 @@ else
             <div class="quick-stats-grid">
                 <div class="quick-stat">
                     <h4>Aujourd'hui</h4>
-                    <p>3 signalements traités</p>
-                    <p>1 compte banni</p>
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsAujourdhui.SignalementsTraites > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsAujourdhui.SignalementsTraites signalements traités</p>
+                    }
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsAujourdhui.ComptesSuspendus > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsAujourdhui.ComptesSuspendus comptes suspendus</p>
+                    }
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsAujourdhui.ComptesBannis > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsAujourdhui.ComptesBannis signalements traités</p>
+                    }
                 </div>
                 <div class="quick-stat">
                     <h4>Cette semaine</h4>
-                    <p>18 signalements traités</p>
-                    <p>5 comptes suspendus</p>
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsSemaine.SignalementsTraites > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsSemaine.SignalementsTraites signalements traités</p>
+                    }
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsSemaine.ComptesSuspendus > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsSemaine.ComptesSuspendus comptes suspendus</p>
+                    }
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsSemaine.ComptesBannis > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsSemaine.ComptesBannis signalements traités</p>
+                    }
                 </div>
                 <div class="quick-stat">
                     <h4>Ce mois</h4>
-                    <p>67 signalements traités</p>
-                    <p>12 comptes bannis</p>
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsMois.SignalementsTraites > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsMois.SignalementsTraites signalements traités</p>
+                    }
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsMois.ComptesSuspendus > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsMois.ComptesSuspendus comptes suspendus</p>
+                    }
+                    @if (moderationViewModel.DashBoardStatistics.DecisionsMois.ComptesBannis > 0)
+                    {
+                        <p>@moderationViewModel.DashBoardStatistics.DecisionsMois.ComptesBannis signalements traités</p>
+                    }
                 </div>
             </div>
         </div>

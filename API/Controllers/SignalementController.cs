@@ -67,7 +67,7 @@ namespace API.Controllers
             return Ok(_mapper.Map<IEnumerable<SignalementDTO>>(list));
         }
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles="Admin,Moderateur")]
         [ProducesResponseType(typeof(SignalementDetailsDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
