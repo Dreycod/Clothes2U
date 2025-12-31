@@ -21,6 +21,7 @@ public class TailleManager : GenericCRUDManager<Taille>, ITailleRepository
     {
         return _context.Tailles
             .Include(a => a.Annonces)
+            .Include(a => a.Mesures)
             .AsSplitQuery();
     }
 }

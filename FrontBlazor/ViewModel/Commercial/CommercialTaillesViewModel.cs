@@ -52,11 +52,11 @@ public class CommercialTaillesViewModel
         isEditing = true;
         currentTaille = new TailleDTO
         {
-            TailleId = taille.TailleId,
-            Libelletaille = taille.Libelletaille,
-            CategorieId = taille.CategorieId
+        //    TailleId = taille.TailleId,
+        //    Libelletaille = taille.Libelletaille,
+        //    CategorieId = taille.CategorieId
         };
-        selectedCategorieId = taille.CategorieId;
+        //selectedCategorieId = taille.CategorieId;
         showModal = true;
     }
 
@@ -96,7 +96,7 @@ public class CommercialTaillesViewModel
 
         try
         {
-            currentTaille.CategorieId = selectedCategorieId;
+            //currentTaille.CategorieId = selectedCategorieId;
 
             if (isEditing)
             {
@@ -147,10 +147,13 @@ public class CommercialTaillesViewModel
         }
     }
 
-    public string GetCategoryName(int categorieId)
+    public string GetCategoriesNumber(int idTaille)
     {
-        var category = VM_Categorie.Items?.FirstOrDefault(c => c.IdCategorie == categorieId);
-        return category?.LibelleCategorie ?? "Non spécifiée";
+        int? categoryNumber = VM_Taille.Items?.FirstOrDefault(c => c.TailleId == idTaille).Mesures.Count();
+        if (categoryNumber == null)
+            return "0";
+
+        return categoryNumber.ToString();
     }
 }
 

@@ -88,7 +88,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Taille</th>
-                                <th>Catégorie</th>
+                                <th>Nombre de Catégories</th>
                                 <th>Nombre d'articles</th>
                                 <th>Actions</th>
                             </tr>
@@ -97,11 +97,11 @@
                             @foreach (var taille in VM_Taille.Items)
                             {
                                 <tr>
-                                    <td>#@taille.TailleId</td>
+                                    <td>#@taille.TailleId </td>
                                     <td><strong>@taille.Libelletaille</strong></td>
                                     <td>
-                                        <span class="badge badge-success">
-                                            @VM_CommercialTailles.GetCategoryName(taille.CategorieId)
+                                        <span class="badge badge-info">
+                                            @VM_CommercialTailles.GetCategoriesNumber(taille.TailleId) catégories
                                         </span>
                                     </td>
                                     <td>@taille.NombreProduits articles</td>

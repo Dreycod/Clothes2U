@@ -8,6 +8,7 @@ using Shared.DTO.SousCategorie;
 using Shared.DTO.StatutAnnonce;
 using Shared.DTO.Taille;
 using Shared.DTO.Marque;
+using Shared.DTO.Mesures;
 using API.Models.EntityFramework;
 using AutoMapper;
 
@@ -72,9 +73,13 @@ public class AnnonceMappingProfile : Profile
         
         CreateMap<Taille, TailleDTO>()
             .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
+            .ForMember(dest => dest.Mesures, opt => opt.MapFrom(src => src.Mesures))
             .ReverseMap()
             .ForMember(dest => dest.Annonces, opt => opt.Ignore());
 
+
+        CreateMap<Mesure, MesureDTO>()
+            .ReverseMap();
 
         CreateMap<EtatArticle, EtatArticleDTO>().ReverseMap();
 
