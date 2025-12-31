@@ -48,5 +48,26 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
     {
         return await BaseDecisionQuery().Where(d => d.UtilisateurId == id && d.DecisionAvertissement == null && d.DecisionSanction.EstEnCours).FirstOrDefaultAsync();   
     }
-    
+    public async Task<int> GetDecisionsCountFrom(DateTime date)
+    {
+        return await _context.Decisions
+            .Where(d => d.DecisionDate >= date)
+            .CountAsync();
+    }
+
+    public async Task<int> GetSuspensionsCountFrom(DateTime date)
+    {
+        return await _context.Decisions
+            .Include(d => d.DecisionSanction.SanctionSuspension)
+            .Where(d => d.DecisionDate >= date && d.DecisionSanction.SanctionSuspension != null)
+            .CountAsync();
+    }
+
+    public async Task<int> GetBannissementsCountFrom(DateTime date)
+    {
+        return await _context.Decisions
+            .Include(d => d.DecisionSanction.SanctionBannissement)
+            .Where(d => d.DecisionDate >= date && d.DecisionSanction.SanctionBannissement != null)
+            .CountAsync();
+    }
 }
