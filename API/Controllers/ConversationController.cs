@@ -15,13 +15,21 @@ namespace API.Controllers;
 public class ConversationController : ControllerBase
 {
     private readonly IDataRepository<Message, int> _messageManager;
+    private readonly INotificationRepository _notificationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly ICurrentUserService _currentUserService;
     private readonly IConversationService _conversationService;
     private readonly IMapper _mapper;
     
-    public ConversationController(IConversationRepository<Conversation, int> manager,IDataRepository<Message, int> messageManager,ICurrentUserService currentUserService, IConversationService conversationService, IMapper mapper)
+    public ConversationController(
+        IConversationRepository<Conversation, int> manager,
+        IDataRepository<Message, int> messageManager,
+        INotificationRepository notificationManager,
+        ICurrentUserService currentUserService,
+        IConversationService conversationService, 
+        IMapper mapper)
     {
+        _notificationManager =  notificationManager;
         _conversationManager = manager;
         _currentUserService = currentUserService;
         _messageManager = messageManager;
@@ -43,7 +51,8 @@ public class ConversationController : ControllerBase
         {
             opts.Items["CurrentUserId"] = currentUserId;
         });
-
+        
+        await _notificationManager.DeleteMessageNotificationByConversationId(id, (int)currentUserId);
         return Ok(conversationDTO);
     }
     
@@ -74,12 +83,11 @@ public class ConversationController : ControllerBase
         {
             opt.Items["CurrentUserId"] = currentUserId;
         });
-
         return Ok(dto);
     }
 
     [HttpGet("messageById/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult<MessageSignalementDTO>> GetMessageById(int id)
     {
         Message message =  await _messageManager.GetByIdAsync(id);

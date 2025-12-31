@@ -14,20 +14,24 @@ public class CommercialCategoriesViewModel
     public string errorMessage = string.Empty;
 
     private ListableViewModel<CategorieDTO> VM_Categorie;
+    private WritableService<CategorieDTO> CategorieService;
+
     public event Action? OnStateChange;
 
-    public CommercialCategoriesViewModel(ListableViewModel<CategorieDTO> categorieService)
+    public CommercialCategoriesViewModel(ListableViewModel<CategorieDTO> _vmCategorie, WritableService<CategorieDTO> _categorieService)
     {
-        VM_Categorie = categorieService;
+        VM_Categorie = _vmCategorie;
+        CategorieService = _categorieService;
     }
     public async Task LoadAsync()
     {
         await VM_Categorie.LoadWithDetailsAsync();
-        Console.WriteLine("Categories loaded: " + VM_Categorie.Items.Count);
-        // Print nombre produits de chaque 
-        foreach (var categorie in VM_Categorie.Items)
+
+        if (VM_Categorie.Items != null)
         {
-            Console.WriteLine($"Catégorie: {categorie.LibelleCategorie}, Nombre de sous-catégories: {categorie.SousCategories?.Count ?? 0}, Nombre de articles: {categorie.NombreProduits}");
+            VM_Categorie.Items = VM_Categorie.Items
+                .OrderBy(c => c.IdCategorie)
+                .ToList();
         }
     }
 
@@ -81,12 +85,12 @@ public class CommercialCategoriesViewModel
         {
             if (isEditing)
             {
-                // TODO: Update categorie via API
+                await CategorieService.UpdateAsync(currentCategorie);
                 successMessage = "Catégorie modifiée avec succès";
             }
             else
             {
-                // TODO: Create categorie via API
+                await CategorieService.AddAsync(currentCategorie);
                 successMessage = "Catégorie ajoutée avec succès";
             }
 
@@ -109,7 +113,7 @@ public class CommercialCategoriesViewModel
     {
         try
         {
-            // TODO: Delete categorie via API
+            await CategorieService.DeleteAsync(currentCategorie.IdCategorie);
             successMessage = $"Catégorie {currentCategorie.LibelleCategorie} supprimée avec succès";
             CloseDeleteModal();
             await VM_Categorie.LoadAsync();

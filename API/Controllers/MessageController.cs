@@ -154,6 +154,7 @@ public class MessageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MessageDemandePostDTO>> PostMessageDemande(MessageDemandePostDTO dto)
     {
+        Console.WriteLine("--------------------------------------------------------------------------");
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
@@ -183,12 +184,11 @@ public class MessageController : ControllerBase
             int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
             if (targetUserId != null)
             {
-                var notificationEvent = new NewMessageEvent
+                var notificationEvent = new NewPropositionEvent()
                 {
                     TargetUserId = (int)targetUserId,
-                    MessageId = message.MessageId,
+                    DemandeId = messageDemande.MessageDemandeId,
                     SenderId = dto.UtilisateurId,
-                    MessagePreview = "Une demande de prix a été envoyé"
                 };
                 await _notificationService.NotifyAsync(notificationEvent);
 

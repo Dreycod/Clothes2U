@@ -62,6 +62,19 @@ public class NotificationMappingProfile : Profile
                         EstLu = src.EstLu,
                         NouvelleAnnonceId = src.NotificationNouvellesAnnonces.AnnonceId
                     };
+                }else if (src.NotificationProposition != null)
+                {
+                    return new NotificationPropositionDTO()
+                    {
+                        NotificationId = src.NotificationId,
+                        DateCreation = src.DateCreation,
+                        EstLu = src.EstLu,
+                        PrixPropose = src.NotificationProposition.MessageDemande.PrixPropose ,
+                        AncienPrixPropose = src.NotificationProposition.MessageDemande?.Offre?.PrixPropose,
+                        ConversationId = src.NotificationProposition.MessageDemande.Message.ConversationId,
+                        AnnonceTitle =  src.NotificationProposition.MessageDemande.Message.Conversation.LAnnonce.Title,
+                        NomAuteur = src.NotificationProposition.MessageDemande.Message.Utilisateur.Login,
+                    };
                 }
 
                 return null;

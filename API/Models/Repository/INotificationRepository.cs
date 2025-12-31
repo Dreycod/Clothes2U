@@ -8,6 +8,7 @@ public interface INotificationRepository : IDataRepository<Notification, int>
     public Task<int> GetNotificationsUnreadCountByUserId(int userId);
     public Task MarkAsRead(int userId);
     public Task CreateNotificationAvertissement(NotificationAvertissement notification);
+    public Task DeleteMessageNotificationByConversationId(int id, int userId);
 }
 
 public interface INotificationMessageRepository : IDataRepository<NotificationMessage, int>
@@ -19,5 +20,9 @@ public interface INotificationNouvelleAnnonceRepository : IDataRepository<Notifi
 }
 
 public interface INotificationModificationAnnonceRepository : IDataRepository<NotificationModificationAnnonce, int>
+{
+}
+
+public interface INotificationPropositionRepository : IDataRepository<NotificationProposition, int>
 {
 }

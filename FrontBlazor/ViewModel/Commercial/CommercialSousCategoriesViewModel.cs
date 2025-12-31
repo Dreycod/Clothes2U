@@ -17,12 +17,13 @@ public class CommercialSousCategoriesViewModel
 
     public List<(SousCategorieDTO Subcategory, CategorieDTO ParentCategory)> allSubcategories = new();
     private ListableViewModel<CategorieDTO> VM_Categorie;
-
+    private WritableService<SousCategoriePostDTO> SousCategorieService;
 
     public event Action? OnStateChange;
-    public CommercialSousCategoriesViewModel(ListableViewModel<CategorieDTO> categorieService)
+    public CommercialSousCategoriesViewModel(ListableViewModel<CategorieDTO> categorieService, WritableService<SousCategoriePostDTO> sousCategorieService)
     {
         VM_Categorie = categorieService;
+        SousCategorieService = sousCategorieService;
     }
     public async Task LoadAsync()
     {
@@ -33,19 +34,15 @@ public class CommercialSousCategoriesViewModel
     public void LoadAllSubcategories()
     {
         allSubcategories.Clear();
-        if (VM_Categorie.Items != null)
-        {
-            foreach (var category in VM_Categorie.Items)
-            {
-                if (category.SousCategories != null)
-                {
-                    foreach (var subcat in category.SousCategories)
-                    {
-                        allSubcategories.Add((subcat, category));
-                    }
-                }
-            }
-        }
+
+        if (VM_Categorie.Items == null)
+            return;
+
+        allSubcategories = VM_Categorie.Items
+            .Where(c => c.SousCategories != null)
+            .SelectMany(c => c.SousCategories.Select(sc => (subcat: sc, category: c)))
+            .OrderBy(x => x.subcat.SousCategorieId)
+            .ToList();
     }
 
     public void ShowAddModal()
@@ -105,16 +102,21 @@ public class CommercialSousCategoriesViewModel
 
         try
         {
-            //currentSousCategorie.LibelleSousCategorie = selectedCategorieId;
+            SousCategoriePostDTO sousCategoriePost = new SousCategoriePostDTO
+            {
+                SousCategorieId = currentSousCategorie.SousCategorieId,
+                LibelleSousCategorie = currentSousCategorie.LibelleSousCategorie,
+                CategorieId = selectedCategorieId
+            };
 
             if (isEditing)
             {
-                // TODO: Update sous-categorie via API
+                await SousCategorieService.UpdateAsync(sousCategoriePost);
                 successMessage = "Sous-catégorie modifiée avec succès";
             }
             else
             {
-                // TODO: Create sous-categorie via API
+                await SousCategorieService.AddAsync(sousCategoriePost);
                 successMessage = "Sous-catégorie ajoutée avec succès";
             }
 
@@ -138,7 +140,7 @@ public class CommercialSousCategoriesViewModel
     {
         try
         {
-            // TODO: Delete sous-categorie via API
+            await SousCategorieService.DeleteAsync(currentSousCategorie.SousCategorieId);
             successMessage = $"Sous-catégorie {currentSousCategorie.LibelleSousCategorie} supprimée avec succès";
             CloseDeleteModal();
             await VM_Categorie.LoadAsync();
@@ -155,12 +157,6 @@ public class CommercialSousCategoriesViewModel
             errorMessage = $"Erreur: {ex.Message}";
             CloseDeleteModal();
         }
-    }
-
-    public int GetArticleCount(int sousCategorieId)
-    {
-        // TODO: Get actual article count from API
-        return new Random(sousCategorieId).Next(10, 80);
     }
 }
 

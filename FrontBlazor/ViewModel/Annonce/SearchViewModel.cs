@@ -49,7 +49,8 @@ namespace FrontBlazor.ViewModel
         public HashSet<int> ExpandedCategories { get; set; } = new();
 
         public int SliderMax { get; set; } = 500;
-        public int SelectedPrice { get; set; } = 250;
+        public int SelectedMaxPrice { get; set; } = 250;
+        public int SelectedMinPrice { get; set; } = 0;
 
         public int CurrentPage { get; set; } = 1;
         public int ItemsPerPage { get; set; } = 32;
@@ -149,7 +150,7 @@ namespace FrontBlazor.ViewModel
             SelectedGenres.Clear();
             ExpandedCategories.Clear();
             CurrentPage = 1;
-            SelectedPrice = SliderMax / 2;
+            SelectedMaxPrice = SliderMax / 2;
             
             await OnFilterChanged();
         }
@@ -170,25 +171,23 @@ namespace FrontBlazor.ViewModel
 
         public async Task OnPriceChanged()
         {
+            Console.WriteLine("bonjour");
             await OnFilterChanged();
         }
 
         private async Task ApplyFilters()
         {
-            foreach (var genre in  SelectedGenres )
-            {
-                Console.WriteLine("geeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeere" + genre);
-            }
             var filterRequest = new FilterDTO
             {
                 MotCle = Query,
                 Categories = SelectedCategories,
                 SousCategories = SelectedSousCategories,
+                Etats = SelectedEtats,
                 Marques = SelectedMarques,
                 Tailles = SelectedTailles,
                 Genre = SelectedGenres,
-                PrixMax = SelectedPrice,
-                PrixMin = 0
+                PrixMax = SelectedMaxPrice,
+                PrixMin = SelectedMinPrice,
             };
 
             CurrentPage = 1;
@@ -292,8 +291,8 @@ namespace FrontBlazor.ViewModel
                 Marques = SelectedMarques,
                 Tailles = SelectedTailles,
                 Genre = SelectedGenres,
-                PrixMax = SelectedPrice,
-                PrixMin = 0
+                PrixMax = SelectedMaxPrice,
+                PrixMin = SelectedMinPrice
             };
 
             await LoadAnnonces(filterRequest);

@@ -10,5 +10,6 @@ public enum NotificationTypeEnum
 {
     NouveauMessage = 1,
     ModificationAnnonce = 4, 
-    NouvelleAnnonce = 5
+    NouvelleAnnonce = 5,
+    NouvelleProposition = 6,
 }

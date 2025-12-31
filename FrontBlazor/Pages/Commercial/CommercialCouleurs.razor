@@ -74,7 +74,7 @@
 
             <!-- Colors Grid -->
 
-            <div class="colors-grid-section">
+            <div class="table-container">
                 @if (VM_Couleur.IsLoading)
                 {
                     <div class="loading-state">
@@ -99,7 +99,7 @@
                                 <tr>
                                     <td>#@couleur.CouleurId</td>
                                     <td><strong>@couleur.Nom</strong></td>
-                                    <td>@VM_CommercialCouleurs.GetArticleCount(couleur.CouleurId) articles</td>
+                                    <td>@couleur.NombreProduits articles</td>
                                     <td>
                                         <div class="table-actions">
                                             <button class="btn-icon" title="Modifier" @onclick="() => VM_CommercialCouleurs.ShowEditModal(couleur)">
@@ -142,11 +142,6 @@
             <div class="form-group">
                 <label class="form-label">Nom de la couleur</label>
                 <input type="text" class="form-input" placeholder="Ex: Rouge, Bleu, Vert..." @bind="VM_CommercialCouleurs.currentCouleur.Nom" />
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Aperçu</label>
-                <div class="color-preview-large" style="background-color: @VM_CommercialCouleurs.GetColorHex(VM_CommercialCouleurs.currentCouleur.Nom);"></div>
             </div>
 
             <div class="modal-actions">

@@ -14,15 +14,23 @@ public class CommercialCouleursViewModel
     public string errorMessage = string.Empty;
 
     public ListableViewModel<CouleurDTO> VM_Couleur { get; set; }
+    public WritableService<CouleurDTO> CouleurService { get; set; }
     public event Action? OnStateChange;
 
-    public CommercialCouleursViewModel(ListableViewModel<CouleurDTO> _CouleurViewModel)
+    public CommercialCouleursViewModel(ListableViewModel<CouleurDTO> _CouleurViewModel, WritableService<CouleurDTO> couleurService)
     {
         VM_Couleur = _CouleurViewModel;
+        CouleurService = couleurService;
     }
     public async Task LoadAsync()
     {
         await VM_Couleur.LoadAsync();
+        if (VM_Couleur.Items != null)
+        {
+            VM_Couleur.Items = VM_Couleur.Items
+                .OrderBy(c => c.CouleurId)
+                .ToList();
+        }
     }
 
     public void ShowAddModal()
@@ -74,12 +82,12 @@ public class CommercialCouleursViewModel
         {
             if (isEditing)
             {
-                // TODO: Update couleur via API
+                await CouleurService.UpdateAsync(currentCouleur);
                 successMessage = "Couleur modifiée avec succès";
             }
             else
             {
-                // TODO: Create couleur via API
+                await CouleurService.AddAsync(currentCouleur);
                 successMessage = "Couleur ajoutée avec succès";
             }
 
@@ -103,7 +111,7 @@ public class CommercialCouleursViewModel
     {
         try
         {
-            // TODO: Delete couleur via API
+            await CouleurService.DeleteAsync(currentCouleur.CouleurId);
             successMessage = $"Couleur {currentCouleur.Nom} supprimée avec succès";
             CloseDeleteModal();
             await VM_Couleur.LoadAsync();
@@ -119,33 +127,5 @@ public class CommercialCouleursViewModel
             errorMessage = $"Erreur: {ex.Message}";
             CloseDeleteModal();
         }
-    }
-
-    public int GetArticleCount(int couleurId)
-    {
-        // TODO: Get actual article count from API
-        return new Random(couleurId).Next(20, 150);
-    }
-
-    public string GetColorHex(string colorName)
-    {
-        // Simple color mapping - you might want to store hex values in the database
-        var colorMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "Rouge", "#ef4444" },
-                { "Bleu", "#3b82f6" },
-                { "Vert", "#10b981" },
-                { "Jaune", "#eab308" },
-                { "Orange", "#f97316" },
-                { "Violet", "#a855f7" },
-                { "Rose", "#ec4899" },
-                { "Noir", "#1f2937" },
-                { "Blanc", "#f9fafb" },
-                { "Gris", "#6b7280" },
-                { "Marron", "#92400e" },
-                { "Beige", "#d6c9b0" }
-            };
-
-        return colorMap.TryGetValue(colorName ?? "", out var hex) ? hex : "#9ca3af";
     }
 }

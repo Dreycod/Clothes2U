@@ -174,21 +174,35 @@
                     <h4 class="filter-title">Prix</h4>
                     <div class="price-range">
                         <div class="price-inputs">
-                            <span>0€</span>
+                            <span>@VM_Search.SelectedMinPrice€</span>
                             <span>@VM_Search.SliderMax€</span>
                         </div>
                         <input type="range" 
-                               min="0" 
+                               min="@VM_Search.SelectedMinPrice" 
                                max="@VM_Search.SliderMax" 
-                               @bind="VM_Search.SelectedPrice"
+                               @bind="VM_Search.SelectedMaxPrice"
                                @bind:after="VM_Search.OnPriceChanged"
                                class="price-slider" />
                         <div class="price-current">
-                            <span>Maximum Choisi: @VM_Search.SelectedPrice€</span>
+                            <span>Maximum Choisi: @VM_Search.SelectedMaxPrice€</span>
+                        </div>
+                    </div>
+                    <div class="price-range">
+                        <div class="price-inputs">
+                            <span>0€</span>
+                            <span>@VM_Search.SelectedMaxPrice€</span>
+                        </div>
+                        <input type="range" 
+                               min="0" 
+                               max="@VM_Search.SelectedMaxPrice" 
+                               @bind="VM_Search.SelectedMinPrice"
+                               @bind:after="VM_Search.OnPriceChanged"
+                               class="price-slider" />
+                        <div class="price-current">
+                            <span>Minimum Choisi: @VM_Search.SelectedMinPrice€</span>
                         </div>
                     </div>
                 </div>
-
                 <!-- État -->
                 <div class="filter-section">
                     <h4 class="filter-title">État</h4>
@@ -300,9 +314,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        // Enregistrer le SearchViewModel auprès de la NavBar
         Vm_NavBar.SetSearchViewModel(VM_Search);
-        
         await VM_Search.InitializeFromUrlAsync();
         VM_Search.OnStateChange += StateHasChanged;
     }
@@ -310,8 +322,6 @@
     public void Dispose()
     {
         VM_Search.OnStateChange -= StateHasChanged;
-        
-        // Nettoyer la référence
         Vm_NavBar.SetSearchViewModel(null);
     }
 }
