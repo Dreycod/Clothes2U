@@ -1,6 +1,7 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
+using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.DTO;
 
@@ -9,11 +10,23 @@ namespace API.Services;
 public class ModerationDashboardService : IModerationDashboardService
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ISignalementRepository _signalementManager;
+    private readonly IDemandeRestaurationRepository<DemandeRestauration, int> _demandeRestaurationManager;
+    private readonly IMapper _mapper; 
 
-    public ModerationDashboardService(IServiceScopeFactory scopeFactory)
+    public ModerationDashboardService(
+        IServiceScopeFactory scopeFactory,
+        ISignalementRepository signalementManager,
+        IMapper mapper,
+        IDemandeRestaurationRepository<DemandeRestauration, int> demandeRestaurationManager
+        )
     {
         _scopeFactory = scopeFactory;
+        _mapper = mapper;
+        _signalementManager = signalementManager;
+        _demandeRestaurationManager = demandeRestaurationManager;
     }
+    
 
     public async Task<DashBoardStatistics> GetDashboardStatistics()
     {
@@ -112,5 +125,21 @@ public class ModerationDashboardService : IModerationDashboardService
                 ComptesSuspendus = decisionsStatsTask.Result.Suspensions.CountMonth
             },
         };
+    }
+
+    public async Task<List<ActivityDTO>> ListActivity()
+    {
+        IEnumerable<DemandeRestauration> demandes = await _demandeRestaurationManager.GetAllAsync();
+        List<ActivityRestauration> activityRestaurations = _mapper.Map<List<ActivityRestauration>>(demandes);
+        
+        IEnumerable<Signalement> signalements = await _signalementManager.GetAllAsync();
+        List<ActivitySignalement> activitySignalements = _mapper.Map<List<ActivitySignalement>>(signalements);
+        var activities = activityRestaurations
+            .Cast<ActivityDTO>()
+            .Concat(activitySignalements)
+            .OrderByDescending(a => a.Date)
+            .Take(5)                     
+            .ToList();
+        return activities;
     }
 }

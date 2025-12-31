@@ -22,4 +22,11 @@ public class ModerateurController : ControllerBase
     {
         return await  _moderationDashboardService.GetDashboardStatistics();
     }
+
+    [HttpGet("Activity")]
+    [Authorize(Roles = "Admin,Moderateur")]
+    public async Task<ActionResult<IEnumerable<ActivityDTO>>> GetActivity()
+    {
+        return await _moderationDashboardService.ListActivity();
+    }
 }

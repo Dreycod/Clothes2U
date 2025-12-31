@@ -1,0 +1,56 @@
+@{
+    var elapsed = DateTime.UtcNow - Activity.Date;
+    string text;
+
+    if (elapsed.TotalMinutes < 1)
+        text = "quelques secondes";
+    else if (elapsed.TotalHours < 1)
+        text = $"{(int)elapsed.TotalMinutes} minute(s)";
+    else if (elapsed.TotalDays < 1)
+        text = $"{(int)elapsed.TotalHours} heure(s)";
+    else
+        text = $"{(int)elapsed.TotalDays} jour(s)";
+}
+@switch (Activity)
+{
+    case ActivityRestauration activityRestauration:
+
+        <div class="activity-item">
+            <div class="activity-icon blue">
+                <i class="bi bi-person-check"></i>
+            </div>
+            <div class="activity-content">
+                <p><strong>Demande de restauration</strong> @activityRestauration.LoginUser</p>
+                <span class="activity-time">Il y a @text</span>
+
+            </div>
+            <button class="activity-action" @onclick="() => VM_Board.NavigateToRestauration(activityRestauration.RestaurationId)">
+                Traiter
+            </button>
+        </div>
+        break;
+    case ActivitySignalement activitySignalement:
+        <div class="activity-item">
+            <div class="activity-icon red">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <div class="activity-content">
+                <p><strong>Nouveau signalement</strong> @activitySignalement.LoginUser a signalé @activitySignalement.UtiliseurSignaleLogin</p>
+                <span class="activity-time">Il y a @text</span>
+            </div>
+            <button class="activity-action" @onclick="() => VM_Board.NavigateToSignalement(activitySignalement.SignalementId)">
+                Voir
+            </button>
+        </div>
+
+
+        break;
+}
+
+
+@code {
+    [Parameter]
+    public ActivityDTO Activity { get; set; }
+    [Parameter]
+    public ModerationBoardViewModel VM_Board { get; set; }
+}

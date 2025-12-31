@@ -14,4 +14,12 @@ public class ModerationDashBoardWebService : BaseGenericService, IModerationDash
         var statistics = await response.Content.ReadFromJsonAsync<DashBoardStatistics>();
         return statistics;
     }
+
+    public async Task<List<ActivityDTO>> GetActivity()
+    {
+        var response = await GetWithCredentialsAsync("Moderateur/Activity");
+        response.EnsureSuccessStatusCode();
+        var activity = await response.Content.ReadFromJsonAsync<List<ActivityDTO>>();
+        return activity;
+    }
 }
