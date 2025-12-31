@@ -15,14 +15,17 @@ public class MessageValidation : IEntity
     public int MessageId { get; set; }
     
     [Column("mesval_proposition_validee_id")]
-    public int PropositionValideeId  { get; set; }
+    public int MessageDemandeId  { get; set; }
+    
+    [Column("mesval_est_acceptee")]
+    public bool EstAcceptee { get; set; }
     
     //relation avec les autres tables : 
     [ForeignKey(nameof(MessageId))]
     [InverseProperty(nameof(Message.MessageValidation))]
     public virtual Message Message{ set; get; }
     
-    [ForeignKey(nameof(PropositionValideeId))]
+    [ForeignKey(nameof(MessageDemandeId))]
     [InverseProperty(nameof(MessageDemande.Validation))]
     public virtual MessageDemande PropositionValidee { set; get; }
 

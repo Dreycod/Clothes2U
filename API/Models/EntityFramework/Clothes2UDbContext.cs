@@ -271,7 +271,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasMany(e => e.SousCategories)
                 .WithOne(s => s.Categorie)
                 .HasForeignKey(e => e.CategorieId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
             
         });
 
@@ -555,7 +555,7 @@ public partial class Clothes2UDbContext : DbContext
             // Relation MessageDemande -> MessageValidation (One-to-One optionnelle)
             entity.HasOne(e => e.Validation)
                 .WithOne(v => v.PropositionValidee)
-                .HasForeignKey<MessageValidation>(v => v.PropositionValideeId)
+                .HasForeignKey<MessageValidation>(v => v.MessageDemandeId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
@@ -573,7 +573,7 @@ public partial class Clothes2UDbContext : DbContext
             
             entity.HasOne(e => e.PropositionValidee)
                 .WithOne(d => d.Validation)
-                .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
+                .HasForeignKey<MessageValidation>(e => e.MessageDemandeId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(); 
         });

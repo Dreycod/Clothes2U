@@ -200,7 +200,7 @@ public class MessageController : ControllerBase
                     .SendAsync("ReceiveMessage",
                         message.ConversationId,
                         message.UtilisateurId,
-                        "Une demande de prix a été envoyé",
+                        messageDemande.PrixPropose.ToString(),
                         null,
                         message.MessageDate);
             }
