@@ -32,7 +32,6 @@ public class MessageNotificationObserver : INotificationObserver
 
         try
         {
-            // Créer la notification de base
             var notification = new Notification
             {
                 UtilisateurId = messageEvent.TargetUserId,
@@ -41,7 +40,6 @@ public class MessageNotificationObserver : INotificationObserver
 
             await _notificationRepository.AddAsync(notification);
 
-            // Créer la notification spécifique au message
             var notificationMessage = new NotificationMessage
             {
                 NotificationId = notification.NotificationId,

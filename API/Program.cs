@@ -256,6 +256,7 @@ builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 
@@ -265,14 +266,14 @@ builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<INotificationMessageRepository, NotificationMessageManager>();
 builder.Services.AddScoped<INotificationNouvelleAnnonceRepository, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<INotificationModificationAnnonceRepository, NotificationModificationAnnonceManager>();
+builder.Services.AddScoped<INotificationPropositionRepository, NotificationPropositionManager>();
 
-// Service de notification - Singleton (mais utilise IServiceProvider pour créer des scopes)
 builder.Services.AddSingleton<INotificationService, NotificationService>();
 
-// Observers - Scoped (IMPORTANT: ne plus les enregistrer comme INotificationObserver)
 builder.Services.AddScoped<MessageNotificationObserver>();
 builder.Services.AddScoped<NouvelleAnnonceNotificationObserver>();
 builder.Services.AddScoped<ModificationAnnonceNotificationObserver>();
+builder.Services.AddScoped<PropositionNotificationObserver>();
 builder.Services.AddSignalR();
 
 
@@ -302,6 +303,7 @@ var notificationService = app.Services.GetRequiredService<INotificationService>(
 notificationService.Subscribe<MessageNotificationObserver>();
 notificationService.Subscribe<NouvelleAnnonceNotificationObserver>();
 notificationService.Subscribe<ModificationAnnonceNotificationObserver>();
+notificationService.Subscribe<PropositionNotificationObserver>();
 
 
 // 1. Middleware de diagnostic (le vôtre)

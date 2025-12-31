@@ -34,7 +34,18 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
                 .ThenInclude(nm => nm.Annonce)
                     .ThenInclude(a => a.Photos)
                         .ThenInclude(p => p.Photo)
-            
+            .Include(n => n.NotificationProposition)
+                .ThenInclude(np => np.MessageDemande)
+                    .ThenInclude(nm => nm.Offre)
+            .Include(n => n.NotificationProposition)
+                .ThenInclude(np => np.MessageDemande)
+                    .ThenInclude(nm => nm.Message)
+                        .ThenInclude(n => n.Conversation)
+                            .ThenInclude(c => c.LAnnonce)
+            .Include(n => n.NotificationProposition)
+                .ThenInclude(np => np.MessageDemande)
+                    .ThenInclude(nm => nm.Message)
+                        .ThenInclude(n => n.Utilisateur)
             .AsSplitQuery();
     }
     public async Task<IEnumerable<Notification>> GetByUserId(int userId)
@@ -67,6 +78,21 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
     public async Task CreateNotificationAvertissement(NotificationAvertissement notification)
     {
         await  _context.NotificationAvertissements.AddAsync(notification);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteMessageNotificationByConversationId(int id, int userId)
+    {
+        var notifications = await _context.Notifications.Where(n => 
+            (n.NotificationMessages != null
+             && n.NotificationMessages.Message.ConversationId == id
+             && n.UtilisateurId == userId)
+            ||
+            (n.NotificationProposition != null  
+             && n.NotificationProposition.MessageDemande.Message.ConversationId == id  
+             && n.UtilisateurId == userId)
+        ).Distinct().ToListAsync();
+        _context.Notifications.RemoveRange(notifications);
         await _context.SaveChangesAsync();
     }
 }

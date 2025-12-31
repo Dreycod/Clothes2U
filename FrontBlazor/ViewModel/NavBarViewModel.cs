@@ -182,6 +182,9 @@ namespace FrontBlazor.ViewModel
 
                 case NotificationAdminDTO:
                     break;
+                case NotificationPropositionDTO notifProposition:
+                    _nav.NavigateTo($"/messages?conversationId={notifProposition.ConversationId}");
+                    break;
             }
             await DeleteNotification(notification.NotificationId);
         }

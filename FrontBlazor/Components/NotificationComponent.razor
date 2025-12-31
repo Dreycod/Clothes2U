@@ -29,6 +29,12 @@
                     <i class="bi bi-plus-circle-fill"></i>
                 </div>
                 break;
+            case NotificationPropositionDTO:
+                <div class="notif-icon message">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
+                break;
+                
         }
     </div>
     
@@ -54,6 +60,17 @@
             case NotificationNouvelleAnnonceDTO notificationNouvelleAnnonce:
                 <div class="notif-title">Nouvelle annonce</div>
                 <div class="notif-message"><strong>@notificationNouvelleAnnonce.NomAuteur</strong> a publié une nouvelle annonce</div>
+                break;
+            case NotificationPropositionDTO notificationProposition:
+                <div class="notif-title">Proposition de prix</div>
+                @if (notificationProposition.AncienPrixPropose != null)
+                {
+                    <div class="notif-message"><strong>@notificationProposition.NomAuteur</strong> vous propose <strong>@notificationProposition.PrixPropose</strong>€ au lieu de <strong>@notificationProposition.AncienPrixPropose</strong> pour <strong>@notificationProposition.AnnonceTitle</strong></div>
+                }
+                else
+                {
+                    <div class="notif-message"><strong>@notificationProposition.NomAuteur</strong> vous propose <strong>@notificationProposition.PrixPropose</strong>€ pour <strong>@notificationProposition.AnnonceTitle</strong></div>
+                }
                 break;
         }
         <div class="notif-time">@GetTimeAgo(Notification.DateCreation)</div>

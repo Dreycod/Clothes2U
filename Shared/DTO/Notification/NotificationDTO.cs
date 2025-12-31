@@ -8,6 +8,7 @@ namespace Shared.DTO.Notification;
 [JsonDerivedType(typeof(NotificationMessageDTO), "Message")]
 [JsonDerivedType(typeof(NotificationModificationAnnonceDTO), "Modification annonce")]
 [JsonDerivedType(typeof(NotificationNouvelleAnnonceDTO), "Nouvelle annonce")]
+[JsonDerivedType(typeof(NotificationPropositionDTO), "proposition")]
 public abstract class NotificationDTO
 {
     public int NotificationId { get; set; }
@@ -41,4 +42,13 @@ public class NotificationNouvelleAnnonceDTO : NotificationDTO
 {
     public string NomAuteur { get; set; }
     public int? NouvelleAnnonceId { get; set; }
+}
+
+public class NotificationPropositionDTO : NotificationDTO
+{
+    public double PrixPropose { get; set; }
+    public double? AncienPrixPropose { get; set; }
+    public int ConversationId { get; set; }
+    public string AnnonceTitle { get; set; }
+    public string NomAuteur { get; set; }
 }
