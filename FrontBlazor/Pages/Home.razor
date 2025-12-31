@@ -31,7 +31,7 @@ else
             @if (VM_Home.IsLoading)
             {
                 <div class="loading-state">
-                    <div class="spinner-small"> Chargement des annonces..</div>
+                    <div class="spinner-small"></div> Chargement des annonces...
                 </div>
             }
             else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -45,7 +45,7 @@ else
             else if (VM_Home.Annonces == null || !VM_Home.Annonces.Any())
             {
                 <div class="loading-state">
-                    <div class="spinner-small"> Chargement des annonces..</div>
+                    <div class="spinner-small"></div> Chargement des annonces...
                 </div>
             }
             else
