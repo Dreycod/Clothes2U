@@ -1,7 +1,7 @@
 ﻿@page "/moderation"
 @inject ModerationBoardViewModel moderationViewModel
 @layout ModerationLayout
-
+@using FrontBlazor.Components.Moderation;
 <link href="css/loading.css" rel="stylesheet" />
 <link href="css/Moderation/moderation-shared.css" rel="stylesheet"/>
 
@@ -60,65 +60,22 @@ else
                 </div>
             </div>
         </div>
-        <div class="recent-section">
-            <h2 class="section-title">Activité récente</h2>
-
-            <div class="activity-list">
-                <div class="activity-item">
-                    <div class="activity-icon red">
-                        <i class="bi bi-exclamation-circle"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p><strong>Nouveau signalement</strong> de Marie Antoinette contre Denielz Denielzzz</p>
-                        <span class="activity-time">Il y a 5 minutes</span>
-                    </div>
-                    <a href="/moderation/signalements/1" class="activity-action">Voir</a>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-icon orange">
-                        <i class="bi bi-clock-history"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p><strong>Compte suspendu:</strong> User123 pour 3 jours</p>
-                        <span class="activity-time">Il y a 2 heures</span>
-                    </div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-icon blue">
-                        <i class="bi bi-person-check"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p><strong>Demande de restauration</strong> de JeanDupont</p>
-                        <span class="activity-time">Il y a 4 heures</span>
-                    </div>
-                    <a href="/moderation/restauration" class="activity-action">Traiter</a>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-icon green">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p><strong>Image validée</strong> par admin</p>
-                        <span class="activity-time">Il y a 6 heures</span>
-                    </div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-icon cyan">
-                        <i class="bi bi-chat-dots"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p><strong>Nouveau ticket support</strong> de Alice Martin</p>
-                        <span class="activity-time">Il y a 8 heures</span>
-                    </div>
-                    <a href="/moderation/support" class="activity-action">Répondre</a>
+        @if (moderationViewModel.Activity.Count > 0)
+        {
+            <div class="recent-section">
+                <h2 class="section-title">Activité récente</h2>
+            
+                <div class="activity-list">
+                    @foreach(ActivityDTO activity in moderationViewModel.Activity)
+                    {
+                        <ActivityComponent
+                            Activity="activity"
+                            VM_Board="moderationViewModel"
+                        ></ActivityComponent>
+                    }
                 </div>
             </div>
-        </div>
-
+        }
         <!-- Quick Stats -->
         <div class="quick-stats-section">
             <h2 class="section-title">Statistiques</h2>

@@ -1,6 +1,7 @@
 using Shared.DTO.DemandeRestauration;
 using API.Models.EntityFramework;
 using AutoMapper;
+using Shared.DTO;
 using Shared.DTO.Decision;
 using Shared.DTO.MotInterdit;
 
@@ -154,7 +155,19 @@ public class ModerationMappingProfile : Profile
                 
                 throw new InvalidOperationException("Type d'élément de décision inconnu");
             });
-
-
+        CreateMap<Signalement, ActivitySignalement>()
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.SignalementDate))
+            .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.SignalementId, opt => opt.MapFrom(src => src.SignalementId))
+            .ForMember(dest => dest.UtiliseurSignaleLogin, opt => opt.MapFrom(src =>
+                src.SignalementsAnnonce != null ? src.SignalementsAnnonce.Annonce.Utilisateur.Login :
+                src.SignalementsMessage != null ? src.SignalementsMessage.Message.Utilisateur.Login :
+                src.SignalementsAvis != null ? src.SignalementsAvis.Avis.Auteur.Login :
+                src.SignalementsUtilisateur != null ? src.SignalementsUtilisateur.UtilisateurSignale.Login : null
+            ));
+        CreateMap<DemandeRestauration, ActivityRestauration>()
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+            .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => src.Decision.Utilisateur.Login))
+            .ForMember(dest => dest.RestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId));
     }
 }

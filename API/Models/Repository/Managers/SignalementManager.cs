@@ -16,16 +16,16 @@ namespace API.Models.Repository.Managers
                 .Include(s => s.TypeSignalement)
                 .Include(s => s.Utilisateur)
                 .Include(s => s.SignalementsAnnonce)
-                .ThenInclude(sa => sa.Annonce)
-                .ThenInclude(a => a.Utilisateur)  
+                    .ThenInclude(sa => sa.Annonce)
+                        .ThenInclude(a => a.Utilisateur)  
                 .Include(s => s.SignalementsAvis)  
-                .ThenInclude(sa => sa.Avis)
-                .ThenInclude(av => av.Auteur)
+                    .ThenInclude(sa => sa.Avis)
+                        .ThenInclude(av => av.Auteur)
                 .Include(s => s.SignalementsUtilisateur)  
-                .ThenInclude(su => su.UtilisateurSignale)
+                    .ThenInclude(su => su.UtilisateurSignale)
                 .Include(sm => sm.SignalementsMessage)
-                .ThenInclude(m => m.Message)
-                .ThenInclude(m => m.Utilisateur)
+                    .ThenInclude(m => m.Message)
+                        .ThenInclude(m => m.Utilisateur)
                 .AsSplitQuery();
         }
 

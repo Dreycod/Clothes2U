@@ -93,7 +93,8 @@ public class DemandeRestaurationController : ControllerBase
         {
             Status = "En cours",
             Message = messageDemandeRestauration,
-            DecisionId = decision.DecisionId
+            DecisionId = decision.DecisionId,
+            Date = DateTime.UtcNow
         };
     
         await _demandeRestaurationManager.AddAsync(demandeRestauration);
