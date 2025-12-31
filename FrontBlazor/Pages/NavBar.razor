@@ -1,4 +1,6 @@
 ﻿@inject NavBarViewModel Vm_NavBar
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <link href="css/loading.css" rel="stylesheet" />
 <link href="css/notification.css" rel="stylesheet"/>
@@ -31,7 +33,7 @@
             {
                 @if (Vm_NavBar.IsConnected)
                 {
-                    <div class="notification-dropdown-container">
+                    <div class="notification-dropdown-container" @ref="notificationRef">
                         <button class="icon-btn"
                                 title="Notifications"
                                 @onclick="async () =>
@@ -76,7 +78,7 @@
                         </button>
                     </a>
                     
-                    <div class="profile-dropdown-container">
+                    <div class="profile-dropdown-container" @ref="profileRef">
                         <button class="icon-btn" title="Profil" @onclick="Vm_NavBar.ToggleDropdown">
                             <i class="bi bi-person-circle"></i>
                         </button>
@@ -112,14 +114,40 @@
 </nav>
 
 @code {
+    private ElementReference notificationRef;
+    private ElementReference profileRef;
+    private DotNetObjectReference<NavBar>? objRef;
+
     protected override async Task OnInitializedAsync()
     {
         Vm_NavBar.OnStateChanged += StateHasChanged;
         await Vm_NavBar.LoadAsync();
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef);
+        }
+    }
+
+    [JSInvokable]
+    public void CloseDropdowns()
+    {
+        Vm_NavBar.CloseAllDropdowns();
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Vm_NavBar.OnStateChanged -= StateHasChanged;
+        
+        if (objRef != null)
+        {
+            await JS.InvokeVoidAsync("removeClickOutside");
+            objRef.Dispose();
+        }
+    }
 }
-
-
-
-
-

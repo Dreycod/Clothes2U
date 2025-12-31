@@ -33,10 +33,6 @@ public class NotificationWebService : BaseGenericService, INotificationService
             return new ObservableCollection<NotificationDTO>();
         }
     }
-    public async Task MarkAsRead()
-    {
-        await PutWithCredentialsAsync("Notification/markAsRead,");
-    }
     public async Task DeleteNotification(int id)
     {
         await DeleteWithCredentialsAsync($"Notification/{id}");
