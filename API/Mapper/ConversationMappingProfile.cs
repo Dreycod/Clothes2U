@@ -81,7 +81,7 @@ public class ConversationMappingProfile : Profile
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             PrixPropose = message.MessageDemande.PrixPropose,
-                            OffreParenteId = message.MessageDemande.DemandeId,
+                            DemandeId = message.MessageDemande.DemandeId,
                             EstAcceptee = message.MessageDemande.EstAcceptee,
                             EstRepondue = message.MessageDemande.EstRepondue
                         };

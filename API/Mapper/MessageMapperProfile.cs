@@ -53,7 +53,7 @@ public class MessageMapperProfile : Profile
                 src.UtilisateurId == (int)context.Items["CurrentUserId"]))
             .ForMember(dest => dest.PrixPropose, opt => opt.MapFrom(src =>
                 src.MessageDemande != null ? src.MessageDemande.PrixPropose : 0))
-            .ForMember(dest => dest.OffreParenteId, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.DemandeId, opt => opt.MapFrom(src =>
                 src.MessageDemande != null ? src.MessageDemande.DemandeId : null))
             .ForMember(dest => dest.EstAcceptee, opt => opt.MapFrom(src => 
                 src.MessageDemande != null ? src.MessageDemande.EstAcceptee : false))

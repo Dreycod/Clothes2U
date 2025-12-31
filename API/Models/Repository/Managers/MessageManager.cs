@@ -1,4 +1,5 @@
 using API.Models.EntityFramework;
+using API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
@@ -29,9 +30,15 @@ public class MessageTexteManager : GenericCRUDManager<MessageTexte>
     public MessageTexteManager(Clothes2UDbContext context) : base(context) {}
 }
 
-public class MessageDemandeManager : GenericCRUDManager<MessageDemande>
+public class MessageDemandeManager : GenericCRUDManager<MessageDemande>, IMessageDemandeRepository
 {
     public MessageDemandeManager(Clothes2UDbContext context) : base(context) {}
+    
+    public Task<MessageDemande?> GetByMessageIdAsync(int messageId)
+    {
+        return _context.MessageDemandes
+            .FirstOrDefaultAsync(md => md.MessageId == messageId);
+    }
 }
 
 public class MessageValidationManager : GenericCRUDManager<MessageValidation>

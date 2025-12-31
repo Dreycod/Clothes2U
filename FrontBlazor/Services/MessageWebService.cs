@@ -50,14 +50,14 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         }
     }
 
-    public Task AcceptPriceProposal(int messageId)
+    public async Task AnswerPriceProposal(int messageId, bool accepted)
     {
-        throw new NotImplementedException();
-    }
+        var response = await _httpClient.PutAsync($"Message/Answer/{messageId}/{accepted}", null);
 
-    public Task DeclinePriceProposal(int messageId)
-    {
-        throw new NotImplementedException();
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"❌ Failed to mark message {messageId} as read. Status: {response.StatusCode}");
+        }
     }
 
     public async Task<MessageDTO> GetLastMessageByConversationId(int id)

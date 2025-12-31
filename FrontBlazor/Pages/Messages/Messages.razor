@@ -194,11 +194,11 @@
                                             {
                                                 <!-- Boutons d'action pour le destinataire -->
                                                 <div class="proposal-actions">
-                                                    <button class="btn-accept" @onclick="() => AcceptProposal(demande.MessageId.Value)">
+                                                    <button class="btn-accept" @onclick="() => AnswerProposal(demande.MessageId.Value, true)">
                                                         <i class="bi bi-check-lg"></i>
                                                         Accepter
                                                     </button>
-                                                    <button class="btn-decline" @onclick="() => DeclineProposal(demande.MessageId.Value)">
+                                                    <button class="btn-decline" @onclick="() => AnswerProposal(demande.MessageId.Value, false)">
                                                         <i class="bi bi-x-lg"></i>
                                                         Refuser
                                                     </button>
@@ -420,11 +420,11 @@
     
     // À ajouter dans la section @code de Messages.razor
 
-    private async Task AcceptProposal(int messageId)
+    private async Task AnswerProposal(int messageId, bool answer)
     {
         try
         {
-            await VM_Messagerie.AcceptPriceProposal(messageId);
+            await VM_Messagerie.AnswerPriceProposal(messageId, answer);
             StateHasChanged();
         }
         catch (Exception ex)
@@ -434,17 +434,17 @@
         }
     }
 
-    private async Task DeclineProposal(int messageId)
-    {
-        try
-        {
-            await VM_Messagerie.DeclinePriceProposal(messageId);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Page] ❌ Error declining proposal: {ex.Message}");
-            // Optionnel : afficher un message d'erreur à l'utilisateur
-        }
-    }
+    // private async Task DeclineProposal(int messageId)
+    // {
+    //     try
+    //     {
+    //         await VM_Messagerie.DeclinePriceProposal(messageId);
+    //         StateHasChanged();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"[Page] ❌ Error declining proposal: {ex.Message}");
+    //         // Optionnel : afficher un message d'erreur à l'utilisateur
+    //     }
+    // }
 }

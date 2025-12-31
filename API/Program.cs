@@ -225,7 +225,7 @@ builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceM
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
 builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
-builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
+builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 builder.Services.AddScoped<IDataRepository<MessageContientImage, int>, MessageContientImageManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
