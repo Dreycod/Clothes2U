@@ -172,7 +172,9 @@ public class MessageController : ControllerBase
         {
             MessageId = message.MessageId,
             DemandeId = dto.DemandeId,
-            PrixPropose = dto.PrixPropose
+            PrixPropose = dto.PrixPropose,
+            EstAcceptee = false,
+            EstRepondue = false
         };
         
         await _messageDemandeManager.AddAsync(messageDemande);
@@ -197,11 +199,11 @@ public class MessageController : ControllerBase
 
                 await _hubContext.Clients
                     .Group($"conversation_{message.ConversationId}")
-                    .SendAsync("ReceiveMessage",
+                    .SendAsync("ReceivePriceProposal",
                         message.ConversationId,
+                        message.MessageId,
                         message.UtilisateurId,
-                        messageDemande.PrixPropose.ToString(),
-                        null,
+                        messageDemande.PrixPropose,
                         message.MessageDate);
             }
             else
@@ -305,10 +307,21 @@ public class MessageController : ControllerBase
         var messageDemande = await _messageDemandeManager.GetByMessageIdAsync(messageId);
         if (messageDemande == null) return NotFound();
         
-        messageDemande.EstAcceptee = (bool)answer;
+        messageDemande.EstAcceptee = answer;
         messageDemande.EstRepondue = true;
         
         await _messageDemandeManager.UpdateAsync(messageDemande);
+        
+        Console.WriteLine("haaaaaaaaaaaaaaaaaaaa");
+        Console.WriteLine(messageDemande.Message.ConversationId);
+        Console.WriteLine("haaaaaaaaaaaaaaaaaaaa");
+        
+        await _hubContext.Clients.
+            Group($"conversation_{messageDemande.Message.ConversationId}")
+            .SendAsync("ProposalResponseReceived", 
+                messageDemande.Message.ConversationId,
+                messageId, 
+                answer);
         return NoContent();
     }
     

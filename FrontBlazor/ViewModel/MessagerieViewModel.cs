@@ -61,6 +61,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         _signalRService.OnUserTyping += HandleUserTyping;
         _signalRService.OnMessagesRead += HandleMessagesRead;
         _signalRService.OnProposalResponse += HandleProposalResponse;
+        _signalRService.OnPriceProposalReceived += HandlePriceProposalReceived;
     }
 
     public async Task LoadAsync()
@@ -238,54 +239,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             NotifyStateChanged();
         }
     }
-    
-    // public async Task SendProposition(double newPrice)
-    // {
-    //     if (SelectedConversation.Prix * 0.7 > newPrice)
-    //     {
-    //         return;
-    //     }
-    //
-    //     try
-    //     {
-    //         MessageDemandePostDTO messageDemandePostDto = new MessageDemandePostDTO
-    //         {
-    //             ConversationId = SelectedConversationId!.Value,
-    //             PrixPropose = newPrice,
-    //             UtilisateurId = CurrentUser!.UtilisateurId
-    //         };
-    //     
-    //         _messageService.PostMessageDemande(messageDemandePostDto);
-    //     
-    //         var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
-    //         
-    //         if (conv != null)
-    //         {
-    //             conv.LastMessage = "demande";
-    //             conv.HasNewMessages = false;
-    //
-    //             try
-    //             {
-    //                 Conversations.Remove(conv);
-    //                 Conversations.Insert(0, conv);
-    //             }
-    //             catch (Exception ex)
-    //             {
-    //                 Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
-    //             }
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.WriteLine($"Erreur envoi message: {ex.Message}");
-    //     }
-    //     finally
-    //     {
-    //         NotifyStateChanged();
-    //     }
-    // }
-    
-    // À ajouter dans MessagerieViewModel.cs
 
     public async Task SendProposition(double proposedPrice)
     {
@@ -568,12 +521,61 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
     }
 
+    private void HandlePriceProposalReceived(int conversationId, int messageId, int senderId, double proposedPrice, DateTime date)
+    {
+        if (SelectedConversation?.ConversationId == conversationId)
+        {
+            var exists = SelectedConversation.ListMessages?.Any(m => m.MessageId == messageId) ?? false;
+
+            if (!exists)
+            {
+                var newDemande = new MessageDemandeDTO
+                {
+                    MessageId = messageId,
+                    ConversationId = conversationId,
+                    SenderId = senderId,
+                    Date = date,
+                    PrixPropose = proposedPrice,
+                    EstAcceptee = false,
+                    EstRepondue = false,
+                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId
+                };
+            
+                SelectedConversation.ListMessages?.Add(newDemande);
+                NotifyStateChanged();
+                OnMessageReceivedUI?.Invoke();
+            }
+        }
+        else
+        {
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = $"Proposition: {proposedPrice} €";
+                conv.HasNewMessages = true;
+
+                try
+                {
+                    Conversations.Remove(conv);
+                    Conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[VM] Error moving conversation to top: {ex.Message}");
+                }
+            }
+
+            NotifyStateChanged();
+        }
+    }
+
     public void Dispose()
     {
         _signalRService.OnMessageReceived -= HandleMessageReceived;
         _signalRService.OnUserTyping -= HandleUserTyping;
         _signalRService.OnMessagesRead -= HandleMessagesRead;
         _signalRService.OnProposalResponse -= HandleProposalResponse; 
+        _signalRService.OnPriceProposalReceived -= HandlePriceProposalReceived;
         _typingTimer?.Dispose();
         _typingDisplayTimer?.Dispose();
     }

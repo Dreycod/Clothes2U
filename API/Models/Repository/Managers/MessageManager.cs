@@ -34,9 +34,11 @@ public class MessageDemandeManager : GenericCRUDManager<MessageDemande>, IMessag
 {
     public MessageDemandeManager(Clothes2UDbContext context) : base(context) {}
     
-    public Task<MessageDemande?> GetByMessageIdAsync(int messageId)
+    public async Task<MessageDemande?> GetByMessageIdAsync(int messageId)
     {
-        return _context.MessageDemandes
+        return await _context.MessageDemandes
+            .Include(md => md.Message)              // Charge le Message
+            .ThenInclude(m => m.Conversation)   // Charge la Conversation du Message
             .FirstOrDefaultAsync(md => md.MessageId == messageId);
     }
 }
