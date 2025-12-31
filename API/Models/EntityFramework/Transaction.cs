@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_transaction_tra")]
-public class Transaction
+public class Transaction : IEntity
 {
     [Key]
     [Column("tra_id")]
@@ -24,4 +24,7 @@ public class Transaction
     [ForeignKey(nameof(ConversationId))]
     [InverseProperty(nameof(Conversation.Transaction))]
     public virtual Conversation Conversation { get; set; } = null!;
+
+    public int GetId() => TransactionId;
+
 }
