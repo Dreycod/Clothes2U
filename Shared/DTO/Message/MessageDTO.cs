@@ -37,7 +37,7 @@ public class MessageDemandeDTO : MessageDTO
     // public int SenderId { get; set; }
     // public string SenderName { get; set; }
     public int? DemandeId { get; set; }
-    public double PrixPropose { get; set; }
+    public decimal PrixPropose { get; set; }
     public bool EstAcceptee { get; set; } = false;
     public bool EstRepondue { get; set; } = false;
 }

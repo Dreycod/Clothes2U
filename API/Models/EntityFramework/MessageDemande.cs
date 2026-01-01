@@ -11,7 +11,7 @@ public class MessageDemande : IEntity
     public int MessageDemandeId { get; set; }
     
     [Column("mesdem_prix_propose")]
-    public double PrixPropose { get; set; }
+    public decimal PrixPropose { get; set; }
 
     [Column("mesdem_est_acceptee")] 
     public bool EstAcceptee { get; set; } = false;

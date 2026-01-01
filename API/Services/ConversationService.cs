@@ -39,6 +39,7 @@ public class ConversationService : IConversationService
                 UtilisateurVendeurId = annonce.UtilisateurId
             },
             AnnonceId = annonceId,
+            Prix = annonce.Prix
         };
 
         await _conversationManager.AddAsync(conversation);

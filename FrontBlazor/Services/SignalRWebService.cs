@@ -12,7 +12,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
-    public event Action<int, int, int, double, DateTime>? OnPriceProposalReceived;
+    public event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
 
     public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
 
@@ -112,7 +112,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
                 OnMessagesRead?.Invoke(conversationId, userId);
             });
             
-            _hubConnection.On<int, int, int, double, DateTime>(
+            _hubConnection.On<int, int, int, decimal, DateTime>(
 "ReceivePriceProposal",
             (conversationId, messageId, senderId, prixPropose, date) =>
             {

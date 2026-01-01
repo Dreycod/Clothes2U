@@ -8,7 +8,7 @@ public interface ISignalRService
     event Action<int, int, string>? OnUserTyping;
     event Action<int, int>? OnMessagesRead;
     event Action<int, int, bool>? OnProposalResponse;
-    event Action<int, int, int, double, DateTime>? OnPriceProposalReceived;
+    event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
     
     bool IsConnected { get; }
     

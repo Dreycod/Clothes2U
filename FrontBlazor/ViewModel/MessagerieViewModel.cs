@@ -240,7 +240,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
     }
 
-    public async Task SendProposition(double proposedPrice)
+    public async Task SendProposition(decimal proposedPrice)
     {
         if (SelectedConversation == null || CurrentUser == null)
             return;
@@ -521,7 +521,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
     }
 
-    private void HandlePriceProposalReceived(int conversationId, int messageId, int senderId, double proposedPrice, DateTime date)
+    private void HandlePriceProposalReceived(int conversationId, int messageId, int senderId, decimal proposedPrice, DateTime date)
     {
         if (SelectedConversation?.ConversationId == conversationId)
         {

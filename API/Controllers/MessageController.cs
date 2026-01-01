@@ -312,9 +312,13 @@ public class MessageController : ControllerBase
         
         await _messageDemandeManager.UpdateAsync(messageDemande);
         
-        Console.WriteLine("haaaaaaaaaaaaaaaaaaaa");
+        var conversation = await _conversationManager.GetByIdAsync(messageDemande.Message.ConversationId);
+
+        conversation.Prix = messageDemande.PrixPropose;
+        
+        await _conversationManager.UpdateAsync(conversation);
+        
         Console.WriteLine(messageDemande.Message.ConversationId);
-        Console.WriteLine("haaaaaaaaaaaaaaaaaaaa");
         
         await _hubContext.Clients.
             Group($"conversation_{messageDemande.Message.ConversationId}")

@@ -41,7 +41,7 @@ public class ConversationMappingProfile : Profile
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
-            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix != null ? src.Prix : src.LAnnonce.Prix))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
             .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
                 src.LAnnonce.Photos.FirstOrDefault() != null
@@ -94,7 +94,7 @@ public class ConversationMappingProfile : Profile
                             Date = message.MessageDate,
                             Lu = message.MessageLu,
                             EstAcceptee = message.MessageValidation.EstAcceptee,
-                            PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
+                            //PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
                         };
                     }
                     if (dto != null)
