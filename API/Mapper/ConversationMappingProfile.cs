@@ -42,6 +42,7 @@ public class ConversationMappingProfile : Profile
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix != null ? src.Prix : src.LAnnonce.Prix))
+            .ForMember(dest => dest.PrixAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Prix))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
             .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
                 src.LAnnonce.Photos.FirstOrDefault() != null
