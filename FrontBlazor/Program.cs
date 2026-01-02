@@ -85,6 +85,8 @@ builder.Services.AddScoped<SanctionedUserViewModel>();
 builder.Services.AddScoped<DemandesRestaurationViewModel>();
 builder.Services.AddScoped<DemandeRestaurationDetailViewModel>();
 builder.Services.AddScoped<HistoriqueTransactionViewModel>();
+builder.Services.AddScoped<SettingsViewModel>();
+
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });
 
