@@ -201,6 +201,22 @@
     gap: 1rem;
 }
 
+.photo-action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .photo-action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+        .photo-action-buttons button {
+            width: 100%;
+        }
+}
 .upload-status {
     display: flex;
     align-items: center;

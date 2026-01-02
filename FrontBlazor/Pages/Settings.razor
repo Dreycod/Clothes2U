@@ -53,23 +53,39 @@
                             <div class="card-body">
                                 <div class="photo-upload-container">
                                     <img class="profile-photo-preview" 
-                                         @* src="@VM_Settings.GetPhotoUrl(VM_Settings.CurrentUser?.PhotoProfilId)"  *@
+                                         src="@(VM_Settings.PreviewPhotoUrl ?? VM_Settings.GetPhotoUrl(VM_Settings.CurrentUser.PhotoProfilId))"
                                          alt="Photo de profil" />
                                     <div class="photo-upload-actions">
-                                        <input type="file" 
-                                               id="photoUpload" 
-                                               accept="image/*" 
-@*                                                @onchange="async() => VM_Settings.HandlePhotoUpload
- *@                                               style="display: none;" />
-                                        <button class="btn-secondary" @onclick="() => VM_Settings.TriggerFileInput()">
-                                            <i class="bi bi-cloud-upload"></i>
-                                            Changer la photo
-                                        </button>
-                                        @if (VM_Settings.IsUploadingPhoto)
+                                        @if (VM_Settings.UploadedPhotoBytes == null)
                                         {
-                                            <div class="upload-status">
-                                                <span class="spinner-small-inline"></span>
-                                                <span>Téléchargement...</span>
+                                            <label for="photoUpload" class="btn-primary" style="cursor: pointer;">
+                                                <i class="bi bi-camera"></i>
+                                                Changer la photo
+                                            </label>
+                                            <InputFile id="photoUpload" 
+                                                       accept="image/*" 
+                                                       OnChange="VM_Settings.HandlePhotoUpload"
+                                                       style="display: none;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="photo-action-buttons">
+                                                <button class="btn-primary" @onclick="VM_Settings.ConfirmPhotoUpload" disabled="@VM_Settings.IsUploadingPhoto">
+                                                    @if (VM_Settings.IsUploadingPhoto)
+                                                    {
+                                                        <span class="spinner-small-inline"></span>
+                                                        <span>Envoi...</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-check-lg"></i>
+                                                        <span>Confirmer</span>
+                                                    }
+                                                </button>
+                                                <button class="btn-secondary" @onclick="VM_Settings.CancelPhotoUpload" disabled="@VM_Settings.IsUploadingPhoto">
+                                                    <i class="bi bi-x-lg"></i>
+                                                    Annuler
+                                                </button>
                                             </div>
                                         }
                                     </div>

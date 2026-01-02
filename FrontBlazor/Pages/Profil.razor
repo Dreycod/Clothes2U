@@ -49,12 +49,14 @@
                     <i class="bi bi-person-x"></i>
                     <h2>Utilisateur bloqué</h2>
                     <p>Vous avez bloqué cet utilisateur, vous pouvez le débloquer si vous le souhaitez.</p>
-                    <button class="btn-primary" @onclick="VM_Profil.NavigateToHome">
-                        Retour à l'accueil
-                    </button>
-                    <button class="btn-primary" @onclick="VM_Profil.ToggleBloque">
-                        Débloquer l'utilisateur
-                    </button>
+                    <div class="error-state-actions">
+                        <button class="btn-secondary" @onclick="VM_Profil.NavigateToHome">
+                            Retour à l'accueil
+                        </button>
+                        <button class="btn-primary" @onclick="VM_Profil.ToggleBloque">
+                            Débloquer l'utilisateur
+                        </button>
+                    </div>
                 </div>
             }
             else
@@ -289,13 +291,16 @@
                                                 <img class="review-avatar" src="@VM_Profil.GetPhoto(avis.PhotoProfilAuteurId)"/>
                                                 <h3 class="review-name">@avis.LoginAuteur</h3>
                                             </div>
-                                            <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
-                                            @if (!VM_Profil.IsSameUser)
-                                            {
-                                             <button class="btn-action" @onclick:stopPropagation @onclick="() => VM_Profil.OpenSignalerAvis(avis.NoteId)">
-                                                 <i class="bi bi-flag"></i>
-                                             </button>
-                                            }
+                                            <div class="review-header-right">
+                                                <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
+                        
+                                                @if (!VM_Profil.IsSameUserAsReviewer(avis.NoteurId))
+                                                {
+                                                    <button class="btn-action" @onclick:stopPropagation @onclick="() => VM_Profil.OpenSignalerAvis(avis.NoteId)">
+                                                        <i class="bi bi-flag"></i>
+                                                    </button>
+                                                }
+                                            </div>
                                         </div>
                                         <div class="review-rating">
                                             @for (int j = 0; j < avis.Note; j++)
@@ -402,20 +407,21 @@
     <div class="modal-overlay" @onclick="VM_Profil.ToggleBloqueModal">
         <div class="modal-content review-modal" @onclick:stopPropagation>
             <div class="modal-header">
-                <h3>@(VM_Profil.IsBlockedByUser ? "Débloquer" : "Bloquer") l'utilisateur</h3>
+                <h3>Bloquer l'utilisateur</h3>
                 <button class="modal-close" @onclick="VM_Profil.ToggleBloqueModal">
                     <i class="bi bi-x"></i>
                 </button>
             </div>
-
-            <!-- Text -->
-            <div class="form-group">
-                <label class="form-label">Êtes vous certain?</label>
+            <div class="modal-body">
+                <div class="confirm-message">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <p>Êtes-vous certain de vouloir bloquer <strong>@VM_Profil.ViewingUser.Login</strong> ?</p>
+                    <p class="confirm-description">Cette personne ne pourra plus interagir avec vous.</p>
+                </div>
             </div>
-
             <div class="modal-actions">
                 <button class="btn-secondary" @onclick="VM_Profil.ToggleBloqueModal">Annuler</button>
-                <button class="btn-primary" @onclick="VM_Profil.ToggleBloque" disabled="@VM_Profil.IsSubmittingBloque">
+                <button class="btn-primary btn-danger" @onclick="VM_Profil.ToggleBloque" disabled="@VM_Profil.IsSubmittingBloque">
                     @if (VM_Profil.IsSubmittingBloque)
                     {
                         <span class="spinner-small-inline"></span>
@@ -423,7 +429,7 @@
                     }
                     else
                     {
-                        <span>@(VM_Profil.IsBlockedByUser ? "Débloquer" : "Bloquer")</span>
+                        <span>Bloquer</span>
                     }
                 </button>
             </div>

@@ -23,6 +23,7 @@ namespace FrontBlazor.ViewModel
 
         public int AvisCount { get; set; } = 0;
         public bool IsSameUser { get; set; } = false;
+        private int? currentUserId = null;
 
         public bool showDotsDropdown;
 
@@ -106,6 +107,7 @@ namespace FrontBlazor.ViewModel
             UserNotFound = false;
             UserSuspended = false;
             await VerifiyAccountAsync();
+            await LoadCurrentUserId();
             try
             {
                 UtilisateurViewDTO user = await _utilisateurService.GetByLoginAsync(login);
@@ -536,6 +538,23 @@ namespace FrontBlazor.ViewModel
                 SignalementIdAvis = 0;
                 SignalementRaison = string.Empty;
             }
+        }
+        private async Task LoadCurrentUserId()
+        {
+            var user = await _authService.GetCurrentUserAsync();
+            if (user == null)
+                currentUserId = null;
+
+            currentUserId = user?.UtilisateurId;
+        }
+
+        public bool IsSameUserAsReviewer(int noteurId)
+        {
+            if (currentUserId == null)
+            {
+                return false;
+            }
+            return currentUserId.Value == noteurId;
         }
         public string GetPhoto(int id)
         {

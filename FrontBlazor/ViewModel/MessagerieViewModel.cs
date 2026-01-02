@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Shared.DTO.Photo;
+using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel;
 
@@ -19,6 +20,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public readonly IMediasService _mediaService;
     private readonly IMessageService _messageService;
     public readonly ISignalRService _signalRService;
+    private readonly ISignalementService _signalementService;
     private readonly NavigationManager _nav;
 
     public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
@@ -41,13 +43,20 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private System.Threading.Timer? _typingDisplayTimer;
     private bool _typingNotified = false;
 
+    public bool ShowReportModal { get; set; }
+    public bool IsSubmittingReport { get; set; }
+    private int? ReportingMessageId { get; set; }
+    public string SignalementRaison { get; set; } = string.Empty;
+    public string ReportingMessageContent { get; set; } = string.Empty;
+
     public MessagerieViewModel(
         IConversationService<ConversationDTO> conversationService,
         IAuthService authService,
         IMessageService messageService,
         IMediasService mediaService,
         NavigationManager nav,
-        ISignalRService signalRService)
+        ISignalRService signalRService,
+        ISignalementService signalementService)
     
     {
         _conversationService = conversationService;
@@ -56,6 +65,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         _messageService = messageService;
         _signalRService = signalRService;
         _mediaService = mediaService;
+        _signalementService = signalementService;
         
         _signalRService.OnMessageReceived += HandleMessageReceived;
         _signalRService.OnUserTyping += HandleUserTyping;
@@ -604,7 +614,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
         NotifyStateChanged();
     }
-    
     public void RemoveSelectedPhotoAt(int index)
     {
         if (index < 0 || index >= SelectedFilePreviews.Count)
@@ -617,7 +626,88 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
         NotifyStateChanged();
     }
+    public void OpenReportModal(int messageId)
+    {
+        var message = SelectedConversation?.ListMessages?
+            .FirstOrDefault(m => m.MessageId == messageId);
 
-    
-    
+        if (message == null)
+        {
+            Console.WriteLine("⚠️ Message introuvable dans la conversation.");
+            return;
+        }
+
+        ReportingMessageId = messageId;
+        SignalementRaison = string.Empty;
+        ReportingMessageContent = (message as MessageTextDTO)?.Content ?? string.Empty;
+
+        ShowReportModal = true;
+        NotifyStateChanged();
+    }
+
+    public void CloseReportModal()
+    {
+        ShowReportModal = false;
+        ReportingMessageId = null;
+        ReportingMessageContent = string.Empty;
+        SignalementRaison = string.Empty;
+        NotifyStateChanged();
+    }
+    public async Task ConfirmReportMessageAsync()
+    {
+        if (!ReportingMessageId.HasValue || string.IsNullOrWhiteSpace(SignalementRaison))
+        {
+            Console.WriteLine("⚠️ Veuillez fournir une raison pour le signalement");
+            return;
+        }
+
+        if (IsSubmittingReport) return;
+
+        IsSubmittingReport = true;
+        NotifyStateChanged();
+
+        if (ReportingMessageId == null)
+        {
+            Console.WriteLine("⚠️ Aucun message sélectionné pour le signalement.");
+            return;
+        }
+
+        if (SelectedConversation == null)
+        {
+            Console.WriteLine("⚠️ Pas de conversation sélectionnée.");
+            return;
+        }
+
+        if (_signalementService == null)
+        {
+            Console.WriteLine("⚠️ Service de signalement non initialisé.");
+            return;
+        }
+
+
+        try
+        {
+            var dto = new SignalementMessageCreateDTO
+            {
+                MessageId = ReportingMessageId.Value,
+                SignalementMotif = SignalementRaison
+            };
+
+            var result = await _signalementService.CreateSignalement(dto);
+
+            if (result != null)
+            {
+                CloseReportModal(); // safely closes and resets UI
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erreur lors du signalement: {ex.Message}");
+        }
+        finally
+        {
+            IsSubmittingReport = false;
+            NotifyStateChanged();
+        }
+    }
 }

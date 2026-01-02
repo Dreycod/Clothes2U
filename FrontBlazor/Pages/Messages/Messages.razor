@@ -110,12 +110,21 @@
                         @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages)
                         {
                             <div class="message @(message.SentByCurrentUser ? "sent" : "received")">
+
                                 @if (message.TypeMessage == "Texte")
                                 {
-                                    MessageTextDTO newmessage = message as MessageTextDTO;
-                                    <p class="message-text">
-                                        @newmessage.Content
-                                    </p>
+                                       MessageTextDTO newmessage = message as MessageTextDTO;
+                                        <div class="message-content-wrapper">
+                                            <p class="message-text">
+                                                @newmessage.Content
+                                            </p>
+                                            @if (!newmessage.SentByCurrentUser)
+                                            {
+                                                <button class="btn-report-message" @onclick="() => VM_Messagerie.OpenReportModal((int)newmessage.MessageId)" title="Signaler ce message">
+                                                    <i class="bi bi-flag"></i>
+                                                </button>
+                                            }
+                                        </div>
                                     @if (newmessage.Photos != null && newmessage.Photos.Any())
                                     {
                                         @foreach (var photo in newmessage.Photos)
@@ -302,6 +311,68 @@
         </div>
     </div>
 </div>
+
+<!-- Report Message Modal -->
+@if (VM_Messagerie.ShowReportModal)
+{
+    <div class="modal-overlay" @onclick="() => VM_Messagerie.CloseReportModal()">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Signaler le message</h3>
+                <button class="modal-close" @onclick="() => VM_Messagerie.CloseReportModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="confirm-message">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <p>Expliquez-nous la raison de votre signalement</p>
+                    <p class="confirm-description">Notre équipe examinera le contenu signalé.</p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(VM_Messagerie.ReportingMessageContent))
+                {
+                    <div class="reported-message-preview">
+                        <label class="form-label">Message signalé :</label>
+                        <div class="message-preview-box">
+                            @VM_Messagerie.ReportingMessageContent
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label class="form-label">Raison du signalement</label>
+                    <textarea class="form-textarea"
+                              placeholder="Restez civil, une vraie personne va lire votre signalement."
+                              @bind="VM_Messagerie.SignalementRaison"
+                              @bind:event="oninput"
+                              rows="5">
+                    </textarea>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="() => VM_Messagerie.CloseReportModal()">Annuler</button>
+
+                <button class="btn-primary btn-danger"
+                        @onclick="async () => await VM_Messagerie.ConfirmReportMessageAsync()"
+                        disabled="@VM_Messagerie.IsSubmittingReport">
+                    @if (VM_Messagerie.IsSubmittingReport)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>Signaler</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 
 @code {
     private bool showPriceModal = false;

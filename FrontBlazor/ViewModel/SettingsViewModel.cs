@@ -24,6 +24,10 @@ namespace FrontBlazor.ViewModel
         public string Username { get; set; }
         public string Email { get; set; }
         public bool IsUploadingPhoto { get; set; }
+        public byte[]? UploadedPhotoBytes { get; set; }
+        public string? UploadedPhotoFileName { get; set; }
+        public string? PreviewPhotoUrl { get; set; }
+
         public bool IsUpdatingUsername { get; set; }
         public bool IsUpdatingEmail { get; set; }
         public string UsernameError { get; set; }
@@ -46,6 +50,9 @@ namespace FrontBlazor.ViewModel
         public List<BloqueDetailDTO>? UtilisateursBloques { get; set; } = null;
         public bool IsLoadingBlocked { get; set; }
         public bool IsUnblocking { get; set; }
+
+        public byte[]? ImgBytes { get; set; }
+
 
         public event Action OnStateChanged;
 
@@ -109,15 +116,84 @@ namespace FrontBlazor.ViewModel
         {
 
         }
-
         public async Task HandlePhotoUpload(InputFileChangeEventArgs e)
         {
-            //IsUploadingPhoto = true;
-            //UsernameError = string.Empty;
-            //NotifyStateChanged();
+            try
+            {
+                var file = e.File;
+                UploadedPhotoFileName = file.Name;
 
+                using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                UploadedPhotoBytes = ms.ToArray();
 
+                var base64 = Convert.ToBase64String(UploadedPhotoBytes);
+                PreviewPhotoUrl = $"data:image/{GetImageFormat(UploadedPhotoFileName)};base64,{base64}";
+
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la prévisualisation: {ex.Message}");
+            }
         }
+
+        public async Task ConfirmPhotoUpload()
+        {
+            if (UploadedPhotoBytes == null) return;
+
+            IsUploadingPhoto = true;
+            NotifyStateChanged();
+
+            try
+            {
+                bool success = await _mediaService.UploadPhotoCompteAsync(
+                    (int)CurrentUser.UtilisateurId,
+                    UploadedPhotoBytes,
+                    UploadedPhotoFileName
+                );
+
+                if (success)
+                {
+                    UploadedPhotoBytes = null;
+                    UploadedPhotoFileName = null;
+                    PreviewPhotoUrl = null;
+                    NotifyStateChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de l'upload: {ex.Message}");
+            }
+            finally
+            {
+                IsUploadingPhoto = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public void CancelPhotoUpload()
+        {
+            UploadedPhotoBytes = null;
+            UploadedPhotoFileName = null;
+            PreviewPhotoUrl = null;
+            NotifyStateChanged();
+        }
+
+        private string GetImageFormat(string fileName)
+        {
+            var extension = Path.GetExtension(fileName)?.ToLower();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "jpeg",
+                ".png" => "png",
+                ".gif" => "gif",
+                ".webp" => "webp",
+                _ => "jpeg"
+            };
+        }
+
         public async Task UpdateUsername()
         {
             UsernameError = string.Empty;
@@ -354,14 +430,14 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public string GetPhotoUrl(int photoId)
+        public string GetPhotoUrl(int? photoId)
         {
             if (photoId == null || photoId == 0)
             {
                 return "";
             }
 
-            return _mediaService.GetPhotoUrl(photoId);
+            return _mediaService.GetPhotoUrl((int)photoId);
         }
 
         private bool IsValidEmail(string email)
