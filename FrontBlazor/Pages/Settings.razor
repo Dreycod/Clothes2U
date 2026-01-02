@@ -1,0 +1,339 @@
+﻿@page "/settings"
+@inject NavigationManager NavigationManager
+@inject SettingsViewModel VM_Settings
+
+<PageTitle>Paramètres - Clothes2U</PageTitle>
+
+<NavBar />
+
+<div class="settings-page">
+    <div class="settings-container">
+        @if (VM_Settings.IsLoading)
+        {
+            <div class="page-loading-state">
+                <div class="spinner-large"></div>
+                <p>Chargement des paramètres...</p>
+            </div>
+        }
+        else
+        {
+            <div class="settings-header">
+                <h1>Paramètres</h1>
+                <p>Gérez vos informations personnelles et vos préférences</p>
+            </div>
+
+            <div class="settings-tabs">
+                <button class="tab-btn @(VM_Settings.ActiveTab == "account" ? "active" : "")"
+                        @onclick='() => VM_Settings.SetActiveTab("account")'>
+                    <i class="bi bi-person"></i>
+                    <span>Compte</span>
+                </button>
+                <button class="tab-btn @(VM_Settings.ActiveTab == "security" ? "active" : "")"
+                        @onclick='() => VM_Settings.SetActiveTab("security")'>
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Sécurité</span>
+                </button>
+                <button class="tab-btn @(VM_Settings.ActiveTab == "blocked" ? "active" : "")"
+                        @onclick='() => VM_Settings.SetActiveTab("blocked")'>
+                    <i class="bi bi-person-x"></i>
+                    <span>Utilisateurs bloqués</span>
+                </button>
+            </div>
+
+            <div class="tab-content">
+                @if (VM_Settings.ActiveTab == "account")
+                {
+                    <div class="settings-section">
+                        <h2 class="section-title">Informations du compte</h2>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3>Photo de profil</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="photo-upload-container">
+                                    <img class="profile-photo-preview" 
+                                         @* src="@VM_Settings.GetPhotoUrl(VM_Settings.CurrentUser?.PhotoProfilId)"  *@
+                                         alt="Photo de profil" />
+                                    <div class="photo-upload-actions">
+                                        <input type="file" 
+                                               id="photoUpload" 
+                                               accept="image/*" 
+@*                                                @onchange="async() => VM_Settings.HandlePhotoUpload
+ *@                                               style="display: none;" />
+                                        <button class="btn-secondary" @onclick="() => VM_Settings.TriggerFileInput()">
+                                            <i class="bi bi-cloud-upload"></i>
+                                            Changer la photo
+                                        </button>
+                                        @if (VM_Settings.IsUploadingPhoto)
+                                        {
+                                            <div class="upload-status">
+                                                <span class="spinner-small-inline"></span>
+                                                <span>Téléchargement...</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3>Nom d'utilisateur</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <input type="text" 
+                                           class="form-input" 
+                                           placeholder="Nom d'utilisateur"
+                                           @bind="VM_Settings.Username"
+                                           @bind:event="oninput" />
+                                </div>
+                                @if (!string.IsNullOrEmpty(VM_Settings.UsernameError))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>@VM_Settings.UsernameError</span>
+                                    </div>
+                                }
+                                @if (VM_Settings.UsernameUpdateSuccess)
+                                {
+                                    <div class="alert alert-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Pseudo mis à jour avec succès</span>
+                                    </div>
+                                }
+                                <button class="btn-primary" 
+                                        @onclick="VM_Settings.UpdateUsername"
+                                        disabled="@VM_Settings.IsUpdatingUsername">
+                                    @if (VM_Settings.IsUpdatingUsername)
+                                    {
+                                        <span class="spinner-small-inline"></span>
+                                        <span>Mise à jour...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Enregistrer</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3>Adresse email</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <input type="email" 
+                                           class="form-input" 
+                                           placeholder="Email"
+                                           @bind="VM_Settings.Email"
+                                           @bind:event="oninput" />
+                                </div>
+                                @if (!string.IsNullOrEmpty(VM_Settings.EmailError))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>@VM_Settings.EmailError</span>
+                                    </div>
+                                }
+                                @if (VM_Settings.EmailUpdateSuccess)
+                                {
+                                    <div class="alert alert-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Email mis à jour avec succès</span>
+                                    </div>
+                                }
+                                <button class="btn-primary" 
+                                        @onclick="VM_Settings.UpdateEmail"
+                                        disabled="@VM_Settings.IsUpdatingEmail">
+                                    @if (VM_Settings.IsUpdatingEmail)
+                                    {
+                                        <span class="spinner-small-inline"></span>
+                                        <span>Mise à jour...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Enregistrer</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3>Préférences de notification</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="preference-description">Choisissez comment vous souhaitez recevoir les notifications</p>
+                                
+                                @if (!VM_Settings.CurrentUser.ValidEmail == true)
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>Vous devez vérifier votre adresse email pour activer les notifications.</span>
+                                    </div>
+                                }
+
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" 
+                                               class="checkbox-input"
+                                               checked="@VM_Settings.EmailNotificationsEnabled"
+                                               @onchange="VM_Settings.ToggleEmailNotifications"
+                                               disabled="@(!VM_Settings.CurrentUser?.ValidEmail == true || VM_Settings.IsUpdatingNotifications)" />
+                                        <span class="checkbox-custom"></span>
+                                        <div class="checkbox-text">
+                                            <span class="checkbox-title">Notifications par email</span>
+                                            <span class="checkbox-subtitle">Recevez des emails pour les messages et activités importantes</span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(VM_Settings.NotificationError))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>@VM_Settings.NotificationError</span>
+                                    </div>
+                                }
+
+                                @if (VM_Settings.NotificationUpdateSuccess)
+                                {
+                                    <div class="alert alert-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Préférences mises à jour avec succès</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (VM_Settings.ActiveTab == "security")
+                {
+                    <div class="settings-section">
+                        <h2 class="section-title">Sécurité du compte</h2>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3>Modifier le mot de passe</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label">Mot de passe actuel</label>
+                                    <input type="password" 
+                                           class="form-input" 
+                                           placeholder="Entrez votre mot de passe actuel"
+                                           @bind="VM_Settings.CurrentPassword"
+                                           @bind:event="oninput" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" 
+                                           class="form-input" 
+                                           placeholder="Entrez votre nouveau mot de passe"
+                                           @bind="VM_Settings.NewPassword"
+                                           @bind:event="oninput" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Confirmer le nouveau mot de passe</label>
+                                    <input type="password" 
+                                           class="form-input" 
+                                           placeholder="Confirmez votre nouveau mot de passe"
+                                           @bind="VM_Settings.ConfirmPassword"
+                                           @bind:event="oninput" />
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(VM_Settings.PasswordError))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>@VM_Settings.PasswordError</span>
+                                    </div>
+                                }
+                                @if (VM_Settings.PasswordUpdateSuccess)
+                                {
+                                    <div class="alert alert-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Mot de passe mis à jour avec succès</span>
+                                    </div>
+                                }
+
+                                <button class="btn-primary" 
+                                        @onclick="VM_Settings.UpdatePassword"
+                                        disabled="@VM_Settings.IsUpdatingPassword">
+                                    @if (VM_Settings.IsUpdatingPassword)
+                                    {
+                                        <span class="spinner-small-inline"></span>
+                                        <span>Mise à jour...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Modifier le mot de passe</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (VM_Settings.ActiveTab == "blocked")
+                {
+                    <div class="settings-section">
+                        <h2 class="section-title">Utilisateurs bloqués</h2>
+
+                        <div class="settings-card">
+                            @if (VM_Settings.IsLoadingBlocked)
+                            {
+                                <div class="tab-loading-state">
+                                    <div class="spinner-medium"></div>
+                                    <p>Chargement des utilisateurs bloqués...</p>
+                                </div>
+                            }
+                            else if (VM_Settings.UtilisateursBloques != null && VM_Settings.UtilisateursBloques.Any())
+                            {
+                                <div class="blocked-users-list">
+                                    @foreach (Shared.DTO.Bloque.BloqueDetailDTO user in VM_Settings.UtilisateursBloques)
+                                    {
+                                        <div class="blocked-user-item">
+                                            <div class="blocked-user-info">
+                                                <img class="blocked-user-avatar" 
+                                                     src="@VM_Settings.GetPhotoUrl(user.BloqueurId)" 
+                                                     alt="@user." />
+                                                <div class="blocked-user-details">
+                                                    <h4>@user.UtilisateurBloqueLogin</h4>
+                                                </div>
+                                            </div>
+                                            <button class="btn-unblock" 
+                                                    @onclick="() => VM_Settings.UnblockUser(user.UtilisateurBloqueId)"
+                                                    disabled="@VM_Settings.IsUnblocking"
+                                                    title="Débloquer">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">
+                                    <i class="bi bi-person-check"></i>
+                                    <p>Vous n'avez bloqué aucun utilisateur</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_Settings.LoadSettings();
+    }
+}

@@ -117,14 +117,20 @@ public class DetailAnnonceViewModel : BaseViewModel
             return true;
         return false;
     }
-    public async Task ToggleFavorite(int id)
+    public async Task ToggleFavorite(int annonceId, string annonceToInteract) //"SimilarAnnonce" or "AnnonceDetail"
     {
         if (CheckLoginStatus == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
         }
-        AnnonceDetailDTO annonce = await _annonceService.GetAnnonceDetailById(id);
+
+        dynamic? annonce = null;
+
+        if (annonceToInteract == "SimilarAnnonce")
+            annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
+        else
+            annonce = AnnonceDetail;
 
         bool isFavorite = annonce.IsLikedByCurrentUser;
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;

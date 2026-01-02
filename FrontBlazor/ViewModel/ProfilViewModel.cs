@@ -56,6 +56,16 @@ namespace FrontBlazor.ViewModel
 
         public bool ShowBloqueModal { get; set; } = false;
 
+        public bool ShowSignalerModal { get; set; } = false;
+
+        public bool ShowSignalerAvisModal { get; set; } = false;
+
+        public string SignalementRaison { get; set; } = string.Empty;
+
+        public bool IsSubmittingReport { get; set; } = false;
+
+        public int SignalementIdAvis { get; set; } = 0;
+
         public bool IsFollowing = true;
         public string FollowButtonText => IsFollowing ? "Se désabonner" : "Suivre";
 
@@ -436,7 +446,97 @@ namespace FrontBlazor.ViewModel
             await _signalementService.CreateSignalement(signalement);
             
         }
+        public void ToggleSignalerModal()
+        {
+            SignalementRaison = string.Empty;
+            showDotsDropdown = false;
+            if (CheckLoginStatus == null)
+            {
+                _navigationManager.NavigateTo("/login");
+                return;
+            }
 
+            ShowSignalerModal = !ShowSignalerModal;
+        }
+        public void OpenSignalerAvis(int noteId)
+        {
+            SignalementRaison = string.Empty;
+            showDotsDropdown = false;
+            SignalementIdAvis = noteId;
+            ToggleSignalerAvisModal();
+        }
+        public void ToggleSignalerAvisModal()
+        {
+            showDotsDropdown = false;
+            if (CheckLoginStatus == null)
+            {
+                _navigationManager.NavigateTo("/login");
+            }
+
+            ShowSignalerAvisModal = !ShowSignalerAvisModal;
+        }
+        public async Task SubmitReport()
+        {
+            if (CheckLoginStatus == null)
+            {
+                _navigationManager.NavigateTo("/login");
+                return;
+            }
+
+            IsSubmittingReport = true;
+            try
+            {
+                SignalementUtilisateurCreateDTO newReport = new SignalementUtilisateurCreateDTO
+                {
+                    SignalementMotif = SignalementRaison,
+                    UtilisateurSignaleId = ViewingUser!.UtilisateurId,
+                };
+
+                SignalementDetailsDTO result = await _signalementService.CreateSignalement(newReport);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la soumission du signalement : {ex.Message}");
+            }
+            finally
+            {
+                IsSubmittingReport = false;
+                ShowSignalerModal = false;
+                SignalementRaison = string.Empty;
+            }
+        }
+        public async Task SubmitAvisReport()
+        {
+            if (CheckLoginStatus == null)
+            {
+                _navigationManager.NavigateTo("/login");
+                return;
+            }
+
+            IsSubmittingReport = true;
+            try
+            {
+                SignalementAvisCreateDTO newReport = new SignalementAvisCreateDTO
+                {
+                    SignalementMotif = SignalementRaison,
+                    AvisId = SignalementIdAvis,
+
+                };
+
+                SignalementDetailsDTO result = await _signalementService.CreateSignalement(newReport);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la soumission du signalement : {ex.Message}");
+            }
+            finally
+            {
+                IsSubmittingReport = false;
+                ShowSignalerAvisModal = false;
+                SignalementIdAvis = 0;
+                SignalementRaison = string.Empty;
+            }
+        }
         public string GetPhoto(int id)
         {
             return _mediaService.GetPhotoUrl(id);

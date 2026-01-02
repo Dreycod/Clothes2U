@@ -61,10 +61,10 @@
             {
                 <!-- Profile Header -->
                 <div class="profile-header">
-                    <img class="profile-avatar" src="@(VM_DetailAnnonce.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))" />
+                    <img class="profile-avatar" src="@(VM_Profil.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))" />
                     <div class="profile-info">
                         <div class="profile-top-row">
-                            <h1 class="profile-name">@VM_Profil.ViewingUser.Login</h1>
+                            <h1 class="profile-name">@VM_Profil.ViewingUser.Login <i class="fa-solid fa-badge-check"></i></h1>
                             <div class="profile-actions">
                                 @if (!VM_Profil.IsSameUser)
                                 {
@@ -83,7 +83,7 @@
                                                     <span>Bloquer</span>
                                                 </button>
 
-                                                <button class="dropdown-item danger" @onclick="VM_Profil.SignalerUtilisateur">
+                                                <button class="dropdown-item danger" @onclick="VM_Profil.ToggleSignalerModal">
                                                     <i class="bi bi-flag"></i>
                                                     <span>Signaler</span>
                                                 </button>
@@ -286,10 +286,16 @@
                                     <div class="review-item">
                                         <div class="review-header">
                                             <div class="review-user">
-                                                <div class="review-avatar"></div>
+                                                <img class="review-avatar" src="@VM_Profil.GetPhoto(avis.PhotoProfilAuteurId)"/>
                                                 <h3 class="review-name">@avis.LoginAuteur</h3>
                                             </div>
                                             <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
+                                            @if (!VM_Profil.IsSameUser)
+                                            {
+                                             <button class="btn-action" @onclick:stopPropagation @onclick="() => VM_Profil.OpenSignalerAvis(avis.NoteId)">
+                                                 <i class="bi bi-flag"></i>
+                                             </button>
+                                            }
                                         </div>
                                         <div class="review-rating">
                                             @for (int j = 0; j < avis.Note; j++)
@@ -418,6 +424,96 @@
                     else
                     {
                         <span>@(VM_Profil.IsBlockedByUser ? "Débloquer" : "Bloquer")</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (VM_Profil.ShowSignalerModal)
+{
+    <div class="modal-overlay" @onclick="VM_Profil.ToggleSignalerModal">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Expliquez-nous la raison de votre signalement</h3>
+                <button class="modal-close" @onclick="VM_Profil.ToggleSignalerModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Reason -->
+                <div class="form-group">
+                    <label class="form-label">Raison</label>
+                    <textarea class="form-textarea"
+                              placeholder="Restez civil, une vraie personne va lire votre signalement."
+                              @bind="VM_Profil.SignalementRaison"
+                              @bind:event="oninput"
+                              rows="6"></textarea>
+                </div>
+                @* 
+                @if (!string.IsNullOrEmpty(VM_Profil.ReviewErrorMessage))
+                {
+                    <div class="alert alert-error">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>@VM_Profil.ReviewErrorMessage</span>
+                    </div>
+                } *@
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_Profil.ToggleSignalerModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_Profil.SubmitReport" disabled="@VM_Profil.IsSubmittingReport">
+                    @if (VM_Profil.IsSubmittingReport)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>Signaler l'utilisateur</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (VM_Profil.ShowSignalerAvisModal)
+{
+    <div class="modal-overlay" @onclick="VM_Profil.ToggleSignalerAvisModal">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Expliquez-nous la raison de votre signalement</h3>
+                <button class="modal-close" @onclick="VM_Profil.ToggleSignalerAvisModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Reason -->
+                <div class="form-group">
+                    <label class="form-label">Raison</label>
+                    <textarea class="form-textarea"
+                              placeholder="Restez civil, une vraie personne va lire votre signalement."
+                              @bind="VM_Profil.SignalementRaison"
+                              @bind:event="oninput"
+                              rows="6"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM_Profil.ToggleSignalerAvisModal">Annuler</button>
+                <button class="btn-primary" @onclick="VM_Profil.SubmitAvisReport" disabled="@VM_Profil.IsSubmittingReport">
+                    @if (VM_Profil.IsSubmittingReport)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>Signaler l'avis</span>
                     }
                 </button>
             </div>
