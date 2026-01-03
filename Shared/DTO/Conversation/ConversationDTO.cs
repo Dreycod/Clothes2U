@@ -29,7 +29,8 @@ public class ConversationDTO : IEntity, INotifyPropertyChanged
     public string? TitreAnnonce { get; set; }
     public int? AnnonceId { get; set; }
     public int? PhotoAnnonceId { get; set; }
-    public double? Prix { get; set; }
+    public decimal Prix { get; set; }
+    public decimal PrixAnnonce { get; set; }
     private bool _hasNewMessages;
     public bool HasNewMessages
     {

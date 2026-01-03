@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Shared.Enums;
 
 namespace API.Models.EntityFramework;
 
 [Table("t_e_transaction_tra")]
-public class Transaction
+public class Transaction : IEntity
 {
     [Key]
     [Column("tra_id")]
@@ -14,7 +15,7 @@ public class Transaction
     public int TransactionMontant { get; set; }
     
     [Column("tra_transaction_etat")]
-    public int TransactionEtat { get; set; }
+    public TransactionEtatEnum TransactionEtat { get; set; }
     
     //id des relations
     [Column("tra_conversation_id")]
@@ -24,4 +25,7 @@ public class Transaction
     [ForeignKey(nameof(ConversationId))]
     [InverseProperty(nameof(Conversation.Transaction))]
     public virtual Conversation Conversation { get; set; } = null!;
+
+    public int GetId() => TransactionId;
+
 }

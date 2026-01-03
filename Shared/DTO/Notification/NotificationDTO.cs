@@ -46,8 +46,8 @@ public class NotificationNouvelleAnnonceDTO : NotificationDTO
 
 public class NotificationPropositionDTO : NotificationDTO
 {
-    public double PrixPropose { get; set; }
-    public double? AncienPrixPropose { get; set; }
+    public decimal PrixPropose { get; set; }
+    public decimal? AncienPrixPropose { get; set; }
     public int ConversationId { get; set; }
     public string AnnonceTitle { get; set; }
     public string NomAuteur { get; set; }

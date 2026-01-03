@@ -47,6 +47,7 @@ public class NotificationController : ControllerBase
         return count;
     }
     [HttpGet("user")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetUserNotifications()
     {
         int? userId = await _currentUserService.GetUserId();
@@ -56,22 +57,8 @@ public class NotificationController : ControllerBase
         }
         var notifications = await _notificationManager.GetByUserId((int)userId);
         var notificationDtos = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
-    
-        return Ok(notificationDtos);
-    }
-    [HttpPut("markAsRead")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkAsRead()
-    {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
         await _notificationManager.MarkAsRead((int)userId);
-        return NoContent();
+        return Ok(notificationDtos);
     }
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

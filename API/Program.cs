@@ -225,7 +225,7 @@ builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceM
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
 builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
-builder.Services.AddScoped<IDataRepository<MessageDemande, int>, MessageDemandeManager>();
+builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageValidation, int>, MessageValidationManager>();
 builder.Services.AddScoped<IDataRepository<MessageContientImage, int>, MessageContientImageManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
@@ -246,6 +246,7 @@ builder.Services.AddScoped<IDataRepository<Annonce, int>, AnnonceManager>();
 builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager>();
 builder.Services.AddScoped<IDecisionRepository,  DecisionManager>();
 builder.Services.AddScoped<IDemandeRestaurationRepository<DemandeRestauration, int>,  DemandeRestaurationManager>();
+builder.Services.AddScoped<ITransactionRepository<Transaction, int>, TransactionManager>();
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();

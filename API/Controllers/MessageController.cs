@@ -19,7 +19,7 @@ public class MessageController : ControllerBase
 {
     private readonly IDataRepository<Message, int> _messageManager;
     private readonly IDataRepository<MessageTexte, int> _messageTexteManager;
-    private readonly IDataRepository<MessageDemande, int> _messageDemandeManager;
+    private readonly IMessageDemandeRepository _messageDemandeManager;
     private readonly IDataRepository<MessageValidation, int> _messageValidationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
@@ -32,7 +32,7 @@ public class MessageController : ControllerBase
         IDataRepository<Message, int> messageManager,
         IDataRepository<MessageTexte, int> messageTexteManager,
         IConversationRepository<Conversation, int> conversationManager,
-        IDataRepository<MessageDemande, int> messageDemandeManager,
+        IMessageDemandeRepository messageDemandeManager,
         IDataRepository<MessageValidation, int> messageValidationManager,
         IDataRepository<MessageContientImage, int> messageContientImageManager,
         IPhotoService photoService,
@@ -168,11 +168,13 @@ public class MessageController : ControllerBase
         
         await _messageManager.AddAsync(message);
 
-        var messageDemande = new MessageDemande
+        var messageDemande = new MessageDemande()
         {
             MessageId = message.MessageId,
             DemandeId = dto.DemandeId,
-            PrixPropose = dto.PrixPropose
+            PrixPropose = dto.PrixPropose,
+            EstAcceptee = false,
+            EstRepondue = false
         };
         
         await _messageDemandeManager.AddAsync(messageDemande);
@@ -187,7 +189,7 @@ public class MessageController : ControllerBase
                 var notificationEvent = new NewPropositionEvent()
                 {
                     TargetUserId = (int)targetUserId,
-                    DemandeId = messageDemande.MessageDemandeId,
+                    DemandeId = messageDemande.DemandeId != null? (int)messageDemande.DemandeId : 0,
                     SenderId = dto.UtilisateurId,
                 };
                 await _notificationService.NotifyAsync(notificationEvent);
@@ -197,11 +199,11 @@ public class MessageController : ControllerBase
 
                 await _hubContext.Clients
                     .Group($"conversation_{message.ConversationId}")
-                    .SendAsync("ReceiveMessage",
+                    .SendAsync("ReceivePriceProposal",
                         message.ConversationId,
+                        message.MessageId,
                         message.UtilisateurId,
-                        "Une demande de prix a été envoyé",
-                        null,
+                        messageDemande.PrixPropose,
                         message.MessageDate);
             }
             else
@@ -296,6 +298,34 @@ public class MessageController : ControllerBase
         await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
             .SendAsync("ReceiveMessage", message.ConversationId, message.UtilisateurId, message.MessageTexte.Content, message.MessageDate);
 
+        return NoContent();
+    }
+
+    [HttpPut("Answer/{messageId}/{answer}")]
+    public async Task<IActionResult> AnswerPriceProposal(int messageId, bool answer)
+    {
+        var messageDemande = await _messageDemandeManager.GetByMessageIdAsync(messageId);
+        if (messageDemande == null) return NotFound();
+        
+        messageDemande.EstAcceptee = answer;
+        messageDemande.EstRepondue = true;
+        
+        await _messageDemandeManager.UpdateAsync(messageDemande);
+        
+        var conversation = await _conversationManager.GetByIdAsync(messageDemande.Message.ConversationId);
+
+        conversation.Prix = messageDemande.PrixPropose;
+        
+        await _conversationManager.UpdateAsync(conversation);
+        
+        Console.WriteLine(messageDemande.Message.ConversationId);
+        
+        await _hubContext.Clients.
+            Group($"conversation_{messageDemande.Message.ConversationId}")
+            .SendAsync("ProposalResponseReceived", 
+                messageDemande.Message.ConversationId,
+                messageId, 
+                answer);
         return NoContent();
     }
     

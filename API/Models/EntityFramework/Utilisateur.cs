@@ -123,6 +123,9 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(VerificationCode.Utilisateur))]
     public virtual ICollection<VerificationCode> VerificationCodes { get; set; } = new List<VerificationCode>();
 
+    [InverseProperty(nameof(PasswordResetToken.UtilisateurReset))]
+    public virtual ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
+
     //moderation
     [InverseProperty(nameof(Decision.Moderateur))]
     public virtual ICollection<Decision> DecisionsModerateur { get; set; } = new List<Decision>();

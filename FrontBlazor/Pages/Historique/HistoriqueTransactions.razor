@@ -1,0 +1,67 @@
+﻿@page "/historique"
+@inject HistoriqueTransactionViewModel VM
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<NavBar />
+
+
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="bi bi-clock-history"></i>
+        Historique des transactions
+    </h2>
+
+
+    @if (VM.IsLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary"></div>
+        </div>
+    }
+    else
+    {
+        <button class="btn btn-outline-primary me-2"
+            @onclick="() => activeTab = Tab.Achats">
+            Achats
+        </button>
+
+        <button class="btn btn-outline-primary"
+                @onclick="() => activeTab = Tab.Ventes">
+            Ventes
+        </button>
+
+        @if (activeTab == Tab.Achats)
+        {
+            @foreach (var t in VM.Achats)
+            {
+                <TransactionHistoriqueCard Transaction="@t" />
+            }
+        }
+
+        @if (activeTab == Tab.Ventes)
+        {
+            @foreach (var t in VM.Ventes)
+            {
+                <TransactionHistoriqueCard Transaction="@t" />
+            }
+        }
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        VM.OnStateChanged += StateHasChanged;
+        await VM.LoadAsync();
+    }
+
+    public void Dispose()
+    {
+        VM.OnStateChanged -= StateHasChanged;
+    }
+
+    enum Tab { Achats, Ventes }
+    Tab activeTab = Tab.Achats;
+}
+

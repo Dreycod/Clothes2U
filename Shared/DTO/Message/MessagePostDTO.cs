@@ -18,10 +18,10 @@ public class MessageTextePostDTO : MessagePostDTO
 public class MessageDemandePostDTO : MessagePostDTO
 {
     public int? DemandeId { get; set; }
-    public double PrixPropose { get; set; }
+    public decimal PrixPropose { get; set; }
 }
 
 public class MessageValidationPostDTO : MessagePostDTO
 {
-    // Propriétés spécifiques si nécessaire
+    public int MessageDemandeId { get; set; }
 }

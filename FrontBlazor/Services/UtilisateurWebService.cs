@@ -60,7 +60,41 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
 
         
     }
+    public async Task<UtilisateurSettingsDTO> GetUserSettingsById(int id)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, $"Utilisateur/{id}/GetSettings");
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
 
+        var response = await _httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"❌ GetUserSettingsById failed: {response.StatusCode}");
+            return null;
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<UtilisateurSettingsDTO>();
+        Console.WriteLine($"✅ User found: {result?.Login}");
+        return result;
+    }
+    public async Task<bool> PostUpdateUser(int? id, UtilisateurSettingsDTO utilisateurSettingsDTO)
+    {
+        var request = new HttpRequestMessage(
+            HttpMethod.Patch,
+            $"Utilisateur/{id}/PatchSettings")
+        {
+            Content = JsonContent.Create(utilisateurSettingsDTO)
+        };
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+        var response = await _httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"❌ PostUpdateUser failed: {error}");
+            return false;
+        }
+        return true;
+    }
     public async Task UpdateNotifMailPreferenceAsync(int userId, bool preference)
     {
         var dto = new UpdateNotifMailDTO

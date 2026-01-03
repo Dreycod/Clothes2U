@@ -17,6 +17,8 @@ public class DemandeRestauration : IEntity
     [Column("demres_statut")]
     public string Status { get; set; }
     
+    [Column("demres_date")]
+    public DateTime Date { get; set; }
     //relation avec les autres tables  :
     
     [Column("demres_decision_id")]

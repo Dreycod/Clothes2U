@@ -41,7 +41,8 @@ public class ConversationMappingProfile : Profile
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
-            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.LAnnonce.Prix))
+            .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix != null ? src.Prix : src.LAnnonce.Prix))
+            .ForMember(dest => dest.PrixAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Prix))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
             .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
                 src.LAnnonce.Photos.FirstOrDefault() != null
@@ -81,7 +82,9 @@ public class ConversationMappingProfile : Profile
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             PrixPropose = message.MessageDemande.PrixPropose,
-                            OffreParenteId = message.MessageDemande.DemandeId
+                            DemandeId = message.MessageDemande.DemandeId,
+                            EstAcceptee = message.MessageDemande.EstAcceptee,
+                            EstRepondue = message.MessageDemande.EstRepondue
                         };
                     }
                     else if (message.MessageValidation != null)
@@ -91,7 +94,8 @@ public class ConversationMappingProfile : Profile
                             MessageId = message.MessageId,
                             Date = message.MessageDate,
                             Lu = message.MessageLu,
-                            PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
+                            EstAcceptee = message.MessageValidation.EstAcceptee,
+                            //PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
                         };
                     }
                     if (dto != null)

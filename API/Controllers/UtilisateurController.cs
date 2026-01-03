@@ -56,7 +56,32 @@ public class UtilisateurController :  ControllerBase
         await _mailService.NotifyUserStatusChangedAsync(utilisateurToUpdate, oldStatut);
         return NoContent();
     }
+    [HttpPatch("{id}/PatchSettings")]
+    public async Task<IActionResult> PatchUtilisateurSettings(int id, [FromBody] UtilisateurSettingsDTO putDTO)
+    {
+        if ((await _currentUserService.GetUserId()) != id)
+            return Forbid();
 
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateurToUpdate == null)
+            return NotFound();
+        _mapper.Map(putDTO, utilisateurToUpdate);
+        await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
+        return NoContent();
+    }
+
+
+    [HttpGet("{id}/GetSettings")]
+    public async Task<ActionResult<UtilisateurSettingsDTO>> GetUtilisateurSettings(int id)
+    {
+        Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateur == null)
+            return NotFound();
+        UtilisateurSettingsDTO settingsDTO = _mapper.Map<UtilisateurSettingsDTO>(utilisateur);
+        return Ok(settingsDTO);
+    }
     [Authorize]
     [HttpPut("{id}/notif-mail")]
     public async Task<IActionResult> UpdateNotifMailPreference(

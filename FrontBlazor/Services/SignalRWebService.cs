@@ -7,10 +7,12 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 {
     private HubConnection? _hubConnection;
     private readonly string _hubUrl;
+    public event Action<int, int, bool>? OnProposalResponse;
 
     public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
+    public event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
 
     public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
 
@@ -109,6 +111,57 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
                 Console.WriteLine($"[SignalR] ✔️ MessagesRead: conv={conversationId}, user={userId}");
                 OnMessagesRead?.Invoke(conversationId, userId);
             });
+            
+            _hubConnection.On<int, int, int, decimal, DateTime>(
+"ReceivePriceProposal",
+            (conversationId, messageId, senderId, prixPropose, date) =>
+            {
+                Console.WriteLine("========================================");
+                Console.WriteLine($"[SignalR] 💰 ReceivePriceProposal EVENT RECEIVED");
+                Console.WriteLine($"[SignalR]   ConversationId: {conversationId}");
+                Console.WriteLine($"[SignalR]   MessageId: {messageId}");
+                Console.WriteLine($"[SignalR]   SenderId: {senderId}");
+                Console.WriteLine($"[SignalR]   Prix proposé: {prixPropose}");
+                Console.WriteLine($"[SignalR]   Date: {date}");
+                Console.WriteLine($"[SignalR]   OnPriceProposalReceived subscribers: {OnPriceProposalReceived?.GetInvocationList().Length ?? 0}");
+                
+                if (OnPriceProposalReceived != null)
+                {
+                    Console.WriteLine($"[SignalR]   Invoking OnPriceProposalReceived event...");
+                    OnPriceProposalReceived.Invoke(conversationId, messageId, senderId, prixPropose, date);
+                    Console.WriteLine($"[SignalR]   ✅ Event invoked successfully");
+                }
+                else
+                {
+                    Console.WriteLine($"[SignalR]   ⚠️ No subscribers for OnPriceProposalReceived!");
+                }
+                Console.WriteLine("========================================");
+            });
+
+            // 🆕 Réception d'une réponse à une proposition
+            _hubConnection.On<int, int, bool>(
+            "ProposalResponseReceived", 
+            (conversationId, messageId, accepted) =>
+            {
+                Console.WriteLine("========================================");
+                Console.WriteLine($"[SignalR] 📨 ProposalResponseReceived EVENT RECEIVED");
+                Console.WriteLine($"[SignalR]   ConversationId: {conversationId}");
+                Console.WriteLine($"[SignalR]   MessageId: {messageId}");
+                Console.WriteLine($"[SignalR]   Accepted: {accepted}");
+                Console.WriteLine($"[SignalR]   OnProposalResponse subscribers: {OnProposalResponse?.GetInvocationList().Length ?? 0}");
+                
+                if (OnProposalResponse != null)
+                {
+                    Console.WriteLine($"[SignalR]   Invoking OnProposalResponse event...");
+                    OnProposalResponse.Invoke(conversationId, messageId, accepted);
+                    Console.WriteLine($"[SignalR]   ✅ Event invoked successfully");
+                }
+                else
+                {
+                    Console.WriteLine($"[SignalR]   ⚠️ No subscribers for OnProposalResponse!");
+                }
+                Console.WriteLine("========================================");
+            });
 
             // ===== DÉMARRAGE DE LA CONNEXION =====
             
@@ -160,17 +213,12 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     {
         if (_hubConnection == null || !IsConnected)
         {
-            Console.WriteLine($"[SignalR] ❌ Cannot join conversation {conversationId}: not connected");
-            Console.WriteLine($"[SignalR]    _hubConnection is null: {_hubConnection == null}");
-            Console.WriteLine($"[SignalR]    IsConnected: {IsConnected}");
-            return;
+           return;
         }
 
         try
         {
-            Console.WriteLine($"[SignalR] 🚀 Attempting to join conversation {conversationId}...");
-            await _hubConnection.InvokeAsync("JoinConversation", conversationId);
-            Console.WriteLine($"[SignalR] ✅ Successfully joined conversation {conversationId}");
+             await _hubConnection.InvokeAsync("JoinConversation", conversationId);
         }
         catch (Exception ex)
         {
@@ -275,5 +323,34 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     {
         Console.WriteLine("[SignalR] DisposeAsync called");
         await StopAsync();
+    }
+    public async Task NotifyProposalResponse(int conversationId, int messageId, bool accepted)
+    {
+        if (_hubConnection?.State == HubConnectionState.Connected)
+        {
+            try
+            {
+                await _hubConnection.InvokeAsync(
+                    "NotifyProposalResponse", 
+                    conversationId, 
+                    messageId, 
+                    accepted
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SignalR] ❌ Error notifying proposal response: {ex.Message}");
+            }
+        }
+    }
+    
+    private void SetupHandlers()
+    {
+        _hubConnection.On<int, int, bool>("ProposalResponseReceived", 
+            (conversationId, messageId, accepted) =>
+            {
+                Console.WriteLine($"[SignalR] 📨 Proposal response received: Conv={conversationId}, Msg={messageId}, Accepted={accepted}");
+                OnProposalResponse?.Invoke(conversationId, messageId, accepted);
+            });
     }
 }

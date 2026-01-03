@@ -55,10 +55,15 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
             tracked = entityToUpdate;
         }
         var entry = _context.Entry(tracked);
-    
-        if (!string.IsNullOrEmpty(entity.Email))
+
+        if (!string.IsNullOrEmpty(entity.Email) && entity.Email != entityToUpdate.Email)
+        {
+            tracked.Email = entity.Email;
+            tracked.ValidEmail = false;
             entry.Property(u => u.Email).IsModified = true;
-    
+            entry.Property(u => u.ValidEmail).IsModified = true;
+        }
+
         if (entity.Telephone != null)
             entry.Property(u => u.Telephone).IsModified = true;
     

@@ -50,6 +50,7 @@
     {
         AnnonceDetailDTO annonce = VM_DetailAnnonce.AnnonceDetail;
         UtilisateurViewDTO utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
+        string produit = "AnnonceDetail";
 
         <div class="product-container">
             <!-- Left Side - Product Image -->
@@ -93,17 +94,18 @@
 
                 <!-- Actions Row -->
                 <div class="actions-row">
-                    <button class="btn-action"
-                            @onclick:stopPropagation="true"
-                            @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce.AnnonceId)">
-                        <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
-                    </button>
-                    <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
-                        <i class="bi bi-flag"></i>
-                    </button>
-                    <button class="btn-action" @onclick="VM_DetailAnnonce.ShareProduct">
-                        <i class="bi bi@(VM_DetailAnnonce.clickedShareButton ? "-check-square" : "-share")"></i>
-                    </button>
+                    @if (!VM_DetailAnnonce.IsSameUser)
+                    {
+
+                        <button class="btn-action"
+                        @onclick:stopPropagation="true"
+                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce.AnnonceId, produit)">
+                            <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
+                        </button>
+                        <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
+                            <i class="bi bi-flag"></i>
+                        </button>
+                    }
                 </div>
 
                 <!-- Seller Info -->
@@ -217,7 +219,7 @@
     }
 </div>
 
-<!-- Add Review Modal -->
+<!-- Add Signalement Modal -->
 @if (VM_DetailAnnonce.ShowSignalerModal)
 {
     <div class="modal-overlay" @onclick="VM_DetailAnnonce.ToggleSignalerModal">

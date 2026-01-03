@@ -23,7 +23,9 @@ public class Conversation : IEntity
     
     [Column("con_statut_conversation_id")]
     public int StatutConversationId { get; set; }
-    
+
+    [Column("con_prix")]
+    public decimal Prix { get; set; } 
     
     
     //relation avec les autres tables

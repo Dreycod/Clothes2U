@@ -49,7 +49,17 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
             Console.WriteLine($"❌ Failed to mark message {messageId} as read. Status: {response.StatusCode}");
         }
     }
-    
+
+    public async Task AnswerPriceProposal(int messageId, bool accepted)
+    {
+        var response = await _httpClient.PutAsync($"Message/Answer/{messageId}/{accepted}", null);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"❌ Failed to mark message {messageId} as read. Status: {response.StatusCode}");
+        }
+    }
+
     public async Task<MessageDTO> GetLastMessageByConversationId(int id)
     {
         var conversationDto = await _httpClient.GetFromJsonAsync<ConversationDTO>($"Conversation/conversation/{id}");

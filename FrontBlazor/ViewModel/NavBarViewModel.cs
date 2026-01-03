@@ -188,5 +188,11 @@ namespace FrontBlazor.ViewModel
             }
             await DeleteNotification(notification.NotificationId);
         }
+        public void CloseAllDropdowns()
+        {
+            showDropdown = false;
+            showDropDownNotification = false;
+            NotifyStateChanged();
+        }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Shared.DTO.Photo;
+using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel;
 
@@ -19,6 +20,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public readonly IMediasService _mediaService;
     private readonly IMessageService _messageService;
     public readonly ISignalRService _signalRService;
+    private readonly ISignalementService _signalementService;
     private readonly NavigationManager _nav;
 
     public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
@@ -41,13 +43,20 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     private System.Threading.Timer? _typingDisplayTimer;
     private bool _typingNotified = false;
 
+    public bool ShowReportModal { get; set; }
+    public bool IsSubmittingReport { get; set; }
+    private int? ReportingMessageId { get; set; }
+    public string SignalementRaison { get; set; } = string.Empty;
+    public string ReportingMessageContent { get; set; } = string.Empty;
+
     public MessagerieViewModel(
         IConversationService<ConversationDTO> conversationService,
         IAuthService authService,
         IMessageService messageService,
         IMediasService mediaService,
         NavigationManager nav,
-        ISignalRService signalRService)
+        ISignalRService signalRService,
+        ISignalementService signalementService)
     
     {
         _conversationService = conversationService;
@@ -56,10 +65,13 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         _messageService = messageService;
         _signalRService = signalRService;
         _mediaService = mediaService;
+        _signalementService = signalementService;
         
         _signalRService.OnMessageReceived += HandleMessageReceived;
         _signalRService.OnUserTyping += HandleUserTyping;
         _signalRService.OnMessagesRead += HandleMessagesRead;
+        _signalRService.OnProposalResponse += HandleProposalResponse;
+        _signalRService.OnPriceProposalReceived += HandlePriceProposalReceived;
     }
 
     public async Task LoadAsync()
@@ -237,52 +249,113 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             NotifyStateChanged();
         }
     }
-    
-    public async Task SendProposition(double newPrice)
+
+    public async Task SendProposition(decimal proposedPrice)
     {
-        if (SelectedConversation.Prix * 0.7 > newPrice)
-        {
+        if (SelectedConversation == null || CurrentUser == null)
             return;
-        }
 
         try
         {
-            MessageDemandePostDTO messageDemandePostDto = new MessageDemandePostDTO
+            var demande = new MessageDemandePostDTO
             {
-                ConversationId = SelectedConversationId!.Value,
-                PrixPropose = newPrice,
-                UtilisateurId = CurrentUser!.UtilisateurId
+                ConversationId = SelectedConversation.ConversationId,
+                UtilisateurId = CurrentUser.UtilisateurId,
+                PrixPropose = proposedPrice,
             };
-        
-            _messageService.PostMessageDemande(messageDemandePostDto);
-        
-            var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
+
+            await _messageService.PostMessageDemande(demande);
             
+            // Mettre à jour la conversation dans la liste
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == SelectedConversation.ConversationId);
             if (conv != null)
             {
-                conv.LastMessage = "demande";
+                conv.LastMessage = $"Proposition: {proposedPrice} €";
                 conv.HasNewMessages = false;
-
-                try
-                {
-                    Conversations.Remove(conv);
-                    Conversations.Insert(0, conv);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
-                }
             }
+
+            NotifyStateChanged();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erreur envoi message: {ex.Message}");
-        }
-        finally
-        {
-            NotifyStateChanged();
+            Console.WriteLine($"[VM] ❌ Error sending price proposal: {ex.Message}");
+            throw;
         }
     }
+
+    public async Task AnswerPriceProposal(int messageId, bool accepted)
+    {
+        if (SelectedConversation == null)
+            return;
+
+        try
+        {
+            // Appeler l'API pour accepter la proposition
+            await _messageService.AnswerPriceProposal(messageId, accepted);
+
+            // Mettre à jour localement le message
+            var message = SelectedConversation.ListMessages?
+                .OfType<MessageDemandeDTO>()
+                .FirstOrDefault(m => m.MessageId == messageId);
+
+            if (message != null)
+            {
+                message.EstAcceptee = accepted;
+                message.EstRepondue = true;
+            }
+
+            // Notifier via SignalR
+            await _signalRService.NotifyProposalResponse(
+                SelectedConversation.ConversationId, 
+                messageId, 
+                accepted
+            );
+
+            NotifyStateChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[VM] ❌ Error accepting proposal: {ex.Message}");
+            throw;
+        }
+    }
+
+    // public async Task DeclinePriceProposal(int messageId)
+    // {
+    //     if (SelectedConversation == null)
+    //         return;
+    //
+    //     try
+    //     {
+    //         // Appeler l'API pour refuser la proposition
+    //         await _messageService.DeclinePriceProposal(messageId);
+    //
+    //         // Mettre à jour localement le message
+    //         var message = SelectedConversation.ListMessages?
+    //             .OfType<MessageDemandeDTO>()
+    //             .FirstOrDefault(m => m.MessageId == messageId);
+    //
+    //         if (message != null)
+    //         {
+    //             message.EstAcceptee = false;
+    //             message.EstRepondue = true;
+    //         }
+    //
+    //         // Notifier via SignalR
+    //         await _signalRService.NotifyProposalResponse(
+    //             SelectedConversation.ConversationId, 
+    //             messageId, 
+    //             false
+    //         );
+    //
+    //         NotifyStateChanged();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"[VM] ❌ Error declining proposal: {ex.Message}");
+    //         throw;
+    //     }
+    // }
 
     private async void HandleMessageReceived(int conversationId, int senderId, string message, List<int> photoIds, DateTime date)
     {
@@ -440,12 +513,79 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         
         _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser.UtilisateurId, CurrentUser.Login ?? "Utilisateur");
     }
+    
+    private void HandleProposalResponse(int conversationId, int messageId, bool accepted)
+    {
+        if (SelectedConversation?.ConversationId == conversationId)
+        {
+            var message = SelectedConversation.ListMessages?
+                .OfType<MessageDemandeDTO>()
+                .FirstOrDefault(m => m.MessageId == messageId);
+
+            if (message != null)
+            {
+                message.EstAcceptee = accepted;
+                message.EstRepondue = true;
+                NotifyStateChanged();
+            }
+        }
+    }
+
+    private void HandlePriceProposalReceived(int conversationId, int messageId, int senderId, decimal proposedPrice, DateTime date)
+    {
+        if (SelectedConversation?.ConversationId == conversationId)
+        {
+            var exists = SelectedConversation.ListMessages?.Any(m => m.MessageId == messageId) ?? false;
+
+            if (!exists)
+            {
+                var newDemande = new MessageDemandeDTO
+                {
+                    MessageId = messageId,
+                    ConversationId = conversationId,
+                    SenderId = senderId,
+                    Date = date,
+                    PrixPropose = proposedPrice,
+                    EstAcceptee = false,
+                    EstRepondue = false,
+                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId
+                };
+            
+                SelectedConversation.ListMessages?.Add(newDemande);
+                NotifyStateChanged();
+                OnMessageReceivedUI?.Invoke();
+            }
+        }
+        else
+        {
+            var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = $"Proposition: {proposedPrice} €";
+                conv.HasNewMessages = true;
+
+                try
+                {
+                    Conversations.Remove(conv);
+                    Conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[VM] Error moving conversation to top: {ex.Message}");
+                }
+            }
+
+            NotifyStateChanged();
+        }
+    }
 
     public void Dispose()
     {
         _signalRService.OnMessageReceived -= HandleMessageReceived;
         _signalRService.OnUserTyping -= HandleUserTyping;
         _signalRService.OnMessagesRead -= HandleMessagesRead;
+        _signalRService.OnProposalResponse -= HandleProposalResponse; 
+        _signalRService.OnPriceProposalReceived -= HandlePriceProposalReceived;
         _typingTimer?.Dispose();
         _typingDisplayTimer?.Dispose();
     }
@@ -474,7 +614,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
         NotifyStateChanged();
     }
-    
     public void RemoveSelectedPhotoAt(int index)
     {
         if (index < 0 || index >= SelectedFilePreviews.Count)
@@ -487,7 +626,88 @@ public class MessagerieViewModel : ComponentBase, IDisposable
 
         NotifyStateChanged();
     }
+    public void OpenReportModal(int messageId)
+    {
+        var message = SelectedConversation?.ListMessages?
+            .FirstOrDefault(m => m.MessageId == messageId);
 
-    
-    
+        if (message == null)
+        {
+            Console.WriteLine("⚠️ Message introuvable dans la conversation.");
+            return;
+        }
+
+        ReportingMessageId = messageId;
+        SignalementRaison = string.Empty;
+        ReportingMessageContent = (message as MessageTextDTO)?.Content ?? string.Empty;
+
+        ShowReportModal = true;
+        NotifyStateChanged();
+    }
+
+    public void CloseReportModal()
+    {
+        ShowReportModal = false;
+        ReportingMessageId = null;
+        ReportingMessageContent = string.Empty;
+        SignalementRaison = string.Empty;
+        NotifyStateChanged();
+    }
+    public async Task ConfirmReportMessageAsync()
+    {
+        if (!ReportingMessageId.HasValue || string.IsNullOrWhiteSpace(SignalementRaison))
+        {
+            Console.WriteLine("⚠️ Veuillez fournir une raison pour le signalement");
+            return;
+        }
+
+        if (IsSubmittingReport) return;
+
+        IsSubmittingReport = true;
+        NotifyStateChanged();
+
+        if (ReportingMessageId == null)
+        {
+            Console.WriteLine("⚠️ Aucun message sélectionné pour le signalement.");
+            return;
+        }
+
+        if (SelectedConversation == null)
+        {
+            Console.WriteLine("⚠️ Pas de conversation sélectionnée.");
+            return;
+        }
+
+        if (_signalementService == null)
+        {
+            Console.WriteLine("⚠️ Service de signalement non initialisé.");
+            return;
+        }
+
+
+        try
+        {
+            var dto = new SignalementMessageCreateDTO
+            {
+                MessageId = ReportingMessageId.Value,
+                SignalementMotif = SignalementRaison
+            };
+
+            var result = await _signalementService.CreateSignalement(dto);
+
+            if (result != null)
+            {
+                CloseReportModal(); // safely closes and resets UI
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erreur lors du signalement: {ex.Message}");
+        }
+        finally
+        {
+            IsSubmittingReport = false;
+            NotifyStateChanged();
+        }
+    }
 }

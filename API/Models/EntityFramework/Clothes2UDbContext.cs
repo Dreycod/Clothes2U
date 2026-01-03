@@ -46,6 +46,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<NotificationNouvelleAnnonce> NotificationNouvelleAnnonces { get; set; }
     public DbSet<NotificationProposition> NotificationsProposition { get; set; }
     public DbSet<NotificationType> NotificationTypes { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<RoleUtilisateur> RolesUtilisateurs { get; set; }
@@ -271,7 +272,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasMany(e => e.SousCategories)
                 .WithOne(s => s.Categorie)
                 .HasForeignKey(e => e.CategorieId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
             
         });
 
@@ -555,7 +556,7 @@ public partial class Clothes2UDbContext : DbContext
             // Relation MessageDemande -> MessageValidation (One-to-One optionnelle)
             entity.HasOne(e => e.Validation)
                 .WithOne(v => v.PropositionValidee)
-                .HasForeignKey<MessageValidation>(v => v.PropositionValideeId)
+                .HasForeignKey<MessageValidation>(v => v.MessageDemandeId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
@@ -573,7 +574,7 @@ public partial class Clothes2UDbContext : DbContext
             
             entity.HasOne(e => e.PropositionValidee)
                 .WithOne(d => d.Validation)
-                .HasForeignKey<MessageValidation>(e => e.PropositionValideeId)
+                .HasForeignKey<MessageValidation>(e => e.MessageDemandeId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(); 
         });
@@ -849,9 +850,22 @@ public partial class Clothes2UDbContext : DbContext
             .HasForeignKey<NotificationProposition>(n => n.PropositionId)
             .OnDelete(DeleteBehavior.NoAction);
     });
-        
-        
-    modelBuilder.Entity<Photo>(entity =>
+
+    modelBuilder.Entity<PasswordResetToken>(entity =>
+    {
+        entity.HasKey(e => e.PasswordResetTokenId);
+
+        entity.HasOne(e => e.UtilisateurReset)
+            .WithMany(u => u.PasswordResetTokens)
+            .HasForeignKey(e => e.UtilisateurId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
+
+        entity.HasIndex(e => e.UtilisateurId)
+            .HasDatabaseName("idx_password_reset_utilisateur");
+    });
+
+
+        modelBuilder.Entity<Photo>(entity =>
     {
         entity.HasKey(e => e.PhotoId);
     
