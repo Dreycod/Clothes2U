@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Services.VerificationSrvceV2;
+using Shared.DTO.Couleur;
 
 namespace API.Controllers;
 
@@ -16,15 +17,17 @@ namespace API.Controllers;
 public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly ICaracteristiquesRepository<Est_De_Couleur> _estDeCouleurRepository;
     private readonly IFavorisRepository  _favorisRepository;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotificationMailService _notificationMailService;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService, INotificationMailService notificationMailService)
+    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager, ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService, INotificationMailService notificationMailService)
     {
         _annonceManager = manager;
+        _estDeCouleurRepository = estDeCouleurRepo;
         _favorisRepository = favorisManager;
         _mapper = mapper;
         _notificationService = notificationService;
@@ -157,30 +160,48 @@ public class AnnonceController : ControllerBase
         await _notificationMailService.NotifyAnnonceUpdatedAsync(annonce);
         return NoContent();
     }
-    
+
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(CreateAnnonceDTO annonceDto)
+    public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(CreateAnnonceDTO createAnnonceDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+
         int? userId = await _currentUserService.GetUserId();
-        if (userId == null || userId != annonceDto.UtilisateurId)
+        if (userId == null || userId != createAnnonceDto.UtilisateurId)
         {
             return Unauthorized();
         }
 
-        var annonce =  _mapper.Map<Annonce>(annonceDto);
+        var annonce = _mapper.Map<Annonce>(createAnnonceDto);
+
         await _annonceManager.AddAsync(annonce);
+
+        if (createAnnonceDto.Couleurs?.Any() == true)
+        {
+            foreach (var couleurId in createAnnonceDto.Couleurs)
+            {
+                var estDeCouleur = new Est_De_Couleur
+                {
+                    AnnonceId = annonce.AnnonceId,
+                    CouleurId = couleurId
+                };
+
+                await _estDeCouleurRepository.AddAsync(estDeCouleur);
+            }
+        }
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
-        //ajouter la notification une fois le tout pret
+
+        // Notification
         await _notificationMailService.NotifyNewAnnonceAsync(annonce);
-        return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
+
+        return CreatedAtAction(nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
 
     [HttpDelete("id/{id}")]

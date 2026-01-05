@@ -67,39 +67,66 @@
                     <div class="profile-info">
                         <div class="profile-top-row">
                             <h1 class="profile-name">@VM_Profil.ViewingUser.Login </h1> @if (VM_Profil.ViewingUser.ValidEmail) {<i class="fa-solid fa-badge-check"></i>}
-                            <div class="profile-actions">
-                                @if (!VM_Profil.IsSameUser)
-                                {
-                                    <div class="profile-dropdown-container">
-                                        <button class="btn-icon"
-                                                title="Actions"
-                                                @onclick="VM_Profil.ToggleDotsDropdown">
-                                            <i class="bi bi-three-dots"></i>
-                                        </button>
+                        <div class="profile-actions">
+                            @if (VM_Profil.IsSameUser)
+                            {
+                                <!-- 🆕 Bouton "Ajouter un article" visible uniquement pour l'utilisateur connecté -->
+                                <button class="btn-add-article-header" @onclick="VM_Profil.NavigateToAddArticle">
+                                    <i class="bi bi-plus-circle"></i>
+                                    <span>Ajouter un article</span>
+                                </button>
 
-                                        @if (VM_Profil.showDotsDropdown)
-                                        {
-                                            <div class="profile-dropdown">
-                                                <button class="dropdown-item danger" @onclick="VM_Profil.ToggleBloqueModal">
-                                                    <i class="bi bi-person-x"></i>
-                                                    <span>Bloquer</span>
-                                                </button>
-
-                                                <button class="dropdown-item danger" @onclick="VM_Profil.ToggleSignalerModal">
-                                                    <i class="bi bi-flag"></i>
-                                                    <span>Signaler</span>
-                                                </button>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                                @if (!VM_Profil.IsSameUser)
-                                {
-                                    <button class="btn-follow" @onclick="VM_Profil.ToggleAbonnement">
-                                        @(VM_Profil.ViewingUser.FolloweddByCurrentUser ? "Se désabonner" : "S'abonner")
+                                <!-- Menu trois points (optionnel pour le propriétaire) -->
+                                <div class="profile-dropdown-container">
+                                    <button class="btn-icon"
+                                            title="Paramètres"
+                                            @onclick="VM_Profil.ToggleDotsDropdown">
+                                        <i class="bi bi-three-dots"></i>
                                     </button>
-                                }
-                            </div>
+
+                                    @if (VM_Profil.showDotsDropdown)
+                                    {
+                                        <div class="profile-dropdown">
+                                            <button class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/verification")'>
+                                                <i class="bi bi-shield-check"></i>
+                                                <span>Vérification</span>
+                                            </button>
+                                            <!-- Ajoutez d'autres options ici si nécessaire -->
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Options pour les visiteurs -->
+                                <div class="profile-dropdown-container">
+                                    <button class="btn-icon"
+                                            title="Actions"
+                                            @onclick="VM_Profil.ToggleDotsDropdown">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+
+                                    @if (VM_Profil.showDotsDropdown)
+                                    {
+                                        <div class="profile-dropdown">
+                                            <button class="dropdown-item danger" @onclick="VM_Profil.ToggleBloqueModal">
+                                                <i class="bi bi-person-x"></i>
+                                                <span>Bloquer</span>
+                                            </button>
+
+                                            <button class="dropdown-item danger" @onclick="VM_Profil.ToggleSignalerModal">
+                                                <i class="bi bi-flag"></i>
+                                                <span>Signaler</span>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+
+                                <button class="btn-follow" @onclick="VM_Profil.ToggleAbonnement">
+                                    @(VM_Profil.ViewingUser.FolloweddByCurrentUser ? "Se désabonner" : "S'abonner")
+                                </button>
+                            }
+                        </div>
                         </div>
                         @* <div class="profile-location">
                         <i class="bi bi-geo-alt"></i>

@@ -52,9 +52,38 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
             .ReverseMap();
-        
-        
-        
+
+        CreateMap<CreateAnnonceDTO, Annonce>()
+                .ForMember(dest => dest.AnnonceId, opt => opt.Ignore()) // L'ID sera généré
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Titre))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
+                .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.EstNegociable))
+                .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
+                .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+                .ForMember(dest => dest.EtatId, opt => opt.MapFrom(src => src.EtatId))
+                .ForMember(dest => dest.MarqueId, opt => opt.MapFrom(src => src.MarqueId))
+                .ForMember(dest => dest.TailleId, opt => opt.MapFrom(src => src.TailleId))
+                .ForMember(dest => dest.SousCategorieId, opt => opt.MapFrom(src => src.SousCategorieId))
+                .ForMember(dest => dest.CategorieId, opt => opt.MapFrom(src => src.CategorieId))
+                .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
+                .ForMember(dest => dest.GenreId, opt => opt.MapFrom(src => src.GenreId))
+                // Les relations (Marque, Taille, etc.) seront chargées par EF Core
+                .ForMember(dest => dest.Marque, opt => opt.Ignore())
+                .ForMember(dest => dest.Taille, opt => opt.Ignore())
+                .ForMember(dest => dest.Etat, opt => opt.Ignore())
+                .ForMember(dest => dest.SousCategorie, opt => opt.Ignore())
+                .ForMember(dest => dest.Categorie, opt => opt.Ignore())
+                .ForMember(dest => dest.Statut, opt => opt.Ignore())
+                .ForMember(dest => dest.GenreAnnonce, opt => opt.Ignore())
+                .ForMember(dest => dest.Utilisateur, opt => opt.Ignore())
+                // Les collections seront gérées séparément
+                .ForMember(dest => dest.Photos, opt => opt.Ignore())
+                .ForMember(dest => dest.Tags, opt => opt.Ignore())
+                .ForMember(dest => dest.Couleurs, opt => opt.Ignore())
+                .ForMember(dest => dest.UtilisateursFavoris, opt => opt.Ignore())
+                .ForMember(dest => dest.LesVisualisations, opt => opt.Ignore());
+
         CreateMap<Recense, RecenseDTO>()
             .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
@@ -105,6 +134,8 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
              .ReverseMap()
             .ForMember(dest => dest.Annonces, opt => opt.Ignore());
+
+        CreateMap<Est_De_Couleur, EstDeCouleurDTO>().ReverseMap();
 
         CreateMap<Categorie, CategorieDTO>()
             .ForMember(dest => dest.IdCategorie, opt => opt.MapFrom(src => src.CategorieId))
