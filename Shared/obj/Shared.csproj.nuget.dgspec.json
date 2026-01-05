@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Shared/Shared.csproj": {}
+    "E:\\Dev\\SAE501\\Dreycod\\Clothes2U\\Shared\\Shared.csproj": {}
   },
   "projects": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Shared/Shared.csproj": {
+    "E:\\Dev\\SAE501\\Dreycod\\Clothes2U\\Shared\\Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Shared/Shared.csproj",
+        "projectUniqueName": "E:\\Dev\\SAE501\\Dreycod\\Clothes2U\\Shared\\Shared.csproj",
         "projectName": "Shared",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Shared/Shared.csproj",
-        "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/code/Shared/obj/",
+        "projectPath": "E:\\Dev\\SAE501\\Dreycod\\Clothes2U\\Shared\\Shared.csproj",
+        "packagesPath": "C:\\Users\\Jules\\.nuget\\packages\\",
+        "outputPath": "E:\\Dev\\SAE501\\Dreycod\\Clothes2U\\Shared\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "E:\\Visual studio share\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/elioth/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Jules\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -37,7 +44,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -58,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -4,8 +4,8 @@ namespace Shared.DTO.Annonce
 {
     public class CreateAnnonceDTO
     {
-        public string Titre { get; set; } = "Sans titre";
-        public string Description { get; set; } = "Aucune description";
+        public string Titre { get; set; }
+        public string Description { get; set; }
         public DateTime DateAnnonce { get; set; }
         public bool EstNegociable { get; set; } = false;
         public decimal Prix { get; set; }
