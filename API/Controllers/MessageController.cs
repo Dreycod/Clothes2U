@@ -3,12 +3,11 @@ using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Services;
-using API.Services.Notifications;
-using API.Services.Notifications.Events;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Shared.DTO.Notification;
 
 namespace API.Controllers;
 
@@ -109,16 +108,17 @@ public class MessageController : ControllerBase
              int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
              if (targetUserId != null)
              {
-                 var notificationEvent = new NewMessageEvent
+
+                 NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
                  {
-                     TargetUserId = (int)targetUserId,
-                     MessageId = message.MessageId,
-                     SenderId = dto.UtilisateurId,
-                     MessagePreview = string.IsNullOrWhiteSpace(dto.Content)
-                         ? "📷 Photo"
-                         : dto.Content[..Math.Min(50, dto.Content.Length)]
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = string.IsNullOrWhiteSpace(dto.Content)
+                        ? "📷 Photo"
+                        : dto.Content[..Math.Min(50, dto.Content.Length)]
                  };
-                 await _notificationService.NotifyAsync(notificationEvent);
+                 await _notificationService.CreateNotification(notification);
                  
                  // 🔥 BROADCASTER VIA SIGNALR
                  //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
@@ -186,13 +186,13 @@ public class MessageController : ControllerBase
             int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
             if (targetUserId != null)
             {
-                var notificationEvent = new NewPropositionEvent()
+                NotificationPropositionCreateDTO notification = new NotificationPropositionCreateDTO()
                 {
-                    TargetUserId = (int)targetUserId,
-                    DemandeId = messageDemande.DemandeId != null? (int)messageDemande.DemandeId : 0,
-                    SenderId = dto.UtilisateurId,
+                    UtilisateurId = (int)targetUserId,
+                    TypeId = 6,
+                    PropositionId = messageDemande.MessageDemandeId
                 };
-                await _notificationService.NotifyAsync(notificationEvent);
+                await _notificationService.CreateNotification(notification);
 
                 // 🔥 BROADCASTER VIA SIGNALR
                 //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");

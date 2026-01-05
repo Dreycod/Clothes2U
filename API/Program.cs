@@ -4,8 +4,6 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using API.Services;
-using API.Services.Notifications;
-using API.Services.Notifications.Observers;
 using API.Services.VerificationSrvceV2;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -266,16 +264,13 @@ builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<INotificationMessageRepository, NotificationMessageManager>();
+builder.Services.AddScoped<INotificationAvertissementRepository,  NotificationAvertissementManager>();
 builder.Services.AddScoped<INotificationNouvelleAnnonceRepository, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<INotificationModificationAnnonceRepository, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<INotificationPropositionRepository, NotificationPropositionManager>();
 
-builder.Services.AddSingleton<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
-builder.Services.AddScoped<MessageNotificationObserver>();
-builder.Services.AddScoped<NouvelleAnnonceNotificationObserver>();
-builder.Services.AddScoped<ModificationAnnonceNotificationObserver>();
-builder.Services.AddScoped<PropositionNotificationObserver>();
 builder.Services.AddSignalR();
 
 
@@ -300,12 +295,6 @@ app.Use(async (context, next) =>
     await next();
 });
 
-
-var notificationService = app.Services.GetRequiredService<INotificationService>();
-notificationService.Subscribe<MessageNotificationObserver>();
-notificationService.Subscribe<NouvelleAnnonceNotificationObserver>();
-notificationService.Subscribe<ModificationAnnonceNotificationObserver>();
-notificationService.Subscribe<PropositionNotificationObserver>();
 
 
 // 1. Middleware de diagnostic (le vôtre)

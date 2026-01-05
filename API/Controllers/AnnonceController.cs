@@ -4,8 +4,6 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using API.Services;
-using API.Services.Notifications;
-using API.Services.Notifications.Events;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -155,13 +153,7 @@ public class AnnonceController : ControllerBase
         }
         Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
         await _annonceManager.UpdateAsync(annonce);
-        var notificationEvent = new ModificationAnnonceEvent()
-        {
-            AnnonceId = annonce.AnnonceId,
-            CreatorId = annonce.UtilisateurId,
-            
-        };
-        await _notificationService.NotifyAsync(notificationEvent);
+        //ajouter la notification une fois le tout pret
         await _notificationMailService.NotifyAnnonceUpdatedAsync(annonce);
         return NoContent();
     }
@@ -186,13 +178,7 @@ public class AnnonceController : ControllerBase
         var annonce =  _mapper.Map<Annonce>(annonceDto);
         await _annonceManager.AddAsync(annonce);
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
-        var notificationEvent = new NewAnnonceEvent
-        {
-            AnnonceId = annonce.AnnonceId,
-            CreatorId = annonce.UtilisateurId,
-            
-        };
-        await _notificationService.NotifyAsync(notificationEvent);
+        //ajouter la notification une fois le tout pret
         await _notificationMailService.NotifyNewAnnonceAsync(annonce);
         return CreatedAtAction( nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
