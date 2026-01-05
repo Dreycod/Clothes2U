@@ -1150,6 +1150,40 @@ namespace API.Migrations
                     b.ToTable("t_e_notification_type_nottyp", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.PasswordResetToken", b =>
+                {
+                    b.Property<int>("PasswordResetTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("reset_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PasswordResetTokenId"));
+
+                    b.Property<DateTime>("Expiration")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reset_expiration");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("reset_token");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("boolean")
+                        .HasColumnName("reset_used");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("reset_utilisateur_id");
+
+                    b.HasKey("PasswordResetTokenId");
+
+                    b.HasIndex("UtilisateurId")
+                        .HasDatabaseName("idx_password_reset_utilisateur");
+
+                    b.ToTable("t_e_password_reset", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Photo", b =>
                 {
                     b.Property<int>("PhotoId")
@@ -2360,6 +2394,16 @@ namespace API.Migrations
                     b.Navigation("Notification");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.PasswordResetToken", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurReset")
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("UtilisateurId")
+                        .IsRequired();
+
+                    b.Navigation("UtilisateurReset");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Recense", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
@@ -2840,6 +2884,8 @@ namespace API.Migrations
                     b.Navigation("NotesCible");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("PasswordResetTokens");
 
                     b.Navigation("Signalements");
 

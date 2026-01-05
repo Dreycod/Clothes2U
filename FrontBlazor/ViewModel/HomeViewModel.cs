@@ -15,7 +15,8 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly NavigationManager _navigationManager;
 
-        public List<AnnonceDTO> Annonces { get; set; } = new List<AnnonceDTO>();
+        public List<AnnonceDTO> AnnoncesRecents { get; set; } = new List<AnnonceDTO>();
+        public List<AnnonceDTO> AnnoncesPopulaires { get; set; } = new List<AnnonceDTO>();
         public AnnonceDTO? AnnonceDetail { get; set; }
         public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
@@ -61,18 +62,48 @@ namespace FrontBlazor.ViewModel
 
                 if (result != null && result.Any())
                 {
-                    Annonces = result;
-                    SuccessMessage = "Chargement r�ussi.";
-
-                    // Print all of result in console for debugging
-                    foreach (AnnonceDTO annonce in result)
-                    {
-                        Console.WriteLine($"Annonce ID: {annonce.AnnonceId}, Title: {annonce.Titre}");
-                    }
+                    AnnoncesRecents = result;
+                    SuccessMessage = "Chargement reussi.";
                 }
                 else
                 {
                     ErrorMessage = "Erreur lors du chargement d'annonces recent.";
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task LoadPopularAnnonces()
+        {
+            ErrorMessage = SuccessMessage = string.Empty;
+            IsLoading = true;
+            await VerifiyAccountAsync();
+
+            FilterDTO filter = new FilterDTO
+            {
+                SortBy = SortField.NombreFavoris,
+                SortOrder = SortOrder.Descending,
+            };
+
+            try
+            {
+                List<AnnonceDTO> result = await GetAnnoncesByFiltreAsync(filter, 1, 10);
+
+                if (result != null && result.Any())
+                {
+                    AnnoncesPopulaires = result;
+                    SuccessMessage = "Chargement reussi.";
+                }
+                else
+                {
+                    ErrorMessage = "Erreur lors du chargement d'annonces populaire.";
                 }
             }
             catch (Exception ex)
@@ -101,10 +132,11 @@ namespace FrontBlazor.ViewModel
                 return;
             }
 
-            var annonce = Annonces.FirstOrDefault(a => a.AnnonceId == annonceId);
+            var annonce = AnnoncesRecents.FirstOrDefault(a => a.AnnonceId == annonceId) ?? AnnoncesPopulaires.FirstOrDefault(a => a.AnnonceId == annonceId);
             if (annonce == null) return;
 
             await ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
+
             annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
         }
 

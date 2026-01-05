@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTO.Historique;
 using Shared.DTO.Transaction;
+using Shared.Enums;
+
 
 
 namespace API.Controllers
@@ -56,6 +58,50 @@ namespace API.Controllers
         {
             var result = await _transactionRepo.GetHistoriqueVendu(idutilisateur);
             return Ok(_mapper.Map<IEnumerable<TransactionHistoriqueDTO>>(result));
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CreateTransaction(CreateTransactionDTO dto)
+        {
+            var userId = await _currentUserService.GetUserId();
+            if (!userId.HasValue) return Unauthorized();
+
+            var transaction = new Transaction
+            {
+                ConversationId = dto.ConversationId,
+                TransactionMontant = dto.Montant,
+                TransactionEtat = TransactionEtatEnum.Creee
+            };
+
+            await _transactionRepo.AddAsync(transaction);
+            return Ok(_mapper.Map<TransactionDTO>(transaction));
+        }
+
+        [Authorize]
+        [HttpPut("{id}/refuse")]
+        public async Task<IActionResult> RefuseTransaction(int id)
+        {
+            var transaction = await _transactionRepo.GetByIdAsync(id);
+            if (transaction == null) return NotFound();
+
+            transaction.TransactionEtat = TransactionEtatEnum.Refusee;
+            await _transactionRepo.UpdateAsync(transaction);
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpPut("{id}/accept")]
+        public async Task<IActionResult> AccepteTransaction(int id)
+        {
+            var transaction = await _transactionRepo.GetByIdAsync(id);
+            if (transaction == null) return NotFound();
+
+            transaction.TransactionEtat = TransactionEtatEnum.Acceptee;
+            await _transactionRepo.UpdateAsync(transaction);
+
+            return NoContent();
         }
     }
 }

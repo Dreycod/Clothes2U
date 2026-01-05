@@ -13,4 +13,5 @@ public interface IAuthService
     public Task LogoutAsync();
     public Task<UtilisateurViewDTO?> GetCurrentUserAsync();
     public string GetGoogleLoginUrl(string returnUrl = "/");
+    public Task<bool> ModificationMotDePasse(ChangePasswordDTO passwordDTO);
 }

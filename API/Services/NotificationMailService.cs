@@ -83,5 +83,17 @@ namespace API.Services
             }
 
         }
+
+        //// Oublie de mot de passe par mail
+        public async Task SendPasswordResetEmailAsync(Utilisateur utilisateur, string resetLink)
+        {
+            if (!utilisateur.ValidEmail)
+                return;
+            await _emailService.SendAsync(
+                utilisateur.Email,
+                "Réinitialisation de votre mot de passe",
+                $"Pour réinitialiser votre mot de passe, cliquez sur le lien suivant : {resetLink}"
+            );
+        }
     }
 }

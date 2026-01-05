@@ -46,6 +46,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<NotificationNouvelleAnnonce> NotificationNouvelleAnnonces { get; set; }
     public DbSet<NotificationProposition> NotificationsProposition { get; set; }
     public DbSet<NotificationType> NotificationTypes { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<RoleUtilisateur> RolesUtilisateurs { get; set; }
@@ -849,9 +850,22 @@ public partial class Clothes2UDbContext : DbContext
             .HasForeignKey<NotificationProposition>(n => n.PropositionId)
             .OnDelete(DeleteBehavior.NoAction);
     });
-        
-        
-    modelBuilder.Entity<Photo>(entity =>
+
+    modelBuilder.Entity<PasswordResetToken>(entity =>
+    {
+        entity.HasKey(e => e.PasswordResetTokenId);
+
+        entity.HasOne(e => e.UtilisateurReset)
+            .WithMany(u => u.PasswordResetTokens)
+            .HasForeignKey(e => e.UtilisateurId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
+
+        entity.HasIndex(e => e.UtilisateurId)
+            .HasDatabaseName("idx_password_reset_utilisateur");
+    });
+
+
+        modelBuilder.Entity<Photo>(entity =>
     {
         entity.HasKey(e => e.PhotoId);
     

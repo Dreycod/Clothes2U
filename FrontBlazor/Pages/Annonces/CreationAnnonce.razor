@@ -1,37 +1,47 @@
 ﻿@page "/add-article"
 @using Microsoft.AspNetCore.Components.Forms
+@inject CreationAnnonceViewModel VM_CreationAnnonce
+@inject NavigationManager Navigation
+@implements IDisposable
 
 <PageTitle>Ajouter un article - Clothes2U</PageTitle>
 
-<!-- Navigation Bar -->
 <NavBar />
 
 <div class="add-article-page">
     <div class="add-article-container">
-        <!-- Photos Section -->
-        <div class="photos-section">
+
+        <!-- ============================================ -->
+        <!-- SECTION 1: PHOTOS -->
+        <!-- ============================================ -->
+        <div class="form-section photos-section">
             <h2 class="section-title">Photos de l'article</h2>
-            <p class="section-subtitle">Ajoutez des photos montrer votre article</p>
+            <p class="section-subtitle">Ajoutez jusqu'à 5 photos pour montrer votre article</p>
 
             <div class="photo-upload-area">
-                @if (uploadedPhotos.Any())
+                @if (VM_CreationAnnonce.SelectedFilePreviews.Any())
                 {
                     <div class="uploaded-photos-grid">
-                        @foreach (var photo in uploadedPhotos)
+                        @for (int i = 0; i < VM_CreationAnnonce.SelectedFilePreviews.Count; i++)
                         {
+                            var index = i;
                             <div class="uploaded-photo">
-                                <img src="@photo" alt="Photo" />
-                                <button type="button" class="remove-photo-btn" @onclick="() => RemovePhoto(photo)">
+                                <img src="@VM_CreationAnnonce.SelectedFilePreviews[i].PreviewBase64" alt="Photo" />
+                                <button type="button"
+                                        class="remove-photo-btn"
+                                        @onclick="() => RemovePhoto(index)"
+                                        @onclick:preventDefault="true"
+                                        @onclick:stopPropagation="true">
                                     <i class="bi bi-x"></i>
                                 </button>
                             </div>
                         }
-                        @if (uploadedPhotos.Count < 5)
+                        @if (VM_CreationAnnonce.SelectedFilePreviews.Count < 5)
                         {
                             <label class="add-more-btn">
                                 <i class="bi bi-plus"></i>
-                                <InputFile OnChange="HandlePhotoUpload"
-                                           accept="image/jpeg,image/png,image/jpg"
+                                <InputFile OnChange="OnPhotosSelected"
+                                           accept="image/*"
                                            multiple
                                            style="display: none;" />
                             </label>
@@ -43,8 +53,8 @@
                     <label class="upload-placeholder">
                         <i class="bi bi-upload"></i>
                         <span>Cliquez pour ajouter des photos</span>
-                        <InputFile OnChange="HandlePhotoUpload"
-                                   accept="image/jpeg,image/png,image/jpg"
+                        <InputFile OnChange="OnPhotosSelected"
+                                   accept="image/*"
                                    multiple
                                    style="display: none;" />
                     </label>
@@ -52,132 +62,63 @@
             </div>
         </div>
 
-        <!-- Article Information Section -->
-        <div class="info-section">
+        <!-- ============================================ -->
+        <!-- SECTION 2: INFORMATIONS DE L'ARTICLE -->
+        <!-- ============================================ -->
+        <div class="form-section info-section">
             <h2 class="section-title">Informations sur l'article</h2>
 
             <div class="form-grid">
+                <!-- Nom de l'article -->
                 <div class="form-group full-width">
-                    <label class="form-label">Nom de l'article</label>
-                    <input type="text" class="form-input" placeholder="Ex: T-Shirt Adidas Vert" @bind="articleName" />
+                    <label class="form-label">Nom de l'article *</label>
+                    <input type="text"
+                           class="form-input"
+                           placeholder="Ex: T-Shirt Adidas Vert"
+                           @bind="VM_CreationAnnonce.NewAnnonce.Titre" />
                 </div>
 
+                <!-- Prix -->
                 <div class="form-group">
-                    <label class="form-label">Prix (€)</label>
-                    <input type="number" class="form-input" placeholder="0" @bind="price" step="0.01" />
+                    <label class="form-label">Prix (€) *</label>
+                    <input type="number"
+                           class="form-input"
+                           placeholder="0.00"
+                           @bind="VM_CreationAnnonce.NewAnnonce.Prix"
+                           step="0.01"
+                           min="0" />
                 </div>
 
+                <!-- Négociable - Toggle Switch -->
                 <div class="form-group">
-                    <label class="form-label">Offre négotiable?</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-option">
-                            <input type="checkbox" checked="@isNegotiable" @onchange="() => SetNegotiable(true)" />
-                            <span>Oui</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" checked="@(!isNegotiable)" @onchange="() => SetNegotiable(false)" />
-                            <span>Non</span>
-                        </label>
+                    <label class="form-label">Offre négociable?</label>
+                    <div class="toggle-switch-container">
+                        <button type="button"
+                                class="toggle-switch @(VM_CreationAnnonce.NewAnnonce.EstNegociable ? "active" : "")"
+                                @onclick="() => VM_CreationAnnonce.NewAnnonce.EstNegociable = !VM_CreationAnnonce.NewAnnonce.EstNegociable">
+                            <span class="toggle-option @(VM_CreationAnnonce.NewAnnonce.EstNegociable ? "" : "selected")">Non</span>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-option @(VM_CreationAnnonce.NewAnnonce.EstNegociable ? "selected" : "")">Oui</span>
+                        </button>
                     </div>
                 </div>
 
+                <!-- Description -->
                 <div class="form-group full-width">
-                    <label class="form-label">Description</label>
-                    <textarea class="form-textarea" placeholder="Décrivez l'article, son état, usage, les détails, etc." @bind="description" rows="4"></textarea>
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-textarea"
+                              placeholder="Décrivez l'article, son état, usage, les détails, etc."
+                              @bind="VM_CreationAnnonce.NewAnnonce.Description"
+                              rows="4"></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- Brand Section -->
-        <div class="brand-section">
-            <h2 class="section-title">Marque</h2>
-
-            @if (VM_Marque.IsLoading)
-            {
-                <div class="loading-inline">
-                    <div class="spinner-small"></div>
-                    <span>Chargement des marques...</span>
-                </div>
-            }
-            else if (VM_Marque.Items != null && VM_Marque.Items.Any())
-            {
-                <div class="button-grid">
-                    @foreach (MarqueDTO marque in VM_Marque.Items)
-                    {
-                        <button type="button"
-                                class="category-btn @(selectedMarqueId == marque.MarqueID ? "active" : "")"
-                                @onclick="() => selectedMarqueId = marque.MarqueID">
-                            @marque.NomMarque
-                        </button>
-                    }
-                </div>
-            }
-            else
-            {
-                <p class="empty-message">Aucune marque disponible</p>
-            }
-        </div>
-
-        <!-- Size & Color Section -->
-        <div class="size-color-section">
-            <h2 class="section-title">Taille & Couleur</h2>
-
-            <div class="size-color-grid">
-                <div class="size-group">
-                    <label class="form-label">Taille</label>
-                    @if (VM_Taille.IsLoading)
-                    {
-                        <div class="loading-inline">
-                            <div class="spinner-small"></div>
-                            <span>Chargement...</span>
-                        </div>
-                    }
-                    else if (VM_Taille.Items != null && VM_Taille.Items.Any())
-                    {
-                        <div class="size-buttons">
-                            @foreach (TailleDTO taille in VM_Taille.Items)
-                            {
-                                <button type="button"
-                                        class="size-btn @(selectedTailleId == taille.TailleId ? "active" : "")"
-                                        @onclick="() => selectedTailleId = taille.TailleId">
-                                    @taille.Libelletaille
-                                </button>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="empty-message">Aucune taille disponible</p>
-                    }
-                </div>
-
-                <div class="color-group">
-                    <label class="form-label">Couleur</label>
-                    @if (VM_Couleur.IsLoading)
-                    {
-                        <div class="loading-inline">Chargement...</div>
-                    }
-                    else if (VM_Couleur.Items != null && VM_Couleur.Items.Any())
-                    {
-                        <select class="form-input">
-                            <option value="0">-- Sélectionnez une couleur --</option>
-                            @foreach (CouleurDTO couleur in VM_Couleur.Items)
-                            {
-                                <option value="@couleur.CouleurId">@couleur.Nom</option>
-                            }
-                        </select>
-                    }
-                    else
-                    {
-                        <input type="text" class="form-input" placeholder="Aucune couleur disponible" disabled />
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Genre Section -->
-        <div class="genre-section">
-            <h2 class="section-title">Genre</h2>
+        <!-- ============================================ -->
+        <!-- SECTION 3: GENRE -->
+        <!-- ============================================ -->
+        <div class="form-section genre-section">
+            <h2 class="section-title">Genre *</h2>
 
             @if (VM_Genre.IsLoading)
             {
@@ -186,32 +127,70 @@
                     <span>Chargement...</span>
                 </div>
             }
-            else if (VM_Genre.Items != null && VM_Genre.Items.Any())
+            else if (VM_Genre.Items?.Any() == true)
             {
-                <div class="button-grid">
-                    @foreach (GenreDTO genre in VM_Genre.Items)
+                <div class="button-grid-3">
+                    @foreach (var genre in VM_Genre.Items)
                     {
                         <button type="button"
-                                class="category-btn @(selectedGenreId == genre.GenreId ? "active" : "")"
-                                @onclick="() => selectedGenreId = genre.GenreId">
+                                class="selection-btn @(VM_CreationAnnonce.NewAnnonce.GenreId == genre.GenreId ? "active" : "")"
+                                @onclick="() => VM_CreationAnnonce.NewAnnonce.GenreId = genre.GenreId">
                             @genre.NomGenre
                         </button>
                     }
                 </div>
             }
-            else
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 4: MARQUE (avec recherche) -->
+        <!-- ============================================ -->
+        <div class="form-section brand-section">
+            <h2 class="section-title">Marque *</h2>
+
+            @if (VM_Marque.IsLoading)
             {
-                <p class="empty-message">Aucun genre disponible</p>
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (VM_Marque.Items?.Any() == true)
+            {
+                <!-- Barre de recherche -->
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           class="search-input"
+                           placeholder="Rechercher une marque..."
+                           @bind="marqueSearch"
+                           @bind:event="oninput" />
+                </div>
+
+                <!-- Liste des marques filtrées -->
+                <div class="marque-list">
+                    @foreach (var marque in GetFilteredMarques())
+                    {
+                        <button type="button"
+                                class="marque-item @(VM_CreationAnnonce.NewAnnonce.MarqueId == marque.MarqueID ? "active" : "")"
+                                @onclick="() => VM_CreationAnnonce.NewAnnonce.MarqueId = marque.MarqueID">
+                            @marque.NomMarque
+                        </button>
+                    }
+                </div>
             }
         </div>
 
-        <!-- Category & Condition Section -->
-        <div class="category-section">
+        <!-- ============================================ -->
+        <!-- SECTION 5: CATÉGORIE & ÉTAT -->
+        <!-- ============================================ -->
+        <div class="form-section category-section">
             <h2 class="section-title">Catégorie & État</h2>
 
             <div class="category-state-grid">
+                <!-- Catégorie -->
                 <div class="category-group">
-                    <label class="form-label">Catégorie</label>
+                    <label class="form-label">Catégorie *</label>
                     @if (VM_Categorie.IsLoading)
                     {
                         <div class="loading-inline">
@@ -219,33 +198,33 @@
                             <span>Chargement...</span>
                         </div>
                     }
-                    else if (VM_Categorie.Items != null && VM_Categorie.Items.Any())
+                    else if (VM_Categorie.Items?.Any() == true)
                     {
-                        <div class="button-grid">
+                        <div class="button-grid-2">
                             @foreach (var categorie in VM_Categorie.Items)
                             {
                                 <button type="button"
-                                        class="category-btn @(selectedCategorieId == categorie.IdCategorie ? "active" : "")"
-                                        @onclick="() => ToggleCategorieSelection(categorie.IdCategorie)">
+                                        class="selection-btn @(VM_CreationAnnonce.NewAnnonce.CategorieId == categorie.IdCategorie ? "active" : "")"
+                                        @onclick="() => OnCategorieSelected(categorie.IdCategorie)">
                                     @categorie.LibelleCategorie
                                 </button>
                             }
                         </div>
 
-                        @* Show subcategories if a category is selected *@
-                        @if (selectedCategorieId != 0)
+                        <!-- Sous-catégories -->
+                        @if (VM_CreationAnnonce.NewAnnonce.CategorieId != 0)
                         {
-                            var selectedCat = VM_Categorie.Items.FirstOrDefault(c => c.IdCategorie == selectedCategorieId);
-                            if (selectedCat?.SousCategories != null && selectedCat.SousCategories.Any())
+                            var selectedCat = VM_Categorie.Items.FirstOrDefault(c => c.IdCategorie == VM_CreationAnnonce.NewAnnonce.CategorieId);
+                            if (selectedCat?.SousCategories?.Any() == true)
                             {
                                 <div class="subcategory-section">
-                                    <label class="form-label">Sous-catégorie</label>
-                                    <div class="button-grid">
+                                    <label class="form-label">Sous-catégorie *</label>
+                                    <div class="button-grid-2">
                                         @foreach (var sousCategorie in selectedCat.SousCategories)
                                         {
                                             <button type="button"
-                                                    class="category-btn @(selectedSousCategorieId == sousCategorie.SousCategorieId )"
-                                                    @onclick="() => selectedSousCategorieId = sousCategorie.SousCategorieId">
+                                                    class="selection-btn @(VM_CreationAnnonce.NewAnnonce.SousCategorieId == sousCategorie.SousCategorieId ? "active" : "")"
+                                                    @onclick="() => OnSousCategorieSelected(sousCategorie.SousCategorieId)">
                                                 @sousCategorie.LibelleSousCategorie
                                             </button>
                                         }
@@ -254,380 +233,265 @@
                             }
                         }
                     }
-                    else
-                    {
-                        <p class="empty-message">Aucune catégorie disponible</p>
-                    }
                 </div>
 
+                <!-- État de l'article -->
                 <div class="state-group">
-                    <label class="form-label">État de l'article</label>
-                    <div class="button-grid-2col">
-                        <button type="button"
-                                class="state-btn @(selectedEtatArticleId == 1 ? "active" : "")"
-                                @onclick='() => selectedEtatArticleId = 1'>
-                            Neuf
-                        </button>
-                        <button type="button"
-                                class="state-btn @(selectedEtatArticleId == 2 ? "active" : "")"
-                                @onclick='() => selectedEtatArticleId = 2'>
-                            Très bon état
-                        </button>
-                        <button type="button"
-                                class="state-btn @(selectedEtatArticleId == 3 ? "active" : "")"
-                                @onclick='() => selectedEtatArticleId = 3'>
-                            Bon état
-                        </button>
-                    </div>
+                    <label class="form-label">État de l'article *</label>
+                    @if (VM_Etat.IsLoading)
+                    {
+                        <div class="loading-inline">
+                            <div class="spinner-small"></div>
+                            <span>Chargement...</span>
+                        </div>
+                    }
+                    else if (VM_Etat.Items?.Any() == true)
+                    {
+                        <div class="state-buttons">
+                            @foreach (var etat in VM_Etat.Items)
+                            {
+                                <button type="button"
+                                        class="state-btn @(VM_CreationAnnonce.NewAnnonce.EtatId == etat.EtatArticleId ? "active" : "")"
+                                        @onclick="() => VM_CreationAnnonce.NewAnnonce.EtatId = etat.EtatArticleId">
+                                    @etat.NomEtat
+                                </button>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-        <!-- Success/Error Message Section -->
-        @if (ErrorMessages.Any())
+
+        <!-- ============================================ -->
+        <!-- SECTION 6: TAILLE (dépend de la catégorie) -->
+        <!-- ============================================ -->
+        <div class="form-section size-section">
+            <h2 class="section-title">Taille *</h2>
+
+            @if (VM_CreationAnnonce.NewAnnonce.CategorieId == 0)
+            {
+                <p class="info-message">
+                    <i class="bi bi-info-circle"></i>
+                    Veuillez d'abord sélectionner une catégorie
+                </p>
+            }
+            else if (VM_Taille.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (GetFilteredTailles()?.Any() == true)
+            {
+                <div class="size-buttons">
+                    @foreach (var taille in GetFilteredTailles())
+                    {
+                        <button type="button"
+                                class="size-btn @(VM_CreationAnnonce.NewAnnonce.TailleId == taille.TailleId ? "active" : "")"
+                                @onclick="() => VM_CreationAnnonce.NewAnnonce.TailleId = taille.TailleId">
+                            @taille.Libelletaille
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="info-message">
+                    <i class="bi bi-info-circle"></i>
+                    Aucune taille disponible pour cette catégorie
+                </p>
+            }
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 7: COULEURS (multi-sélection) -->
+        <!-- ============================================ -->
+        <div class="form-section color-section">
+            <h2 class="section-title">Couleur(s) *</h2>
+            <p class="section-subtitle">Sélectionnez une ou plusieurs couleurs</p>
+
+            @if (VM_Couleur.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (VM_Couleur.Items?.Any() == true)
+            {
+                <div class="color-grid">
+                    @foreach (var couleur in VM_Couleur.Items)
+                    {
+                        <label class="color-checkbox @(VM_CreationAnnonce.IsCouleurSelected(couleur.CouleurId) ? "active" : "")">
+                            <input type="checkbox"
+                                   checked="@VM_CreationAnnonce.IsCouleurSelected(couleur.CouleurId)"
+                                   @onchange="() => VM_CreationAnnonce.ToggleCouleur(couleur.CouleurId)"
+                                   style="display: none;" />
+                            <span class="color-name">@couleur.Nom</span>
+                            <i class="bi bi-check-circle-fill"></i>
+                        </label>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- ============================================ -->
+        <!-- MESSAGES D'ERREUR -->
+        <!-- ============================================ -->
+        @if (VM_CreationAnnonce.ErrorMessages.Any())
         {
             <div class="alert alert-error">
                 <i class="bi bi-exclamation-triangle"></i>
                 <div>
-                    @foreach (var message in ErrorMessages)
-                    {
-                        <p>@message</p>
-                    }
+                    <strong>Erreurs de validation:</strong>
+                    <ul>
+                        @foreach (var message in VM_CreationAnnonce.ErrorMessages)
+                        {
+                            <li>@message</li>
+                        }
+                    </ul>
                 </div>
             </div>
         }
 
-        @if (HasCreated == true)
+        @if (VM_CreationAnnonce.HasCreated == true)
         {
             <div class="alert alert-success">
                 <i class="bi bi-check-circle"></i>
-                <p>✅ L'article a été créé avec succès !</p>
+                <p>✅ L'article a été créé avec succès ! Redirection...</p>
             </div>
         }
 
-        <!-- Action Buttons -->
+        <!-- ============================================ -->
+        <!-- BOUTONS D'ACTION -->
+        <!-- ============================================ -->
         <div class="action-buttons">
-            <button class="btn-cancel" @onclick="Cancel">Annuler</button>
-            <button class="btn-submit" @onclick="PublishArticle">Publier l'article</button>
+            <button class="btn-cancel"
+                    @onclick="OnCancel"
+                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos)">
+                Annuler
+            </button>
+
+            <button class="btn-submit"
+                    @onclick="OnPublishClick"
+                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos)">
+                @if (VM_CreationAnnonce.IsLoading)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Publication...</span>
+                }
+                else if (VM_CreationAnnonce.IsUploadingPhotos)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Upload des photos...</span>
+                }
+                else
+                {
+                    <i class="bi bi-check-lg"></i>
+                    <span>Publier l'article</span>
+                }
+            </button>
         </div>
 
     </div>
 </div>
 
 @code {
-    [Inject]
-    private IAuthService authService { get; set; } = default!;
-    [Inject]
-    private IMediasService mediaService { get; set; } = default!;
-
-    private CreateAnnonceDTO newAnnonce = new CreateAnnonceDTO();
-    private List<string> uploadedPhotos = new();
-    private List<string> ErrorMessages = new List<string>();
-    bool? HasCreated = null;
-    #region Variables
-    // Properties that bind to UI and update newAnnonce
-    private string articleName
-    {
-        get => newAnnonce.Titre ?? string.Empty;
-        set => newAnnonce.Titre = value;
-    }
-
-    private decimal? price
-    {
-        get => newAnnonce.Prix == 0 ? null : newAnnonce.Prix;
-        set => newAnnonce.Prix = value ?? 0;
-    }
-
-    private bool isNegotiable
-    {
-        get => newAnnonce.EstNegociable;
-        set => newAnnonce.EstNegociable = value;
-    }
-
-    private string description
-    {
-        get => newAnnonce.Description ?? string.Empty;
-        set => newAnnonce.Description = value;
-    }
-
-    private int selectedUtilisateurId
-    {
-        get => newAnnonce.UtilisateurId;
-        set => newAnnonce.UtilisateurId = value;
-    }
-
-    private int selectedMarqueId
-    {
-        get => newAnnonce.MarqueId;
-        set => newAnnonce.MarqueId = value;
-    }
-
-    private int selectedTailleId
-    {
-        get => newAnnonce.TailleId;
-        set => newAnnonce.TailleId = value;
-    }
-
-    // private int? selectedCouleurId
-    // {
-    //     get => newAnnonce.CouleurId;
-    //     set => newAnnonce.CouleurId = value;
-    // }
-
-    private int selectedGenreId
-    {
-        get => newAnnonce.GenreId;
-        set => newAnnonce.GenreId = value;
-    }
-
-    private int selectedCategorieId
-    {
-        get => newAnnonce.CategorieId;
-        set => newAnnonce.CategorieId = value;
-    }
-
-    private int selectedSousCategorieId
-    {
-        get => newAnnonce.SousCategorieId;
-        set => newAnnonce.SousCategorieId = value;
-    }
-
-    private int selectedEtatArticleId
-    {
-        get => newAnnonce.EtatId;
-        set => newAnnonce.EtatId = value;
-    }
-    #endregion
+    private string marqueSearch = "";
 
     protected override async Task OnInitializedAsync()
     {
-        await VM_Marque.LoadAsync();
-        await VM_Taille.LoadAsync();
-        await VM_Couleur.LoadAsync();
-        await VM_Categorie.LoadAsync();
-        await VM_Genre.LoadAsync();
+        // Charger toutes les données en parallèle
+        await Task.WhenAll(
+            VM_Marque.LoadAsync(),
+            VM_Taille.LoadAsync(),
+            VM_Couleur.LoadAsync(),
+            VM_Categorie.LoadAsync(),
+            VM_Genre.LoadAsync(),
+            VM_Etat.LoadAsync()
+        );
 
-        // Load existing annonce from state service if available
-        var existingAnnonce = annonceStateService.GetEntity();
-        if (existingAnnonce != null)
-        {
-            // newAnnonce = existingAnnonce;
-            // Photos will automatically populate through uploadedPhotos if needed
-        }
+        await VM_CreationAnnonce.LoadAsync();
+
+        VM_CreationAnnonce.OnChange += StateHasChanged;
     }
 
-    private void SetNegotiable(bool value)
+    public void Dispose()
     {
-        isNegotiable = value;
+        VM_CreationAnnonce.OnChange -= StateHasChanged;
     }
 
-    private void ToggleCategorieSelection(int categoryId)
+    // ✅ EXACTEMENT comme Messages.razor
+    private async Task OnPhotosSelected(InputFileChangeEventArgs e)
     {
-        selectedCategorieId = categoryId;
-        selectedSousCategorieId = 0; // Reset subcategory when changing category
+        await VM_CreationAnnonce.OnImagesSelectedAsync(e);
     }
-    #region Photo Methods
-    private async Task HandlePhotoUpload(InputFileChangeEventArgs e)
+
+    // ✅ EXACTEMENT comme Messages.razor
+    private void RemovePhoto(int index)
     {
-        const long maxFileSize = 5 * 1024 * 1024; // 5 MB
-        const int maxAllowedFiles = 5;
-        const int maxWidth = 1920;
-        const int maxHeight = 1920;
+        Console.WriteLine($"[Page] 🗑️ Removing photo at index {index}");
+        VM_CreationAnnonce.RemoveSelectedPhotoAt(index);
+    }
 
-        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
-        {
-            if (uploadedPhotos.Count >= maxAllowedFiles)
-            {
-                ErrorMessages.Add($"Maximum {maxAllowedFiles} photos autorisées");
-                break;
-            }
+    private void OnCategorieSelected(int categorieId)
+    {
+        VM_CreationAnnonce.NewAnnonce.CategorieId = categorieId;
+        VM_CreationAnnonce.NewAnnonce.SousCategorieId = 0;
 
-            try
-            {
-                // Vérifier la taille
-                if (file.Size > maxFileSize)
-                {
-                    ErrorMessages.Add($"{file.Name} est trop volumineux (max 5MB)");
-                    continue;
-                }
-
-                // Vérifier le type
-                if (!file.ContentType.StartsWith("image/"))
-                {
-                    ErrorMessages.Add($"{file.Name} n'est pas une image valide");
-                    continue;
-                }
-
-                // Redimensionner l'image si elle est trop grande
-                var resizedImage = await file.RequestImageFileAsync(file.ContentType, maxWidth, maxHeight);
-
-                // Lire le fichier redimensionné
-                using var stream = resizedImage.OpenReadStream(maxFileSize);
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                var bytes = ms.ToArray();
-
-                if (bytes.Length == 0)
-                {
-                    ErrorMessages.Add($"{file.Name} est vide");
-                    continue;
-                }
-
-                var base64 = Convert.ToBase64String(bytes);
-                var dataUrl = $"data:{file.ContentType};base64,{base64}";
-
-                uploadedPhotos.Add(dataUrl);
-
-                Console.WriteLine($"✅ Photo ajoutée et redimensionnée: {file.Name} ({bytes.Length} bytes)");
-            }
-            catch (Exception ex)
-            {
-                ErrorMessages.Add($"Erreur lors du chargement de {file.Name}: {ex.Message}");
-                Console.WriteLine($"❌ Erreur HandlePhotoUpload: {ex.Message}");
-                Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
-            }
-        }
+        // ✅ Mettre à jour les tailles disponibles
+        VM_CreationAnnonce.UpdateAvailableTailles(categorieId);
 
         StateHasChanged();
     }
 
-    private void RemovePhoto(string photo)
+    private void OnSousCategorieSelected(int sousCategorieId)
     {
-        uploadedPhotos.Remove(photo);
-    }
-    #endregion
-
-    private void SaveAnnonce()
-    {
-        // newAnnonce.DateAnnonce = DateTime.Now;
-        // annonceStateService.SetEntity(newAnnonce);
+        VM_CreationAnnonce.NewAnnonce.SousCategorieId = sousCategorieId;
+        StateHasChanged();
     }
 
-    private List<string> ValidateAnnonce()
+    private async Task OnPublishClick()
     {
-        List<string> errorMessages = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(newAnnonce.Titre))
-            errorMessages.Add("Le nom de l'article est obligatoire");
-
-        if (string.IsNullOrWhiteSpace(newAnnonce.Description))
-            errorMessages.Add("La description est obligatoire");
-
-        if (newAnnonce.Prix <= 0)
-            errorMessages.Add("Le prix doit être supérieur à 0");
-
-        if (newAnnonce.MarqueId == 0)
-            errorMessages.Add("Veuillez sélectionner une marque");
-
-        if (newAnnonce.TailleId == 0)
-            errorMessages.Add("Veuillez sélectionner une taille");
-
-        // if (!newAnnonce.CouleurId.HasValue || newAnnonce.CouleurId == 0)
-        //     errorMessages.Add("Veuillez sélectionner une couleur");
-
-        if (newAnnonce.GenreId == 0)
-            errorMessages.Add("Veuillez sélectionner un genre");
-
-        if (newAnnonce.EtatId == 0)
-            errorMessages.Add("Veuillez sélectionner l'état de l'article");
-
-        if (newAnnonce.CategorieId == 0)
-            errorMessages.Add("Veuillez sélectionner une catégorie");
-
-        return errorMessages;
+        await VM_CreationAnnonce.PublishAnnonceAsync();
     }
 
-    private void PrintAnnonceDetails()
+    private void OnCancel()
     {
-        Console.WriteLine("Annonce Details:");
-        Console.WriteLine($"Title: {newAnnonce.Titre}");
-        Console.WriteLine($"Price: {newAnnonce.Prix}");
-        Console.WriteLine($"Negotiable: {newAnnonce.EstNegociable}");
-        Console.WriteLine($"Brand ID: {newAnnonce.MarqueId}");
-        Console.WriteLine($"Size ID: {newAnnonce.TailleId}");
-        // Console.WriteLine($"Color ID: {newAnnonce.CouleurId}");
-        Console.WriteLine($"Genre ID: {newAnnonce.GenreId}");
-        Console.WriteLine($"Category ID: {newAnnonce.CategorieId}");
-        Console.WriteLine($"Subcategory ID: {newAnnonce.SousCategorieId}");
-        Console.WriteLine($"State ID: {newAnnonce.EtatId}");
-        Console.WriteLine($"User ID: {newAnnonce.UtilisateurId}");
+        Navigation.NavigateTo("/");
     }
 
-    private async Task PublishArticle()
+    // Filtrer les marques selon la recherche (ordre alphabétique)
+    private IEnumerable<MarqueDTO> GetFilteredMarques()
     {
-        ErrorMessages.Clear();
-        HasCreated = null;
+        if (VM_Marque.Items == null)
+            return Enumerable.Empty<MarqueDTO>();
 
-        List<string> errorMessages = ValidateAnnonce();
+        var filtered = VM_Marque.Items.AsEnumerable();
 
-        if (errorMessages.Any())
+        if (!string.IsNullOrWhiteSpace(marqueSearch))
         {
-            HasCreated = false;
-            ErrorMessages = errorMessages;
-            StateHasChanged();
-            return;
+            filtered = filtered.Where(m =>
+                m.NomMarque.Contains(marqueSearch, StringComparison.OrdinalIgnoreCase)
+            );
         }
 
-        // Récupère l'utilisateur connecté
-        var currentUser = await authService.GetCurrentUserAsync();
-        if (currentUser == null)
-        {
-            ErrorMessages.Add("Vous devez être connecté pour créer une annonce");
-            HasCreated = false;
-            StateHasChanged();
-            return;
-        }
-
-        newAnnonce.UtilisateurId = currentUser.UtilisateurId;
-        newAnnonce.DateAnnonce = DateTime.UtcNow;
-        newAnnonce.StatutAnnonceId = 1;
-
-        // Créer l'annonce et récupérer l'ID
-        // var createdAnnonce = await VM_CreationAnnonce.CreateAnnonceAsync(newAnnonce);
-
-        // if (createdAnnonce == null)
-        // {
-        //     ErrorMessages.Add("L'annonce n'a pas pu être créée. Erreur API.");
-        //     HasCreated = false;
-        //     StateHasChanged();
-        //     return;
-        // }
-
-        // Mettre à jour newAnnonce avec l'annonce créée
-        // newAnnonce = createdAnnonce;
-
-        // Console.WriteLine($"✅ Annonce créée avec l'ID: {newAnnonce.AnnonceId}");
-
-        // Uploader les photos si disponibles
-        // if (uploadedPhotos.Any())
-        // {
-        //     Console.WriteLine($"🔄 Upload de {uploadedPhotos.Count} photos pour l'annonce {newAnnonce.AnnonceId}");
-
-        //     bool uploadSuccess = await mediaService.UploadMultiplePhotosAnnonceAsync(
-        //         newAnnonce.AnnonceId,
-        //         uploadedPhotos
-        //     );
-
-        //     if (!uploadSuccess)
-        //     {
-        //         ErrorMessages.Add("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
-        //     }
-        //     else
-        //     {
-        //         Console.WriteLine($"✅ Toutes les photos ont été uploadées avec succès");
-        //     }
-        // }
-
-        // HasCreated = true;
-        // await Task.Delay(2000);
-        // navigationManager.NavigateTo($"/profile/{currentUser.Login}");
-        // StateHasChanged();
+        return filtered.OrderBy(m => m.NomMarque);
     }
 
-    private void Cancel()
+    // Filtrer les tailles selon la catégorie sélectionnée
+    private IEnumerable<TailleDTO>? GetFilteredTailles()
     {
-        // Save the current state even when canceling
-        SaveAnnonce();
+        if (VM_Taille.Items == null || VM_CreationAnnonce.NewAnnonce.CategorieId == 0)
+            return null;
 
-        navigationManager.NavigateTo("/");
+        // ✅ Filtrer selon les tailles disponibles pour cette catégorie
+        if (!VM_CreationAnnonce.AvailableTailleIds.Any())
+            return null;
+
+        return VM_Taille.Items
+            .Where(t => VM_CreationAnnonce.AvailableTailleIds.Contains(t.TailleId))
+            .OrderBy(t => t.Libelletaille);
     }
 }

@@ -114,6 +114,21 @@ public class AuthWebService : BaseGenericService, IAuthService
         var baseUrl = _httpClient.BaseAddress?.ToString().TrimEnd('/');
         return $"{baseUrl}/Login/google-login?returnUrl={Uri.EscapeDataString(returnUrl)}";
     }
+
+    public async Task<bool> ModificationMotDePasse(ChangePasswordDTO passwordDTO)
+    {
+        var request = new HttpRequestMessage(
+        HttpMethod.Put,
+        "Login/modificationMotDePasse")
+        {
+            Content = JsonContent.Create(passwordDTO)
+        };
+
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+        var response = await _httpClient.SendAsync(request);
+        return response.IsSuccessStatusCode;
+    }
 }
 
 public class LoginResponse

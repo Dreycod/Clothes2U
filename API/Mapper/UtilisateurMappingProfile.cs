@@ -37,7 +37,20 @@ public class UtilisateurMappingProfile : Profile
                 src.NotesCible.Any()
                     ? src.NotesCible.Average(n => (double)n.Note)
                     : 0.0));
-        
+        CreateMap<Utilisateur, UtilisateurSettingsDTO>()
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
+            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoId));
+                CreateMap<UtilisateurSettingsDTO, Utilisateur>()
+            .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId))
+            .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => srcValue != null));
         CreateMap<UtilisateurPutDTO, Utilisateur>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))

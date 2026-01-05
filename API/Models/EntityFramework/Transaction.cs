@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Shared.Enums;
 
 namespace API.Models.EntityFramework;
 
@@ -14,7 +15,7 @@ public class Transaction : IEntity
     public int TransactionMontant { get; set; }
     
     [Column("tra_transaction_etat")]
-    public int TransactionEtat { get; set; }
+    public TransactionEtatEnum TransactionEtat { get; set; }
     
     //id des relations
     [Column("tra_conversation_id")]

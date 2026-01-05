@@ -27,8 +27,8 @@
         </div>
 
         <div class="navbar-right">
-            <a href="#" class="nav-link">NOUVEAUTÉS</a>
-            <a href="#" class="nav-link">TENDANCES</a>
+            <a href="#recent" class="nav-link">NOUVEAUTÉS</a>
+            <a href="#tendance" class="nav-link">TENDANCES</a>
             @if (!Vm_NavBar.IsLoading)
             {
                 @if (Vm_NavBar.IsConnected)
@@ -89,6 +89,12 @@
                                 <a href="/profile/@Vm_NavBar.utilisateur.Login" class="dropdown-item" @onclick="Vm_NavBar.ToggleDropdown">
                                     <i class="bi bi-person"></i>
                                     <span>Profil du compte</span>
+                                </a>
+                                <a href="/historique"
+                                   class="dropdown-item"
+                                   @onclick="Vm_NavBar.ToggleDropdown">
+                                    <i class="bi bi-clock-history"></i>
+                                    <span>Historique des transactions</span>
                                 </a>
                                 <a href="/settings" class="dropdown-item" @onclick="Vm_NavBar.ToggleDropdown">
                                     <i class="bi bi-gear"></i>
