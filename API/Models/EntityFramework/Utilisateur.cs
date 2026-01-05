@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Shared.DTO.Annonce;
 
 namespace API.Models.EntityFramework;
 
@@ -133,5 +134,10 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Decision.Utilisateur))]
     public virtual ICollection<Decision> DecisionsUtilisateurSanctionne { get; set; } = new List<Decision>();
 
+    
+    //suggestion : 
+    
+    [InverseProperty(nameof(AnnoncePreferenceUtilisateur.Utilisateur))]
+    public virtual ICollection<AnnoncePreferenceUtilisateur> AnnoncesPreferences { get; set; } = new List<AnnoncePreferenceUtilisateur>();
     public int GetId() => UtilisateurId;
 }

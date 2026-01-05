@@ -6,6 +6,41 @@ public class NotificationMappingProfile : Profile
 {
     public NotificationMappingProfile()
     {
+        CreateMap<NotificationCreateDTO, Notification>()
+            .ForMember(dest => dest.DateCreation, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.EstLu, opt => opt.MapFrom(_ => false))
+            .ForMember(dest => dest.NotificationTypeId, opt => opt.MapFrom(src => src.TypeId))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId));
+
+
+        CreateMap<NotificationMessageCreateDTO, NotificationMessage>()
+            .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
+            .ForMember(dest => dest.MessagePreview, opt => opt.MapFrom(src => src.MessagePreview))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+        
+        CreateMap<NotificationAvertissementCreateDTO, NotificationAvertissement>()
+            .ForMember(dest => dest.MessageAvertissement, opt => opt.MapFrom(src => src.MessageModerateur))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+
+        CreateMap<NotificationPropositionCreateDTO, NotificationProposition>()
+            .ForMember(dest => dest.PropositionId, opt => opt.MapFrom(src => src.PropositionId))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+
+        CreateMap<NotificationNouvelleAnnonceCreateDTO, NotificationNouvelleAnnonce>()
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+
+        CreateMap<NotificationModificationAnnonceCreateDTO, NotificationModificationAnnonce>()
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+
+        
+        CreateMap<NotificationAdminCreateDTO,NotificationAdmin>()
+            .ForMember(dest => dest.AdminText, opt => opt.MapFrom(src => src.AdminText))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+
+        
+        
         CreateMap<Notification, NotificationDTO>()
             .ConvertUsing((src, dest, context) =>
             {

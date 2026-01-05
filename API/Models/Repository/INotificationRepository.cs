@@ -11,18 +11,3 @@ public interface INotificationRepository : IDataRepository<Notification, int>
     public Task DeleteMessageNotificationByConversationId(int id, int userId);
 }
 
-public interface INotificationMessageRepository : IDataRepository<NotificationMessage, int>
-{
-}
-
-public interface INotificationNouvelleAnnonceRepository : IDataRepository<NotificationNouvelleAnnonce, int>
-{
-}
-
-public interface INotificationModificationAnnonceRepository : IDataRepository<NotificationModificationAnnonce, int>
-{
-}
-
-public interface INotificationPropositionRepository : IDataRepository<NotificationProposition, int>
-{
-}

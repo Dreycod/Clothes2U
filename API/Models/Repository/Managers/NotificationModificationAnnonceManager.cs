@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
 
-public class NotificationModificationAnnonceManager : GenericCRUDManager<NotificationModificationAnnonce>, INotificationModificationAnnonceRepository
+public class NotificationModificationAnnonceManager : GenericCRUDManager<NotificationModificationAnnonce>, IDataRepository<NotificationModificationAnnonce, int>
 {
     public NotificationModificationAnnonceManager(Clothes2UDbContext context) : base(context)
     {

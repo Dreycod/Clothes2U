@@ -4,9 +4,6 @@ namespace Shared.DTO.Annonce;
 
 public class AnnonceSuggestionDTO
 {
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-    
     [JsonPropertyName("nomMarque")]
     public string NomMarque { get; set; }
     
@@ -29,8 +26,4 @@ public class AnnonceSuggestionDTO
     public string EtatArticle { get; set; }
     [JsonPropertyName("couleurs")]
     public List<string> Couleurs { get; set; }
-    public int GetId()
-    {
-        return Id;
-    }
 }

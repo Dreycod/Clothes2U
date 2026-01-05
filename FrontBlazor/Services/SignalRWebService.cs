@@ -116,18 +116,8 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 "ReceivePriceProposal",
             (conversationId, messageId, senderId, prixPropose, date) =>
             {
-                Console.WriteLine("========================================");
-                Console.WriteLine($"[SignalR] 💰 ReceivePriceProposal EVENT RECEIVED");
-                Console.WriteLine($"[SignalR]   ConversationId: {conversationId}");
-                Console.WriteLine($"[SignalR]   MessageId: {messageId}");
-                Console.WriteLine($"[SignalR]   SenderId: {senderId}");
-                Console.WriteLine($"[SignalR]   Prix proposé: {prixPropose}");
-                Console.WriteLine($"[SignalR]   Date: {date}");
-                Console.WriteLine($"[SignalR]   OnPriceProposalReceived subscribers: {OnPriceProposalReceived?.GetInvocationList().Length ?? 0}");
-                
                 if (OnPriceProposalReceived != null)
                 {
-                    Console.WriteLine($"[SignalR]   Invoking OnPriceProposalReceived event...");
                     OnPriceProposalReceived.Invoke(conversationId, messageId, senderId, prixPropose, date);
                     Console.WriteLine($"[SignalR]   ✅ Event invoked successfully");
                 }
@@ -143,13 +133,6 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
             "ProposalResponseReceived", 
             (conversationId, messageId, accepted) =>
             {
-                Console.WriteLine("========================================");
-                Console.WriteLine($"[SignalR] 📨 ProposalResponseReceived EVENT RECEIVED");
-                Console.WriteLine($"[SignalR]   ConversationId: {conversationId}");
-                Console.WriteLine($"[SignalR]   MessageId: {messageId}");
-                Console.WriteLine($"[SignalR]   Accepted: {accepted}");
-                Console.WriteLine($"[SignalR]   OnProposalResponse subscribers: {OnProposalResponse?.GetInvocationList().Length ?? 0}");
-                
                 if (OnProposalResponse != null)
                 {
                     Console.WriteLine($"[SignalR]   Invoking OnProposalResponse event...");
@@ -318,6 +301,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
         }
 
     }
+
 
     public async ValueTask DisposeAsync()
     {
