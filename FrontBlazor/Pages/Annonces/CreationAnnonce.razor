@@ -268,7 +268,7 @@
         <div class="form-section size-section">
             <h2 class="section-title">Taille *</h2>
 
-            @if (VM_CreationAnnonce.NewAnnonce.CategorieId == 0)
+            @if (VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
             {
                 <p class="info-message">
                     <i class="bi bi-info-circle"></i>
@@ -485,7 +485,7 @@
     // Filtrer les tailles selon la catégorie sélectionnée
     private IEnumerable<TailleDTO>? GetFilteredTailles()
     {
-        if (VM_Taille.Items == null || VM_CreationAnnonce.NewAnnonce.CategorieId == 0)
+        if (VM_Taille.Items == null || VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
             return null;
 
         // ✅ Filtrer selon les tailles disponibles pour cette catégorie

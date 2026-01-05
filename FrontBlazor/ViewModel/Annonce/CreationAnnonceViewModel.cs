@@ -99,9 +99,9 @@ namespace FrontBlazor.ViewModel
         /// <summary>
         /// Filtre les tailles disponibles selon la catégorie sélectionnée
         /// </summary>
-        public void UpdateAvailableTailles(int categorieId)
+        public void UpdateAvailableTailles(int sousCategorieId)
         {
-            if (_allMesures == null || categorieId == 0)
+            if (_allMesures == null || sousCategorieId == 0)
             {
                 AvailableTailleIds.Clear();
                 NotifyStateChanged();
@@ -110,12 +110,12 @@ namespace FrontBlazor.ViewModel
 
             // Filtrer les tailles selon la catégorie
             AvailableTailleIds = _allMesures
-                .Where(m => m.CategorieId == categorieId)
+                .Where(m => m.SousCategorieId == sousCategorieId)
                 .Select(m => m.TailleId)
                 .Distinct()
                 .ToList();
 
-            Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour catégorie {categorieId}");
+            Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour catégorie {sousCategorieId}");
 
             // Reset la taille sélectionnée si elle n'est plus disponible
             if (NewAnnonce.TailleId != 0 && !AvailableTailleIds.Contains(NewAnnonce.TailleId))

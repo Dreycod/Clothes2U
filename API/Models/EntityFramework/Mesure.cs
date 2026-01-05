@@ -25,7 +25,7 @@ namespace API.Models.EntityFramework
         [ForeignKey(nameof(SousCategorieId))]
         [InverseProperty(nameof(SousCategorie.Mesures))]
         [NavigationProperty]
-        public virtual SousCategorie CategorieMesure { get; set; } = null!;
+        public virtual SousCategorie SousCategorieMesure { get; set; } = null!;
 
         public int GetId() => MesureId;
 

@@ -56,7 +56,7 @@ public class MesureController : ControllerBase
             IEnumerable<Mesure> mesures = await _mesureRepository.GetAllAsync();
 
             var tailleIds = mesures
-                .Where(m => m.CategorieId == categorieId)
+                .Where(m => m.SousCategorieId == categorieId)
                 .Select(m => m.TailleId)
                 .Distinct()
                 .ToList();

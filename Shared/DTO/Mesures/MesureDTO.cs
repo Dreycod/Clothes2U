@@ -7,7 +7,7 @@ public class MesureDTO
 {
     public int MesureId { get; set; }
     public int TailleId { get; set; }
-    public int CategorieId { get; set; }
+    public int SousCategorieId { get; set; }
     public int GetId() => MesureId;
 
 }

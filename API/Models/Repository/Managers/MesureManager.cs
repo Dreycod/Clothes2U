@@ -15,7 +15,7 @@ namespace API.Models.Repository.Managers
         private IQueryable<Mesure> BaseMesureQuery()
         {
             return _context.Mesures
-                .Include(a => a.CategorieMesure)
+                .Include(a => a.SousCategorieMesure)
                 .Include(a => a.TailleMesure)
                 .AsSplitQuery();
         }

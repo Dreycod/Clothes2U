@@ -16,7 +16,6 @@ public class CategorieManager : GenericCRUDManager<Categorie>, ICaracteristiques
     {
         return _context.Categories
             .Include(a => a.Annonces)
-            .Include(a => a.Mesures)
             .Include(a => a.SousCategories)
             .AsSplitQuery();
     }
