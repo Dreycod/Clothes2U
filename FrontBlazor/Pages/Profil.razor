@@ -66,7 +66,7 @@
                     <img class="profile-avatar" src="@(VM_Profil.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))" />
                     <div class="profile-info">
                         <div class="profile-top-row">
-                            <h1 class="profile-name">@VM_Profil.ViewingUser.Login <i class="fa-solid fa-badge-check"></i></h1>
+                            <h1 class="profile-name">@VM_Profil.ViewingUser.Login </h1> @if (VM_Profil.ViewingUser.ValidEmail) {<i class="fa-solid fa-badge-check"></i>}
                             <div class="profile-actions">
                                 @if (!VM_Profil.IsSameUser)
                                 {
@@ -485,6 +485,8 @@
         </div>
     </div>
 }
+
+<Footer/>
 
 @if (VM_Profil.ShowSignalerAvisModal)
 {
