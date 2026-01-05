@@ -11,9 +11,10 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Achete> Achetes { get; set; }
     public DbSet<Adresse> Adresses { get; set; }
     public DbSet<Annonce> Annonces { get; set; } 
+    public DbSet<AnnoncePreferenceUtilisateur> AnnoncesPreferenceUtilisateur { get; set; }
     public DbSet<Bloque> Bloques { get; set; }
     public DbSet<Categorie>  Categories { get; set; }
-    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<Conversation> Conversations { get; set; } 
     public DbSet<Couleur>  Couleurs { get; set; }
     public DbSet<Decision> Decisions { get; set; }
     public DbSet<DecisionAvertissement> DecisionsAvertissement { get; set; }
@@ -48,6 +49,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<NotificationType> NotificationTypes { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<Photo> Photos { get; set; }
+    public DbSet<PrefereCouleur> PrefereCouleurs { get; set; }
     public DbSet<Recense> Recenses { get; set; }
     public DbSet<RoleUtilisateur> RolesUtilisateurs { get; set; }
     public DbSet<SanctionBannissement> SactionsBannissements { get; set; }
@@ -244,7 +246,15 @@ public partial class Clothes2UDbContext : DbContext
                .HasDatabaseName("idx_annonce_genre");
             });
 
-
+        modelBuilder.Entity<AnnoncePreferenceUtilisateur>(entity =>
+        {
+            entity.HasKey(e => e.AnnoncePreferenceUtilisateurId);
+            
+            entity.HasMany(e => e.Couleurs)
+                .WithOne(c => c.AnnoncePrefere)
+                .HasForeignKey(c => c.AnnonceSuggestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
         modelBuilder.Entity<Bloque>(entity =>
         {
             entity.HasKey(e => e.BloqueId);
@@ -294,6 +304,12 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(edc => edc.Couleur)
                 .HasForeignKey(edc => edc.CouleurId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasMany(e => e.AnnoncesPreferent)
+                .WithOne(edc => edc.Couleur)
+                .HasForeignKey(edc => edc.CouleurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
         });
 
         modelBuilder.Entity<Decision>(entity =>
@@ -865,12 +881,26 @@ public partial class Clothes2UDbContext : DbContext
     });
 
 
-        modelBuilder.Entity<Photo>(entity =>
+    modelBuilder.Entity<Photo>(entity =>
     {
         entity.HasKey(e => e.PhotoId);
     
     });
 
+    modelBuilder.Entity<PrefereCouleur>(entity =>
+    {
+        entity.HasKey(e => e.PreferenceCouleurId);
+        
+        entity.HasOne(e => e.AnnoncePrefere)
+            .WithMany(p => p.Couleurs)
+            .HasForeignKey(e => e.AnnonceSuggestionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        entity.HasOne(e => e.Couleur)
+            .WithMany(p => p.AnnoncesPreferent)
+            .HasForeignKey(e => e.CouleurId)
+            .OnDelete(DeleteBehavior.Restrict);
+    });
     modelBuilder.Entity<Recense>(entity =>
     {
         entity.HasKey(e => e.RecenseId);
@@ -1297,6 +1327,12 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(d => d.Utilisateur)
                 .HasForeignKey(d => d.UtilisateurId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasMany(e => e.AnnoncesPreferences)
+                .WithOne(a => a.Utilisateur)
+                .HasForeignKey(a => a.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
                 
                 
             entity.HasIndex(e => e.StatutId);

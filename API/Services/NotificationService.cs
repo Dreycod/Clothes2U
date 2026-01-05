@@ -9,20 +9,20 @@ public class NotificationService : INotificationService
 {
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationManager;
-    private readonly INotificationAvertissementRepository _notificationAvertissementManager;
-    private readonly INotificationPropositionRepository _notificationPropositionManager;
-    private readonly INotificationMessageRepository _notificationMessageManager;
-    private readonly INotificationNouvelleAnnonceRepository _notificationNouvelleAnnonceManager;
-    private readonly INotificationModificationAnnonceRepository _notificationModificationAnnonceManager;
+    private readonly IDataRepository<NotificationAvertissement, int> _notificationAvertissementManager;
+    private readonly IDataRepository<NotificationProposition, int> _notificationPropositionManager;
+    private readonly IDataRepository<NotificationMessage, int> _notificationMessageManager;
+    private readonly IDataRepository<NotificationNouvelleAnnonce, int> _notificationNouvelleAnnonceManager;
+    private readonly IDataRepository<NotificationModificationAnnonce, int> _notificationModificationAnnonceManager;
 
     public NotificationService(
         IMapper mapper,
         INotificationRepository notificationManager,
-        INotificationAvertissementRepository notificationAvertissementManager,
-        INotificationPropositionRepository notificationPropositionManager,
-        INotificationMessageRepository notificationMessageManager,
-        INotificationNouvelleAnnonceRepository notificationNouvelleAnnonceManager,
-        INotificationModificationAnnonceRepository notificationModificationAnnonceManager
+        IDataRepository<NotificationAvertissement, int> notificationAvertissementManager,
+        IDataRepository<NotificationProposition, int> notificationPropositionManager,
+        IDataRepository<NotificationMessage, int> notificationMessageManager,
+        IDataRepository<NotificationNouvelleAnnonce, int>  notificationNouvelleAnnonceManager,
+        IDataRepository<NotificationModificationAnnonce, int> notificationModificationAnnonceManager
     )
     {
         _mapper = mapper;
@@ -36,7 +36,6 @@ public class NotificationService : INotificationService
 
     public async Task CreateNotification(NotificationCreateDTO notificationDTO)
     {
-        Console.WriteLine("----------------------------------------------------------------------------------------------------");
         Notification notification = _mapper.Map<Notification>(notificationDTO);
         await _notificationManager.AddAsync(notification);
         notificationDTO.NotificationId = notification.NotificationId;

@@ -263,11 +263,11 @@ builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
-builder.Services.AddScoped<INotificationMessageRepository, NotificationMessageManager>();
-builder.Services.AddScoped<INotificationAvertissementRepository,  NotificationAvertissementManager>();
-builder.Services.AddScoped<INotificationNouvelleAnnonceRepository, NotificationNouvelleAnnonceManager>();
-builder.Services.AddScoped<INotificationModificationAnnonceRepository, NotificationModificationAnnonceManager>();
-builder.Services.AddScoped<INotificationPropositionRepository, NotificationPropositionManager>();
+builder.Services.AddScoped<IDataRepository<NotificationMessage, int>, NotificationMessageManager>();
+builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  NotificationAvertissementManager>();
+builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
+builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
+builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
 
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
