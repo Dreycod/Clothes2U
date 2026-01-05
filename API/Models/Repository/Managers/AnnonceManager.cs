@@ -64,7 +64,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();
 
         return await BaseAnnonceQuery()
-            .AsSingleQuery() 
             .Where(a => annonceIds.Contains(a.AnnonceId))
             .ToListAsync();
     }

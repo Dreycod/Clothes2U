@@ -19,13 +19,5 @@ public class Couleur : IEntity
     [InverseProperty(nameof(Est_De_Couleur.Couleur))]
     public virtual ICollection<Est_De_Couleur> Annonces { get; set; } = new List<Est_De_Couleur>();
     
-    
-    //relation preference : 
-    
-    [InverseProperty(nameof(PrefereCouleur.Couleur))]
-    public virtual ICollection<PrefereCouleur> AnnoncesPreferent { get; set; } = new List<PrefereCouleur>();
-
-    
-    
     public int GetId() => CouleurId;
 }

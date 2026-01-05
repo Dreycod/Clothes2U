@@ -214,6 +214,11 @@ namespace API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("annprefuti_categorie");
 
+                    b.Property<string>("CouleurDominante")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("annprefuti_couleur_dominante");
+
                     b.Property<string>("EtatArticle")
                         .IsRequired()
                         .HasColumnType("text")
@@ -223,6 +228,10 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("annprefuti_marque");
+
+                    b.Property<int>("Ponderation")
+                        .HasColumnType("integer")
+                        .HasColumnName("annprefuti_ponderarion");
 
                     b.Property<double>("Prix")
                         .HasColumnType("double precision")
@@ -1250,32 +1259,6 @@ namespace API.Migrations
                     b.HasKey("PhotoId");
 
                     b.ToTable("t_e_photo_pho", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.PrefereCouleur", b =>
-                {
-                    b.Property<int>("PreferenceCouleurId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("precou_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PreferenceCouleurId"));
-
-                    b.Property<int>("AnnonceSuggestionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("precou_annonce_sugestion_id");
-
-                    b.Property<int>("CouleurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("precou_couleur_id");
-
-                    b.HasKey("PreferenceCouleurId");
-
-                    b.HasIndex("AnnonceSuggestionId");
-
-                    b.HasIndex("CouleurId");
-
-                    b.ToTable("t_j_prefere_couleur_precou", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Recense", b =>
@@ -2490,25 +2473,6 @@ namespace API.Migrations
                     b.Navigation("UtilisateurReset");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.PrefereCouleur", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.AnnoncePreferenceUtilisateur", "AnnoncePrefere")
-                        .WithMany("Couleurs")
-                        .HasForeignKey("AnnonceSuggestionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Couleur", "Couleur")
-                        .WithMany("AnnoncesPreferent")
-                        .HasForeignKey("CouleurId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AnnoncePrefere");
-
-                    b.Navigation("Couleur");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Recense", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
@@ -2775,11 +2739,6 @@ namespace API.Migrations
                     b.Navigation("UtilisateursFavoris");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.AnnoncePreferenceUtilisateur", b =>
-                {
-                    b.Navigation("Couleurs");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Categorie", b =>
                 {
                     b.Navigation("Annonces");
@@ -2801,8 +2760,6 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.EntityFramework.Couleur", b =>
                 {
                     b.Navigation("Annonces");
-
-                    b.Navigation("AnnoncesPreferent");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Decision", b =>

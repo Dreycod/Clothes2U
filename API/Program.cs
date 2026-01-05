@@ -247,6 +247,7 @@ builder.Services.AddScoped<IDemandeRestaurationRepository<DemandeRestauration, i
 builder.Services.AddScoped<ITransactionRepository<Transaction, int>, TransactionManager>();
 builder.Services.AddScoped<IPasswordResetRepository<PasswordResetToken, int>, PasswordResetManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>();
+builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
 builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
 //services
 builder.Services.AddHttpClient();

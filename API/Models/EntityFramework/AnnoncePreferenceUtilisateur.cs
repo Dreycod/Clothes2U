@@ -30,6 +30,12 @@ public class AnnoncePreferenceUtilisateur: IEntity
     [Column("annprefuti_etat")]
     public string EtatArticle { get; set; }
     
+    [Column("annprefuti_ponderarion")]
+    public int Ponderation { get; set; }
+    
+    [Column("annprefuti_couleur_dominante")]
+    public string CouleurDominante { get; set; }
+    
     //relation avec les autres tables : 
     
     [Column("annprefuti_utilisateur_id")]
@@ -38,11 +44,6 @@ public class AnnoncePreferenceUtilisateur: IEntity
     [ForeignKey(nameof(UtilisateurId))]
     [InverseProperty(nameof(Utilisateur.AnnoncesPreferences))]
     public virtual Utilisateur Utilisateur { get; set; } = null!;
-    
-    
-    //relation avec couleurs
-    [InverseProperty(nameof(PrefereCouleur.AnnoncePrefere))]
-    public virtual ICollection<PrefereCouleur> Couleurs { get; set; } = new List<PrefereCouleur>();
 
     public int GetId() => AnnoncePreferenceUtilisateurId;
 }
