@@ -42,6 +42,11 @@ public class LoginService : ILoginService
         return (AuthResult.Success, utilisateur);
     }
 
+    public string HashPassword(string plainPassword)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(plainPassword);
+    }
+
     public string GenerateJwtToken(Utilisateur utilisateur)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

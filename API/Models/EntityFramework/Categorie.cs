@@ -24,9 +24,6 @@ public class Categorie : IEntityWithNavigation
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
     
 
-    [InverseProperty(nameof(Mesure.CategorieMesure))]
-    public virtual ICollection<Mesure> Mesures { get; set; } = new List<Mesure>();
-
     public int GetId() => CategorieId;
 
 }
