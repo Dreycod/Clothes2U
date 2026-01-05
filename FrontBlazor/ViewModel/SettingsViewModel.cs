@@ -10,6 +10,7 @@ namespace FrontBlazor.ViewModel
 {
     public class SettingsViewModel
     {
+        
         private readonly NavigationManager _navigationManager;
         private readonly IUtilisateurService _utilisateurService;
         private readonly IAuthService _authService;
@@ -396,7 +397,8 @@ namespace FrontBlazor.ViewModel
 
             try
             {
-                UtilisateursBloques = await _bloqueService.GetUsersBloquee(CurrentUser.UtilisateurId);
+                var result = await _bloqueService.GetUsersBloquee(CurrentUser.UtilisateurId);
+                UtilisateursBloques = result ?? null;
             }
             catch (Exception ex)
             {

@@ -99,7 +99,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <input type="text" 
+                                    <input type="text"
                                            class="form-input" 
                                            placeholder="Nom d'utilisateur"
                                            @bind="VM_Settings.Username"
@@ -308,10 +308,10 @@
                                     <p>Chargement des utilisateurs bloqués...</p>
                                 </div>
                             }
-                            else if (VM_Settings.UtilisateursBloques != null && VM_Settings.UtilisateursBloques.Any())
+                            else if (VM_Settings.UtilisateursBloques != null || VM_Settings.UtilisateursBloques.Any())
                             {
                                 <div class="blocked-users-list">
-                                    @foreach (Shared.DTO.Bloque.BloqueDetailDTO user in VM_Settings.UtilisateursBloques)
+                                    @foreach (BloqueDetailDTO user in VM_Settings.UtilisateursBloques)
                                     {
                                         <div class="blocked-user-item">
                                             <div class="blocked-user-info">
@@ -346,6 +346,8 @@
         }
     </div>
 </div>
+
+<Footer />
 
 @code {
     protected override async Task OnInitializedAsync()

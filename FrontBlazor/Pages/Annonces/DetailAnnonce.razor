@@ -225,7 +225,7 @@
     <div class="modal-overlay" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
         <div class="modal-content review-modal" @onclick:stopPropagation>
             <div class="modal-header">
-                <h3>Ajouter un avis</h3>
+                <h3>Signalement d'annonce'</h3>
                 <button class="modal-close" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
                     <i class="bi bi-x"></i>
                 </button>
@@ -236,7 +236,7 @@
                 <div class="form-group">
                     <label class="form-label">Raison</label>
                     <textarea class="form-textarea"
-                              placeholder="Partagez votre opinion sur cette annonce..."
+                              placeholder="Restez civil, une vraie personne lira votre signalement..."
                               @bind="VM_DetailAnnonce.SignalementRaison"
                               @bind:event="oninput"
                               rows="6"></textarea>
@@ -260,6 +260,8 @@
         </div>
     </div>
 }
+
+<Footer />
 
 @code {
     [Parameter]

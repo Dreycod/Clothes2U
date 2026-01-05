@@ -31,14 +31,19 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         var response = await GetWithCredentialsAsync($"Signalement/{id}");
         response.EnsureSuccessStatusCode();
         var signalement = await response.Content.ReadFromJsonAsync<SignalementDetailsDTO>();
+
         return signalement;
     }
-    public async Task<SignalementDetailsDTO> CreateSignalement(SignalementCreateDTO signalement)
+    public async Task<SignalementDetailsDTO?> CreateSignalement(SignalementCreateDTO signalement)
     {
         var response = await PostWithCredentialsAsync("Signalement", JsonContent.Create(signalement));
         response.EnsureSuccessStatusCode();
         var createdSignalement = await response.Content.ReadFromJsonAsync<SignalementDetailsDTO>();
-        return createdSignalement;
+        if (createdSignalement != null)
+        {
+            return createdSignalement;
+        }
+        return null;
     }
     public async Task DeleteAsync(int id)
     {
