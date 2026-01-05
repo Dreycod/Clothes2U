@@ -171,7 +171,7 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(AnnonceDetailDTO annonceDto)
+    public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(CreateAnnonceDTO annonceDto)
     {
         if (!ModelState.IsValid)
         {

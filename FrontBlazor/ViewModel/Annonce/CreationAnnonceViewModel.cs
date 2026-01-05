@@ -309,10 +309,7 @@ namespace FrontBlazor.ViewModel
                 NewAnnonce.StatutAnnonceId = 1;
 
                 // Ajouter les couleurs sélectionnées
-                NewAnnonce.Couleurs = SelectedCouleurIds
-                    .Where(id => id > 0)
-                    .Select(id => new EstDeCouleurDTO { CouleurId = id })
-                    .ToList();
+                NewAnnonce.Couleurs = SelectedCouleurIds;
 
                 Console.WriteLine($"📤 Envoi de l'annonce: {NewAnnonce.Titre}");
                 Console.WriteLine($"   - Prix: {NewAnnonce.Prix}€");

@@ -247,6 +247,7 @@ builder.Services.AddScoped<IDataRepository<Utilisateur, int>, UtilisateurManager
 builder.Services.AddScoped<IDecisionRepository,  DecisionManager>();
 builder.Services.AddScoped<IDemandeRestaurationRepository<DemandeRestauration, int>,  DemandeRestaurationManager>();
 builder.Services.AddScoped<ITransactionRepository<Transaction, int>, TransactionManager>();
+builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>();
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();

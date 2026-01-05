@@ -16,11 +16,7 @@ namespace Shared.DTO.Annonce
         public int SousCategorieId { get; set; }
         public int CategorieId { get; set; }
         public int StatutAnnonceId { get; set; } = 1;
-        public List<EstDeCouleurDTO>? Couleurs { get; set; }
+        public List<int>? Couleurs { get; set; }
         public int GenreId { get; set; }
-        public int GetId()
-        {
-            return 0;
-        }
     }
 }

@@ -110,7 +110,9 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 
     public async Task CreateAnnonce(CreateAnnonceDTO annonce)
     {
-        throw new NotImplementedException();
+        var body = JsonContent.Create(annonce);
+        
+        var response = await PostWithCredentialsAsync("Annonce", body);
     }
 
     public async Task ModificationAnnonce(CreateAnnonceDTO annonce)
