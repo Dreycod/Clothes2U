@@ -14,18 +14,18 @@ namespace API.Models.EntityFramework
         [Column("mes_taille_id")]
         public int TailleId { get; set; }
 
-        [Column("mes_categorie_id")]
-        public int CategorieId { get; set; }
+        [Column("mes_sous_categorie_id")]
+        public int SousCategorieId { get; set; }
 
         [ForeignKey(nameof(TailleId))]
         [InverseProperty(nameof(Taille.Mesures))]
         [NavigationProperty]
         public virtual Taille TailleMesure { get; set; } = null!;
 
-        [ForeignKey(nameof(CategorieId))]
-        [InverseProperty(nameof(Categorie.Mesures))]
+        [ForeignKey(nameof(SousCategorieId))]
+        [InverseProperty(nameof(SousCategorie.Mesures))]
         [NavigationProperty]
-        public virtual Categorie CategorieMesure { get; set; } = null!;
+        public virtual SousCategorie CategorieMesure { get; set; } = null!;
 
         public int GetId() => MesureId;
 

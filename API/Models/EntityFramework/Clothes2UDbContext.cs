@@ -592,10 +592,10 @@ public partial class Clothes2UDbContext : DbContext
 
             entity.HasOne(e => e.CategorieMesure)
                   .WithMany(c => c.Mesures)
-                  .HasForeignKey(e => e.CategorieId)
+                  .HasForeignKey(e => e.SousCategorieId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasIndex(e => new { e.TailleId, e.CategorieId })
+            entity.HasIndex(e => new { e.TailleId, e.SousCategorieId })
                   .IsUnique();
         });
 
