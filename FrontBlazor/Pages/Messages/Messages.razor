@@ -71,10 +71,42 @@
                                     @VM_Messagerie.SelectedConversation.Interlocuteur
                                 </h3>
                             </NavLink> 
-                            <p class="product-price">@VM_Messagerie.SelectedConversation.Prix €</p>
-                            <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
-                                Proposer un prix
-                            </button>
+                            <div class="chat-price-info">
+                                <span class="price-label">Prix</span>
+
+                                @if (VM_Messagerie.SelectedConversation.Prix != VM_Messagerie.SelectedConversation.PrixAnnonce)
+                                {
+                                    <span class="price-original">
+                                        @VM_Messagerie.SelectedConversation.PrixAnnonce €
+                                    </span>
+                                    <i class="bi bi-arrow-right"></i>
+                                    <span class="price-current">
+                                        @VM_Messagerie.SelectedConversation.Prix €
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="price-current">
+                                        @VM_Messagerie.SelectedConversation.Prix €
+                                    </span>
+                                }
+                            </div>
+                            
+                            @if (VM_Messagerie.CurrentUser.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                            {
+                                <NavLink class="buy-button"
+                                         href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
+                                    <i class="bi bi-bag-check-fill"></i>
+                                    Acheter
+                                </NavLink>
+                            }
+
+                            @if (VM_Messagerie.SelectedConversation.Negociable)
+                            {
+                                <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
+                                    Proposer un prix
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -99,6 +131,12 @@
                                 Envoyer
                             </button>
                         </div>
+                        @if (!string.IsNullOrEmpty(VM_Messagerie.PriceProposalError))
+                        {
+                            <div class="price-error-message">
+                                @VM_Messagerie.PriceProposalError
+                            </div>
+                        }
                     </div>
                 }
 
@@ -155,14 +193,14 @@
 
                                         <!-- Prix proposé vs prix original -->
                                         <div class="price-comparison">
-                                            <div class="proposed-price">
-                                                <span class="price-label">Prix proposé</span>
-                                                <span class="price-value">@demande.PrixPropose €</span>
-                                            </div>
-                                            <i class="bi bi-arrow-right price-arrow"></i>
                                             <div class="original-price">
                                                 <span class="price-label">Prix initial</span>
                                                 <span class="price-value strikethrough">@VM_Messagerie.SelectedConversation.PrixAnnonce €</span>
+                                            </div>
+                                            <i class="bi bi-arrow-right price-arrow"></i>
+                                            <div class="proposed-price">
+                                                <span class="price-label">Prix proposé</span>
+                                                <span class="price-value">@demande.PrixPropose €</span>
                                             </div>
                                         </div>
 
@@ -477,18 +515,27 @@
     private void ClosePriceModal()
     {
         showPriceModal = false;
+        VM_Messagerie.PriceProposalError = null;
         proposedPrice = 0;
+        
     }
 
-    private void ConfirmPriceProposal()
+    private async Task ConfirmPriceProposal()
     {
         if (proposedPrice > 0)
         {
-            VM_Messagerie.SendProposition(proposedPrice);
+            await VM_Messagerie.SendProposition(proposedPrice);
+
+            // ✅ On ferme SEULEMENT s'il n'y a PAS d'erreur
+            if (string.IsNullOrEmpty(VM_Messagerie.PriceProposalError))
+            {
+                ClosePriceModal();
+            }
+
             StateHasChanged();
-            ClosePriceModal();
         }
     }
+    
     
     // À ajouter dans la section @code de Messages.razor
 
@@ -502,21 +549,6 @@
         catch (Exception ex)
         {
             Console.WriteLine($"[Page] ❌ Error accepting proposal: {ex.Message}");
-            // Optionnel : afficher un message d'erreur à l'utilisateur
         }
     }
-
-    // private async Task DeclineProposal(int messageId)
-    // {
-    //     try
-    //     {
-    //         await VM_Messagerie.DeclinePriceProposal(messageId);
-    //         StateHasChanged();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.WriteLine($"[Page] ❌ Error declining proposal: {ex.Message}");
-    //         // Optionnel : afficher un message d'erreur à l'utilisateur
-    //     }
-    // }
 }

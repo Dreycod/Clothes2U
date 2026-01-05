@@ -89,4 +89,10 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
     {
         return await _context.Utilisateurs.Where(u => u.Statut.StatutLibelle == "Suspendu").CountAsync();
     }
+
+    public async Task<Utilisateur?> GetUtilisateurByEmail(string email)
+    {
+        return await BaseUtilisateurQuery()
+            .FirstOrDefaultAsync(u => u.Email == email);
+    }
 }

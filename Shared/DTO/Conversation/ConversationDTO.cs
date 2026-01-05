@@ -23,6 +23,7 @@ public class ConversationDTO : IEntity, INotifyPropertyChanged
         }
     }
     public DateTime? LastMessageDate { get; set; }
+    public int VendeurId { get; set; }
     public string? Interlocuteur { get; set; }
     public int? PhotoInterlocuteurId { get; set; }
     public ObservableCollection<MessageDTO>? ListMessages { get; set; } = new ObservableCollection<MessageDTO>();
@@ -32,6 +33,7 @@ public class ConversationDTO : IEntity, INotifyPropertyChanged
     public decimal Prix { get; set; }
     public decimal PrixAnnonce { get; set; }
     private bool _hasNewMessages;
+    public bool Negociable { get; set; }
     public bool HasNewMessages
     {
         get => _hasNewMessages;

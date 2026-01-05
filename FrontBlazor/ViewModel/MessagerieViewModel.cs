@@ -33,6 +33,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     public List<(IBrowserFile File, string PreviewBase64)> SelectedFilePreviews { get; set; } = new();
     public bool IsLoading { get; private set; } = false;
     public bool IsTyping { get; private set; } = false;
+    public string? PriceProposalError { get; set; }
     public string TypingUserName { get; private set; } = "";
 
     public ElementReference MessagesContainer;
@@ -254,6 +255,24 @@ public class MessagerieViewModel : ComponentBase, IDisposable
     {
         if (SelectedConversation == null || CurrentUser == null)
             return;
+        
+        PriceProposalError = null;
+
+        // ❌ Prix supérieur au prix actuel
+        if (proposedPrice > SelectedConversation.PrixAnnonce)
+        {
+            PriceProposalError = "Le prix proposé ne peut pas être supérieur au prix.";
+            NotifyStateChanged();
+            return;
+        }
+
+        // ❌ Prix inférieur à 50% du prix de l'annonce
+        if (proposedPrice < SelectedConversation.PrixAnnonce * 0.5m)
+        {
+            PriceProposalError = "Le prix proposé ne peut pas être inférieur à 50% du prix initial.";
+            NotifyStateChanged();
+            return;
+        }
 
         try
         {
@@ -320,43 +339,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         }
     }
 
-    // public async Task DeclinePriceProposal(int messageId)
-    // {
-    //     if (SelectedConversation == null)
-    //         return;
-    //
-    //     try
-    //     {
-    //         // Appeler l'API pour refuser la proposition
-    //         await _messageService.DeclinePriceProposal(messageId);
-    //
-    //         // Mettre à jour localement le message
-    //         var message = SelectedConversation.ListMessages?
-    //             .OfType<MessageDemandeDTO>()
-    //             .FirstOrDefault(m => m.MessageId == messageId);
-    //
-    //         if (message != null)
-    //         {
-    //             message.EstAcceptee = false;
-    //             message.EstRepondue = true;
-    //         }
-    //
-    //         // Notifier via SignalR
-    //         await _signalRService.NotifyProposalResponse(
-    //             SelectedConversation.ConversationId, 
-    //             messageId, 
-    //             false
-    //         );
-    //
-    //         NotifyStateChanged();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.WriteLine($"[VM] ❌ Error declining proposal: {ex.Message}");
-    //         throw;
-    //     }
-    // }
-
     private async void HandleMessageReceived(int conversationId, int senderId, string message, List<int> photoIds, DateTime date)
     {
         if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
@@ -375,7 +357,6 @@ public class MessagerieViewModel : ComponentBase, IDisposable
                     Content = message,
                     SenderId = senderId,
                     Date = date,
-                    //ConversationId = conversationId,
                     SentByCurrentUser = senderId == CurrentUser?.UtilisateurId,
                     Photos = photoIds,
                     Lu = false // ✅ Nouveau message non lu
@@ -526,6 +507,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
             {
                 message.EstAcceptee = accepted;
                 message.EstRepondue = true;
+                SelectedConversation.Prix = accepted ? message.PrixPropose : 0;
                 NotifyStateChanged();
             }
         }
