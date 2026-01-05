@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_adresse_adr")]
-public class Adresse
+public class Adresse : IEntity
 {
     [Key]
     [Column("adr_id")]
@@ -20,10 +20,25 @@ public class Adresse
     
     [Column("adr_code_postal")]
     [RegularExpression(@"^\d{6}$", ErrorMessage = "Le code postal doit contenir exactement 5 chiffres.")]
-    public string AdrCodePostal { get; set; }
+    public string AdresseCodePostal { get; set; }
+    
+    [Column("adr_pays")]
+    public string AdressePays { get; set; } = "France";
+    
+    [Column("adr_is_default")]
+    public bool IsDefault { get; set; }
+    
+    [Column("adr_utilisateur_id")]
+    public int UtilisateurId { get; set; }
     
     //relation avec la table utilisateur
     
-    [InverseProperty(nameof(Utilisateur.Adresse))]
-    public virtual ICollection<Utilisateur> Utilisateurs { get; set; } = new List<Utilisateur>();
+    [ForeignKey(nameof(UtilisateurId))]
+    [InverseProperty(nameof(Utilisateur.Adresses))]
+    public virtual Utilisateur Utilisateurs { get; set; } = null!;
+    
+    [InverseProperty(nameof(Commande.AdresseLivraison))]
+    public virtual ICollection<Commande> Commandes { get; set; } = new List<Commande>();
+    
+    public int GetId() => AdresseId;
 }

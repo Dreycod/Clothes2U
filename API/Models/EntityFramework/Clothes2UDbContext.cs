@@ -70,6 +70,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     public DbSet<Vend> Vends { get; set; }
     public DbSet<Visualisation> Visualisations { get; set; }
+    public DbSet<Commande> Commandes { get; set; }
 
 
 
@@ -152,10 +153,44 @@ public partial class Clothes2UDbContext : DbContext
         {
             entity.HasKey(e => e.AdresseId);
             
-            entity.HasMany(e => e.Utilisateurs)
-                .WithOne(u => u.Adresse)
+            entity.HasOne(e => e.Utilisateurs)
+                .WithMany(u => u.Adresses)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Adresse_Utilisateur");
+            
+            entity.HasMany(e => e.Commandes)
+                .WithOne(e => e.AdresseLivraison)
+                .HasForeignKey(e => e.AdresseLivraisonId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<Commande>(entity =>
+        {
+            entity.HasKey(e => e.CommandeId);
+
+            entity.HasOne(e => e.Annonce)
+                .WithMany(a => a.Commandes)
+                .HasForeignKey(e => e.AnnonceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_Annonce");
+            
+            entity.HasOne(e => e.Acheteur)
+                .WithMany(e => e.CommandesAchetees)
+                .HasForeignKey(e => e.AcheteurId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_Acheteur");
+            
+            entity.HasOne(e => e.Vendeur)
+                .WithMany(e => e.CommandesVendues)
+                .HasForeignKey(e => e.VendeurId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_Vendeur");
+            
+            entity.HasOne(e => e.AdresseLivraison)
+                .WithMany(e => e.Commandes)
+                .HasForeignKey(e => e.AdresseLivraisonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_AdresseLivraison");
         });
         
         
@@ -1267,8 +1302,8 @@ public partial class Clothes2UDbContext : DbContext
             
 
             // Relation avec Adresse
-            entity.HasOne(e => e.Adresse)
-                .WithMany(a => a.Utilisateurs)
+            entity.HasMany(e => e.Adresses)
+                .WithOne(a => a.Utilisateurs)
                 .HasForeignKey(e => e.AdresseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -1310,11 +1345,22 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(a => a.Utilisateur)
                 .HasForeignKey(a => a.UtilisateurId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            //commande
+            
+            entity.HasMany(e => e.CommandesAchetees)
+                .WithOne(c => c.Acheteur)
+                .HasForeignKey(c => c.AcheteurId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasMany(e => e.CommandesVendues)
+                .WithOne(c => c.Vendeur)
+                .HasForeignKey(c => c.VendeurId)
+                .OnDelete(DeleteBehavior.Restrict);
                 
                 
                 
             entity.HasIndex(e => e.StatutId);
-            entity.HasIndex(e => e.AdresseId);
             entity.HasIndex(e => e.Dateinscription);
         });
         

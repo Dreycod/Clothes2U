@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.Http.Json;
 using Shared.DTO;
 using Shared.DTO.Utilisateur;
@@ -127,6 +128,50 @@ public class AuthWebService : BaseGenericService, IAuthService
         request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
 
         var response = await _httpClient.SendAsync(request);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<AdresseDTO>> GetUserAddressesAsync(int userId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"api/address/user/{userId}");
+            response.EnsureSuccessStatusCode();
+            
+            var addresses = await response.Content.ReadFromJsonAsync<List<AdresseDTO>>();
+            return addresses ?? new List<AdresseDTO>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error getting addresses: {ex.Message}");
+            return new List<AdresseDTO>();
+        }
+    }
+
+    public async Task<AdresseDTO> AddAddressAsync(CreateAdresseDTO address)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/address", address);
+        response.EnsureSuccessStatusCode();
+        
+        var result = await response.Content.ReadFromJsonAsync<AdresseDTO>();
+        return result ?? throw new Exception("Failed to add address");
+    }
+
+    public async Task<bool> UpdateAddressAsync(int addressId, UpdateAdresseDTO address)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"api/address/{addressId}", address);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteAddressAsync(int addressId)
+    {
+        var response = await _httpClient.DeleteAsync($"api/address/{addressId}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> SetDefaultAddressAsync(int addressId)
+    {
+        var response = await _httpClient.PutAsync($"api/address/{addressId}/set-default", null);
         return response.IsSuccessStatusCode;
     }
 }

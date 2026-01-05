@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Net;
 using Shared.DTO;
 using System.Net.Http;
@@ -14,4 +15,9 @@ public interface IAuthService
     public Task<UtilisateurViewDTO?> GetCurrentUserAsync();
     public string GetGoogleLoginUrl(string returnUrl = "/");
     public Task<bool> ModificationMotDePasse(ChangePasswordDTO passwordDTO);
+    Task<List<AdresseDTO>> GetUserAddressesAsync(int userId);
+    Task<AdresseDTO> AddAddressAsync(CreateAdresseDTO address);
+    Task<bool> UpdateAddressAsync(int addressId, UpdateAdresseDTO address);
+    Task<bool> DeleteAddressAsync(int addressId);
+    Task<bool> SetDefaultAddressAsync(int addressId);
 }

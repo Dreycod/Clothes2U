@@ -50,6 +50,8 @@ builder.Services.AddScoped<IVisualisationService, VisualisationWebService>();
 builder.Services.AddScoped<IDecisionService, DecisionWebService>();
 builder.Services.AddScoped<IDemandeRestaurationService, DemandeRestaurationWebService>();
 builder.Services.AddScoped<IMesureService, MesureWebService>();
+builder.Services.AddScoped<IOrderService, OrderWebService>();
+builder.Services.AddScoped<IPaymentService, PaymentWebService>();
 builder.Services.AddScoped<TransactionService>();
 
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
@@ -88,6 +90,7 @@ builder.Services.AddScoped<DemandeRestaurationDetailViewModel>();
 builder.Services.AddScoped<HistoriqueTransactionViewModel>();
 builder.Services.AddScoped<SettingsViewModel>();
 builder.Services.AddScoped<CreationAnnonceViewModel>();
+builder.Services.AddScoped<AcheterViewModel>();
 
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });

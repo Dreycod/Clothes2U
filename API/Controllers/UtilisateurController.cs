@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Services.VerificationSrvceV2;
+using Shared.DTO;
 
 namespace API.Controllers;
 
@@ -88,7 +89,7 @@ public class UtilisateurController :  ControllerBase
     int id,
     [FromBody] UpdateNotifMailDTO dto)
     {
-        // Sécurité : seul l'utilisateur lui-même
+        // Sï¿½curitï¿½ : seul l'utilisateur lui-mï¿½me
         if ((await _currentUserService.GetUserId()) != id)
             return Forbid();
 
@@ -97,12 +98,27 @@ public class UtilisateurController :  ControllerBase
             return NotFound();
 
         if (!utilisateur.ValidEmail)
-            return BadRequest("Email non vérifié");
+            return BadRequest("Email non vï¿½rifiï¿½");
 
         utilisateur.PreferenceNotifMail = dto.PreferenceNotifMail;
         await _utilisateurManager.UpdateAsync(utilisateur);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("adresses/{id}")]
+    public async Task<ActionResult<AdresseDTO>> GetAdresses(int id)
+    {
+        var user = _utilisateurManager.GetByIdAsync(id);
+        if (user == null) return NotFound();
+        ICollection<Adresse> adresses = user!.Result.Adresses;
+        ICollection<AdresseDTO> adressesDTO = new List<AdresseDTO>();
+        foreach (Adresse adresse in adresses)
+        {
+            adressesDTO.Add(_mapper.Map<AdresseDTO>(adresse));
+        }
+        return Ok(adressesDTO);
     }
 
 

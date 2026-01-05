@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Shared.DTO;
 
 namespace API.Models.Repository.Managers;
 
@@ -15,7 +16,7 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
             .Include(u => u.PhotoProfil)
             .Include(u => u.Statut)
             .Include(u => u.Role)
-            .Include(u => u.Adresse)
+            .Include(u => u.Adresses)
             .Include(u => u.Abonnes)  
             .Include(u => u.Role)
             .Include(u => u.Abonnements)          
@@ -73,8 +74,8 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
         if (!string.IsNullOrEmpty(entity.Description))
             entry.Property(u => u.Description).IsModified = true;
     
-        if (entity.AdresseId.HasValue)
-            entry.Property(u => u.AdresseId).IsModified = true;
+        if (entity.Adresses != null)
+            entry.Property(u => u.Adresses).IsModified = true;
     
         if (entity.PhotoId.HasValue)
             entry.Property(u => u.PhotoId).IsModified = true;

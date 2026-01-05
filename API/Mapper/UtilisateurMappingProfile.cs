@@ -57,7 +57,7 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.AdresseId))
+            .ForMember(dest => dest.Adresses, opt => opt.MapFrom(src => src.AdresseId))
             .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoProfilId))
             .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => srcValue != null));
         CreateMap<Utilisateur, UtilisateurDTO>()
@@ -66,7 +66,7 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.DateInscription, opt => opt.MapFrom(src => src.Dateinscription))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.AdresseId))
+            .ForMember(dest => dest.AdresseId, opt => opt.MapFrom(src => src.Adresses.FirstOrDefault(a => a.AdressePays == "France").AdresseId))
             .ForMember(dest => dest.ValidEmail, opt => opt.MapFrom(src => src.ValidEmail))
             .ForMember(dest => dest.ValidTelephone, opt => opt.MapFrom(src => src.ValidTelephone))
             .ForMember(dest => dest.StatutId, opt => opt.MapFrom(src => src.StatutId))

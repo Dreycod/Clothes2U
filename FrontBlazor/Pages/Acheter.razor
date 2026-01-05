@@ -1,5 +1,262 @@
-<h3>Acheter</h3>
+@page "/Acheter/{ConversationId:int}"
+@inject AcheterViewModel VM
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<PageTitle>Achat - Clothes2U</PageTitle>
+
+<NavBar />
+
+<div class="purchase-page">
+    <div class="purchase-container">
+        @if (VM.IsLoading)
+        {
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Chargement...</p>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(VM.ErrorMessage))
+        {
+            <div class="error-state">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h2>Erreur</h2>
+                <p>@VM.ErrorMessage</p>
+                @* <button class="btn-primary" @onclick="() => Navigation.NavigateTo(hfg)"> *@
+                @*     Retour à l'accueil *@
+                @* </button> *@
+            </div>
+        }
+        else if (VM.SelectedAnnonce != null)
+        {
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="step @(VM.CurrentStep >= PurchaseStep.AddressSelection ? "active" : "")">
+                    <div class="step-circle">1</div>
+                    <span>Adresse</span>
+                </div>
+                <div class="step-line @(VM.CurrentStep >= PurchaseStep.Payment ? "active" : "")"></div>
+                <div class="step @(VM.CurrentStep >= PurchaseStep.Payment ? "active" : "")">
+                    <div class="step-circle">2</div>
+                    <span>Paiement</span>
+                </div>
+                <div class="step-line @(VM.CurrentStep >= PurchaseStep.Success ? "active" : "")"></div>
+                <div class="step @(VM.CurrentStep >= PurchaseStep.Success ? "active" : "")">
+                    <div class="step-circle">3</div>
+                    <span>Confirmation</span>
+                </div>
+            </div>
+
+            <div class="purchase-content">
+                <!-- Sidebar - Récapitulatif -->
+                <aside class="order-summary">
+                    <h2>Récapitulatif</h2>
+                    
+                    <div class="product-info">
+                        <img src="@VM.SelectedAnnonce.Photos[0]" alt="@VM.SelectedAnnonce.Title" />
+                        <div>
+                            <h3>@VM.SelectedAnnonce.Title</h3>
+                            <p class="product-size">Taille: @VM.SelectedAnnonce.Taille</p>
+                        </div>
+                    </div>
+
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span>Prix de l'article</span>
+                            <span>@string.Format("{0:F2}", VM.ProductPrice) €</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Frais de service</span>
+                            <span>@string.Format("{0:F2}", VM.ServiceFee) €</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Frais de livraison</span>
+                            <span>@string.Format("{0:F2}", VM.ShippingCost) €</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>Total</span>
+                            <span>@string.Format("{0:F2}", VM.TotalAmount) €</span>
+                        </div>
+                    </div>
+
+                    @if (VM.SelectedAddress != null)
+                    {
+                        <div class="selected-address">
+                            <h4>Adresse de livraison</h4>
+                            <p>@VM.SelectedAddress.AdresseRue</p>
+                            <p>@VM.SelectedAddress.AdresseCodePostal @VM.SelectedAddress.AdresseVille</p>
+                            <p>@VM.SelectedAddress.AdressePays</p>
+                        </div>
+                    }
+                </aside>
+
+                <!-- Main Content -->
+                <main class="purchase-main">
+                    @if (VM.CurrentStep == PurchaseStep.AddressSelection)
+                    {
+                        <div class="address-selection">
+                            <h1>Sélectionnez une adresse de livraison</h1>
+
+                            @if (!VM.UserAddresses.Any())
+                            {
+                                <div class="empty-state">
+                                    <i class="bi bi-house"></i>
+                                    <p>Vous n'avez pas d'adresse enregistrée</p>
+                                    <button class="btn-secondary" @onclick="AddNewAddress">
+                                        Ajouter une adresse
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="address-list">
+                                    @foreach (var address in VM.UserAddresses)
+                                    {
+                                        <div class="address-card @(VM.SelectedAddress?.AdresseId == address.AdresseId ? "selected" : "")"
+                                             @onclick="() => VM.SelectAddress(address)">
+                                            <div class="address-content">
+                                                <h3>
+                                                    @address.AdresseRue
+                                                    @if (address.IsDefault)
+                                                    {
+                                                        <span class="badge">Par défaut</span>
+                                                    }
+                                                </h3>
+                                                <p>@address.AdresseCodePostal @address.AdresseVille</p>
+                                                <p>@address.AdressePays</p>
+                                            </div>
+                                            @if (VM.SelectedAddress?.AdresseId == address.AdresseId)
+                                            {
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                <button class="btn-link" @onclick="AddNewAddress">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une nouvelle adresse
+                                </button>
+                            }
+
+                            <div class="action-buttons">
+                                <button class="btn-secondary" @onclick="VM.GoBack">
+                                    Retour
+                                </button>
+                                <button class="btn-primary" 
+                                        @onclick="VM.ProceedToPayment"
+                                        disabled="@(VM.SelectedAddress == null)">
+                                    Continuer vers le paiement
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    else if (VM.CurrentStep == PurchaseStep.Payment)
+                    {
+                        <div class="payment-section">
+                            <h1>Paiement sécurisé</h1>
+                            
+                            <div class="payment-badges">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Paiement sécurisé par Stripe</span>
+                            </div>
+
+                            <!-- Stripe Payment Element -->
+                            <div id="payment-element"></div>
+                            
+                            @if (!string.IsNullOrEmpty(VM.ErrorMessage))
+                            {
+                                <div class="error-message">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    @VM.ErrorMessage
+                                </div>
+                            }
+
+                            <div class="action-buttons">
+                                <button class="btn-secondary" @onclick="VM.GoBack">
+                                    Retour
+                                </button>
+                                <button class="btn-primary" 
+                                        @onclick="HandlePayment"
+                                        disabled="@VM.IsProcessingPayment">
+                                    @if (VM.IsProcessingPayment)
+                                    {
+                                        <span class="spinner-small"></span>
+                                        <text>Traitement en cours...</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Payer @string.Format("{0:F2}", VM.TotalAmount) €</text>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    else if (VM.CurrentStep == PurchaseStep.Success)
+                    {
+                        <div class="success-state">
+                            <div class="success-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <h1>Commande confirmée !</h1>
+                            <p>Votre achat a été effectué avec succès.</p>
+                            <p class="success-details">
+                                Un email de confirmation a été envoyé à votre adresse.
+                                Le vendeur va préparer votre colis et vous recevrez un numéro de suivi prochainement.
+                            </p>
+                            <div class="action-buttons">
+                            @*     <button class="btn-secondary" @onclick="() => Navigation.NavigateTo(orders)"> *@
+                            @*         Voir mes commandes *@
+                            @*     </button> *@
+                            @* <button class="btn-primary" @onclick="() => Navigation.NavigateTo()"> *@
+                            @*         Retour à l'accueil *@
+                            @*     </button> *@
+                            </div>
+                        </div>
+                    }
+                </main>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
-    
+    [Parameter]
+    public int ConversationId { get; set; }
+
+    [Inject]
+    private NavigationManager Navigation { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM.OnChange += StateHasChanged;
+        await VM.LoadAsync(ConversationId);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && VM.CurrentStep == PurchaseStep.Payment && !string.IsNullOrEmpty(VM.StripeClientSecret))
+        {
+            await JSRuntime.InvokeVoidAsync("initializeStripeElements", VM.StripeClientSecret);
+        }
+    }
+
+    private async Task HandlePayment()
+    {
+        var success = await VM.ConfirmPayment();
+        if (success)
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void AddNewAddress()
+    {
+        Navigation.NavigateTo($"/profile/addresses/new?returnUrl=/purchase/{ConversationId}");
+    }
+
+    public void Dispose()
+    {
+        VM.OnChange -= StateHasChanged;
+    }
+}
 }

@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using Shared.DTO;
 
 namespace API.Services;
 
@@ -68,4 +69,5 @@ public class CurrentUserService : ICurrentUserService
         }
         return await _bloqueRepository.Exists((int)userId, suivisId);
     }
+
 }

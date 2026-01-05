@@ -48,9 +48,6 @@ public class Utilisateur : IEntity
 
     //id de relation
 
-    [Column("uti_adresse_id")]
-    public int? AdresseId { get; set; }
-
     [Column("uti_statut_id")] public int StatutId { get; set; }
 
     [Column("uti_id_photo")] public int? PhotoId { get; set; }
@@ -81,9 +78,8 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Message.Utilisateur))]
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     
-    [ForeignKey(nameof(AdresseId))]
     [InverseProperty(nameof(Adresse.Utilisateurs))]
-    public virtual Adresse Adresse { get; set; } 
+    public virtual ICollection<Adresse> Adresses { get; set; } 
     
     [InverseProperty(nameof(NoteUtilisateur.Auteur))]
     public virtual ICollection<NoteUtilisateur> NotesAuteur { get; set; } = new List<NoteUtilisateur>();
@@ -133,6 +129,13 @@ public class Utilisateur : IEntity
 
     [InverseProperty(nameof(Decision.Utilisateur))]
     public virtual ICollection<Decision> DecisionsUtilisateurSanctionne { get; set; } = new List<Decision>();
+    
+    [InverseProperty(nameof(Commande.Acheteur))]
+    public virtual ICollection<Commande> CommandesAchetees { get; set; } = new List<Commande>();
+
+    [InverseProperty(nameof(Commande.Vendeur))]
+    public virtual ICollection<Commande> CommandesVendues { get; set; } = new List<Commande>();
+
 
     
     //suggestion : 

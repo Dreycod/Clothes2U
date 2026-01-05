@@ -115,9 +115,14 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         var response = await PostWithCredentialsAsync("Annonce", body);
     }
 
-    public async Task ModificationAnnonce(CreateAnnonceDTO annonce)
+    public async Task ModificationAnnonce(AnnonceDetailDTO annonceDTO)
     {
-        throw new NotImplementedException();
+        var response = await PutWithCredentialsAsync(
+            $"Annonce/id/{annonceDTO.AnnonceId}",
+            JsonContent.Create(annonceDTO)
+        );
+
+        response.EnsureSuccessStatusCode();
     }
 
     public async Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page = 1, int pageSize = 30)

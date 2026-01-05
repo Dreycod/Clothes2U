@@ -259,6 +259,7 @@ builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IOrderRepository, OrderManager>();
 builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
@@ -276,6 +277,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();
 
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
 
 var app = builder.Build();
