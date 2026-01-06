@@ -4,14 +4,9 @@ using Shared.DTO;
 
 namespace API.Models.Repository.Managers;
 
-public class ClusterManager : IClusterRepository
+public class ClusterManager : GenericCRUDManager<AnnoncePreferenceUtilisateur>, IClusterRepository
 {
-    private readonly Clothes2UDbContext _context;
-    
-    public ClusterManager(Clothes2UDbContext context)
-    {
-        _context = context;
-    }
+    public ClusterManager(Clothes2UDbContext context) : base(context) { }
     
     public async Task SaveClustersAsync(ClusteringResponseDTO clusteringResponse)
     {

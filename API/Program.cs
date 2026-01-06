@@ -261,6 +261,7 @@ builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();
 builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();
+builder.Services.AddScoped<IAnnonceExtensionService, AnnonceExtensionService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 

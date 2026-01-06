@@ -52,7 +52,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     public async Task<IEnumerable<Annonce>> GetActiveAnnonces()
     {
         return await BaseAnnonceQuery()
-            .Where(a => a.Statut.StatutLibelle == "En Ligne") 
+            .Where(a => a.Statut.StatutLibelle == "En Ligne" && a.Utilisateur.Statut.StatutLibelle == "Actif") 
             .ToListAsync();
     }
 

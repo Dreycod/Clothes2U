@@ -10,6 +10,7 @@ using AutoMapper;
 public class SuggestionService : ISuggestionService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly ILogger<SuggestionService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory; 
     private readonly IMapper _mapper;
@@ -18,6 +19,7 @@ public class SuggestionService : ISuggestionService
     public SuggestionService(
         IHttpClientFactory httpClientFactory, 
         IClusterRepository  annoncePreferenceManager,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         ILogger<SuggestionService> logger,
         IConfiguration configuration,
         IServiceScopeFactory serviceScopeFactory, 
@@ -25,6 +27,7 @@ public class SuggestionService : ISuggestionService
         IMapper mapper)
     {
         _httpClientFactory = httpClientFactory;
+        _annonceManager = annonceRepository;
         _logger = logger;
         _annoncePreferenceManager = annoncePreferenceManager;
         _serviceScopeFactory = serviceScopeFactory;
@@ -109,5 +112,13 @@ public class SuggestionService : ISuggestionService
         });
 
         await Task.CompletedTask;
+    }
+
+    public async Task<IEnumerable<Annonce>> GetRecommandations(int userId)
+    {
+        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
+        IEnumerable<AnnoncePreferenceUtilisateur> clusters = await _annoncePreferenceManager.GetAllAsync();
+        
+        throw new NotImplementedException();
     }
 }

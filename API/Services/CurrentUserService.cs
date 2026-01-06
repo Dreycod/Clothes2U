@@ -22,6 +22,17 @@ public class CurrentUserService : ICurrentUserService
         _abonnementRepository = abonnementRepository;
         _bloqueRepository = bloqueRepository;
     }
+    public async Task<int> GetUserIdOrThrow()
+    {
+        var userId = await GetUserId();
+        
+        if (!userId.HasValue)
+        {
+            throw new UnauthorizedAccessException("Utilisateur non authentifié");
+        }
+        
+        return userId.Value;
+    }
 
     public async Task<int?> GetUserId()
     {
