@@ -6,5 +6,5 @@ namespace API.Services;
 public interface ISuggestionService
 {
     Task CalculSuggestion(int userId);
-    Task<IEnumerable<Annonce>> GetRecommandations(int userId, int page, int pageSize); 
+    Task<IEnumerable<AnnonceDTO>> GetRecommandations(int page, int pageSize); 
 }

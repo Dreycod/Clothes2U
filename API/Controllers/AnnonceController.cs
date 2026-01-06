@@ -253,8 +253,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
-        int userId = await _currentUserService.GetUserIdOrThrow();
-        IEnumerable<Annonce> annonces = await _suggestionService.GetRecommandations(userId, page, pageSize);
+        IEnumerable<AnnonceDTO> annonces = await _suggestionService.GetRecommandations(page, pageSize);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return  Ok(annoncesDTO);
     }
