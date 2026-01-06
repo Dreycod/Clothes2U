@@ -357,6 +357,7 @@ public class LoginController : ControllerBase
         if (utilisateur != null)
         {
             Console.WriteLine($"✅ Utilisateur existant trouvé: {utilisateur.Login}");
+            utilisateur = await _utilisateurManager.GetUtilisateurByLogin(utilisateur.Login);
             return utilisateur;
         }
 
@@ -375,10 +376,10 @@ public class LoginController : ControllerBase
         {
             Email = userInfo.Email,
             Login = login,
-            Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()), // Mot de passe aléatoire
+            Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
             Description = "",
             StatutId = 1,
-            ValidEmail = true, // Email validé par Google
+            ValidEmail = true,
             ValidTelephone = false,
             Dateinscription = DateTime.UtcNow,
             RoleId = 1
