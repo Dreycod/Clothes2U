@@ -114,7 +114,7 @@ public class SuggestionService : ISuggestionService
         await Task.CompletedTask;
     }
 
-    public async Task<IEnumerable<Annonce>> GetRecommandations(int userId)
+    public async Task<IEnumerable<Annonce>> GetRecommandations(int userId, int page, int pageSize)
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
         IEnumerable<AnnoncePreferenceUtilisateur> clusters = await _annoncePreferenceManager.GetAllAsync();

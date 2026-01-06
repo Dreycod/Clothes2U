@@ -61,12 +61,7 @@ public class DemandeRestaurationController : ControllerBase
     public async Task<ActionResult<DemandeRestaurationDetailDTO>> CreateDemandeRestauration(
         [FromBody] string messageDemandeRestauration)
     {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized(new { message = "Utilisateur non authentifié" });
-        }
-    
+        int userId = await _currentUserService.GetUserIdOrThrow();
         DemandeRestauration demande = await _demandeRestaurationManager
             .GetActiveDemandeRestaurationByUserId((int)userId);
         if (demande != null)

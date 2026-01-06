@@ -19,7 +19,6 @@ public class AnnonceController : ControllerBase
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly ICaracteristiquesRepository<Est_De_Couleur> _estDeCouleurRepository;
     private readonly IAnnonceExtensionService _annonceExtensionService;
-    private readonly IFavorisRepository  _favorisRepository;
     private readonly INotificationService _notificationService;
     private readonly ISuggestionService _suggestionService;
     private readonly IMapper _mapper;
@@ -40,7 +39,6 @@ public class AnnonceController : ControllerBase
     {
         _annonceManager = manager;
         _estDeCouleurRepository = estDeCouleurRepo;
-        _favorisRepository = favorisManager;
         _mapper = mapper;
         _annonceExtensionService = annonceExtensionService;
         _notificationService = notificationService;
@@ -255,8 +253,10 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
-        int? userId = await _currentUserService.GetUserId();
-        throw new NotImplementedException();
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        IEnumerable<Annonce> annonces = await _suggestionService.GetRecommandations(userId, page, pageSize);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return  Ok(annoncesDTO);
     }
     
 }

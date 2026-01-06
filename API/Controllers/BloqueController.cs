@@ -38,11 +38,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<ActionResult<BloqueDTO>> Create([FromBody] int utilisateurBloqueID)
         {
-            int? userId = await _currentUserService.GetUserId();
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            int userId = await _currentUserService.GetUserIdOrThrow();
             bool exists = await _bloqueRepo.Exists((int)userId, utilisateurBloqueID);
             if (exists)
                 return BadRequest("Cet utilisateur est déjà bloqué.");
@@ -59,11 +55,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int utilisateurBloqueId)
         {
-            int? userId = await _currentUserService.GetUserId();
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            int userId = await _currentUserService.GetUserIdOrThrow();
             var entity = await _bloqueRepo.GetIfExists((int)userId, utilisateurBloqueId);
             if (entity == null)
                 return NotFound();

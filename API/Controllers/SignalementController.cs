@@ -67,7 +67,7 @@ namespace API.Controllers
             return Ok(_mapper.Map<IEnumerable<SignalementDTO>>(list));
         }
         [HttpPost]
-        //[Authorize(Roles="Admin,Moderateur")]
+        [Authorize]
         [ProducesResponseType(typeof(SignalementDetailsDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -75,12 +75,7 @@ namespace API.Controllers
         {
             try
             {
-                int? userId = await _currentUserService.GetUserId();
-                if (userId == null)
-                {
-                    return Unauthorized();
-                }
-
+                int userId = await _currentUserService.GetUserIdOrThrow();
                 var signalement = _mapper.Map<Signalement>(dto);
                 signalement.UtilisateurId = (int)userId;
                 int? annonceId = (dto as SignalementAnnonceCreateDTO)?.AnnonceSignaleeId;
