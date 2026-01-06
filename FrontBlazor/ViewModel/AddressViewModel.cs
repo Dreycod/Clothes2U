@@ -7,7 +7,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel;
 
-public class AddressViewModel : ComponentBase, IDisposable
+public class AddressViewModel : IDisposable
 {
     private readonly IAuthService _authService;
     private readonly NavigationManager _nav;

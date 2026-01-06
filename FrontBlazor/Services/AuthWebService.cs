@@ -147,7 +147,7 @@ public class AuthWebService : BaseGenericService, IAuthService
 
     public async Task<AdresseDTO> AddAddressAsync(CreateAdresseDTO address)
     {
-        var response = await _httpClient.PostAsJsonAsync("address", address);
+        var response = await PostWithCredentialsAsync("address", JsonContent.Create(address));
         response.EnsureSuccessStatusCode();
         
         var result = await response.Content.ReadFromJsonAsync<AdresseDTO>();
@@ -156,19 +156,19 @@ public class AuthWebService : BaseGenericService, IAuthService
 
     public async Task<bool> UpdateAddressAsync(int addressId, UpdateAdresseDTO address)
     {
-        var response = await _httpClient.PutAsJsonAsync($"address/{addressId}", address);
+        var response = await PutWithCredentialsAsync($"address/{addressId}", JsonContent.Create(address));
         return response.IsSuccessStatusCode;
     }
 
     public async Task<bool> DeleteAddressAsync(int addressId)
     {
-        var response = await _httpClient.DeleteAsync($"address/{addressId}");
+        var response = await DeleteWithCredentialsAsync($"address/{addressId}");
         return response.IsSuccessStatusCode;
     }
 
     public async Task<bool> SetDefaultAddressAsync(int addressId)
     {
-        var response = await _httpClient.PutAsync($"address/{addressId}/set-default", null);
+        var response = await PutWithCredentialsAsync($"address/{addressId}/set-default", null);
         return response.IsSuccessStatusCode;
     }
 }

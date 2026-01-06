@@ -239,10 +239,12 @@
 
 @code {
     private AdresseDTO? addressToDelete;
+    private Action? _onChangeHandler;
 
     protected override async Task OnInitializedAsync()
     {
-        VM.OnChange += StateHasChanged;
+        _onChangeHandler = () => InvokeAsync(StateHasChanged);
+        VM.OnChange += _onChangeHandler;
         await VM.LoadAsync();
     }
 
@@ -282,6 +284,9 @@
 
     public void Dispose()
     {
-        VM.OnChange -= StateHasChanged;
+        if (_onChangeHandler != null)
+        {
+            VM.OnChange -= _onChangeHandler;
+        }
     }
 }

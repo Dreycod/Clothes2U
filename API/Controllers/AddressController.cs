@@ -92,6 +92,11 @@ public class AddressController : ControllerBase
 
         var address = _mapper.Map<Adresse>(dto);
 
+        if (!hasExistingAddresses)
+        {
+            address.IsDefault = true;
+        }
+
         _context.Adresses.Add(address);
         await _context.SaveChangesAsync();
 
