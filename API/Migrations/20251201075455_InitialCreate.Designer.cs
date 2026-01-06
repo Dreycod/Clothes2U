@@ -3,6 +3,7 @@ using System;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(Clothes2UDbContext))]
-    partial class Clothes2UDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251201075455_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,16 +93,10 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AdresseId"));
 
-
-                    b.Property<string>("AdresseCodePostal")
+                    b.Property<string>("AdrCodePostal")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("adr_code_postal");
-
-                    b.Property<string>("AdressePays")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("adr_pays");
 
                     b.Property<string>("AdresseRue")
                         .IsRequired()
@@ -113,17 +110,7 @@ namespace API.Migrations
                         .HasColumnType("character varying(80)")
                         .HasColumnName("adr_ville");
 
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean")
-                        .HasColumnName("adr_is_default");
-
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("adr_utilisateur_id");
-
                     b.HasKey("AdresseId");
-
-                    b.HasIndex("UtilisateurId");
 
                     b.ToTable("t_e_adresse_adr", "sae_clothes2u");
                 });
@@ -153,10 +140,6 @@ namespace API.Migrations
                     b.Property<int>("EtatId")
                         .HasColumnType("integer")
                         .HasColumnName("ann_etat_id");
-
-                    b.Property<int>("GenreId")
-                        .HasColumnType("integer")
-                        .HasColumnName("ann_genre_id");
 
                     b.Property<int>("MarqueId")
                         .HasColumnType("integer")
@@ -200,9 +183,6 @@ namespace API.Migrations
 
                     b.HasIndex("EtatId");
 
-                    b.HasIndex("GenreId")
-                        .HasDatabaseName("idx_annonce_genre");
-
                     b.HasIndex("MarqueId");
 
                     b.HasIndex("SousCategorieId");
@@ -214,64 +194,6 @@ namespace API.Migrations
                     b.HasIndex("UtilisateurId");
 
                     b.ToTable("t_e_annonce_ann", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.AnnoncePreferenceUtilisateur", b =>
-                {
-                    b.Property<int>("AnnoncePreferenceUtilisateurId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("annprefuti_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AnnoncePreferenceUtilisateurId"));
-
-                    b.Property<string>("Categorie")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("annprefuti_categorie");
-
-                    b.Property<string>("CouleurDominante")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("annprefuti_couleur_dominante");
-
-                    b.Property<string>("EtatArticle")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("annprefuti_etat");
-
-                    b.Property<string>("NomMarque")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("annprefuti_marque");
-
-                    b.Property<int>("Ponderation")
-                        .HasColumnType("integer")
-                        .HasColumnName("annprefuti_ponderarion");
-
-                    b.Property<double>("Prix")
-                        .HasColumnType("double precision")
-                        .HasColumnName("annprefuti_prix");
-
-                    b.Property<string>("SousCategorie")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("annprefuti_souscategorie");
-
-                    b.Property<string>("Taille")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("annprefuti_taille");
-
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("annprefuti_utilisateur_id");
-
-                    b.HasKey("AnnoncePreferenceUtilisateurId");
-
-                    b.HasIndex("UtilisateurId");
-
-                    b.ToTable("t_e_annonce_preference_utilisateur_annprefuti", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Bloque", b =>
@@ -319,84 +241,6 @@ namespace API.Migrations
                     b.ToTable("t_e_categorie_cat", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
-                {
-                    b.Property<int>("CommandeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("cmd_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CommandeId"));
-
-                    b.Property<int>("AcheteurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cmd_acheteur_id");
-
-                    b.Property<int>("AdresseLivraisonId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cmd_adresse_livraison_id");
-
-                    b.Property<int>("AnnonceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cmd_annonce_id");
-
-                    b.Property<DateTime>("DateCommande")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cmd_date_commande");
-
-                    b.Property<DateTime?>("DateExpedition")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cmd_date_expedition");
-
-                    b.Property<DateTime?>("DateLivraison")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cmd_date_livraison");
-
-                    b.Property<decimal>("FraisLivraison")
-                        .HasColumnType("numeric")
-                        .HasColumnName("cmd_frais_livraison");
-
-                    b.Property<decimal>("FraisService")
-                        .HasColumnType("numeric")
-                        .HasColumnName("cmd_frais_service");
-
-                    b.Property<decimal>("MontantTotal")
-                        .HasColumnType("numeric")
-                        .HasColumnName("cmd_montant_total");
-
-                    b.Property<string>("NumeroSuivi")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("cmd_numero_suivi");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("cmd_statut");
-
-                    b.Property<string>("StripePaymentIntentId")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("cmd_stripe_payment_intent_id");
-
-                    b.Property<int>("VendeurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cmd_vendeur_id");
-
-                    b.HasKey("CommandeId");
-
-                    b.HasIndex("AcheteurId");
-
-                    b.HasIndex("AdresseLivraisonId");
-
-                    b.HasIndex("AnnonceId");
-
-                    b.HasIndex("VendeurId");
-
-                    b.ToTable("t_e_commande_cmd", "sae_clothes2u");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>
                 {
                     b.Property<int>("ConversationId")
@@ -413,10 +257,6 @@ namespace API.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("con_datecreation");
-
-                    b.Property<decimal>("Prix")
-                        .HasColumnType("numeric")
-                        .HasColumnName("con_prix");
 
                     b.Property<int>("StatutConversationId")
                         .HasColumnType("integer")
@@ -450,80 +290,65 @@ namespace API.Migrations
                     b.ToTable("t_e_couleur_cou", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Decision", b =>
+            modelBuilder.Entity("API.Models.EntityFramework.Decision_suspension", b =>
                 {
-                    b.Property<int>("DecisionId")
+                    b.Property<int>("Decision_suspensionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("dec_id");
+                        .HasColumnName("sus_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DecisionId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Decision_suspensionId"));
 
-                    b.Property<DateTime>("DecisionDate")
+                    b.Property<int?>("AnnonceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sus_annonce_id");
+
+                    b.Property<DateTime>("DateDebutSuspension")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dec_date_decision");
+                        .HasColumnName("sus_date_debut_suspension");
 
-                    b.Property<int>("ModerateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("dec_moderateur_id");
+                    b.Property<DateTime>("DateFinSuspension")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sus_date_fin_suspension");
 
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("dec_utilisateur_id");
-
-                    b.HasKey("DecisionId");
-
-                    b.HasIndex("ModerateurId");
-
-                    b.HasIndex("UtilisateurId");
-
-                    b.ToTable("t_e_decision_dec", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.DecisionAvertissement", b =>
-                {
-                    b.Property<int>("DecisionAvertissementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("decave_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DecisionAvertissementId"));
-
-                    b.Property<int>("DecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("decave_decision_id");
-
-                    b.HasKey("DecisionAvertissementId");
-
-                    b.HasIndex("DecisionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_decision_avertissement_decave", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.DecisionSanction", b =>
-                {
-                    b.Property<int>("DecisionSanctionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("san_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DecisionSanctionId"));
-
-                    b.Property<int>("DecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("san_decision_id");
-
-                    b.Property<bool>("EstEnCours")
+                    b.Property<bool>("EstTraitee")
                         .HasColumnType("boolean")
-                        .HasColumnName("san_en_cours");
+                        .HasColumnName("sus_traitee");
 
-                    b.HasKey("DecisionSanctionId");
+                    b.Property<string>("MotifSuspension")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sus_motif_suspension");
 
-                    b.HasIndex("DecisionId")
-                        .IsUnique();
+                    b.Property<int>("TypeSuspensionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sus_type_id");
 
-                    b.ToTable("t_e_sanction_san", "sae_clothes2u");
+                    b.Property<int?>("UtilisateurAdminId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sus_utilisateur_admin_id");
+
+                    b.Property<int?>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sus_utilisateur_id");
+
+                    b.HasKey("Decision_suspensionId");
+
+                    b.HasIndex("AnnonceId")
+                        .HasDatabaseName("idx_decision_suspension_annonce");
+
+                    b.HasIndex("TypeSuspensionId")
+                        .HasDatabaseName("idx_decision_suspension_type");
+
+                    b.HasIndex("UtilisateurAdminId");
+
+                    b.HasIndex("UtilisateurId")
+                        .HasDatabaseName("idx_decision_suspension_utilisateur");
+
+                    b.HasIndex("DateDebutSuspension", "DateFinSuspension")
+                        .HasDatabaseName("idx_decision_suspension_dates");
+
+                    b.ToTable("t_e_decision_suspension_sus", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.DemandeRestauration", b =>
@@ -535,153 +360,25 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DemandeRestaurationId"));
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("demres_date");
+                    b.Property<string>("DemandeRestaurationText")
+                        .HasColumnType("text")
+                        .HasColumnName("demres_demande_restauration");
 
-                    b.Property<int>("DecisionId")
+                    b.Property<int>("SuspensionId")
                         .HasColumnType("integer")
-                        .HasColumnName("demres_decision_id");
+                        .HasColumnName("demres_suspension_id");
 
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("demres_message");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("demres_statut");
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("demres_utilisateur_id");
 
                     b.HasKey("DemandeRestaurationId");
 
-                    b.HasIndex("DecisionId")
-                        .IsUnique();
+                    b.HasIndex("SuspensionId");
+
+                    b.HasIndex("UtilisateurId");
 
                     b.ToTable("t_e_demande_restauration_demres", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecision", b =>
-                {
-                    b.Property<int>("ElementDecisionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("eledec_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionId"));
-
-                    b.Property<int>("DecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("eledec_sanction_id");
-
-                    b.HasKey("ElementDecisionId");
-
-                    b.HasIndex("DecisionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_element_decision_eledec", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAnnonce", b =>
-                {
-                    b.Property<int>("ElementDecisionAnnonceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("eda_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionAnnonceId"));
-
-                    b.Property<int>("AnnonceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("eda_annonce_id");
-
-                    b.Property<int>("ElementDecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("eda_element_decision_id");
-
-                    b.HasKey("ElementDecisionAnnonceId");
-
-                    b.HasIndex("AnnonceId");
-
-                    b.HasIndex("ElementDecisionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_element_decision_annonce_eda", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAvis", b =>
-                {
-                    b.Property<int>("ElementDecisionAvisId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("edav_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionAvisId"));
-
-                    b.Property<int>("AvisId")
-                        .HasColumnType("integer")
-                        .HasColumnName("edav_avis_id");
-
-                    b.Property<int>("ElementDecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("edav_element_decision_id");
-
-                    b.HasKey("ElementDecisionAvisId");
-
-                    b.HasIndex("AvisId");
-
-                    b.HasIndex("ElementDecisionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_element_decision_avis_edav", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionMessage", b =>
-                {
-                    b.Property<int>("ElementDecisionMessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("edm_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionMessageId"));
-
-                    b.Property<int>("ElementDecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("edm_element_decision_id");
-
-                    b.Property<int>("MessageId")
-                        .HasColumnType("integer")
-                        .HasColumnName("edm_message_id");
-
-                    b.HasKey("ElementDecisionMessageId");
-
-                    b.HasIndex("ElementDecisionId")
-                        .IsUnique();
-
-                    b.HasIndex("MessageId");
-
-                    b.ToTable("t_e_element_decision_message_edm", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionUtilisateur", b =>
-                {
-                    b.Property<int>("ElementDecisionUtilisateurId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("edu_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElementDecisionUtilisateurId"));
-
-                    b.Property<int>("ElementDecisionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("edu_element_decision_id");
-
-                    b.HasKey("ElementDecisionUtilisateurId");
-
-                    b.HasIndex("ElementDecisionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_element_decision_utilisateur_edu", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Est_De_Couleur", b =>
@@ -755,32 +452,6 @@ namespace API.Migrations
                     b.ToTable("t_j_favoris_fav", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Genre", b =>
-                {
-                    b.Property<int>("GenreId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("gen_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("GenreId"));
-
-                    b.Property<string>("NomGenre")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("gen_nomgenre");
-
-                    b.HasKey("GenreId");
-
-                    b.HasIndex("GenreId")
-                        .IsUnique();
-
-                    b.HasIndex("NomGenre")
-                        .IsUnique();
-
-                    b.ToTable("t_e_genre_gen", "sae_clothes2u");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Illustre_Annonce", b =>
                 {
                     b.Property<int>("IllustId")
@@ -848,10 +519,6 @@ namespace API.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("mes_lu");
 
-                    b.Property<bool>("MessageStatut")
-                        .HasColumnType("boolean")
-                        .HasColumnName("mes_statut");
-
                     b.Property<int>("UtilisateurId")
                         .HasColumnType("integer")
                         .HasColumnName("mes_utilisateur_id");
@@ -874,9 +541,9 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageContientImageId"));
 
-                    b.Property<int>("MessageTexteId")
+                    b.Property<int>("MessageId")
                         .HasColumnType("integer")
-                        .HasColumnName("messconima_message_texte_id");
+                        .HasColumnName("messconima_message_id");
 
                     b.Property<int>("PhotoId")
                         .HasColumnType("integer")
@@ -886,7 +553,7 @@ namespace API.Migrations
 
                     b.HasIndex("PhotoId");
 
-                    b.HasIndex("MessageTexteId", "PhotoId")
+                    b.HasIndex("MessageId", "PhotoId")
                         .IsUnique();
 
                     b.ToTable("t_j_message_contient_image_messconima", "sae_clothes2u");
@@ -905,21 +572,9 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("mesdem_demande_id");
 
-                    b.Property<bool>("EstAcceptee")
-                        .HasColumnType("boolean")
-                        .HasColumnName("mesdem_est_acceptee");
-
-                    b.Property<bool>("EstRepondue")
-                        .HasColumnType("boolean")
-                        .HasColumnName("mesdem_est_en_attente");
-
                     b.Property<int>("MessageId")
                         .HasColumnType("integer")
                         .HasColumnName("mesdem_message_id");
-
-                    b.Property<decimal>("PrixPropose")
-                        .HasColumnType("numeric")
-                        .HasColumnName("mesdem_prix_propose");
 
                     b.HasKey("MessageDemandeId");
 
@@ -940,7 +595,7 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageTexteId"));
 
-                    b.Property<string>("Content")
+                    b.Property<string>("ContenuMessage")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("mestex_contenu_message");
@@ -966,22 +621,11 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageValidationId"));
 
-                    b.Property<bool>("EstAcceptee")
-                        .HasColumnType("boolean")
-                        .HasColumnName("mesval_est_acceptee");
-
-                    b.Property<int>("MessageDemandeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mesval_proposition_validee_id");
-
                     b.Property<int>("MessageId")
                         .HasColumnType("integer")
                         .HasColumnName("mesval_message_id");
 
                     b.HasKey("MessageValidationId");
-
-                    b.HasIndex("MessageDemandeId")
-                        .IsUnique();
 
                     b.HasIndex("MessageId")
                         .IsUnique();
@@ -989,71 +633,11 @@ namespace API.Migrations
                     b.ToTable("t_e_message_validation_mesval", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Mesure", b =>
-                {
-                    b.Property<int>("MesureId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("mes_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MesureId"));
-
-                    b.Property<int>("SousCategorieId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mes_sous_categorie_id");
-
-                    b.Property<int>("TailleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mes_taille_id");
-
-                    b.HasKey("MesureId");
-
-                    b.HasIndex("SousCategorieId");
-
-                    b.HasIndex("TailleId", "SousCategorieId")
-                        .IsUnique();
-
-                    b.ToTable("t_j_mesure_mes", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.MotInterdit", b =>
-                {
-                    b.Property<int>("MotinterditId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("motint_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MotinterditId"));
-
-                    b.Property<string>("LibelleMot")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("motint_libelle_mot");
-
-                    b.HasKey("MotinterditId");
-
-                    b.HasIndex("LibelleMot")
-                        .IsUnique();
-
-                    b.ToTable("t_e_mot_interdit_motint", "sae_clothes2u");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.NoteUtilisateur", b =>
                 {
                     b.Property<int>("NoteUtilisateurId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("notuti_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NoteUtilisateurId"));
-
-                    b.Property<int>("AuteurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("notuti_noteur_id");
-
-                    b.Property<int>("CibleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("notuti_cible_id");
 
                     b.Property<string>("Commentaire")
                         .IsRequired()
@@ -1069,15 +653,17 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("notuti_note");
 
-                    b.Property<bool>("Statut")
-                        .HasColumnType("boolean")
-                        .HasColumnName("notuti_statut");
+                    b.Property<int>("NoteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notuti_note_id");
+
+                    b.Property<int>("NoteurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notuti_noteur_id");
 
                     b.HasKey("NoteUtilisateurId");
 
-                    b.HasIndex("AuteurId");
-
-                    b.HasIndex("CibleId");
+                    b.HasIndex("NoteId");
 
                     b.ToTable("t_e_note_utilisateur_notuti", "sae_clothes2u");
                 });
@@ -1090,14 +676,6 @@ namespace API.Migrations
                         .HasColumnName("not_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationId"));
-
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("not_date_creation");
-
-                    b.Property<bool>("EstLu")
-                        .HasColumnType("boolean")
-                        .HasColumnName("not_est_lu");
 
                     b.Property<int>("NotificationTypeId")
                         .HasColumnType("integer")
@@ -1181,11 +759,6 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("notmes_message_id");
 
-                    b.Property<string>("MessagePreview")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("notmes_message_preview");
-
                     b.Property<int>("NotificationId")
                         .HasColumnType("integer")
                         .HasColumnName("notmes_notification_id");
@@ -1254,34 +827,6 @@ namespace API.Migrations
                     b.ToTable("t_e_notification_nouvelle_annonce_notnou", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.NotificationProposition", b =>
-                {
-                    b.Property<int>("NotificationPropositionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("notpro_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationPropositionId"));
-
-                    b.Property<int>("NotificationId")
-                        .HasColumnType("integer")
-                        .HasColumnName("notpro_notification_id");
-
-                    b.Property<int>("PropositionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("notpro_proposition_id");
-
-                    b.HasKey("NotificationPropositionId");
-
-                    b.HasIndex("NotificationId")
-                        .IsUnique();
-
-                    b.HasIndex("PropositionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_notification_proposition_notpro", "sae_clothes2u");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.NotificationType", b =>
                 {
                     b.Property<int>("NotificationTypeId")
@@ -1300,40 +845,6 @@ namespace API.Migrations
                     b.HasKey("NotificationTypeId");
 
                     b.ToTable("t_e_notification_type_nottyp", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.PasswordResetToken", b =>
-                {
-                    b.Property<int>("PasswordResetTokenId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("reset_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PasswordResetTokenId"));
-
-                    b.Property<DateTime>("Expiration")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("reset_expiration");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("reset_token");
-
-                    b.Property<bool>("Used")
-                        .HasColumnType("boolean")
-                        .HasColumnName("reset_used");
-
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("reset_utilisateur_id");
-
-                    b.HasKey("PasswordResetTokenId");
-
-                    b.HasIndex("UtilisateurId")
-                        .HasDatabaseName("idx_password_reset_utilisateur");
-
-                    b.ToTable("t_e_password_reset", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Photo", b =>
@@ -1398,52 +909,6 @@ namespace API.Migrations
                     b.HasKey("RoleUtilisateurId");
 
                     b.ToTable("t_e_role_utilisateur_roluti", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.SanctionBannissement", b =>
-                {
-                    b.Property<int>("SanctionBannissementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("sanban_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SanctionBannissementId"));
-
-                    b.Property<int>("DecisionSanctionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sanban_decision_sanction_id");
-
-                    b.HasKey("SanctionBannissementId");
-
-                    b.HasIndex("DecisionSanctionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_sanction_bannissement_sanban", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.SanctionSuspension", b =>
-                {
-                    b.Property<int>("SanctionSuspensionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("sansus_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SanctionSuspensionId"));
-
-                    b.Property<DateTime>("DateFinSuspension")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sansus_date_fin");
-
-                    b.Property<int>("DecisionSanctionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sansus_decision_sanction_id");
-
-                    b.HasKey("SanctionSuspensionId");
-
-                    b.HasIndex("DecisionSanctionId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_sanction_suspension_sansus", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Signalement", b =>
@@ -1542,33 +1007,6 @@ namespace API.Migrations
                         .HasDatabaseName("idx_signalement_avis_signalement_unique");
 
                     b.ToTable("t_e_signalement_avis_sigavs", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.SignalementMessage", b =>
-                {
-                    b.Property<int>("SignalementMessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("sigmes_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SignalementMessageId"));
-
-                    b.Property<int>("MessageId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sigmes_message_id");
-
-                    b.Property<int>("SignalementId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sigmes_signalement_id");
-
-                    b.HasKey("SignalementMessageId");
-
-                    b.HasIndex("MessageId");
-
-                    b.HasIndex("SignalementId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_signalement_message_sigmes", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.SignalementUtilisateur", b =>
@@ -1715,12 +1153,18 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TailleId"));
 
+                    b.Property<int>("CategorieTailleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tai_categorie_taille_id");
+
                     b.Property<string>("Libelletaille")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("tai_libelletaille");
 
                     b.HasKey("TailleId");
+
+                    b.HasIndex("CategorieTailleId");
 
                     b.ToTable("t_e_taille_tai", "sae_clothes2u");
                 });
@@ -1782,6 +1226,30 @@ namespace API.Migrations
                     b.ToTable("t_e_signalement_type_sigtyp", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.TypeSuspension", b =>
+                {
+                    b.Property<int>("TypeSuspensionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("tsu_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TypeSuspensionId"));
+
+                    b.Property<string>("NomTypeSuspension")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("tsu_nomtypesuspension");
+
+                    b.HasKey("TypeSuspensionId");
+
+                    b.HasIndex("NomTypeSuspension")
+                        .IsUnique()
+                        .HasDatabaseName("idx_type_suspension_nom_unique");
+
+                    b.ToTable("t_e_type_suspension_tsu", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Utilisateur", b =>
                 {
                     b.Property<int>("UtilisateurId")
@@ -1790,6 +1258,10 @@ namespace API.Migrations
                         .HasColumnName("uti_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UtilisateurId"));
+
+                    b.Property<int?>("AdresseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("uti_adresse_id");
 
                     b.Property<DateTime>("Dateinscription")
                         .HasColumnType("timestamp with time zone")
@@ -1823,18 +1295,6 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("uti_id_photo");
 
-                    b.Property<bool>("PreferenceCookies")
-                        .HasColumnType("boolean")
-                        .HasColumnName("uti_preference_cookies");
-
-                    b.Property<bool>("PreferenceNotifMail")
-                        .HasColumnType("boolean")
-                        .HasColumnName("uti_preference_notif_mail");
-
-                    b.Property<bool>("PreferenceTheme")
-                        .HasColumnType("boolean")
-                        .HasColumnName("uti_preference_theme");
-
                     b.Property<int>("RoleId")
                         .HasColumnType("integer")
                         .HasColumnName("uti_role_id");
@@ -1843,19 +1303,9 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("uti_statut_id");
 
-                    b.Property<string>("Telephone")
-                        .HasColumnType("text")
-                        .HasColumnName("uti_telephone");
-
-                    b.Property<bool>("ValidEmail")
-                        .HasColumnType("boolean")
-                        .HasColumnName("uti_valid_email");
-
-                    b.Property<bool>("ValidTelephone")
-                        .HasColumnType("boolean")
-                        .HasColumnName("uti_valid_telephone");
-
                     b.HasKey("UtilisateurId");
+
+                    b.HasIndex("AdresseId");
 
                     b.HasIndex("Dateinscription");
 
@@ -1904,83 +1354,6 @@ namespace API.Migrations
                     b.ToTable("t_j_vend_ven", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.VerificationCode", b =>
-                {
-                    b.Property<int>("VerificationCodeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("ver_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VerificationCodeId"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ver_code");
-
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ver_date_creation");
-
-                    b.Property<DateTime>("DateExpiration")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ver_date_expiration");
-
-                    b.Property<bool>("EstUtilise")
-                        .HasColumnType("boolean")
-                        .HasColumnName("ver_est_utilise");
-
-                    b.Property<int>("Tentatives")
-                        .HasColumnType("integer")
-                        .HasColumnName("ver_tentatives");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnName("ver_type");
-
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("ver_utilisateur_id");
-
-                    b.HasKey("VerificationCodeId");
-
-                    b.HasIndex("UtilisateurId");
-
-                    b.ToTable("t_e_verification_code_ver", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.Visualisation", b =>
-                {
-                    b.Property<int>("VisualisationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("vis_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VisualisationId"));
-
-                    b.Property<int>("AnnonceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("vis_annonce_id");
-
-                    b.Property<DateTime>("DateVisualisation")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("vis_date");
-
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("vis_utilisateur_id");
-
-                    b.HasKey("VisualisationId");
-
-                    b.HasIndex("AnnonceId")
-                        .HasDatabaseName("idx_visualisation_annonce_annonceid");
-
-                    b.HasIndex("UtilisateurId")
-                        .HasDatabaseName("idx_visualisation_utilisateur_utilisateurid");
-
-                    b.ToTable("t_j_visualisation_vis", "sae_clothes2u");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Abonnement", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurSuiveur")
@@ -2020,18 +1393,6 @@ namespace API.Migrations
                     b.Navigation("UtilisateurAcheteur");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Adresse", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateurs")
-                        .WithMany("Adresses")
-                        .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Adresse_Utilisateur");
-
-                    b.Navigation("Utilisateurs");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Annonce", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Categorie", "Categorie")
@@ -2042,12 +1403,6 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.EtatArticle", "Etat")
                         .WithMany("Annonces")
                         .HasForeignKey("EtatId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Genre", "GenreAnnonce")
-                        .WithMany("Annonces")
-                        .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2081,8 +1436,6 @@ namespace API.Migrations
 
                     b.Navigation("Etat");
 
-                    b.Navigation("GenreAnnonce");
-
                     b.Navigation("Marque");
 
                     b.Navigation("SousCategorie");
@@ -2090,17 +1443,6 @@ namespace API.Migrations
                     b.Navigation("Statut");
 
                     b.Navigation("Taille");
-
-                    b.Navigation("Utilisateur");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.AnnoncePreferenceUtilisateur", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
-                        .WithMany("AnnoncesPreferences")
-                        .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Utilisateur");
                 });
@@ -2124,43 +1466,6 @@ namespace API.Migrations
                     b.Navigation("UtilisateurBloqueur");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Acheteur")
-                        .WithMany("CommandesAchetees")
-                        .HasForeignKey("AcheteurId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Commande_Acheteur");
-
-                    b.HasOne("API.Models.EntityFramework.Adresse", "AdresseLivraison")
-                        .WithMany("Commandes")
-                        .HasForeignKey("AdresseLivraisonId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Commande_AdresseLivraison");
-
-                    b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
-                        .WithMany("Commandes")
-                        .HasForeignKey("AnnonceId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Commande_Annonce");
-
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Vendeur")
-                        .WithMany("CommandesVendues")
-                        .HasForeignKey("VendeurId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Commande_Vendeur");
-
-                    b.Navigation("Acheteur");
-
-                    b.Navigation("AdresseLivraison");
-
-                    b.Navigation("Annonce");
-
-                    b.Navigation("Vendeur");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Annonce", "LAnnonce")
@@ -2179,133 +1484,56 @@ namespace API.Migrations
                     b.Navigation("StatutConversation");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Decision", b =>
+            modelBuilder.Entity("API.Models.EntityFramework.Decision_suspension", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Moderateur")
-                        .WithMany("DecisionsModerateur")
-                        .HasForeignKey("ModerateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("API.Models.EntityFramework.Annonce", "AnnonceSuspendu")
+                        .WithMany("Decisions")
+                        .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("API.Models.EntityFramework.TypeSuspension", "TypeSuspension")
+                        .WithMany("Decision_suspensions")
+                        .HasForeignKey("TypeSuspensionId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
-                        .WithMany("DecisionsUtilisateurSanctionne")
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Decisionnaire")
+                        .WithMany("LesDecisions")
+                        .HasForeignKey("UtilisateurAdminId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurSuspendu")
+                        .WithMany("LesSuspensions")
                         .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_t_e_decision_suspension_sus_t_e_utilisateur_uti_sus_utilis~1");
 
-                    b.Navigation("Moderateur");
+                    b.Navigation("AnnonceSuspendu");
 
-                    b.Navigation("Utilisateur");
-                });
+                    b.Navigation("Decisionnaire");
 
-            modelBuilder.Entity("API.Models.EntityFramework.DecisionAvertissement", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Decision", "Decision")
-                        .WithOne("DecisionAvertissement")
-                        .HasForeignKey("API.Models.EntityFramework.DecisionAvertissement", "DecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("TypeSuspension");
 
-                    b.Navigation("Decision");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.DecisionSanction", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Decision", "Decision")
-                        .WithOne("DecisionSanction")
-                        .HasForeignKey("API.Models.EntityFramework.DecisionSanction", "DecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Decision");
+                    b.Navigation("UtilisateurSuspendu");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.DemandeRestauration", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.Decision", "Decision")
-                        .WithOne("DemandeRestauration")
-                        .HasForeignKey("API.Models.EntityFramework.DemandeRestauration", "DecisionId")
+                    b.HasOne("API.Models.EntityFramework.Decision_suspension", "Suspension")
+                        .WithMany("DemandesRes")
+                        .HasForeignKey("SuspensionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Decision");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecision", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Decision", "Decision")
-                        .WithOne("ElementDecision")
-                        .HasForeignKey("API.Models.EntityFramework.ElementDecision", "DecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Plaignant")
+                        .WithMany("DemandesRestauration")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Decision");
-                });
+                    b.Navigation("Plaignant");
 
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAnnonce", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
-                        .WithMany("Decisions")
-                        .HasForeignKey("AnnonceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.ElementDecision", "ElementDecision")
-                        .WithOne("ElementDecisionAnnonce")
-                        .HasForeignKey("API.Models.EntityFramework.ElementDecisionAnnonce", "ElementDecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Annonce");
-
-                    b.Navigation("ElementDecision");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionAvis", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.NoteUtilisateur", "Avis")
-                        .WithMany("Decisions")
-                        .HasForeignKey("AvisId")
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.ElementDecision", "ElementDecision")
-                        .WithOne("ElementDecisionAvis")
-                        .HasForeignKey("API.Models.EntityFramework.ElementDecisionAvis", "ElementDecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Avis");
-
-                    b.Navigation("ElementDecision");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionMessage", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.ElementDecision", "ElementDecision")
-                        .WithOne("ElementDecisionMessage")
-                        .HasForeignKey("API.Models.EntityFramework.ElementDecisionMessage", "ElementDecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Message", "Message")
-                        .WithMany("Decisions")
-                        .HasForeignKey("MessageId")
-                        .IsRequired();
-
-                    b.Navigation("ElementDecision");
-
-                    b.Navigation("Message");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecisionUtilisateur", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.ElementDecision", "ElementDecision")
-                        .WithOne("ElementDecisionUtilisateur")
-                        .HasForeignKey("API.Models.EntityFramework.ElementDecisionUtilisateur", "ElementDecisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ElementDecision");
+                    b.Navigation("Suspension");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Est_De_Couleur", b =>
@@ -2384,7 +1612,7 @@ namespace API.Migrations
                 {
                     b.HasOne("API.Models.EntityFramework.MessageTexte", "Message")
                         .WithMany("Photos")
-                        .HasForeignKey("MessageTexteId")
+                        .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2430,12 +1658,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageValidation", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.MessageDemande", "PropositionValidee")
-                        .WithOne("Validation")
-                        .HasForeignKey("API.Models.EntityFramework.MessageValidation", "MessageDemandeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
                         .WithOne("MessageValidation")
                         .HasForeignKey("API.Models.EntityFramework.MessageValidation", "MessageId")
@@ -2443,39 +1665,18 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("Message");
-
-                    b.Navigation("PropositionValidee");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.Mesure", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.SousCategorie", "SousCategorieMesure")
-                        .WithMany("Mesures")
-                        .HasForeignKey("SousCategorieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Taille", "TailleMesure")
-                        .WithMany("Mesures")
-                        .HasForeignKey("TailleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SousCategorieMesure");
-
-                    b.Navigation("TailleMesure");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.NoteUtilisateur", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Auteur")
-                        .WithMany("NotesAuteur")
-                        .HasForeignKey("AuteurId")
-                        .IsRequired();
-
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Cible")
                         .WithMany("NotesCible")
-                        .HasForeignKey("CibleId")
+                        .HasForeignKey("NoteId")
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Auteur")
+                        .WithMany("NotesAuteur")
+                        .HasForeignKey("NoteUtilisateurId")
                         .IsRequired();
 
                     b.Navigation("Auteur");
@@ -2529,7 +1730,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
                         .WithMany("NotificationsMessage")
                         .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Notification", "LaNotification")
@@ -2581,35 +1782,6 @@ namespace API.Migrations
                     b.Navigation("LaNotification");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.NotificationProposition", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Notification", "Notification")
-                        .WithOne("NotificationProposition")
-                        .HasForeignKey("API.Models.EntityFramework.NotificationProposition", "NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.MessageDemande", "MessageDemande")
-                        .WithOne("NotificationProposition")
-                        .HasForeignKey("API.Models.EntityFramework.NotificationProposition", "PropositionId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("MessageDemande");
-
-                    b.Navigation("Notification");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.PasswordResetToken", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurReset")
-                        .WithMany("PasswordResetTokens")
-                        .HasForeignKey("UtilisateurId")
-                        .IsRequired();
-
-                    b.Navigation("UtilisateurReset");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Recense", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
@@ -2626,28 +1798,6 @@ namespace API.Migrations
                     b.Navigation("Annonce");
 
                     b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.SanctionBannissement", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.DecisionSanction", "DecisionSanction")
-                        .WithOne("SanctionBannissement")
-                        .HasForeignKey("API.Models.EntityFramework.SanctionBannissement", "DecisionSanctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DecisionSanction");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.SanctionSuspension", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.DecisionSanction", "DecisionSanction")
-                        .WithOne("SanctionSuspension")
-                        .HasForeignKey("API.Models.EntityFramework.SanctionSuspension", "DecisionSanctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DecisionSanction");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Signalement", b =>
@@ -2707,25 +1857,6 @@ namespace API.Migrations
                     b.Navigation("Signalement");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.SignalementMessage", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Message", "Message")
-                        .WithMany("Signalements")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Signalement", "Signalement")
-                        .WithOne("SignalementsMessage")
-                        .HasForeignKey("API.Models.EntityFramework.SignalementMessage", "SignalementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("Signalement");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.SignalementUtilisateur", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Signalement", "Signalement")
@@ -2755,6 +1886,16 @@ namespace API.Migrations
                     b.Navigation("Categorie");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Taille", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Categorie", "Categorie")
+                        .WithMany("Tailles")
+                        .HasForeignKey("CategorieTailleId")
+                        .IsRequired();
+
+                    b.Navigation("Categorie");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Conversation", "Conversation")
@@ -2768,6 +1909,12 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Utilisateur", b =>
                 {
+                    b.HasOne("API.Models.EntityFramework.Adresse", "Adresse")
+                        .WithMany("Utilisateurs")
+                        .HasForeignKey("AdresseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Adresse_Utilisateur");
+
                     b.HasOne("API.Models.EntityFramework.Photo", "PhotoProfil")
                         .WithOne("Utilisateur")
                         .HasForeignKey("API.Models.EntityFramework.Utilisateur", "PhotoId");
@@ -2783,6 +1930,8 @@ namespace API.Migrations
                         .HasForeignKey("StatutId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Adresse");
 
                     b.Navigation("PhotoProfil");
 
@@ -2810,52 +1959,18 @@ namespace API.Migrations
                     b.Navigation("UtilisateurVendeur");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.VerificationCode", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
-                        .WithMany("VerificationCodes")
-                        .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Utilisateur");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.Visualisation", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.Annonce", "AnnonceVisu")
-                        .WithMany("LesVisualisations")
-                        .HasForeignKey("AnnonceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurVisu")
-                        .WithMany("Visualisations")
-                        .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AnnonceVisu");
-
-                    b.Navigation("UtilisateurVisu");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Adresse", b =>
                 {
-                    b.Navigation("Commandes");
+                    b.Navigation("Utilisateurs");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Annonce", b =>
                 {
-                    b.Navigation("Commandes");
-
                     b.Navigation("Couleurs");
 
                     b.Navigation("Decisions");
 
                     b.Navigation("LesConversations");
-
-                    b.Navigation("LesVisualisations");
 
                     b.Navigation("NotificationsModificationAnnonces");
 
@@ -2875,6 +1990,8 @@ namespace API.Migrations
                     b.Navigation("Annonces");
 
                     b.Navigation("SousCategories");
+
+                    b.Navigation("Tailles");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>
@@ -2893,42 +2010,12 @@ namespace API.Migrations
                     b.Navigation("Annonces");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.Decision", b =>
+            modelBuilder.Entity("API.Models.EntityFramework.Decision_suspension", b =>
                 {
-                    b.Navigation("DecisionAvertissement");
-
-                    b.Navigation("DecisionSanction");
-
-                    b.Navigation("DemandeRestauration");
-
-                    b.Navigation("ElementDecision")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.DecisionSanction", b =>
-                {
-                    b.Navigation("SanctionBannissement");
-
-                    b.Navigation("SanctionSuspension");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.ElementDecision", b =>
-                {
-                    b.Navigation("ElementDecisionAnnonce");
-
-                    b.Navigation("ElementDecisionAvis");
-
-                    b.Navigation("ElementDecisionMessage");
-
-                    b.Navigation("ElementDecisionUtilisateur");
+                    b.Navigation("DemandesRes");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.EtatArticle", b =>
-                {
-                    b.Navigation("Annonces");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.Genre", b =>
                 {
                     b.Navigation("Annonces");
                 });
@@ -2940,8 +2027,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Message", b =>
                 {
-                    b.Navigation("Decisions");
-
                     b.Navigation("MessageDemande");
 
                     b.Navigation("MessageTexte");
@@ -2949,17 +2034,11 @@ namespace API.Migrations
                     b.Navigation("MessageValidation");
 
                     b.Navigation("NotificationsMessage");
-
-                    b.Navigation("Signalements");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageDemande", b =>
                 {
                     b.Navigation("ContreOffres");
-
-                    b.Navigation("NotificationProposition");
-
-                    b.Navigation("Validation");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>
@@ -2969,8 +2048,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.NoteUtilisateur", b =>
                 {
-                    b.Navigation("Decisions");
-
                     b.Navigation("Signalements");
                 });
 
@@ -2985,9 +2062,6 @@ namespace API.Migrations
                     b.Navigation("NotificationModifications");
 
                     b.Navigation("NotificationNouvellesAnnonces");
-
-                    b.Navigation("NotificationProposition")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.NotificationType", b =>
@@ -3015,16 +2089,12 @@ namespace API.Migrations
 
                     b.Navigation("SignalementsAvis");
 
-                    b.Navigation("SignalementsMessage");
-
                     b.Navigation("SignalementsUtilisateur");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.SousCategorie", b =>
                 {
                     b.Navigation("Annonces");
-
-                    b.Navigation("Mesures");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.StatutAnnonce", b =>
@@ -3050,13 +2120,16 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.EntityFramework.Taille", b =>
                 {
                     b.Navigation("Annonces");
-
-                    b.Navigation("Mesures");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.TypeSignalement", b =>
                 {
                     b.Navigation("Signalements");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.TypeSuspension", b =>
+                {
+                    b.Navigation("Decision_suspensions");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Utilisateur", b =>
@@ -3067,23 +2140,17 @@ namespace API.Migrations
 
                     b.Navigation("Achats");
 
-                    b.Navigation("Adresses");
-
                     b.Navigation("Annonces");
 
                     b.Navigation("AnnoncesFavorites");
 
-                    b.Navigation("AnnoncesPreferences");
-
                     b.Navigation("BloqueParUtilisateurs");
 
-                    b.Navigation("CommandesAchetees");
+                    b.Navigation("DemandesRestauration");
 
-                    b.Navigation("CommandesVendues");
+                    b.Navigation("LesDecisions");
 
-                    b.Navigation("DecisionsModerateur");
-
-                    b.Navigation("DecisionsUtilisateurSanctionne");
+                    b.Navigation("LesSuspensions");
 
                     b.Navigation("Messages");
 
@@ -3093,8 +2160,6 @@ namespace API.Migrations
 
                     b.Navigation("Notifications");
 
-                    b.Navigation("PasswordResetTokens");
-
                     b.Navigation("Signalements");
 
                     b.Navigation("SignalementsUtilisateurs");
@@ -3102,10 +2167,6 @@ namespace API.Migrations
                     b.Navigation("UtilisateursBloques");
 
                     b.Navigation("Ventes");
-
-                    b.Navigation("VerificationCodes");
-
-                    b.Navigation("Visualisations");
                 });
 #pragma warning restore 612, 618
         }

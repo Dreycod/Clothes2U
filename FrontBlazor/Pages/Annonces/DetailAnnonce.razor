@@ -1,15 +1,13 @@
-﻿@page "/product/{Id:int}"
-@using Shared.DTO.Utilisateur
+@page "/product/{Id:int}"
+@rendermode InteractiveServer
 
+<PageTitle>@(VM_Annonces.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
-
-
-
-<PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
+<!-- Navigation Bar -->
 <NavBar />
 
 <div class="product-detail-page">
-    @if (VM_DetailAnnonce.IsLoading)
+    @if (VM_Annonces.IsLoading)
     {
         <div class="loading-container">
             <div class="spinner-large"></div>

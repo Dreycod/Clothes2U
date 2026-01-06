@@ -1,10 +1,4 @@
-@page "/moderation/signalements/{id:int}"
-@using FrontBlazor.ViewModel.Moderation.Signalements
-@using FrontBlazor.Components.Moderation
-@using Shared.DTO.Signalement
-@inject TraitementSignalementViewModel VM_traitementSignalement
-@layout ModerationLayout
-@page "/moderation/signalements/{id:int}"
+﻿@page "/moderation/signalements/{id:int}"
 @rendermode InteractiveServer
 
 <PageTitle>Détail du signalement - Modération</PageTitle>
@@ -218,62 +212,5 @@
     private void DismissReport()
     {
         // TODO: Dismiss report and mark as resolved
-    }
-
-
-<PageTitle>Détail du signalement - Modération</PageTitle>
-
-
-<link href="css/Moderation/moderation-shared.css" rel="stylesheet"/>
-<link href="css/loading.css" rel="stylesheet" />
-
-@if (VM_traitementSignalement.IsLoading)
-{
-    <div class="loader"></div>
-}
-else
-{
-    <div>
-        <div id="content_board">
-            @switch (VM_traitementSignalement.Signalement)
-            {
-                case SignalementAnnonceDTO signalementAnnonce:
-                    <AnnonceModerationViewComponent
-                        annonce="VM_traitementSignalement.Annonce"
-                        PhotosUrl="VM_traitementSignalement.PhotosUrl"
-                        ></AnnonceModerationViewComponent>
-                    break;
-                case SignalementAvisDTO signalementAvis :
-                    <AvisModerationComponent
-                        note="VM_traitementSignalement.Avis"
-                        ></AvisModerationComponent>
-                    break;
-                case SignalementUtilisateurDTO signalementUtilisateur:
-                    <UtilisateurModerationComponent
-                        utilisateur="VM_traitementSignalement.UtilisateurSignale"
-                        PhotoProfilUrl="@VM_traitementSignalement.PhotoProfilUrl">
-                    </UtilisateurModerationComponent>
-                    break;
-                case SignalementMessageDTO signalementMessage:
-                    <MessageModerationComponent
-                        message="@VM_traitementSignalement.Message"
-                        PhotosUrl="@VM_traitementSignalement.PhotosUrl">
-                    </MessageModerationComponent>
-                    break;
-            }
-        </div>
-        <div id="decision-board">
-            <DecisionBoard 
-                VM_Traitement = "@VM_traitementSignalement"
-                ></DecisionBoard>
-        </div>
-    </div>
-}
-@code {
-    [Parameter] public int Id { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await VM_traitementSignalement.LoadSignalementAsync(Id);
     }
 }
