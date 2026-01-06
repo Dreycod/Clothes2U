@@ -10,14 +10,20 @@ using AutoMapper;
 public class SuggestionService : ISuggestionService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly ILogger<SuggestionService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory; 
     private readonly IMapper _mapper;
+    private readonly IAnnonceExtensionService _annonceExtensionService;
+    private readonly ICurrentUserService _currentUserService;
     private readonly string _fastApiBaseUrl;
     private readonly IClusterRepository _annoncePreferenceManager;
     public SuggestionService(
         IHttpClientFactory httpClientFactory, 
         IClusterRepository  annoncePreferenceManager,
+        IAnnonceExtensionService annonceExtensionService,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
+        ICurrentUserService currentUserService,
         ILogger<SuggestionService> logger,
         IConfiguration configuration,
         IServiceScopeFactory serviceScopeFactory, 
@@ -25,6 +31,9 @@ public class SuggestionService : ISuggestionService
         IMapper mapper)
     {
         _httpClientFactory = httpClientFactory;
+        _annonceExtensionService =  annonceExtensionService;
+        _annonceManager = annonceRepository;
+        _currentUserService = currentUserService;
         _logger = logger;
         _annoncePreferenceManager = annoncePreferenceManager;
         _serviceScopeFactory = serviceScopeFactory;
@@ -77,6 +86,7 @@ public class SuggestionService : ISuggestionService
 
                     if (clusteringResult != null && clusteringResult.Success)
                     {
+                        await clusterRepository.DeleteByUserId(userId);
                         await clusterRepository.SaveClustersAsync(clusteringResult);
                         
                         _logger.LogInformation(
@@ -110,4 +120,169 @@ public class SuggestionService : ISuggestionService
 
         await Task.CompletedTask;
     }
+
+    public async Task<IEnumerable<AnnonceDTO>> GetRecommandations(int page, int pageSize)
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
+        IEnumerable<AnnoncePreferenceUtilisateur> clusters = await _annoncePreferenceManager.GetByUserId(userId);
+        if (!clusters.Any())
+        {
+            return _mapper.Map<IEnumerable<AnnonceDTO>>(
+                annonces.OrderByDescending(a => a.DateAnnonce)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+            );
+        }
+        var annoncesAvecScore = annonces.Select(annonce => new
+            {
+                Annonce = annonce,
+                Score = CalculerScore(annonce, clusters)
+            })
+            .OrderByDescending(x => x.Score)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => x.Annonce);
+        IEnumerable<AnnonceDTO> annoncesDTO = await _annonceExtensionService.LikeAnnonces(_mapper.Map<IEnumerable<AnnonceDTO>>(annoncesAvecScore));
+        return annoncesDTO;
+    }
+    private double CalculerScore(Annonce annonce, IEnumerable<AnnoncePreferenceUtilisateur> clusters)
+{
+    double scoreTotal = 0;
+    double pondérationTotale = clusters.Sum(c => c.Ponderation);
+
+    foreach (var cluster in clusters)
+    {
+        double scoreCluster = 0;
+        const double POIDS_MARQUE = 0.30;           
+        const double POIDS_COULEUR = 0.25;          
+        const double POIDS_CATEGORIE = 0.15;        
+        const double POIDS_SOUS_CATEGORIE = 0.10;   
+        const double POIDS_PRIX = 0.10;             
+        const double POIDS_TAILLE = 0.05;           
+        const double POIDS_ETAT = 0.05;             
+
+        if (annonce.Marque?.NomMarque != null && 
+            annonce.Marque.NomMarque.Equals(cluster.NomMarque, StringComparison.OrdinalIgnoreCase))
+        {
+            scoreCluster += POIDS_MARQUE;
+        }
+        if (annonce.Couleurs?.Any() == true && !string.IsNullOrEmpty(cluster.CouleurDominante))
+        {
+            bool correspondanceCouleur = annonce.Couleurs.Any(c => 
+                c.Couleur?.Nom != null && 
+                c.Couleur.Nom.Equals(cluster.CouleurDominante, StringComparison.OrdinalIgnoreCase)
+            );
+            
+            if (correspondanceCouleur)
+            {
+                scoreCluster += POIDS_COULEUR;
+            }
+        }
+
+        if (annonce.Categorie?.LibelleCategorie != null && 
+            annonce.Categorie.LibelleCategorie.Equals(cluster.Categorie, StringComparison.OrdinalIgnoreCase))
+        {
+            scoreCluster += POIDS_CATEGORIE;
+        }
+
+        
+        if (annonce.SousCategorie?.LibelleSousCategorie != null && 
+            annonce.SousCategorie.LibelleSousCategorie.Equals(cluster.SousCategorie, StringComparison.OrdinalIgnoreCase))
+        {
+            scoreCluster += POIDS_SOUS_CATEGORIE;
+        }
+
+        if (cluster.Prix > 0)
+        {
+            double prixAnnonce = (double)annonce.Prix;
+            double ecartPrix = Math.Abs(prixAnnonce - cluster.Prix);
+            double ecartRelatif = ecartPrix / cluster.Prix;
+            double scorePrix = Math.Max(0, 1 - (ecartRelatif / 1.0));
+            scoreCluster += POIDS_PRIX * scorePrix;
+        }
+        if (annonce.Taille?.Libelletaille != null && 
+            annonce.Taille.Libelletaille.Equals(cluster.Taille, StringComparison.OrdinalIgnoreCase))
+        {
+            scoreCluster += POIDS_TAILLE;
+        }
+        if (annonce.Etat?.NomEtat != null && 
+            annonce.Etat.NomEtat.Equals(cluster.EtatArticle, StringComparison.OrdinalIgnoreCase))
+        {
+            scoreCluster += POIDS_ETAT;
+        }
+        double facteurPonderation = cluster.Ponderation / pondérationTotale;
+        scoreTotal += scoreCluster * facteurPonderation;
+    }
+
+    return scoreTotal;
+}
+
+private double CalculerScoreAvecBonus(Annonce annonce, IEnumerable<AnnoncePreferenceUtilisateur> clusters)
+{
+    double scoreTotal = 0;
+    double pondérationTotale = clusters.Sum(c => c.Ponderation);
+
+    foreach (var cluster in clusters)
+    {
+        double scoreCluster = CalculerScoreBase(annonce, cluster);
+        
+        bool correspondanceMarque = annonce.Marque?.NomMarque != null && 
+            annonce.Marque.NomMarque.Equals(cluster.NomMarque, StringComparison.OrdinalIgnoreCase);
+            
+        bool correspondanceCouleur = annonce.Couleurs?.Any(c => 
+            c.Couleur?.Nom != null && 
+            c.Couleur.Nom.Equals(cluster.CouleurDominante, StringComparison.OrdinalIgnoreCase)
+        ) == true;
+
+        if (correspondanceMarque && correspondanceCouleur)
+        {
+            scoreCluster *= 1.5;
+        }
+
+        double facteurPonderation = cluster.Ponderation / pondérationTotale;
+        scoreTotal += scoreCluster * facteurPonderation;
+    }
+
+    return scoreTotal;
+}
+
+private double CalculerScoreBase(Annonce annonce, AnnoncePreferenceUtilisateur cluster)
+{
+    double score = 0;
+    
+    if (annonce.Marque?.NomMarque != null && 
+        annonce.Marque.NomMarque.Equals(cluster.NomMarque, StringComparison.OrdinalIgnoreCase))
+        score += 0.30;
+
+    if (annonce.Couleurs?.Any(c => 
+        c.Couleur?.Nom != null && 
+        c.Couleur.Nom.Equals(cluster.CouleurDominante, StringComparison.OrdinalIgnoreCase)) == true)
+        score += 0.25;
+
+    if (annonce.Categorie?.LibelleCategorie != null && 
+        annonce.Categorie.LibelleCategorie.Equals(cluster.Categorie, StringComparison.OrdinalIgnoreCase))
+        score += 0.15;
+
+    if (annonce.SousCategorie?.LibelleSousCategorie != null && 
+        annonce.SousCategorie.LibelleSousCategorie.Equals(cluster.SousCategorie, StringComparison.OrdinalIgnoreCase))
+        score += 0.10;
+
+    if (cluster.Prix > 0)
+    {
+        double ecartRelatif = Math.Abs((double)annonce.Prix - cluster.Prix) / cluster.Prix;
+        score += 0.10 * Math.Max(0, 1 - ecartRelatif);
+    }
+
+    if (annonce.Taille?.Libelletaille != null && 
+        annonce.Taille.Libelletaille.Equals(cluster.Taille, StringComparison.OrdinalIgnoreCase))
+        score += 0.05;
+
+    // État (5%)
+    if (annonce.Etat?.NomEtat != null && 
+        annonce.Etat.NomEtat.Equals(cluster.EtatArticle, StringComparison.OrdinalIgnoreCase))
+        score += 0.05;
+
+    return score;
+}
 }

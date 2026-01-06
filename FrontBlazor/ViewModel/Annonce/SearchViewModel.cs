@@ -24,14 +24,23 @@ namespace FrontBlazor.ViewModel
 
         public event Action? OnStateChange;
 
-        #region ViewModels
-        public ListableViewModel<CategorieDTO> VM_Categorie { get; set; }
-        public ListableViewModel<GenreDTO> VM_Genre { get; set; }
-        public ListableViewModel<MarqueDTO> VM_Marque { get; set; }
-        public ListableViewModel<TailleDTO> VM_Taille { get; set; }
-        public ListableViewModel<EtatArticleDTO> VM_Etat { get; set; }
+        #region Lists de champs
+        public List<CategorieDTO> Categories { get; set; }
+        public List<GenreDTO> Genres { get; set; }
+        public List<MarqueDTO> Marques { get; set; }
+        public List<TailleDTO> Tailles { get; set; }
+        public List<EtatArticleDTO> Etats { get; set; }
         public NavigationManager NavigationManager { get; set; }
         public LoginViewModel VM_Login { get; set; }
+        #endregion
+        
+        #region services
+
+        private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
+        private readonly ICaracteristiqueService<MarqueDTO> _marqueService;
+        private readonly ICaracteristiqueService<EtatArticleDTO> _etatService;
+        private readonly ICaracteristiqueService<GenreDTO> _genreService;
+        private readonly ICaracteristiqueService<TailleDTO> _tailleService; 
         #endregion
 
         #region Properties
@@ -62,11 +71,11 @@ namespace FrontBlazor.ViewModel
             IAnnonceService annonceService, 
             IAuthService authService,
             IFavorisService<FavorisDTO> favorisService, 
-            ListableViewModel<CategorieDTO> vM_Categorie, 
-            ListableViewModel<MarqueDTO> vM_Marque, 
-            ListableViewModel<EtatArticleDTO> vM_Etat,
-            ListableViewModel<GenreDTO> vM_Genre,
-            ListableViewModel<TailleDTO> vM_Taille, 
+            ICaracteristiqueService<CategorieDTO> categorieService, 
+            ICaracteristiqueService<MarqueDTO> marqueService, 
+            ICaracteristiqueService<EtatArticleDTO> etatService,
+            ICaracteristiqueService<GenreDTO> genreService,
+            ICaracteristiqueService<TailleDTO> tailleService, 
             NavigationManager navManager, 
             INotificationService notificationPopUpService,
             LoginViewModel vM_Login)
@@ -74,11 +83,13 @@ namespace FrontBlazor.ViewModel
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
-            VM_Genre =  vM_Genre;
-            VM_Categorie = vM_Categorie;
-            VM_Marque = vM_Marque;
-            VM_Taille = vM_Taille;
-            VM_Etat =  vM_Etat;
+            
+            _categorieService = categorieService;
+            _marqueService = marqueService;
+            _etatService = etatService;
+            _genreService = genreService;
+            _tailleService = tailleService;
+            
             NavigationManager = navManager;
             _notificationPopUpService = notificationPopUpService;
             VM_Login = vM_Login;
@@ -108,12 +119,11 @@ namespace FrontBlazor.ViewModel
             IsLoading = true;
             await VerifiyAccountAsync();
             NotifyStateChanged();
-            await VM_Categorie.LoadAsync();
-            await VM_Marque.LoadAsync();
-            await VM_Genre.LoadAsync();
-            await VM_Etat.LoadAsync();
-            await VM_Taille.LoadAsync();
-            
+            Categories = await _categorieService.GetAllAsync();
+            Genres = await _genreService.GetAllAsync();
+            Tailles = await _tailleService.GetAllAsync();
+            Etats = await _etatService.GetAllAsync();
+            Marques = await _marqueService.GetAllAsync();
             await ApplyFilters();
             
             IsLoading = false;

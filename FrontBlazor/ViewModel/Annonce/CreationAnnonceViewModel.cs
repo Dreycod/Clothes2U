@@ -5,6 +5,11 @@ using Shared.DTO.Annonce;
 using Shared.DTO.Couleur;
 using Shared.DTO.Mesures;
 using System.Collections.ObjectModel;
+using Shared.DTO;
+using Shared.DTO.Categorie;
+using Shared.DTO.EtatArticle;
+using Shared.DTO.Marque;
+using Shared.DTO.Taille;
 
 namespace FrontBlazor.ViewModel
 {
@@ -19,6 +24,19 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IMesureService _mesureService;
         private readonly NavigationManager _nav;
+        public List<CategorieDTO> Categories { get; set; }
+        public List<CouleurDTO> Couleurs { get; set; }
+        public List<GenreDTO> Genres { get; set; }
+        public List<MarqueDTO> Marques { get; set; }
+        public List<TailleDTO> Tailles { get; set; }
+        public List<EtatArticleDTO> Etats { get; set; }
+        
+        private readonly IListableService<CategorieDTO> _categorieService;
+        private readonly IListableService<CouleurDTO> _couleurService;
+        private readonly IListableService<MarqueDTO> _marqueService;
+        private readonly IListableService<EtatArticleDTO> _etatService;
+        private readonly IListableService<GenreDTO> _genreService;
+        private readonly IListableService<TailleDTO> _tailleService;
 
         // État de l'annonce en cours de création
         public CreateAnnonceDTO NewAnnonce { get; private set; } = new();
@@ -48,6 +66,12 @@ namespace FrontBlazor.ViewModel
             IMediasService mediaService,
             IAuthService authService,
             IMesureService mesureService,
+            IListableService<CategorieDTO> categorieService, 
+            IListableService<CouleurDTO> couleurService, 
+            IListableService<MarqueDTO> marqueService, 
+            IListableService<EtatArticleDTO> etatService,
+            IListableService<GenreDTO> genreService,
+            IListableService<TailleDTO> tailleService, 
             NavigationManager nav)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
@@ -55,6 +79,12 @@ namespace FrontBlazor.ViewModel
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _mesureService = mesureService ?? throw new ArgumentNullException(nameof(mesureService));
             _nav = nav ?? throw new ArgumentNullException(nameof(nav));
+            _categorieService = categorieService;
+            _marqueService = marqueService;
+            _couleurService = couleurService;
+            _etatService = etatService;
+            _genreService = genreService;
+            _tailleService = tailleService;
         }
 
         #region Initialization
@@ -71,6 +101,15 @@ namespace FrontBlazor.ViewModel
             NewAnnonce.UtilisateurId = currentUser.UtilisateurId;
             NewAnnonce.DateAnnonce = DateTime.UtcNow;
             NewAnnonce.StatutAnnonceId = 1;
+
+            IsLoading = true;
+            Genres = await _genreService.GetAllAsync();
+            Categories = await _categorieService.GetAllAsync();
+            Marques = await _marqueService.GetAllAsync();
+            Couleurs = await _couleurService.GetAllAsync();
+            Etats = await _etatService.GetAllAsync();
+            Tailles = await _tailleService.GetAllAsync();
+            IsLoading = false;
 
             // ✅ Charger les mesures pour le filtrage des tailles
             await LoadMesuresAsync();

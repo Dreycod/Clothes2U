@@ -74,14 +74,14 @@
 
             <!-- Sizes Table -->
             <div class="table-container">
-                @if (VM_Taille.IsLoading || VM_Categorie.IsLoading)
+                @if (VM_CommercialTailles.IsLoading || VM_CommercialTailles.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner"></div>
                         <p>Chargement des tailles...</p>
                     </div>
                 }
-                else if (VM_Taille.Items != null && VM_Taille.Items.Any())
+                else if (VM_CommercialTailles.Tailles != null && VM_CommercialTailles.Tailles.Any())
                 {
                     <table class="data-table">
                         <thead>
@@ -94,7 +94,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var taille in VM_Taille.Items)
+                            @foreach (var taille in VM_CommercialTailles.Tailles)
                             {
                                 <tr>
                                     <td>#@taille.TailleId </td>
@@ -148,9 +148,9 @@
                 <label class="form-label">Catégorie</label>
                 <select class="form-select" @bind="VM_CommercialTailles.selectedCategorieId">
                     <option value="0">-- Sélectionnez une catégorie --</option>
-                    @if (VM_Categorie.Items != null)
+                    @if (VM_CommercialTailles.Categories != null)
                     {
-                        @foreach (var cat in VM_Categorie.Items)
+                        @foreach (var cat in VM_CommercialTailles.Categories)
                         {
                             <option value="@cat.IdCategorie">@cat.LibelleCategorie</option>
                         }

@@ -27,7 +27,7 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
             .AsSplitQuery();
     }
 
-    public async Task<Utilisateur> GetUtilisateurByLogin(string login)
+    public async Task<Utilisateur?> GetUtilisateurByLogin(string login)
     {
         return await  BaseUtilisateurQuery().FirstOrDefaultAsync(u => u.Login == login);
     }

@@ -5,6 +5,7 @@ using Shared.DTO.Couleur;
 using Shared.DTO.Taille;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel;
@@ -21,38 +22,44 @@ public class CommercialViewModel
     #endregion
 
     #region ViewModels
-    ListableViewModel<MarqueDTO> VM_Marque;
-    ListableViewModel<CategorieDTO> VM_Categorie;
-    ListableViewModel<CouleurDTO> VM_Couleurs;
-    ListableViewModel<TailleDTO> VM_Tailles;
+    private readonly ICaracteristiqueService<MarqueDTO> _marqueService;
+    private readonly ICategorieService<CategorieDTO> _categorieService;
+    private readonly ICaracteristiqueService<CouleurDTO> _couleurService;
+    private readonly ICaracteristiqueService<TailleDTO> _tailleService;
+    
+    public List<CouleurDTO>  Couleurs { get; set; }
+    public List<MarqueDTO> Marques { get; set; }
+    public List<CategorieDTO> Categories { get; set; }
+    public List<TailleDTO> Tailles { get; set; }
     #endregion
     public Action? OnStateChange;
-    public CommercialViewModel(NavigationManager navigationManager, ListableViewModel<CouleurDTO> vM_Couleurs, ListableViewModel<MarqueDTO> vM_Marque, ListableViewModel<CategorieDTO> vM_Categorie, ListableViewModel<TailleDTO> vM_Tailles)
+    public CommercialViewModel(NavigationManager navigationManager, ICaracteristiqueService<CouleurDTO> couleurService, ICaracteristiqueService<MarqueDTO> marqueService, ICategorieService<CategorieDTO> categorieService, ICaracteristiqueService<TailleDTO> tailleService)
     {
         _navigationManager = navigationManager;
-        VM_Couleurs = vM_Couleurs;
-        VM_Marque = vM_Marque;
-        VM_Categorie = vM_Categorie;
-        VM_Tailles = vM_Tailles;
+        _couleurService =  couleurService;
+        _marqueService = marqueService;
+        _categorieService = categorieService;
+        _tailleService = tailleService;
+        
     }
 
     public async Task LoadAsync()
     {
-        await VM_Couleurs.LoadAsync();
-        await VM_Marque.LoadAsync();
-        await VM_Categorie.LoadAsync();
-        await VM_Tailles.LoadAsync();
+        Tailles = await _tailleService.GetAllAsync();
+        Couleurs = await _couleurService.GetAllAsync();
+        Marques = await _marqueService.GetAllAsync();
+        Categories = await _categorieService.GetAllCategories();
         CountItems();
         OnStateChange?.Invoke();
 
     }
     public void CountItems()
     {
-        totalCouleurs = VM_Couleurs.Items.Count();
-        totalMarques = VM_Marque.Items.Count();
-        totalCategories = VM_Categorie.Items.Count();
-        totalSousCategories = VM_Categorie.Items.SelectMany(c => c.SousCategories).Count();
-        totalTailles = VM_Tailles.Items.Count();
+        totalCouleurs = Couleurs.Count();
+        totalMarques = Marques.Count();
+        totalCategories = Categories.Count();
+        totalSousCategories = Categories.SelectMany(c => c.SousCategories).Count();
+        totalTailles = Tailles.Count();
     }
     public void GoToPage(string page)
     {

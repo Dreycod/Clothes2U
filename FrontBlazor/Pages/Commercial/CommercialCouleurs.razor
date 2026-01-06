@@ -75,14 +75,14 @@
             <!-- Colors Grid -->
 
             <div class="table-container">
-                @if (VM_Couleur.IsLoading)
+                @if (VM_CommercialCouleurs.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner"></div>
                         <p>Chargement des couleurs...</p>
                     </div>
                 }
-                else if (VM_Couleur.Items != null && VM_Couleur.Items.Any())
+                else if (VM_CommercialCouleurs.Couleurs != null && VM_CommercialCouleurs.Couleurs.Any())
                 {
                     <table class="data-table">
                         <thead>
@@ -94,7 +94,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var couleur in VM_Couleur.Items)
+                            @foreach (var couleur in VM_CommercialCouleurs.Couleurs)
                             {
                                 <tr>
                                     <td>#@couleur.CouleurId</td>
@@ -175,7 +175,7 @@
    
     protected override async Task OnInitializedAsync()
     {
-        await VM_Couleur.LoadAsync();
+        await VM_CommercialCouleurs.LoadAsync();
         VM_CommercialCouleurs.OnStateChange += StateHasChanged;
     }
 }

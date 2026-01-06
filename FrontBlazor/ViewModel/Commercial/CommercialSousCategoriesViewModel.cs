@@ -1,6 +1,7 @@
 ﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Shared.DTO.Categorie;
 using Shared.DTO.SousCategorie;
 
@@ -16,29 +17,34 @@ public class CommercialSousCategoriesViewModel
     public string errorMessage = string.Empty;
 
     public List<(SousCategorieDTO Subcategory, CategorieDTO ParentCategory)> allSubcategories = new();
-    private ListableViewModel<CategorieDTO> VM_Categorie;
-    private WritableService<SousCategoriePostDTO> SousCategorieService;
+    private ICaracteristiqueService<CategorieDTO> _categorieService;
+    private WritableService<SousCategoriePostDTO> _sousCategorieService;
+    
+    public List<CategorieDTO> Categories { get; set; }
+    public bool IsLoading { get; set; }
 
     public event Action? OnStateChange;
-    public CommercialSousCategoriesViewModel(ListableViewModel<CategorieDTO> categorieService, WritableService<SousCategoriePostDTO> sousCategorieService)
+    public CommercialSousCategoriesViewModel(ICaracteristiqueService<CategorieDTO> categorieService, WritableService<SousCategoriePostDTO> sousCategorieService)
     {
-        VM_Categorie = categorieService;
-        SousCategorieService = sousCategorieService;
+       _categorieService = categorieService;
+       _sousCategorieService = sousCategorieService;
     }
     public async Task LoadAsync()
     {
-        await VM_Categorie.LoadAsync();
+        IsLoading = true;
+        Categories = await _categorieService.GetAllAsync();
         LoadAllSubcategories();
+        IsLoading = false;
     }
 
     public void LoadAllSubcategories()
     {
         allSubcategories.Clear();
 
-        if (VM_Categorie.Items == null)
+        if (Categories == null)
             return;
 
-        allSubcategories = VM_Categorie.Items
+        allSubcategories = Categories
             .Where(c => c.SousCategories != null)
             .SelectMany(c => c.SousCategories.Select(sc => (subcat: sc, category: c)))
             .OrderBy(x => x.subcat.SousCategorieId)
@@ -111,17 +117,17 @@ public class CommercialSousCategoriesViewModel
 
             if (isEditing)
             {
-                await SousCategorieService.UpdateAsync(sousCategoriePost);
+                await _sousCategorieService.UpdateAsync(sousCategoriePost);
                 successMessage = "Sous-catégorie modifiée avec succès";
             }
             else
             {
-                await SousCategorieService.AddAsync(sousCategoriePost);
+                await _sousCategorieService.AddAsync(sousCategoriePost);
                 successMessage = "Sous-catégorie ajoutée avec succès";
             }
 
             CloseModal();
-            await VM_Categorie.LoadAsync();
+            Categories = await _categorieService.GetAllAsync();
             LoadAllSubcategories();
             OnStateChange?.Invoke();
 
@@ -140,10 +146,10 @@ public class CommercialSousCategoriesViewModel
     {
         try
         {
-            await SousCategorieService.DeleteAsync(currentSousCategorie.SousCategorieId);
+            await _sousCategorieService.DeleteAsync(currentSousCategorie.SousCategorieId);
             successMessage = $"Sous-catégorie {currentSousCategorie.LibelleSousCategorie} supprimée avec succès";
             CloseDeleteModal();
-            await VM_Categorie.LoadAsync();
+            Categories = await _categorieService.GetAllAsync();
             LoadAllSubcategories();
             OnStateChange?.Invoke();
 

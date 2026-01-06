@@ -2,6 +2,7 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTO;
 using Shared.DTO.Categorie;
@@ -44,6 +45,7 @@ public class CategorieController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Commercial")]
     [ProducesResponseType(typeof(Categorie), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -59,6 +61,7 @@ public class CategorieController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = _Categorie.CategorieId }, _Categorie);
     }
     [HttpDelete("id/{id}")]
+    [Authorize(Roles = "Admin,Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -73,6 +76,7 @@ public class CategorieController : ControllerBase
         return NoContent();
     }
     [HttpPut("id/{id}")]
+    [Authorize(Roles = "Admin,Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

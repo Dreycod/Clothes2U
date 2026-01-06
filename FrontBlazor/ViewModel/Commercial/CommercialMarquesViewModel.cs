@@ -1,6 +1,7 @@
 ﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Shared.DTO.Marque;
 
 namespace FrontBlazor.ViewModel;
@@ -13,26 +14,28 @@ public class CommercialMarquesViewModel
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public ListableViewModel<MarqueDTO> VM_Marque { get; set; }
-    public WritableService<MarqueDTO> MarqueService { get; set; }  
+    public ICaracteristiqueService<MarqueDTO> _marqueService { get; set; }
     public event Action? OnStateChange;
+    public List<MarqueDTO> Marques { get; set; } 
+    public bool IsLoading { get; set; }
 
 
-    public CommercialMarquesViewModel(ListableViewModel<MarqueDTO> _MarqueViewModel, WritableService<MarqueDTO> marqueService)
+    public CommercialMarquesViewModel(ICaracteristiqueService<MarqueDTO> marqueService)
     {
-        VM_Marque = _MarqueViewModel;
-        MarqueService = marqueService;
+        _marqueService = marqueService;
     }
 
     public async Task LoadAsync()
     {
-        await VM_Marque.LoadAsync();
-        if (VM_Marque.Items != null)
+        IsLoading = true;
+        Marques = await _marqueService.GetAllAsync();
+        if (Marques != null)
         {
-            VM_Marque.Items = VM_Marque.Items
+            Marques = Marques
                 .OrderBy(c => c.MarqueID)
                 .ToList();
         }
+        IsLoading = false;
     }
 
     public void ShowAddModal()
@@ -91,17 +94,17 @@ public class CommercialMarquesViewModel
             if (isEditing)
             {
 
-                await MarqueService.UpdateAsync(marqueToSave);
+                await _marqueService.UpdateAsync(marqueToSave);
                 successMessage = "Marque modifiée avec succès";
             }
             else
             {
-                await MarqueService.AddAsync(marqueToSave);
+                await _marqueService.AddAsync(marqueToSave);
                 successMessage = "Marque ajoutée avec succès";
             }
 
             CloseModal();
-            await VM_Marque.LoadAsync();
+            Marques = await _marqueService.GetAllAsync();
             OnStateChange?.Invoke();    
 
             // Clear success message after 3 seconds
@@ -120,10 +123,10 @@ public class CommercialMarquesViewModel
         try
         {
             // TODO: Delete marque via API
-            await MarqueService.DeleteAsync(currentMarque.MarqueID);
+            await _marqueService.DeleteAsync(currentMarque.MarqueID);
             successMessage = $"Marque {currentMarque.NomMarque} supprimée avec succès";
             CloseDeleteModal();
-            await VM_Marque.LoadAsync();
+            Marques = await _marqueService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds

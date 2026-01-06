@@ -18,42 +18,34 @@ public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly ICaracteristiquesRepository<Est_De_Couleur> _estDeCouleurRepository;
-    private readonly IFavorisRepository  _favorisRepository;
+    private readonly IAnnonceExtensionService _annonceExtensionService;
     private readonly INotificationService _notificationService;
+    private readonly ISuggestionService _suggestionService;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotificationMailService _notificationMailService;
 
-    public AnnonceController(IAnnonceRepository<Annonce, int, FilterDTO> manager, ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,IFavorisRepository favorisManager,  IMapper mapper, INotificationService notificationService, ICurrentUserService currentUserService, INotificationMailService notificationMailService)
+    public AnnonceController(
+        IAnnonceRepository<Annonce, int, FilterDTO> manager,
+        ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,
+        IAnnonceExtensionService annonceExtensionService,
+        IFavorisRepository favorisManager, 
+        IMapper mapper,
+        INotificationService notificationService,
+        ICurrentUserService currentUserService,
+        INotificationMailService notificationMailService,
+        ISuggestionService suggestionService
+        )
     {
         _annonceManager = manager;
         _estDeCouleurRepository = estDeCouleurRepo;
-        _favorisRepository = favorisManager;
         _mapper = mapper;
+        _annonceExtensionService = annonceExtensionService;
         _notificationService = notificationService;
         _currentUserService = currentUserService;
         _notificationMailService = notificationMailService;
+        _suggestionService = suggestionService;
     }
-
-    private async Task<IEnumerable<AnnonceDTO>> LikeAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
-    {
-        int? userId = await _currentUserService.GetUserId();
-        if (!userId.HasValue)
-            return annoncesDTO;
-
-        int uid = userId.Value;
-
-        foreach (var annonce in annoncesDTO)
-        {
-            if (await _favorisRepository.CheckIfLiked(uid, annonce.AnnonceId))
-            {
-                annonce.IsLikedByCurrentUser = true;
-            }
-        }
-
-        return annoncesDTO;
-    }
-
 
     
     
@@ -64,7 +56,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
@@ -76,7 +68,7 @@ public class AnnonceController : ControllerBase
     {
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         return Ok(annoncesDTO);
     }
     
@@ -91,14 +83,7 @@ public class AnnonceController : ControllerBase
             return NotFound();
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
-        int? userId = await _currentUserService.GetUserId();
-        if (userId != null)
-        {
-            if (await _favorisRepository.CheckIfLiked((int)userId, id))
-            {
-                annonceDTO.IsLikedByCurrentUser = true;
-            }
-        }
+        annonceDTO = await _annonceExtensionService.LikeAnnonceDetail(annonceDTO);
         return Ok(annonceDTO);
     }
     [Authorize]
@@ -116,11 +101,7 @@ public class AnnonceController : ControllerBase
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
 
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        int userId = await _currentUserService.GetUserIdOrThrow();
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId);
     
         IEnumerable<Annonce> annoncesPaginees = annonces
@@ -128,7 +109,7 @@ public class AnnonceController : ControllerBase
             .Take(pageSize);
     
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
 
         return Ok(annoncesDTO);
     }
@@ -235,7 +216,7 @@ public class AnnonceController : ControllerBase
         int? userId = await _currentUserService.GetUserId();
         var annonces = await _annonceManager.FilterAsync(filterDto, page, pageSize, userId);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
     
         return Ok(annoncesDTO);
     }
@@ -256,9 +237,25 @@ public class AnnonceController : ControllerBase
         int? userId = await _currentUserService.GetUserId();
         var annonces = await _annonceManager.GetSimilarAsync(annonceId, page, pageSize, userId);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await LikeAnnonce(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
     
         return Ok(annoncesDTO);
+    }
+
+    [Authorize]
+    [HttpGet("Recommandations")]
+    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetRecommandations(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30
+    )
+    {
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
+        }
+        IEnumerable<AnnonceDTO> annonces = await _suggestionService.GetRecommandations(page, pageSize);
+        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        return  Ok(annoncesDTO);
     }
     
 }

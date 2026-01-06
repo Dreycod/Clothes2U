@@ -18,13 +18,4 @@ public class ListableService<T >: BaseGenericService, IListableService<T> where 
         return await _httpClient.GetFromJsonAsync<List<T>>($"{name}");
 
     }
-    public virtual async Task<List<T>?> GetAllWithDetailsAsync()
-    {
-        string name = typeof(T).Name;
-        if (name.EndsWith("DTO"))
-        {
-            name = name.Substring(0, name.Length - 3);
-        }
-        return await _httpClient.GetFromJsonAsync<List<T>>($"{name}/details");
-    }
 }

@@ -74,7 +74,7 @@
 
             <!-- Subcategories Table -->
             <div class="table-container">
-                @if (VM_Categorie.IsLoading)
+                @if (VM_CommercialSousCategories.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner"></div>
@@ -148,9 +148,9 @@
                 <label class="form-label">Catégorie parente</label>
                 <select class="form-select" @bind="VM_CommercialSousCategories.selectedCategorieId">
                     <option value="0">-- Sélectionnez une catégorie --</option>
-                    @if (VM_Categorie.Items != null)
+                    @if (VM_CommercialSousCategories.Categories != null)
                     {
-                        @foreach (var cat in VM_Categorie.Items)
+                        @foreach (var cat in VM_CommercialSousCategories.Categories)
                         {
                             <option value="@cat.IdCategorie">@cat.LibelleCategorie</option>
                         }

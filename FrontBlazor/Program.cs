@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using FrontBlazor.Models;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel;
 using FrontBlazor.ViewModel.Moderation;
@@ -54,6 +55,9 @@ builder.Services.AddScoped<IOrderService, OrderWebService>();
 builder.Services.AddScoped<IPaymentService, PaymentWebService>();
 builder.Services.AddScoped<TransactionService>();
 
+
+//caracteristiques
+builder.Services.AddScoped(typeof(ICaracteristiqueService<>), typeof(CaracteristiqueService<>));
 // builder.Services.AddScoped<ISignalRService,ChatSignalRService>();
 builder.Services.AddSingleton<ISignalRService>(sp =>
 {
@@ -61,8 +65,6 @@ builder.Services.AddSingleton<ISignalRService>(sp =>
 });
 
 builder.Services.AddScoped<INoteUtilisateurService, NoteUtilisateurWebService>();
-
-builder.Services.AddScoped(typeof(ListableViewModel<>));
 builder.Services.AddScoped(typeof(WritableService<>));
 // ViewModels
 builder.Services.AddScoped<LoginViewModel>();
