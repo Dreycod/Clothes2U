@@ -51,10 +51,12 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
+            .ForMember(dest => dest.StatutAnnonce, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
+            .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
             .ReverseMap();
 
         CreateMap<CreateAnnonceDTO, Annonce>()
-                .ForMember(dest => dest.AnnonceId, opt => opt.Ignore()) // L'ID sera généré
+                .ForMember(dest => dest.AnnonceId, opt => opt.Ignore()) // L'ID sera gï¿½nï¿½rï¿½
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Titre))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
@@ -68,7 +70,7 @@ public class AnnonceMappingProfile : Profile
                 .ForMember(dest => dest.CategorieId, opt => opt.MapFrom(src => src.CategorieId))
                 .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
                 .ForMember(dest => dest.GenreId, opt => opt.MapFrom(src => src.GenreId))
-                // Les relations (Marque, Taille, etc.) seront chargées par EF Core
+                // Les relations (Marque, Taille, etc.) seront chargï¿½es par EF Core
                 .ForMember(dest => dest.Marque, opt => opt.Ignore())
                 .ForMember(dest => dest.Taille, opt => opt.Ignore())
                 .ForMember(dest => dest.Etat, opt => opt.Ignore())
@@ -77,7 +79,7 @@ public class AnnonceMappingProfile : Profile
                 .ForMember(dest => dest.Statut, opt => opt.Ignore())
                 .ForMember(dest => dest.GenreAnnonce, opt => opt.Ignore())
                 .ForMember(dest => dest.Utilisateur, opt => opt.Ignore())
-                // Les collections seront gérées séparément
+                // Les collections seront gï¿½rï¿½es sï¿½parï¿½ment
                 .ForMember(dest => dest.Photos, opt => opt.Ignore())
                 .ForMember(dest => dest.Tags, opt => opt.Ignore())
                 .ForMember(dest => dest.Couleurs, opt => opt.Ignore())

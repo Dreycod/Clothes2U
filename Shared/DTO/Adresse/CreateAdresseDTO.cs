@@ -6,5 +6,7 @@ public class CreateAdresseDTO
     public string AdresseVille { get; set; } = "";
     public string AdresseCodePostal { get; set; } = "";
     public string AdressePays { get; set; } = "France";
+    
+    public bool IsDefault { get; set; } = false;
     public int UtilisateurId { get; set; }
 }

@@ -21,4 +21,7 @@ public class AnnonceDetailDTO
     public string? SousCategorie { get; set; } 
     public string? Categorie { get; set; } 
     public bool IsLikedByCurrentUser { get; set; }
+    
+    public string StatutAnnonce { get; set; }
+    public int StatutAnnonceId { get; set; }
 }

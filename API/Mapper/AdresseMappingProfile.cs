@@ -31,6 +31,7 @@ public class AdresseMappingProfile : Profile
             .ForMember(dest => dest.AdresseCodePostal , opt => opt.MapFrom(src => src.AdresseCodePostal))
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.AdressePays , opt => opt.MapFrom(src => src.AdressePays))
+            .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
             .ReverseMap();
         
         CreateMap<Adresse, AdresseLivraisonDTO>()

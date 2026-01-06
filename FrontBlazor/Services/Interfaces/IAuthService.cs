@@ -15,7 +15,7 @@ public interface IAuthService
     public Task<UtilisateurViewDTO?> GetCurrentUserAsync();
     public string GetGoogleLoginUrl(string returnUrl = "/");
     public Task<bool> ModificationMotDePasse(ChangePasswordDTO passwordDTO);
-    Task<List<AdresseDTO>> GetUserAddressesAsync(int userId);
+    Task<List<AdresseDTO>> GetUserAddressesAsync();
     Task<AdresseDTO> AddAddressAsync(CreateAdresseDTO address);
     Task<bool> UpdateAddressAsync(int addressId, UpdateAdresseDTO address);
     Task<bool> DeleteAddressAsync(int addressId);

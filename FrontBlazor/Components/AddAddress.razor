@@ -1,0 +1,197 @@
+@* Composant réutilisable pour ajouter une adresse depuis n'importe où *@
+
+<div class="modal-overlay" @onclick="OnCancel">
+    <div class="modal-content address-modal" @onclick:stopPropagation="true">
+        <div class="modal-header">
+            <h3>Ajouter une adresse</h3>
+            <button class="btn-icon" @onclick="OnCancel">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="rue-modal">Rue *</label>
+                <input type="text" 
+                       id="rue-modal"
+                       class="form-control @(validationErrors.ContainsKey("Rue") ? "error" : "")"
+                       placeholder="123 Rue de la Paix"
+                       @bind="rue"
+                       maxlength="200" />
+                @if (validationErrors.ContainsKey("Rue"))
+                {
+                    <span class="error-message">@validationErrors["Rue"]</span>
+                }
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cp-modal">Code Postal *</label>
+                    <input type="text" 
+                           id="cp-modal"
+                           class="form-control @(validationErrors.ContainsKey("CodePostal") ? "error" : "")"
+                           placeholder="75001"
+                           @bind="codePostal"
+                           maxlength="5" />
+                    @if (validationErrors.ContainsKey("CodePostal"))
+                    {
+                        <span class="error-message">@validationErrors["CodePostal"]</span>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="ville-modal">Ville *</label>
+                    <input type="text" 
+                           id="ville-modal"
+                           class="form-control @(validationErrors.ContainsKey("Ville") ? "error" : "")"
+                           placeholder="Paris"
+                           @bind="ville"
+                           maxlength="100" />
+                    @if (validationErrors.ContainsKey("Ville"))
+                    {
+                        <span class="error-message">@validationErrors["Ville"]</span>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="pays-modal">Pays *</label>
+                <select id="pays-modal" 
+                        class="form-control"
+                        @bind="pays">
+                    <option value="France">France</option>
+                    <option value="Belgique">Belgique</option>
+                    <option value="Suisse">Suisse</option>
+                    <option value="Luxembourg">Luxembourg</option>
+                    <option value="Monaco">Monaco</option>
+                </select>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @errorMessage
+                </div>
+            }
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-secondary" @onclick="OnCancel" disabled="@isSaving">
+                Annuler
+            </button>
+            <button class="btn-primary" @onclick="SaveAddress" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span class="spinner-small"></span>
+                    <text>Enregistrement...</text>
+                }
+                else
+                {
+                    <text>Ajouter</text>
+                }
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<AdresseDTO> OnAddressAdded { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancelled { get; set; }
+
+    [Parameter]
+    public int UserId { get; set; }
+
+    [Inject]
+    private IAuthService AuthService { get; set; } = null!;
+
+    private string rue = "";
+    private string ville = "";
+    private string codePostal = "";
+    private string pays = "France";
+    private bool isSaving = false;
+    private string? errorMessage;
+    private Dictionary<string, string> validationErrors = new();
+
+    private async Task SaveAddress()
+    {
+        if (!Validate())
+        {
+            return;
+        }
+
+        isSaving = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var createDto = new CreateAdresseDTO
+            {
+                AdresseRue = rue.Trim(),
+                AdresseVille = ville.Trim(),
+                AdresseCodePostal = codePostal.Trim(),
+                AdressePays = pays.Trim(),
+                UtilisateurId = UserId
+            };
+
+            var newAddress = await AuthService.AddAddressAsync(createDto);
+
+            if (newAddress != null)
+            {
+                await OnAddressAdded.InvokeAsync(newAddress);
+            }
+            else
+            {
+                errorMessage = "Impossible d'ajouter l'adresse";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[AddAddressModal] ❌ Error: {ex.Message}");
+            errorMessage = "Une erreur est survenue";
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool Validate()
+    {
+        validationErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(rue) || rue.Length < 5)
+        {
+            validationErrors["Rue"] = "La rue doit contenir au moins 5 caractères";
+        }
+
+        if (string.IsNullOrWhiteSpace(ville) || ville.Length < 2)
+        {
+            validationErrors["Ville"] = "La ville doit contenir au moins 2 caractères";
+        }
+
+        if (string.IsNullOrWhiteSpace(codePostal) || !System.Text.RegularExpressions.Regex.IsMatch(codePostal, @"^\d{5}$"))
+        {
+            validationErrors["CodePostal"] = "Le code postal doit contenir 5 chiffres";
+        }
+
+        if (validationErrors.Any())
+        {
+            errorMessage = "Veuillez corriger les erreurs";
+            StateHasChanged();
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task OnCancel()
+    {
+        await OnCancelled.InvokeAsync();
+    }
+}

@@ -79,7 +79,7 @@ public class Utilisateur : IEntity
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     
     [InverseProperty(nameof(Adresse.Utilisateurs))]
-    public virtual ICollection<Adresse> Adresses { get; set; } 
+    public virtual ICollection<Adresse> Adresses { get; set; } = new List<Adresse>(); 
     
     [InverseProperty(nameof(NoteUtilisateur.Auteur))]
     public virtual ICollection<NoteUtilisateur> NotesAuteur { get; set; } = new List<NoteUtilisateur>();

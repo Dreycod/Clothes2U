@@ -1,4 +1,4 @@
-@page "/Acheter/{ConversationId:int}"
+@page "/acheter/{ConversationId:int}"
 @inject AcheterViewModel VM
 @inject IJSRuntime JSRuntime
 @implements IDisposable
@@ -53,7 +53,14 @@
                     <h2>Récapitulatif</h2>
                     
                     <div class="product-info">
-                        <img src="@VM.SelectedAnnonce.Photos[0]" alt="@VM.SelectedAnnonce.Title" />
+                        @if (VM.SelectedAnnonce.Photos != null && VM.SelectedAnnonce.Photos.Any())
+                        {
+                            <img src="@VM.SelectedAnnonce.Photos[0]" alt="@VM.SelectedAnnonce.Title" />
+                        }
+                        else
+                        {
+                            <img src="/images/no-image.png" alt="Aucune image disponible" />
+                        }
                         <div>
                             <h3>@VM.SelectedAnnonce.Title</h3>
                             <p class="product-size">Taille: @VM.SelectedAnnonce.Taille</p>
@@ -251,7 +258,7 @@
 
     private void AddNewAddress()
     {
-        Navigation.NavigateTo($"/profile/addresses/new?returnUrl=/purchase/{ConversationId}");
+        Navigation.NavigateTo($"/profile/addresses/new?returnUrl=/acheter/{ConversationId}");
     }
 
     public void Dispose()

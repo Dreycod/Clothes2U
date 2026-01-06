@@ -28,6 +28,7 @@ public class Adresse : IEntity
     [Column("adr_is_default")]
     public bool IsDefault { get; set; }
     
+    [Required]
     [Column("adr_utilisateur_id")]
     public int UtilisateurId { get; set; }
     

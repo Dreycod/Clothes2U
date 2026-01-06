@@ -71,36 +71,41 @@ public class AcheterViewModel : ComponentBase, IDisposable
 
         try
         {
+            Console.WriteLine("1");
             CurrentUser = await _authService.GetCurrentUserAsync();
             if (CurrentUser == null)
             {
                 _nav.NavigateTo("/login");
                 return;
             }
-
             // Charger l'annonce
-            SelectedConversation = await _conversationService.GetByIdAsync(conversationId);
+            SelectedConversation = await _conversationService.GetConversationDetailById(conversationId);
+            if (SelectedConversation == null)
+            {
+                ErrorMessage = "Conversation introuvable";
+                return;
+            }
             SelectedAnnonce = await _annonceService.GetAnnonceDetailById(SelectedConversation!.AnnonceId.Value);
             if (SelectedAnnonce == null)
             {
                 ErrorMessage = "Annonce introuvable";
                 return;
             }
-
+            Console.WriteLine("3");
             // Vérifier que l'annonce est disponible
-            if (SelectedAnnonce.EtatArticle != "Disponible")
+            if (SelectedAnnonce.StatutAnnonce != "En Ligne")
             {
                 ErrorMessage = "Cette annonce n'est plus disponible";
                 return;
             }
-
+            Console.WriteLine("4");
             // Vérifier que l'utilisateur n'achète pas son propre article
             if (SelectedAnnonce.UtilisateurId == CurrentUser.UtilisateurId)
             {
                 ErrorMessage = "Vous ne pouvez pas acheter votre propre article";
                 return;
             }
-
+            Console.WriteLine("5");
             // Charger les adresses de l'utilisateur
             await LoadUserAddresses();
         }
@@ -120,11 +125,12 @@ public class AcheterViewModel : ComponentBase, IDisposable
     {
         try
         {
-            var addresses = await _authService.GetUserAddressesAsync(CurrentUser!.UtilisateurId);
-            UserAddresses = addresses ?? new List<AdresseDTO>();
+            var addresses = await _authService.GetUserAddressesAsync();
+            UserAddresses = addresses != null ? addresses : new List<AdresseDTO>();
             
             // Sélectionner l'adresse par défaut si elle existe
-            SelectedAddress = UserAddresses.FirstOrDefault();
+            SelectedAddress = UserAddresses.FirstOrDefault() ?? new AdresseDTO();
+            
         }
         catch (Exception ex)
         {

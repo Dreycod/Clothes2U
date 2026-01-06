@@ -91,6 +91,10 @@ builder.Services.AddScoped<HistoriqueTransactionViewModel>();
 builder.Services.AddScoped<SettingsViewModel>();
 builder.Services.AddScoped<CreationAnnonceViewModel>();
 builder.Services.AddScoped<AcheterViewModel>();
+builder.Services.AddScoped<AddressViewModel>();
+
+// AuthService doit déjà être enregistré
+// (il contient les méthodes pour les adresses)
 
 // HttpClient AVEC CREDENTIALS (cookies)
 builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });

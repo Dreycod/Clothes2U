@@ -155,6 +155,7 @@ public partial class Clothes2UDbContext : DbContext
             
             entity.HasOne(e => e.Utilisateurs)
                 .WithMany(u => u.Adresses)
+                .HasForeignKey(a => a.UtilisateurId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Adresse_Utilisateur");
             
@@ -1304,7 +1305,6 @@ public partial class Clothes2UDbContext : DbContext
             // Relation avec Adresse
             entity.HasMany(e => e.Adresses)
                 .WithOne(a => a.Utilisateurs)
-                .HasForeignKey(e => e.AdresseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Relation avec StatutUtilisateur

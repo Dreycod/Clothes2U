@@ -1,0 +1,287 @@
+@page "/profile/addresses"
+@inject AddressViewModel VM
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<PageTitle>Mes Adresses - Clothes2U</PageTitle>
+
+<NavBar />
+
+<div class="addresses-page">
+    <div class="addresses-container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1>Mes Adresses</h1>
+                <p class="subtitle">Gérez vos adresses de livraison</p>
+            </div>
+            @if (!VM.IsFormVisible)
+            {
+                <button class="btn-primary" @onclick="VM.ShowCreateForm">
+                    <i class="bi bi-plus-circle"></i>
+                    Ajouter une adresse
+                </button>
+            }
+        </div>
+
+        <!-- Messages -->
+        @if (!string.IsNullOrEmpty(VM.SuccessMessage))
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                @VM.SuccessMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(VM.ErrorMessage))
+        {
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-circle"></i>
+                @VM.ErrorMessage
+            </div>
+        }
+
+        @if (VM.IsLoading)
+        {
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Chargement...</p>
+            </div>
+        }
+        else
+        {
+            <!-- Formulaire d'ajout/modification -->
+            @if (VM.IsFormVisible)
+            {
+                <div class="address-form-card">
+                    <div class="form-header">
+                        <h2>@(VM.IsEditMode ? "Modifier l'adresse" : "Nouvelle adresse")</h2>
+                        <button class="btn-icon" @onclick="VM.HideForm">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label for="rue">Rue *</label>
+                            <input type="text" 
+                                   id="rue"
+                                   class="form-control @(VM.ValidationErrors.ContainsKey("Rue") ? "error" : "")"
+                                   placeholder="123 Rue de la Paix"
+                                   @bind="VM.Rue"
+                                   maxlength="200" />
+                            @if (VM.ValidationErrors.ContainsKey("Rue"))
+                            {
+                                <span class="error-message">@VM.ValidationErrors["Rue"]</span>
+                            }
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="codePostal">Code Postal *</label>
+                                <input type="text" 
+                                       id="codePostal"
+                                       class="form-control @(VM.ValidationErrors.ContainsKey("CodePostal") ? "error" : "")"
+                                       placeholder="75001"
+                                       @bind="VM.CodePostal"
+                                       maxlength="5" />
+                                @if (VM.ValidationErrors.ContainsKey("CodePostal"))
+                                {
+                                    <span class="error-message">@VM.ValidationErrors["CodePostal"]</span>
+                                }
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ville">Ville *</label>
+                                <input type="text" 
+                                       id="ville"
+                                       class="form-control @(VM.ValidationErrors.ContainsKey("Ville") ? "error" : "")"
+                                       placeholder="Paris"
+                                       @bind="VM.Ville"
+                                       maxlength="100" />
+                                @if (VM.ValidationErrors.ContainsKey("Ville"))
+                                {
+                                    <span class="error-message">@VM.ValidationErrors["Ville"]</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pays">Pays *</label>
+                            <select id="pays" 
+                                    class="form-control @(VM.ValidationErrors.ContainsKey("Pays") ? "error" : "")"
+                                    @bind="VM.Pays">
+                                <option value="France">France</option>
+                                <option value="Belgique">Belgique</option>
+                                <option value="Suisse">Suisse</option>
+                                <option value="Luxembourg">Luxembourg</option>
+                                <option value="Monaco">Monaco</option>
+                            </select>
+                            @if (VM.ValidationErrors.ContainsKey("Pays"))
+                            {
+                                <span class="error-message">@VM.ValidationErrors["Pays"]</span>
+                            }
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-secondary" @onclick="VM.HideForm" disabled="@VM.IsSaving">
+                                Annuler
+                            </button>
+                            <button class="btn-primary" @onclick="SaveAddress" disabled="@VM.IsSaving">
+                                @if (VM.IsSaving)
+                                {
+                                    <span class="spinner-small"></span>
+                                    <text>Enregistrement...</text>
+                                }
+                                else
+                                {
+                                    <text>@(VM.IsEditMode ? "Modifier" : "Ajouter")</text>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Liste des adresses -->
+            @if (!VM.Addresses.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-geo-alt"></i>
+                    <h2>Aucune adresse</h2>
+                    <p>Ajoutez votre première adresse de livraison</p>
+                    <button class="btn-primary" @onclick="VM.ShowCreateForm">
+                        <i class="bi bi-plus-circle"></i>
+                        Ajouter une adresse
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="addresses-grid">
+                    @foreach (var address in VM.Addresses)
+                    {
+                        <div class="address-card @(address.IsDefault ? "is-default" : "")">
+                            @if (address.IsDefault)
+                            {
+                                <div class="default-badge">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Adresse par défaut
+                                </div>
+                            }
+
+                            <div class="address-content">
+                                <div class="address-icon">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                </div>
+                                <div class="address-details">
+                                    <p class="address-street">@address.AdresseRue</p>
+                                    <p class="address-city">@address.AdresseCodePostal @address.AdresseVille</p>
+                                    <p class="address-country">@address.AdressePays</p>
+                                </div>
+                            </div>
+
+                            <div class="address-actions">
+                                @if (!address.IsDefault)
+                                {
+                                    <button class="btn-link" @onclick="() => SetDefault(address)">
+                                        <i class="bi bi-star"></i>
+                                        Définir par défaut
+                                    </button>
+                                }
+                                <button class="btn-link" @onclick="() => VM.ShowEditForm(address)">
+                                    <i class="bi bi-pencil"></i>
+                                    Modifier
+                                </button>
+                                <button class="btn-link btn-danger" @onclick="() => ConfirmDelete(address)">
+                                    <i class="bi bi-trash"></i>
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+@if (addressToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>Confirmer la suppression</h3>
+                <button class="btn-icon" @onclick="CancelDelete">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette adresse ?</p>
+                <div class="address-preview">
+                    <strong>@addressToDelete.AdresseRue</strong><br />
+                    @addressToDelete.AdresseCodePostal @addressToDelete.AdresseVille<br />
+                    @addressToDelete.AdressePays
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="CancelDelete">
+                    Annuler
+                </button>
+                <button class="btn-danger" @onclick="DeleteAddress">
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private AdresseDTO? addressToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM.OnChange += StateHasChanged;
+        await VM.LoadAsync();
+    }
+
+    private async Task SaveAddress()
+    {
+        await VM.SaveAddressAsync();
+    }
+
+    private async Task SetDefault(AdresseDTO address)
+    {
+        await VM.SetDefaultAddressAsync(address);
+    }
+
+    private void ConfirmDelete(AdresseDTO address)
+    {
+        addressToDelete = address;
+        StateHasChanged();
+    }
+
+    private void CancelDelete()
+    {
+        addressToDelete = null;
+        StateHasChanged();
+    }
+
+    private async Task DeleteAddress()
+    {
+        if (addressToDelete != null)
+        {
+            var success = await VM.DeleteAddressAsync(addressToDelete);
+            if (success)
+            {
+                addressToDelete = null;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        VM.OnChange -= StateHasChanged;
+    }
+}

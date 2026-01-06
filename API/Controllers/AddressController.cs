@@ -1,6 +1,7 @@
 using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,23 +16,33 @@ namespace API.Controllers;
 public class AddressController : ControllerBase
 {
     private readonly Clothes2UDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<AddressController> _logger;
     private readonly IMapper _mapper;
 
-    public AddressController(Clothes2UDbContext context, ILogger<AddressController> logger, IMapper mapper)
+    public AddressController(Clothes2UDbContext context, ICurrentUserService currentUserService, ILogger<AddressController> logger, IMapper mapper)
     {
         _context = context;
         _logger = logger;
+        _currentUserService = currentUserService;
         _mapper = mapper;
     }
 
     /// <summary>
     /// Obtenir toutes les adresses d'un utilisateur
     /// </summary>
-    [HttpGet("user/{userId}")]
+    [Authorize]
+    [HttpGet("user")]
     [ProducesResponseType(typeof(List<AdresseDTO>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<AdresseDTO>>> GetUserAddresses(int userId)
+    public async Task<ActionResult<List<AdresseDTO>>> GetUserAddresses()
     {
+        var userId = await _currentUserService.GetUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        
         var addresses = await _context.Adresses
             .Where(a => a.UtilisateurId == userId)
             .Select(a => _mapper.Map<AdresseDTO>(a))

@@ -90,10 +90,15 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AdresseId"));
 
-                    b.Property<string>("AdrCodePostal")
+                    b.Property<string>("AdresseCodePostal")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("adr_code_postal");
+
+                    b.Property<string>("AdressePays")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("adr_pays");
 
                     b.Property<string>("AdresseRue")
                         .IsRequired()
@@ -107,7 +112,17 @@ namespace API.Migrations
                         .HasColumnType("character varying(80)")
                         .HasColumnName("adr_ville");
 
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("adr_is_default");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("adr_utilisateur_id");
+
                     b.HasKey("AdresseId");
+
+                    b.HasIndex("UtilisateurId");
 
                     b.ToTable("t_e_adresse_adr", "sae_clothes2u");
                 });
@@ -301,6 +316,84 @@ namespace API.Migrations
                     b.HasKey("CategorieId");
 
                     b.ToTable("t_e_categorie_cat", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
+                {
+                    b.Property<int>("CommandeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CommandeId"));
+
+                    b.Property<int>("AcheteurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_acheteur_id");
+
+                    b.Property<int>("AdresseLivraisonId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_adresse_livraison_id");
+
+                    b.Property<int>("AnnonceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_annonce_id");
+
+                    b.Property<DateTime>("DateCommande")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cmd_date_commande");
+
+                    b.Property<DateTime?>("DateExpedition")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cmd_date_expedition");
+
+                    b.Property<DateTime?>("DateLivraison")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cmd_date_livraison");
+
+                    b.Property<decimal>("FraisLivraison")
+                        .HasColumnType("numeric")
+                        .HasColumnName("cmd_frais_livraison");
+
+                    b.Property<decimal>("FraisService")
+                        .HasColumnType("numeric")
+                        .HasColumnName("cmd_frais_service");
+
+                    b.Property<decimal>("MontantTotal")
+                        .HasColumnType("numeric")
+                        .HasColumnName("cmd_montant_total");
+
+                    b.Property<string>("NumeroSuivi")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("cmd_numero_suivi");
+
+                    b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("cmd_statut");
+
+                    b.Property<string>("StripePaymentIntentId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("cmd_stripe_payment_intent_id");
+
+                    b.Property<int>("VendeurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_vendeur_id");
+
+                    b.HasKey("CommandeId");
+
+                    b.HasIndex("AcheteurId");
+
+                    b.HasIndex("AdresseLivraisonId");
+
+                    b.HasIndex("AnnonceId");
+
+                    b.HasIndex("VendeurId");
+
+                    b.ToTable("t_e_commande_cmd", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>
@@ -1697,10 +1790,6 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UtilisateurId"));
 
-                    b.Property<int?>("AdresseId")
-                        .HasColumnType("integer")
-                        .HasColumnName("uti_adresse_id");
-
                     b.Property<DateTime>("Dateinscription")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("uti_dateinscription");
@@ -1766,8 +1855,6 @@ namespace API.Migrations
                         .HasColumnName("uti_valid_telephone");
 
                     b.HasKey("UtilisateurId");
-
-                    b.HasIndex("AdresseId");
 
                     b.HasIndex("Dateinscription");
 
@@ -1932,6 +2019,18 @@ namespace API.Migrations
                     b.Navigation("UtilisateurAcheteur");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Adresse", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateurs")
+                        .WithMany("Adresses")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Adresse_Utilisateur");
+
+                    b.Navigation("Utilisateurs");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Annonce", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Categorie", "Categorie")
@@ -2022,6 +2121,43 @@ namespace API.Migrations
                     b.Navigation("UtilisateurBloque");
 
                     b.Navigation("UtilisateurBloqueur");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Acheteur")
+                        .WithMany("CommandesAchetees")
+                        .HasForeignKey("AcheteurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_Acheteur");
+
+                    b.HasOne("API.Models.EntityFramework.Adresse", "AdresseLivraison")
+                        .WithMany("Commandes")
+                        .HasForeignKey("AdresseLivraisonId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_AdresseLivraison");
+
+                    b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
+                        .WithMany("Commandes")
+                        .HasForeignKey("AnnonceId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_Annonce");
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Vendeur")
+                        .WithMany("CommandesVendues")
+                        .HasForeignKey("VendeurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_Vendeur");
+
+                    b.Navigation("Acheteur");
+
+                    b.Navigation("AdresseLivraison");
+
+                    b.Navigation("Annonce");
+
+                    b.Navigation("Vendeur");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>
@@ -2312,7 +2448,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Mesure", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.SousCategorie", "CategorieMesure")
+                    b.HasOne("API.Models.EntityFramework.SousCategorie", "SousCategorieMesure")
                         .WithMany("Mesures")
                         .HasForeignKey("SousCategorieId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2324,7 +2460,7 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CategorieMesure");
+                    b.Navigation("SousCategorieMesure");
 
                     b.Navigation("TailleMesure");
                 });
@@ -2631,12 +2767,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Utilisateur", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.Adresse", "Adresse")
-                        .WithMany("Utilisateurs")
-                        .HasForeignKey("AdresseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_Adresse_Utilisateur");
-
                     b.HasOne("API.Models.EntityFramework.Photo", "PhotoProfil")
                         .WithOne("Utilisateur")
                         .HasForeignKey("API.Models.EntityFramework.Utilisateur", "PhotoId");
@@ -2652,8 +2782,6 @@ namespace API.Migrations
                         .HasForeignKey("StatutId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Adresse");
 
                     b.Navigation("PhotoProfil");
 
@@ -2713,11 +2841,13 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Adresse", b =>
                 {
-                    b.Navigation("Utilisateurs");
+                    b.Navigation("Commandes");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Annonce", b =>
                 {
+                    b.Navigation("Commandes");
+
                     b.Navigation("Couleurs");
 
                     b.Navigation("Decisions");
@@ -2936,6 +3066,8 @@ namespace API.Migrations
 
                     b.Navigation("Achats");
 
+                    b.Navigation("Adresses");
+
                     b.Navigation("Annonces");
 
                     b.Navigation("AnnoncesFavorites");
@@ -2943,6 +3075,10 @@ namespace API.Migrations
                     b.Navigation("AnnoncesPreferences");
 
                     b.Navigation("BloqueParUtilisateurs");
+
+                    b.Navigation("CommandesAchetees");
+
+                    b.Navigation("CommandesVendues");
 
                     b.Navigation("DecisionsModerateur");
 
