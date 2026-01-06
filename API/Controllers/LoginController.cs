@@ -352,12 +352,10 @@ public class LoginController : ControllerBase
     {
         // Cherche si un utilisateur existe déjà avec cet email
         var existingUsers = await _utilisateurManager.GetAllAsync();
-        var utilisateur = existingUsers.FirstOrDefault(u => u.Email.ToUpper() == userInfo.Email.ToUpper());
+        var utilisateur = await _utilisateurManager.GetUtilisateurByEmail(userInfo.Email);
 
         if (utilisateur != null)
         {
-            Console.WriteLine($"✅ Utilisateur existant trouvé: {utilisateur.Login}");
-            utilisateur = await _utilisateurManager.GetUtilisateurByLogin(utilisateur.Login);
             return utilisateur;
         }
 

@@ -31,12 +31,12 @@ namespace FrontBlazor.ViewModel
         public List<TailleDTO> Tailles { get; set; }
         public List<EtatArticleDTO> Etats { get; set; }
         
-        private readonly ListableService<CategorieDTO> _categorieService;
-        private readonly ListableService<CouleurDTO> _couleurService;
-        private readonly ListableService<MarqueDTO> _marqueService;
-        private readonly ListableService<EtatArticleDTO> _etatService;
-        private readonly ListableService<GenreDTO> _genreService;
-        private readonly ListableService<TailleDTO> _tailleService;
+        private readonly IListableService<CategorieDTO> _categorieService;
+        private readonly IListableService<CouleurDTO> _couleurService;
+        private readonly IListableService<MarqueDTO> _marqueService;
+        private readonly IListableService<EtatArticleDTO> _etatService;
+        private readonly IListableService<GenreDTO> _genreService;
+        private readonly IListableService<TailleDTO> _tailleService;
 
         // État de l'annonce en cours de création
         public CreateAnnonceDTO NewAnnonce { get; private set; } = new();
@@ -66,12 +66,12 @@ namespace FrontBlazor.ViewModel
             IMediasService mediaService,
             IAuthService authService,
             IMesureService mesureService,
-            ListableService<CategorieDTO> categorieService, 
-            ListableService<CouleurDTO> couleurService, 
-            ListableService<MarqueDTO> marqueService, 
-            ListableService<EtatArticleDTO> etatService,
-            ListableService<GenreDTO> genreService,
-            ListableService<TailleDTO> tailleService, 
+            IListableService<CategorieDTO> categorieService, 
+            IListableService<CouleurDTO> couleurService, 
+            IListableService<MarqueDTO> marqueService, 
+            IListableService<EtatArticleDTO> etatService,
+            IListableService<GenreDTO> genreService,
+            IListableService<TailleDTO> tailleService, 
             NavigationManager nav)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
@@ -101,6 +101,15 @@ namespace FrontBlazor.ViewModel
             NewAnnonce.UtilisateurId = currentUser.UtilisateurId;
             NewAnnonce.DateAnnonce = DateTime.UtcNow;
             NewAnnonce.StatutAnnonceId = 1;
+
+            IsLoading = true;
+            Genres = await _genreService.GetAllAsync();
+            Categories = await _categorieService.GetAllAsync();
+            Marques = await _marqueService.GetAllAsync();
+            Couleurs = await _couleurService.GetAllAsync();
+            Etats = await _etatService.GetAllAsync();
+            Tailles = await _tailleService.GetAllAsync();
+            IsLoading = false;
 
             // ✅ Charger les mesures pour le filtrage des tailles
             await LoadMesuresAsync();
