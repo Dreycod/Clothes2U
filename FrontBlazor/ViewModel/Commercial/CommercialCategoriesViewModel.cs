@@ -1,5 +1,6 @@
 ﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Shared.DTO;
 using Shared.DTO.Categorie;
 
@@ -13,26 +14,28 @@ public class CommercialCategoriesViewModel
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    private ListableViewModel<CategorieDTO> VM_Categorie;
-    private WritableService<CategorieDTO> CategorieService;
+    public List<CategorieDTO> Categories  { get; set; }
+    private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
 
     public event Action? OnStateChange;
+    public bool IsLoading { get; set; }
 
-    public CommercialCategoriesViewModel(ListableViewModel<CategorieDTO> _vmCategorie, WritableService<CategorieDTO> _categorieService)
+    public CommercialCategoriesViewModel(ICaracteristiqueService<CategorieDTO> categorieService)
     {
-        VM_Categorie = _vmCategorie;
-        CategorieService = _categorieService;
+        _categorieService = categorieService;
     }
     public async Task LoadAsync()
     {
-        await VM_Categorie.LoadWithDetailsAsync();
+        IsLoading = true;
+        Categories = await _categorieService.GetAllAsync();
 
-        if (VM_Categorie.Items != null)
+        if (Categories != null)
         {
-            VM_Categorie.Items = VM_Categorie.Items
+            Categories = Categories
                 .OrderBy(c => c.IdCategorie)
                 .ToList();
         }
+        IsLoading = false;
     }
 
     public void ShowAddModal()
@@ -85,17 +88,17 @@ public class CommercialCategoriesViewModel
         {
             if (isEditing)
             {
-                await CategorieService.UpdateAsync(currentCategorie);
+                await _categorieService.UpdateAsync(currentCategorie);
                 successMessage = "Catégorie modifiée avec succès";
             }
             else
             {
-                await CategorieService.AddAsync(currentCategorie);
+                await _categorieService.AddAsync(currentCategorie);
                 successMessage = "Catégorie ajoutée avec succès";
             }
 
             CloseModal();
-            await VM_Categorie.LoadAsync();
+            Categories = await _categorieService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds
@@ -113,10 +116,10 @@ public class CommercialCategoriesViewModel
     {
         try
         {
-            await CategorieService.DeleteAsync(currentCategorie.IdCategorie);
+            await _categorieService.DeleteAsync(currentCategorie.IdCategorie);
             successMessage = $"Catégorie {currentCategorie.LibelleCategorie} supprimée avec succès";
             CloseDeleteModal();
-            await VM_Categorie.LoadAsync();
+            Categories = await _categorieService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds

@@ -1,6 +1,7 @@
 ﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.ViewModel;
 
@@ -13,22 +14,22 @@ public class CommercialGenresViewModel
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public ListableViewModel<GenreDTO> VM_Genre { get; set; }
-    public WritableService<GenreDTO> GenreService { get; set; }
+   
+    ICaracteristiqueService<GenreDTO> _genreService;
+    public List<GenreDTO> Genres { get; set; }
     public event Action? OnStateChange;
 
-    public CommercialGenresViewModel(ListableViewModel<GenreDTO> _GenreViewModel, WritableService<GenreDTO> genreService)
+    public CommercialGenresViewModel(ICaracteristiqueService<GenreDTO> genreService)
     {
-        VM_Genre = _GenreViewModel;
-        GenreService = genreService;
+        _genreService = genreService;
     }
 
     public async Task LoadAsync()
     {
-        await VM_Genre.LoadWithDetailsAsync();
-        if (VM_Genre.Items != null)
+        Genres = await _genreService.GetAllAsync();
+        if (Genres != null)
         {
-            VM_Genre.Items = VM_Genre.Items
+            Genres = Genres
                 .OrderBy(c => c.GenreId)
                 .ToList();
         }
@@ -89,17 +90,17 @@ public class CommercialGenresViewModel
 
             if (isEditing)
             {
-                await GenreService.UpdateAsync(genreToSave);
+                await _genreService.UpdateAsync(genreToSave);
                 successMessage = "Genre modifié avec succès";
             }
             else
             {
-                await GenreService.AddAsync(genreToSave);
+                await _genreService.AddAsync(genreToSave);
                 successMessage = "Genre ajouté avec succès";
             }
 
             CloseModal();
-            await VM_Genre.LoadAsync();
+            Genres = await _genreService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds
@@ -117,10 +118,10 @@ public class CommercialGenresViewModel
     {
         try
         {
-            await GenreService.DeleteAsync(currentGenre.GenreId);
+            await _genreService.DeleteAsync(currentGenre.GenreId);
             successMessage = $"Genre {currentGenre.NomGenre} supprimé avec succès";
             CloseDeleteModal();
-            await VM_Genre.LoadAsync();
+            Genres = await _genreService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds

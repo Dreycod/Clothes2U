@@ -5,6 +5,11 @@ using Shared.DTO.Annonce;
 using Shared.DTO.Couleur;
 using Shared.DTO.Mesures;
 using System.Collections.ObjectModel;
+using Shared.DTO;
+using Shared.DTO.Categorie;
+using Shared.DTO.EtatArticle;
+using Shared.DTO.Marque;
+using Shared.DTO.Taille;
 
 namespace FrontBlazor.ViewModel
 {
@@ -19,6 +24,19 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IMesureService _mesureService;
         private readonly NavigationManager _nav;
+        public List<CategorieDTO> Categories { get; set; }
+        public List<CouleurDTO> Couleurs { get; set; }
+        public List<GenreDTO> Genres { get; set; }
+        public List<MarqueDTO> Marques { get; set; }
+        public List<TailleDTO> Tailles { get; set; }
+        public List<EtatArticleDTO> Etats { get; set; }
+        
+        private readonly ListableService<CategorieDTO> _categorieService;
+        private readonly ListableService<CouleurDTO> _couleurService;
+        private readonly ListableService<MarqueDTO> _marqueService;
+        private readonly ListableService<EtatArticleDTO> _etatService;
+        private readonly ListableService<GenreDTO> _genreService;
+        private readonly ListableService<TailleDTO> _tailleService;
 
         // État de l'annonce en cours de création
         public CreateAnnonceDTO NewAnnonce { get; private set; } = new();
@@ -48,6 +66,12 @@ namespace FrontBlazor.ViewModel
             IMediasService mediaService,
             IAuthService authService,
             IMesureService mesureService,
+            ListableService<CategorieDTO> categorieService, 
+            ListableService<CouleurDTO> couleurService, 
+            ListableService<MarqueDTO> marqueService, 
+            ListableService<EtatArticleDTO> etatService,
+            ListableService<GenreDTO> genreService,
+            ListableService<TailleDTO> tailleService, 
             NavigationManager nav)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
@@ -55,6 +79,12 @@ namespace FrontBlazor.ViewModel
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _mesureService = mesureService ?? throw new ArgumentNullException(nameof(mesureService));
             _nav = nav ?? throw new ArgumentNullException(nameof(nav));
+            _categorieService = categorieService;
+            _marqueService = marqueService;
+            _couleurService = couleurService;
+            _etatService = etatService;
+            _genreService = genreService;
+            _tailleService = tailleService;
         }
 
         #region Initialization

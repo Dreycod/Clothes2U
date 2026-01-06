@@ -74,14 +74,14 @@
 
             <!-- Categories Table -->
             <div class="table-container">
-                @if (VM_Categorie.IsLoading)
+                @if (VM_CommercialCategories.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner"></div>
                         <p>Chargement des catégories...</p>
                     </div>
                 }
-                else if (VM_Categorie.Items != null && VM_Categorie.Items.Any())
+                else if (VM_CommercialCategories.Categories != null && VM_CommercialCategories.Categories.Any())
                 {
                     <table class="data-table">
                         <thead>
@@ -93,7 +93,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var categorie in VM_Categorie.Items)
+                            @foreach (var categorie in VM_CommercialCategories.Categories)
                             {
                                 <tr>
                                     <td>#@categorie.IdCategorie</td>
@@ -185,6 +185,6 @@
     protected override async Task OnInitializedAsync()
     {
         VM_CommercialCategories.OnStateChange += StateHasChanged;
-        await VM_Categorie.LoadAsync();
+        await VM_CommercialCategories.LoadAsync();
     }
 }

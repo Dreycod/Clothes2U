@@ -74,14 +74,14 @@
 
             <!-- Brands Table -->
             <div class="table-container">
-                @if (VM_Marque.IsLoading)
+                @if (VM_CommercialMarques.IsLoading)
                 {
                     <div class="loading-state">
                         <div class="spinner"></div>
                         <p>Chargement des marques...</p>
                     </div>
                 }
-                else if (VM_Marque.Items != null && VM_Marque.Items.Any())
+                else if (VM_CommercialMarques.Marques != null && VM_CommercialMarques.Marques.Any())
                 {
                     <table class="data-table">
                         <thead>
@@ -93,7 +93,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var marque in VM_Marque.Items)
+                            @foreach (var marque in VM_CommercialMarques.Marques)
                             {
                                 <tr>
                                     <td>#@marque.MarqueID</td>

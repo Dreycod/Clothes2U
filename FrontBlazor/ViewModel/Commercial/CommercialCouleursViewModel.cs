@@ -1,5 +1,6 @@
 ﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Shared.DTO;
 using Shared.DTO.Couleur;
 
@@ -13,24 +14,27 @@ public class CommercialCouleursViewModel
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
 
-    public ListableViewModel<CouleurDTO> VM_Couleur { get; set; }
-    public WritableService<CouleurDTO> CouleurService { get; set; }
+    public ICaracteristiqueService<CouleurDTO> _couleurService { get; set; }
     public event Action? OnStateChange;
+    public bool IsLoading { get; set; }
 
-    public CommercialCouleursViewModel(ListableViewModel<CouleurDTO> _CouleurViewModel, WritableService<CouleurDTO> couleurService)
+    public List<CouleurDTO> Couleurs { get; set; } 
+    public CommercialCouleursViewModel(ICaracteristiqueService<CouleurDTO> couleurViewModel)
     {
-        VM_Couleur = _CouleurViewModel;
-        CouleurService = couleurService;
+        _couleurService =  couleurViewModel;
     }
     public async Task LoadAsync()
     {
-        await VM_Couleur.LoadAsync();
-        if (VM_Couleur.Items != null)
+        IsLoading = true;
+        
+        Couleurs = await _couleurService.GetAllAsync();
+        if (Couleurs != null)
         {
-            VM_Couleur.Items = VM_Couleur.Items
+            Couleurs= Couleurs
                 .OrderBy(c => c.CouleurId)
                 .ToList();
         }
+        IsLoading = false;
     }
 
     public void ShowAddModal()
@@ -82,17 +86,17 @@ public class CommercialCouleursViewModel
         {
             if (isEditing)
             {
-                await CouleurService.UpdateAsync(currentCouleur);
+                await _couleurService.UpdateAsync(currentCouleur);
                 successMessage = "Couleur modifiée avec succès";
             }
             else
             {
-                await CouleurService.AddAsync(currentCouleur);
+                await _couleurService.AddAsync(currentCouleur);
                 successMessage = "Couleur ajoutée avec succès";
             }
 
             CloseModal();
-            await VM_Couleur.LoadAsync();
+            Couleurs = await _couleurService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds
@@ -111,10 +115,10 @@ public class CommercialCouleursViewModel
     {
         try
         {
-            await CouleurService.DeleteAsync(currentCouleur.CouleurId);
+            await _couleurService.DeleteAsync(currentCouleur.CouleurId);
             successMessage = $"Couleur {currentCouleur.Nom} supprimée avec succès";
             CloseDeleteModal();
-            await VM_Couleur.LoadAsync();
+            await _couleurService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds

@@ -120,17 +120,17 @@
         <div class="form-section genre-section">
             <h2 class="section-title">Genre *</h2>
 
-            @if (VM_Genre.IsLoading)
+            @if (VM_CreationAnnonce.IsLoading)
             {
                 <div class="loading-inline">
                     <div class="spinner-small"></div>
                     <span>Chargement...</span>
                 </div>
             }
-            else if (VM_Genre.Items?.Any() == true)
+            else if (VM_CreationAnnonce.Genres?.Any() == true)
             {
                 <div class="button-grid-3">
-                    @foreach (var genre in VM_Genre.Items)
+                    @foreach (var genre in VM_CreationAnnonce.Genres)
                     {
                         <button type="button"
                                 class="selection-btn @(VM_CreationAnnonce.NewAnnonce.GenreId == genre.GenreId ? "active" : "")"
@@ -148,14 +148,14 @@
         <div class="form-section brand-section">
             <h2 class="section-title">Marque *</h2>
 
-            @if (VM_Marque.IsLoading)
+            @if (VM_CreationAnnonce.IsLoading)
             {
                 <div class="loading-inline">
                     <div class="spinner-small"></div>
                     <span>Chargement...</span>
                 </div>
             }
-            else if (VM_Marque.Items?.Any() == true)
+            else if (VM_CreationAnnonce.Marques?.Any() == true)
             {
                 <!-- Barre de recherche -->
                 <div class="search-box">
@@ -191,17 +191,17 @@
                 <!-- Catégorie -->
                 <div class="category-group">
                     <label class="form-label">Catégorie *</label>
-                    @if (VM_Categorie.IsLoading)
+                    @if (VM_CreationAnnonce.IsLoading)
                     {
                         <div class="loading-inline">
                             <div class="spinner-small"></div>
                             <span>Chargement...</span>
                         </div>
                     }
-                    else if (VM_Categorie.Items?.Any() == true)
+                    else if (VM_CreationAnnonce.Categories?.Any() == true)
                     {
                         <div class="button-grid-2">
-                            @foreach (var categorie in VM_Categorie.Items)
+                            @foreach (var categorie in VM_CreationAnnonce.Categories)
                             {
                                 <button type="button"
                                         class="selection-btn @(VM_CreationAnnonce.NewAnnonce.CategorieId == categorie.IdCategorie ? "active" : "")"
@@ -214,7 +214,7 @@
                         <!-- Sous-catégories -->
                         @if (VM_CreationAnnonce.NewAnnonce.CategorieId != 0)
                         {
-                            var selectedCat = VM_Categorie.Items.FirstOrDefault(c => c.IdCategorie == VM_CreationAnnonce.NewAnnonce.CategorieId);
+                            var selectedCat = VM_CreationAnnonce.Categories.FirstOrDefault(c => c.IdCategorie == VM_CreationAnnonce.NewAnnonce.CategorieId);
                             if (selectedCat?.SousCategories?.Any() == true)
                             {
                                 <div class="subcategory-section">
@@ -238,17 +238,17 @@
                 <!-- État de l'article -->
                 <div class="state-group">
                     <label class="form-label">État de l'article *</label>
-                    @if (VM_Etat.IsLoading)
+                    @if (VM_CreationAnnonce.IsLoading)
                     {
                         <div class="loading-inline">
                             <div class="spinner-small"></div>
                             <span>Chargement...</span>
                         </div>
                     }
-                    else if (VM_Etat.Items?.Any() == true)
+                    else if (VM_CreationAnnonce.Etats?.Any() == true)
                     {
                         <div class="state-buttons">
-                            @foreach (var etat in VM_Etat.Items)
+                            @foreach (var etat in VM_CreationAnnonce.Etats)
                             {
                                 <button type="button"
                                         class="state-btn @(VM_CreationAnnonce.NewAnnonce.EtatId == etat.EtatArticleId ? "active" : "")"
@@ -275,7 +275,7 @@
                     Veuillez d'abord sélectionner une catégorie
                 </p>
             }
-            else if (VM_Taille.IsLoading)
+            else if (VM_CreationAnnonce.IsLoading)
             {
                 <div class="loading-inline">
                     <div class="spinner-small"></div>
@@ -311,17 +311,17 @@
             <h2 class="section-title">Couleur(s) *</h2>
             <p class="section-subtitle">Sélectionnez une ou plusieurs couleurs</p>
 
-            @if (VM_Couleur.IsLoading)
+            @if (VM_CreationAnnonce.IsLoading)
             {
                 <div class="loading-inline">
                     <div class="spinner-small"></div>
                     <span>Chargement...</span>
                 </div>
             }
-            else if (VM_Couleur.Items?.Any() == true)
+            else if (VM_CreationAnnonce.Couleurs?.Any() == true)
             {
                 <div class="color-grid">
-                    @foreach (var couleur in VM_Couleur.Items)
+                    @foreach (var couleur in VM_CreationAnnonce.Couleurs)
                     {
                         <label class="color-checkbox @(VM_CreationAnnonce.IsCouleurSelected(couleur.CouleurId) ? "active" : "")">
                             <input type="checkbox"
@@ -404,18 +404,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Charger toutes les données en parallèle
-        await Task.WhenAll(
-            VM_Marque.LoadAsync(),
-            VM_Taille.LoadAsync(),
-            VM_Couleur.LoadAsync(),
-            VM_Categorie.LoadAsync(),
-            VM_Genre.LoadAsync(),
-            VM_Etat.LoadAsync()
-        );
-
         await VM_CreationAnnonce.LoadAsync();
-
         VM_CreationAnnonce.OnChange += StateHasChanged;
     }
 
@@ -467,10 +456,10 @@
     // Filtrer les marques selon la recherche (ordre alphabétique)
     private IEnumerable<MarqueDTO> GetFilteredMarques()
     {
-        if (VM_Marque.Items == null)
+        if (VM_CreationAnnonce.Marques == null)
             return Enumerable.Empty<MarqueDTO>();
 
-        var filtered = VM_Marque.Items.AsEnumerable();
+        var filtered = VM_CreationAnnonce.Marques.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(marqueSearch))
         {
@@ -485,14 +474,14 @@
     // Filtrer les tailles selon la catégorie sélectionnée
     private IEnumerable<TailleDTO>? GetFilteredTailles()
     {
-        if (VM_Taille.Items == null || VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
+        if (VM_CreationAnnonce.Tailles == null || VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
             return null;
 
         // ✅ Filtrer selon les tailles disponibles pour cette catégorie
         if (!VM_CreationAnnonce.AvailableTailleIds.Any())
             return null;
 
-        return VM_Taille.Items
+        return VM_CreationAnnonce.Tailles
             .Where(t => VM_CreationAnnonce.AvailableTailleIds.Contains(t.TailleId))
             .OrderBy(t => t.Libelletaille);
     }

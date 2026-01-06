@@ -1,6 +1,7 @@
 ﻿using Shared.DTO;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Shared.DTO.Taille;
 using Shared.DTO.Categorie;
 
@@ -15,28 +16,32 @@ public class CommercialTaillesViewModel
     public int selectedCategorieId = 0;
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
+    
+    public List<TailleDTO> Tailles { get; set; }
+    public List<CategorieDTO> Categories { get; set; }
+    public bool IsLoading { get; set; }
 
-    private ListableViewModel<TailleDTO> VM_Taille;
-    private WritableService<TailleDTO> TailleService;
-    private ListableViewModel<CategorieDTO> VM_Categorie;
+    private ICaracteristiqueService<TailleDTO> _tailleService;
+    private ICaracteristiqueService<CategorieDTO> _categorieService;
     public event Action? OnStateChange;
 
-    public CommercialTaillesViewModel(ListableViewModel<TailleDTO> tailleService, ListableViewModel<CategorieDTO> categorieService, WritableService<TailleDTO> _tailleService )
+    public CommercialTaillesViewModel(ICaracteristiqueService<TailleDTO> tailleService, ICaracteristiqueService<CategorieDTO> categorieService)
     {
-        VM_Taille = tailleService;
-        VM_Categorie = categorieService;
-        TailleService = _tailleService;
+        _tailleService =  tailleService;
+        _categorieService = categorieService;
     }
     public async Task LoadAsync()
     {
-        await VM_Taille.LoadAsync();
-        if (VM_Taille.Items != null)
+        IsLoading = true;
+        Tailles = await _tailleService.GetAllAsync();
+        if (Tailles != null)
         {
-            VM_Taille.Items = VM_Taille.Items
+            Tailles = Tailles
                 .OrderBy(c => c.TailleId)
                 .ToList();
         }
-        await VM_Categorie.LoadAsync();
+        Categories = await _categorieService.GetAllAsync();
+        IsLoading = false;
     }
 
     public void ShowAddModal()
@@ -100,17 +105,17 @@ public class CommercialTaillesViewModel
 
             if (isEditing)
             {
-                await TailleService.UpdateAsync(currentTaille);
+                await _tailleService.UpdateAsync(currentTaille);
                 successMessage = "Taille modifiée avec succès";
             }
             else
             {
-                await TailleService.AddAsync(currentTaille);
+                await _tailleService.AddAsync(currentTaille);
                 successMessage = "Taille ajoutée avec succès";
             }
 
             CloseModal();
-            await VM_Taille.LoadAsync();
+            Tailles = await _tailleService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds
@@ -128,10 +133,10 @@ public class CommercialTaillesViewModel
     {
         try
         {
-            await TailleService.DeleteAsync(currentTaille.TailleId);
+            await _tailleService.DeleteAsync(currentTaille.TailleId);
             successMessage = $"Taille {currentTaille.Libelletaille} supprimée avec succès";
             CloseDeleteModal();
-            await VM_Taille.LoadAsync();
+            Tailles = await _tailleService.GetAllAsync();
             OnStateChange?.Invoke();
 
             // Clear success message after 3 seconds
@@ -149,7 +154,7 @@ public class CommercialTaillesViewModel
 
     public string GetCategoriesNumber(int idTaille)
     {
-        int? categoryNumber = VM_Taille.Items?.FirstOrDefault(c => c.TailleId == idTaille).Mesures.Count();
+        int? categoryNumber = Tailles?.FirstOrDefault(c => c.TailleId == idTaille).Mesures.Count();
         if (categoryNumber == null)
             return "0";
 
