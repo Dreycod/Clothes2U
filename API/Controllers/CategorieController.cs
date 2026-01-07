@@ -34,16 +34,6 @@ public class CategorieController : ControllerBase
         IEnumerable<CategorieDTO> categoriesDTO = _mapper.Map<IEnumerable<CategorieDTO>>(categories);
         return Ok(categoriesDTO);
     }
-    [HttpGet("detail")]
-    [ProducesResponseType(typeof(IEnumerable<Categorie>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<CategorieDTO>>> GetAllCategorieDetails()
-    {
-        IEnumerable<Categorie> categories = await _categorieManager.GetAllWithDetailsAsync();
-        IEnumerable<CategorieDTO> categoriesDTO = _mapper.Map<IEnumerable<CategorieDTO>>(categories);
-        return Ok(categoriesDTO);
-    }
-
     [HttpPost]
     [Authorize(Roles = "Admin,Commercial")]
     [ProducesResponseType(typeof(Categorie), StatusCodes.Status201Created)]

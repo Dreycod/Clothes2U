@@ -37,14 +37,14 @@ public class CategorieControllerTest
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
 
         _context = new Clothes2UDbContext(builder.Options);
-
+        CleanupDatabase();
         InitializeDefaultCategories();
         
         var manager = new CategorieManager(_context);
 
         var config = new MapperConfiguration(cfg =>
         {
-            //cfg.AddProfile<GenericProfile>();
+            cfg.AddProfile<AnnonceMappingProfile>();
         });
         IMapper mapper = config.CreateMapper();
         _mapper = config.CreateMapper();
@@ -66,41 +66,79 @@ public class CategorieControllerTest
             LibelleCategorie = "Femme"
         };
     }
-
+    
     [TestMethod]
-    public async Task ShouldGetAllCategorieWithNavigation()
+    public void ShouldGetCategorie()
     {
-        //Arrange
-        _context.Categories.AddRange(new[] {_default1, _default2});
+        //Given : 
+        _context.Categories.Add(_default1);
         _context.SaveChanges();
         
-        //Act
-        var result = await _controller.GetAllCategorieWithNavigation();
+        //When : 
+        ActionResult<Categorie> action = _controller.GetById((_default1.GetId())).GetAwaiter().GetResult();
         
-        //Assert
-        Assert.IsNotNull(result.Result);
-        var okResult = result.Result as OkObjectResult;
+        //Then : 
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
+        var okResult = action.Result as OkObjectResult;
         Assert.IsNotNull(okResult);
+        Assert.IsInstanceOfType(okResult.Value, typeof(Categorie));
+        var returncategorie = okResult.Value as Categorie;
+        Assert.IsNotNull(returncategorie);
+        Assert.AreEqual(_default1.GetId(), returncategorie.GetId());
+    }
+    [TestMethod]
+    public void ShouldGetCategorieReturnNotFound()
+    {
+        //Given : 
+        int nonExistentId = 999;
         
-        var categories = okResult.Value as IEnumerable<CategorieDTO>;
-        Assert.IsNotNull(categories);
-        Assert.AreEqual(2, categories.Count());
+        //When : 
+        ActionResult<Categorie> action = _controller.GetById(nonExistentId).GetAwaiter().GetResult();
+        
+        //Then : 
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action.Result, typeof(NotFoundResult));
+    }
+    [TestMethod]
+    public void ShouldGetAllCategories()
+    {
+        //Given : 
+        _context.Categories.AddRange(new []{_default1, _default2});
+        _context.SaveChanges();
+        //When : 
+        ActionResult<IEnumerable<CategorieDTO>> action = _controller.GetAllCategorieWithNavigation().GetAwaiter().GetResult();
+        
+        //Then : 
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
+        var okResult = action.Result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.IsInstanceOfType(okResult.Value, typeof(IEnumerable<CategorieDTO>));
+        var returncategories = okResult.Value as IEnumerable<CategorieDTO>;
+        Assert.IsNotNull(returncategories);
+        Assert.AreEqual(returncategories.Count(), 2);
+        Assert.IsTrue(returncategories.Any(b => b.GetId() == _default1.GetId()));
+        Assert.IsTrue(returncategories.Any(b => b.GetId() == _default2.GetId()));
+    }
+    
+
+    private void CleanupDatabase()
+    {
+        if (_context != null)
+        {
+            try
+            {
+                var allBrands = _context.Marques.ToList();
+                _context.Marques.RemoveRange(allBrands);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erreur lors du nettoyage des données : {ex.Message}");
+            }
+        }
     }
 
-    [TestMethod]
-    public async Task ShouldReturnEmptyList_GetAllCategorieWithNavigation()
-    {
-        //Arrange
-        
-        //Act
-        var result = await _controller.GetAllCategorieWithNavigation();
-        
-        //Assert
-        Assert.IsNotNull(result.Result);
-        var okResult = result.Result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        var categories = okResult.Value as IEnumerable<CategorieDTO>;
-        Assert.IsNotNull(categories);
-        Assert.AreEqual(0, categories.Count());
-    }
+    
 }

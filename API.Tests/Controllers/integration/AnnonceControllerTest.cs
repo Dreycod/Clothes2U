@@ -872,3 +872,21 @@
 //         Assert.AreEqual(1, annonces.Count());
 //     }
 // }
+
+
+using API.Controllers;
+using API.Models;
+using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace API.Tests.Controllers.integration;
+
+[TestClass]
+[TestSubject(typeof(AnnonceController))]
+[TestCategory("integration")]
+public class AnnonceControllerTest
+{
+    private Clothes2UDbContext _context;
+    private AnnonceController _annonceController;
+    
+}

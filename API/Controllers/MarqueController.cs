@@ -4,6 +4,7 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
 using AutoMapper.Configuration.Annotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -26,7 +27,7 @@ public class MarqueController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<MarqueDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<MarqueDTO>> GetAllMarques()
+    public async Task<ActionResult<IEnumerable<MarqueDTO>>> GetAllMarques()
     {
         IEnumerable<Marque> marques = await _marqueManager.GetAllWithDetailsAsync();
         IEnumerable<MarqueDTO> marquesDTO = _mapper.Map<IEnumerable<MarqueDTO>>(marques);
@@ -46,6 +47,7 @@ public class MarqueController : ControllerBase
     }
     
     [HttpPost]
+    [Authorize(Roles="Admin, Commercial")]
     [ProducesResponseType(typeof(Marque), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -61,6 +63,7 @@ public class MarqueController : ControllerBase
         return CreatedAtAction( nameof(GetById), new { id = _marque.MarqueId }, _marque);
     }
     [HttpDelete("id/{id}")]
+    [Authorize(Roles="Admin, Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -97,6 +100,8 @@ public class MarqueController : ControllerBase
     }
 
     [HttpGet("byName")]
+    [ProducesResponseType(typeof(IEnumerable<MarqueDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<MarqueDTO>>> GetMarquesByName([FromQuery] string? name)
     {
         var marques = string.IsNullOrWhiteSpace(name)
