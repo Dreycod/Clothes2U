@@ -4,7 +4,15 @@
 
 <div class="product-card" @onclick="OnClick">
     <div class="product-image-container">
-        <img class="product-image" src="@PhotoUrl" />
+        @if (!string.IsNullOrEmpty(PhotoUrl))
+        {
+            <img class="product-image" src="@PhotoUrl"/>
+        }
+        else
+        {
+            <img src="images/placeholder_main.jpg"
+                 alt="Photo interlocuteur"/>
+        }
 
         @if (!IsOwner)
         {

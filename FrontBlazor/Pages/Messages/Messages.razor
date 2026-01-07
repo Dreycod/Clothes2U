@@ -27,6 +27,15 @@
                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "") @(conversation.HasNewMessages ? "has-new-messages" : "")"
                              @onclick="() => OnSelectConversation(conversation.ConversationId)">
                             <div class="conversation-avatar">
+                                @if (conversation.PhotoAnnonceId.Value != null && conversation.PhotoAnnonceId.Value != 0)
+                                {
+                                    <img src="@VM_Messagerie._mediaService.GetPhotoUrl(conversation.PhotoAnnonceId.Value)" alt="Photo de l'annonce" />
+                                }
+                                else
+                                {
+                                    <img src="images/placeholder_annonce.png"
+                                         alt="Photo interlocuteur" />
+                                }
                                 @if (conversation.HasNewMessages)
                                 {
                                     <span class="notification-badge">●</span>
@@ -74,7 +83,17 @@
                 <!-- Chat Header -->
                 <div class="chat-header">
                     <div class="chat-product-info">
-                        <div class="product-thumbnail"></div>
+                        <div class="product-thumbnail">
+                            @if (VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value != null && VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value != 0)
+                            {
+                                <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)" alt="Photo de l'annonce" />
+                            }
+                            else
+                            {
+                                <img src="images/placeholder_annonce.png"
+                                     alt="Photo interlocuteur" />
+                            }
+                        </div>
                         <div>
                             <NavLink href="@($"/product/{VM_Messagerie.SelectedConversation.AnnonceId}")" class="product-link">
                                 <h3 class="product-name">
@@ -159,21 +178,38 @@
                         @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages)
                         {
                             <div class="message @(message.SentByCurrentUser ? "sent" : "received")">
-
-                                @if (message.TypeMessage == "Texte")
-                                {
-                                       MessageTextDTO newmessage = message as MessageTextDTO;
-                                        <div class="message-content-wrapper">
-                                            <p class="message-text">
-                                                @newmessage.Content
-                                            </p>
-                                            @if (!newmessage.SentByCurrentUser)
+                                @* <div class="message-row @(message.SentByCurrentUser ? "sent" : "received")"> *@
+                                    @if (!message.SentByCurrentUser)
+                                    {
+                                        <div class="message-avatar">
+                                            @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != null &&
+                                                 VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != 0)
                                             {
-                                                <button class="btn-report-message" @onclick="() => VM_Messagerie.OpenReportModal((int)newmessage.MessageId)" title="Signaler ce message">
-                                                    <i class="bi bi-flag"></i>
-                                                </button>
+                                                <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)"
+                                                     alt="Photo interlocuteur" />
                                             }
-                                        </div>
+                                            else
+                                            {
+                                                <img src="images/placeholder_message.jpeg"
+                                                     alt="Photo interlocuteur" />
+                                            }
+                                            </div>
+                                    }
+                                @* </div> *@
+                                    @if (message.TypeMessage == "Texte")
+                                {
+                                    MessageTextDTO newmessage = message as MessageTextDTO;
+                                    <div class="message-content-wrapper">
+                                        <p class="message-text">
+                                            @newmessage.Content
+                                        </p>
+                                        @if (!newmessage.SentByCurrentUser)
+                                        {
+                                            <button class="btn-report-message" @onclick="() => VM_Messagerie.OpenReportModal((int)newmessage.MessageId)" title="Signaler ce message">
+                                                <i class="bi bi-flag"></i>
+                                            </button>
+                                        }
+                                    </div>
                                     @if (newmessage.Photos != null && newmessage.Photos.Any())
                                     {
                                         @foreach (var photo in newmessage.Photos)
@@ -185,7 +221,7 @@
                                 else if (message.TypeMessage == "Demande")
                                 {
                                     MessageDemandeDTO demande = message as MessageDemandeDTO;
-                                    
+
                                     <div class="price-proposal-card @(message.SentByCurrentUser ? "sent-proposal" : "received-proposal")">
                                         <!-- Icône et titre -->
                                         <div class="proposal-header">
@@ -273,7 +309,7 @@
                                         }
                                     </div>
                                 }
-                                
+
                                 <div class="message-info">
                                     <span class="message-time">@message.Date</span>
                                     @* ✅ CORRECTION ICI : IsRead au lieu de Lu *@
