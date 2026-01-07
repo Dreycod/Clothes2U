@@ -53,7 +53,7 @@ public class OrderController : ControllerBase
                 return NotFound("Annonce not found");
             }
 
-            if (annonce.Etat.NomEtat != "Disponible")
+            if (annonce.Statut.StatutLibelle != "En Ligne")
             {
                 return BadRequest("Annonce is not available");
             }
@@ -75,10 +75,8 @@ public class OrderController : ControllerBase
 
             await _orderRepository.AddAsync(commande);
 
-            // Mettre à jour le statut de l'annonce
-            //TODO : changer avec l'id
-            annonce.EtatId = 0;
-            await _annonceRepository.UpdateAsync(annonce);
+            // // Mettre à jour le statut de l'annonce
+            // annonce.EtatId = 0;
 
             _logger.LogInformation($"✅ Order created: {commande.CommandeId}");
 
