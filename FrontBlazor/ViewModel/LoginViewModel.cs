@@ -4,16 +4,23 @@ using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel;
 
-public class LoginViewModel : BaseViewModel
+public class LoginViewModel : ClientBaseViewModel
 
 {
     private readonly IAuthService _authService;
-    public LoginViewModel(IAuthService authService, NavigationManager navigationManager)
-        : base(authService, navigationManager)
+    public LoginViewModel(
+        IAuthService authService,
+        NavigationManager navigationManager,
+        INotificationService notificationService
+        
+        )
+        : base(navigationManager, authService, notificationService)
     {
         _authService = authService;
     }
@@ -118,6 +125,12 @@ public class LoginViewModel : BaseViewModel
             Console.WriteLine($"Erreur lors de la déconnexion: {ex.Message}");
             return false;
         }
+    }
+
+    public async Task OnGoogleClicked()
+    {
+        var googleUrl = _authService.GetGoogleLoginUrl("/");
+        _nav.NavigateTo(googleUrl, forceLoad: true);
     }
 
     public void HandleGoogleLogin()

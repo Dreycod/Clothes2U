@@ -5,6 +5,8 @@ using Shared.DTO.Annonce;
 using Shared.DTO.Couleur;
 using Shared.DTO.Mesures;
 using System.Collections.ObjectModel;
+using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Shared.DTO;
 using Shared.DTO.Categorie;
 using Shared.DTO.EtatArticle;
@@ -17,7 +19,7 @@ namespace FrontBlazor.ViewModel
     /// ViewModel pour la création d'annonce
     /// Pattern EXACTEMENT identique à MessagerieViewModel
     /// </summary>
-    public class CreationAnnonceViewModel : ComponentBase, IDisposable
+    public class CreationAnnonceViewModel : ClientBaseViewModel, IDisposable
     {
         private readonly IAnnonceService _annonceService;
         private readonly IMediasService _mediaService;
@@ -72,7 +74,9 @@ namespace FrontBlazor.ViewModel
             IListableService<EtatArticleDTO> etatService,
             IListableService<GenreDTO> genreService,
             IListableService<TailleDTO> tailleService, 
-            NavigationManager nav)
+            NavigationManager navigationManager,
+            INotificationService notificationService,
+            NavigationManager nav): base(navigationManager, authService, notificationService)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
             _mediaService = mediaService ?? throw new ArgumentNullException(nameof(mediaService));

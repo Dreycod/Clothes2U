@@ -8,6 +8,7 @@ using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel;
+using FrontBlazor.ViewModel.Generic;
 using FrontBlazor.ViewModel.Moderation;
 using FrontBlazor.ViewModel.Moderation.Signalements;
 using Microsoft.AspNetCore.Components;
@@ -82,7 +83,6 @@ builder.Services.AddScoped<CommercialViewModel>();
 builder.Services.AddScoped<ModerationBoardViewModel>();
 builder.Services.AddScoped<MotsInterditsViewModel>();
 builder.Services.AddScoped<VerificationViewModel>();
-builder.Services.AddScoped<NavBarViewModel>();
 builder.Services.AddScoped<SignalementViewModel>();
 builder.Services.AddScoped<TraitementSignalementViewModel>();
 builder.Services.AddScoped<SanctionsViewModel>();
@@ -93,6 +93,7 @@ builder.Services.AddScoped<HistoriqueTransactionViewModel>();
 builder.Services.AddScoped<SettingsViewModel>();
 builder.Services.AddScoped<CreationAnnonceViewModel>();
 builder.Services.AddScoped<AcheterViewModel>();
+builder.Services.AddScoped<ClientBaseViewModel>();
 builder.Services.AddScoped<AddressViewModel>();
 
 // AuthService doit déjà être enregistré

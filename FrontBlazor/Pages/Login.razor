@@ -1,7 +1,6 @@
 ﻿@page "/login"
-@inject IAuthService AuthService
-@inject NavigationManager Navigation
-
+@inject LoginViewModel VM_Login
+@layout ClientLayout
 <PageTitle>Connexion - Clothes2U</PageTitle>
 
 <div class="auth-container">
@@ -170,7 +169,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await VM_Connexion.VerifiyAccountAsync();
+        await VM_Login.LoadAsync();
     }
     public async Task OnLoginClicked()
     {
@@ -244,9 +243,8 @@
         }
     }
 
-    private void OnGoogleClicked()
+    private async void OnGoogleClicked()
     {
-        var googleUrl = AuthService.GetGoogleLoginUrl("/");
-        Navigation.NavigateTo(googleUrl, forceLoad: true);
+        await VM_Login.OnGoogleClicked();
     }
 }

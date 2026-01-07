@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Shared;
 using Shared.DTO.Annonce;
 using Shared.DTO.Conversation;
@@ -11,7 +12,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel;
 
-public class AcheterViewModel : ComponentBase, IDisposable
+public class AcheterViewModel : ClientBaseViewModel, IDisposable
 {
     private readonly IAuthService _authService;
     private readonly IPaymentService _paymentService;
@@ -52,7 +53,9 @@ public class AcheterViewModel : ComponentBase, IDisposable
         IConversationService<ConversationDTO> conversationService,
         //IOrderService orderService,
         NavigationManager nav,
-        IJSRuntime jsRuntime)
+        NavigationManager navigationManager,
+        INotificationService notificationService,
+        IJSRuntime jsRuntime): base(navigationManager, authService, notificationService)
     {
         _authService = authService;
         _paymentService = paymentService;
@@ -68,6 +71,7 @@ public class AcheterViewModel : ComponentBase, IDisposable
         IsLoading = true;
         ErrorMessage = null;
         NotifyStateChanged();
+        await base.LoadAsync();
 
         try
         {

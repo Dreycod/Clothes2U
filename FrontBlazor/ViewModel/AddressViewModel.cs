@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Components;
 using System.Collections.ObjectModel;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Shared.DTO;
 using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel;
 
-public class AddressViewModel : IDisposable
+public class AddressViewModel : ClientBaseViewModel, IDisposable
 {
     private readonly IAuthService _authService;
     private readonly NavigationManager _nav;
@@ -37,7 +38,12 @@ public class AddressViewModel : IDisposable
 
     public event Action? OnChange;
 
-    public AddressViewModel(IAuthService authService, NavigationManager nav)
+    public AddressViewModel(
+        IAuthService authService,
+        NavigationManager nav,
+        NavigationManager navigationManager,
+        INotificationService notificationService)
+        : base(navigationManager, authService, notificationService)
     {
         _authService = authService;
         _nav = nav;
@@ -48,7 +54,7 @@ public class AddressViewModel : IDisposable
         IsLoading = true;
         ErrorMessage = null;
         NotifyStateChanged();
-
+        await base.LoadAsync();
         try
         {
             CurrentUser = await _authService.GetCurrentUserAsync();

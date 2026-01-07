@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Shared.DTO;
@@ -14,7 +15,7 @@ using Shared.DTO.Taille;
 
 namespace FrontBlazor.ViewModel
 {
-    public class SearchAnnonceViewModel : BaseViewModel
+    public class SearchAnnonceViewModel : ClientBaseViewModel
     {
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
@@ -78,8 +79,10 @@ namespace FrontBlazor.ViewModel
             ICaracteristiqueService<TailleDTO> tailleService, 
             NavigationManager navManager, 
             INotificationService notificationPopUpService,
+            NavigationManager navigationManager,
+            INotificationService notificationService,
             LoginViewModel vM_Login)
-        : base(authService, navManager)
+        : base(navigationManager, authService, notificationService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
@@ -117,7 +120,7 @@ namespace FrontBlazor.ViewModel
         private async Task LoadAsync()
         {
             IsLoading = true;
-            await VerifiyAccountAsync();
+            await base.LoadAsync();
             NotifyStateChanged();
             Categories = await _categorieService.GetAllAsync();
             Genres = await _genreService.GetAllAsync();

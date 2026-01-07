@@ -1,7 +1,8 @@
 ﻿@page "/search"
+@using FrontBlazor.ViewModel.Generic
 @using Microsoft.AspNetCore.WebUtilities
 @inject SearchAnnonceViewModel VM_Search
-@inject NavBarViewModel Vm_NavBar
+@layout ClientLayout
 @implements IDisposable
 
 <PageTitle>Rechercher - Clothes2U</PageTitle>
@@ -316,14 +317,15 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        Vm_NavBar.SetSearchViewModel(VM_Search);
+        VM_Search.SetSearchViewModel(VM_Search);
         await VM_Search.InitializeFromUrlAsync();
         VM_Search.OnStateChange += StateHasChanged;
     }
 
     public void Dispose()
     {
-        VM_Search.OnStateChange -= StateHasChanged;
-        Vm_NavBar.SetSearchViewModel(null);
+        /*
+        VM_ClientBase.OnStateChange -= StateHasChanged;
+        Vm_NavBar.SetSearchViewModel(null);*/
     }
 }
