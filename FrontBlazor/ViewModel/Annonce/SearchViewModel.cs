@@ -33,12 +33,13 @@ namespace FrontBlazor.ViewModel
         public List<EtatArticleDTO> Etats { get; set; }
         public NavigationManager NavigationManager { get; set; }
         public LoginViewModel VM_Login { get; set; }
+        public string marqueSearch { get; set; }
         #endregion
         
         #region services
 
         private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
-        private readonly ICaracteristiqueService<MarqueDTO> _marqueService;
+        private readonly IMarqueService _marqueService;
         private readonly ICaracteristiqueService<EtatArticleDTO> _etatService;
         private readonly ICaracteristiqueService<GenreDTO> _genreService;
         private readonly ICaracteristiqueService<TailleDTO> _tailleService; 
@@ -73,7 +74,7 @@ namespace FrontBlazor.ViewModel
             IAuthService authService,
             IFavorisService<FavorisDTO> favorisService, 
             ICaracteristiqueService<CategorieDTO> categorieService, 
-            ICaracteristiqueService<MarqueDTO> marqueService, 
+            IMarqueService marqueService, 
             ICaracteristiqueService<EtatArticleDTO> etatService,
             ICaracteristiqueService<GenreDTO> genreService,
             ICaracteristiqueService<TailleDTO> tailleService, 
@@ -350,5 +351,13 @@ namespace FrontBlazor.ViewModel
         public int GetStartItem() => (CurrentPage - 1) * ItemsPerPage + 1;
         public int GetEndItem() => Math.Min(CurrentPage * ItemsPerPage, TotalItems);
         #endregion
+        
+        
+        public async Task GetFilteredMarques()
+        {
+            Marques = await _marqueService.SearchAsync(marqueSearch);
+        }
     }
+    
+    
 }

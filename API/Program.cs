@@ -249,6 +249,7 @@ builder.Services.AddScoped<IPasswordResetRepository<PasswordResetToken, int>, Pa
 builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>();
 builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
 builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
+builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();

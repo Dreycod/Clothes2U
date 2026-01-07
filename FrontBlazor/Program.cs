@@ -54,6 +54,7 @@ builder.Services.AddScoped<IDemandeRestaurationService, DemandeRestaurationWebSe
 builder.Services.AddScoped<IMesureService, MesureWebService>();
 builder.Services.AddScoped<IOrderService, OrderWebService>();
 builder.Services.AddScoped<IPaymentService, PaymentWebService>();
+builder.Services.AddScoped<IMarqueService, MarqueWebService>();
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<StripeWebService>();
 

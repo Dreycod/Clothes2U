@@ -115,6 +115,15 @@
                 <div class="filter-section">
                     <h4 class="filter-title">Marque</h4>
                     <div class="filter-options">
+                        <div class="search-box">
+                            <input type="text"
+                                   class="search-input"
+                                   placeholder="Rechercher une marque..."
+                                   @bind="VM_Search.marqueSearch"
+                                   @bind:event="oninput"
+                                   @bind:after="@VM_Search.GetFilteredMarques"
+                                   @onkeydown="@VM_Search.GetFilteredMarques"/>
+                        </div>
                         @if (VM_Search.IsLoading)
                         {
                             <div class="filter-loading">
@@ -124,12 +133,13 @@
                         }
                         else if (VM_Search.Marques != null && VM_Search.Marques.Any())
                         {
+
                             @foreach (var marque in VM_Search.Marques)
                             {
                                 <label class="checkbox-label">
                                     <input type="checkbox"
                                            checked="@VM_Search.SelectedMarques.Contains(marque.NomMarque)"
-                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedMarques, marque.NomMarque)" />
+                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedMarques, marque.NomMarque)"/>
                                     <span>@marque.NomMarque</span>
                                 </label>
                             }
