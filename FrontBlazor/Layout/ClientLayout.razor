@@ -1,0 +1,174 @@
+@inherits LayoutComponentBase
+@inject ClientBaseViewModel Vm_NavBar
+@inject IJSRuntime JS
+@using FrontBlazor.ViewModel.Generic
+@implements IAsyncDisposable
+
+<link href="css/loading.css" rel="stylesheet" />
+<link href="css/notification.css" rel="stylesheet"/>
+
+<div class="page-container">
+    <nav class="main-navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <a href="/" class="navbar-logo">
+                    Clothes<span class="logo-accent">2</span>U
+                </a>
+                <button class="menu-toggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+
+            <div class="navbar-search">
+                <i class="bi bi-search search-icon" @onclick="Vm_NavBar.NavigateToSearch" style="cursor: pointer;"></i>
+                <input type="text"
+                       class="search-input"
+                       placeholder="Un nouveau t-shirt?"
+                       @bind="Vm_NavBar.SearchQuery"
+                       @bind:event="oninput"
+                       @bind:after="Vm_NavBar.OnSearchInputChanged"
+                       @onkeydown="@Vm_NavBar.HandleSearchKeyDown"/>
+            </div>
+
+            <div class="navbar-right">
+                <a href="#recent" class="nav-link">NOUVEAUTÉS</a>
+                <a href="#tendance" class="nav-link">TENDANCES</a>
+                @if (!Vm_NavBar.IsLoadingBase)
+                {
+                    @if (Vm_NavBar.IsLoggedIn)
+                    {
+                        <div class="notification-dropdown-container" @ref="notificationRef">
+                            <button class="icon-btn"
+                                    title="Notifications"
+                                    @onclick="async () =>
+                                    {
+                                        await Vm_NavBar.ToggleDropDownNotification();
+                                        StateHasChanged();
+                                    }">
+                                <i class="bi bi-bell"></i>
+                            </button>
+                            @if (Vm_NavBar.showDropDownNotification)
+                            {
+                                <div class="notification-dropdown">
+                                    @if (Vm_NavBar.LoadingNotifications)
+                                    {
+                                        <div class="loader"></div>
+                                    }
+                                    else
+                                    {
+                                        @if (Vm_NavBar.notifications.Count == 0)
+                                        {
+                                            <p>Vous n'avez pas de notification pour le moment</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var notification in Vm_NavBar.notifications)
+                                            {
+                                                <NotificationComponent
+                                                    Vm_NavBar="Vm_NavBar"
+                                                    Notification="notification">
+                                                </NotificationComponent>
+                                            }
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <a href="/messages">
+                            <button class="icon-btn" title="Messages">
+                                <i class="bi bi-chat-dots"></i>
+                            </button>
+                        </a>
+                        
+                        <div class="profile-dropdown-container" @ref="profileRef">
+                            <button class="icon-btn" title="Profil" @onclick="Vm_NavBar.ToggleDropdown">
+                                <i class="bi bi-person-circle"></i>
+                            </button>
+
+                            @if (Vm_NavBar.showDropdown)
+                            {
+                                <div class="profile-dropdown">
+                                    <a href="/profile/@Vm_NavBar.utilisateur.Login" class="dropdown-item" @onclick="Vm_NavBar.ToggleDropdown">
+                                        <i class="bi bi-person"></i>
+                                        <span>Profil du compte</span>
+                                    </a>
+                                    <a href="/historique"
+                                       class="dropdown-item"
+                                       @onclick="Vm_NavBar.ToggleDropdown">
+                                        <i class="bi bi-clock-history"></i>
+                                        <span>Historique des transactions</span>
+                                    </a>
+                                    <a href="/settings" class="dropdown-item" @onclick="Vm_NavBar.ToggleDropdown">
+                                        <i class="bi bi-gear"></i>
+                                        <span>Paramètres</span>
+                                    </a>
+                                    <button class="dropdown-item logout" @onclick="@Vm_NavBar.HandleLogout">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        <span>Se déconnecter</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="/login" class="btn-login">
+                            Login
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        @Body
+    </main>
+
+    <footer>
+        <a class="text-dark" href="/">Clothes2U</a>
+        <a href="/terms">Termes et Conditions</a>
+        <a href="/privacy">Politique de confidalité</a>
+        <a href="/return">Politique de retour</a>
+    </footer>
+</div>
+
+@code {
+    private ElementReference notificationRef;
+    private ElementReference profileRef;
+    private DotNetObjectReference<ClientLayout>? objRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Vm_NavBar.OnStateChanged += StateHasChanged;
+        await Vm_NavBar.LoadAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef);
+        }
+    }
+
+    [JSInvokable]
+    public void CloseDropdowns()
+    {
+        Vm_NavBar.CloseAllDropdowns();
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Vm_NavBar.OnStateChanged -= StateHasChanged;
+        
+        if (objRef != null)
+        {
+            await JS.InvokeVoidAsync("removeClickOutside");
+            objRef.Dispose();
+        }
+    }
+}

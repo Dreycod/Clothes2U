@@ -6,20 +6,44 @@ let paymentElement;
 
 // Initialiser Stripe avec votre clé publique
 window.initializeStripe = function(publishableKey) {
-    if (!stripe) {
+    console.log('[Stripe] 🔧 Initializing Stripe with key:', publishableKey.substring(0, 20) + '...');
+
+    // ✅ FIX: Check if already initialized and return success
+    if (stripe) {
+        console.log('[Stripe] Stripe already initialized');
+        return true;
+    }
+
+    if (!publishableKey || !publishableKey.startsWith('pk_')) {
+        console.error('[Stripe] ❌ Invalid publishable key!');
+        return false;
+    }
+
+    try {
         stripe = Stripe(publishableKey);
-        console.log('[Stripe] Initialized with publishable key');
+        console.log('[Stripe] ✅ Stripe initialized successfully');
+        return true;
+    } catch (error) {
+        console.error('[Stripe] ❌ Error initializing Stripe:', error);
+        return false;
     }
 };
 
 // Initialiser Stripe Elements avec le client secret
 window.initializeStripeElements = async function(clientSecret) {
     try {
-        console.log('[Stripe] Initializing Elements with clientSecret:', clientSecret.substring(0, 20) + '...');
+        console.log('[Stripe] 🔧 Initializing Elements with clientSecret:', clientSecret.substring(0, 20) + '...');
 
         if (!stripe) {
-            console.error('[Stripe] Stripe not initialized! Call initializeStripe first.');
-            return;
+            console.error('[Stripe] ❌ Stripe not initialized! Call initializeStripe first.');
+            return false; // ✅ FIX: Return false instead of throwing
+        }
+
+        // Nettoyer les éléments existants
+        if (paymentElement) {
+            console.log('[Stripe] 🧹 Cleaning up existing payment element');
+            paymentElement.unmount();
+            paymentElement = null;
         }
 
         // Créer une instance d'Elements
@@ -49,26 +73,35 @@ window.initializeStripeElements = async function(clientSecret) {
             }
         });
 
+        // Vérifier que le conteneur existe
+        const container = document.getElementById('payment-element');
+        if (!container) {
+            console.error('[Stripe] ❌ Payment element container not found!');
+            return false; // ✅ FIX: Return false instead of throwing
+        }
+
         paymentElement.mount('#payment-element');
 
         console.log('[Stripe] ✅ Payment Element mounted successfully');
 
         // Écouter les événements du formulaire
         paymentElement.on('ready', () => {
-            console.log('[Stripe] Payment Element is ready');
+            console.log('[Stripe] 📝 Payment Element is ready');
         });
 
         paymentElement.on('change', (event) => {
             if (event.error) {
-                console.error('[Stripe] Payment Element error:', event.error.message);
+                console.error('[Stripe] ⚠️ Payment Element error:', event.error.message);
             } else {
-                console.log('[Stripe] Payment Element changed:', event.complete ? 'Complete' : 'Incomplete');
+                console.log('[Stripe] ✏️ Payment Element changed:', event.complete ? 'Complete' : 'Incomplete');
             }
         });
 
+        return true;
+
     } catch (error) {
         console.error('[Stripe] ❌ Error initializing Elements:', error);
-        throw error;
+        return false;
     }
 };
 
@@ -76,9 +109,15 @@ window.initializeStripeElements = async function(clientSecret) {
 window.confirmStripePayment = async function() {
     try {
         console.log('[Stripe] Confirming payment...');
+        console.log('[Stripe] stripe object:', stripe ? 'exists' : 'null');
+        console.log('[Stripe] elements object:', elements ? 'exists' : 'null');
 
         if (!stripe || !elements) {
-            throw new Error('Stripe not properly initialized');
+            console.error('[Stripe] ❌ Missing objects - stripe:', !!stripe, 'elements:', !!elements);
+            return {
+                success: false,
+                errorMessage: 'Stripe not properly initialized. Please refresh the page and try again.'
+            };
         }
 
         // Soumettre le formulaire pour valider

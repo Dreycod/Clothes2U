@@ -2,6 +2,7 @@
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Shared.DTO.Annonce;
 using Shared.DTO.Bloque;
 using Shared.DTO.LoginRegister;
 using Shared.DTO.Utilisateur;
@@ -48,7 +49,7 @@ namespace FrontBlazor.ViewModel
         public string NotificationError { get; set; }
         public bool NotificationUpdateSuccess { get; set; }
 
-        public List<BloqueDetailDTO>? UtilisateursBloques { get; set; } = null;
+        public List<BloqueDetailDTO> UtilisateursBloques { get; set; } = new List<BloqueDetailDTO>();
         public bool IsLoadingBlocked { get; set; }
         public bool IsUnblocking { get; set; }
 
@@ -100,11 +101,11 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public async void SetActiveTab(string tab)
+        public async Task SetActiveTab(string tab)
         {
             ActiveTab = tab;
 
-            if (tab == "blocked" && UtilisateursBloques == null || UtilisateursBloques.Count == 0)
+            if (tab == "blocked" && !UtilisateursBloques.Any())
             {
                 Console.WriteLine("blockeds");
                 await LoadBlockedUsers();
@@ -398,12 +399,13 @@ namespace FrontBlazor.ViewModel
             try
             {
                 var result = await _bloqueService.GetUsersBloquee(CurrentUser.UtilisateurId);
-                UtilisateursBloques = result ?? null;
+                UtilisateursBloques = result ?? new List<BloqueDetailDTO>();
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading blocked users: {ex.Message}");
-                UtilisateursBloques = null;
+                UtilisateursBloques = new List<BloqueDetailDTO>();
             }
             finally
             {
@@ -420,6 +422,7 @@ namespace FrontBlazor.ViewModel
             try
             {
                 await _bloqueService.DeleteAsync(userId);
+                UtilisateursBloques.Remove(UtilisateursBloques.FirstOrDefault(u => u.UtilisateurBloqueId == userId)!);
             }
             catch (Exception ex)
             {

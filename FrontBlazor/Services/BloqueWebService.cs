@@ -32,12 +32,12 @@ namespace FrontBlazor.Services
         {
             throw new NotImplementedException();
         }
-        public async Task<List<BloqueDetailDTO>?> GetUsersBloquee(int? id)
+        public async Task<List<BloqueDetailDTO>> GetUsersBloquee(int? id)
         {
             var response = await GetWithCredentialsAsync($"Bloque/bloqueur/{id}");
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<List<BloqueDetailDTO>>();
-            return result ?? null;
+            return result;
         }
     }
 }

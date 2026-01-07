@@ -5,44 +5,39 @@ using Stripe.Climate;
 
 namespace FrontBlazor.Services;
 
-public class OrderWebService : IOrderService
+public class OrderWebService :BaseGenericService, IOrderService
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<OrderService> _logger;
 
-    public OrderWebService(HttpClient httpClient, ILogger<OrderService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
+    public OrderWebService(HttpClient httpClient) : base(httpClient){}
 
     public async Task<OrderDTO> CreateOrderAsync(CreateOrderDTO order)
     {
         try
         {
-            _logger.LogInformation("Creating order for annonce {AnnonceId}", order.AnnonceId);
+            //_logger.LogInformation("Creating order for annonce {AnnonceId}", order.AnnonceId);
             
-            var response = await _httpClient.PostAsJsonAsync("api/order", order);
+            var response = await PostWithCredentialsAsync("order", JsonContent.Create(order));
             response.EnsureSuccessStatusCode();
             
             var result = await response.Content.ReadFromJsonAsync<OrderDTO>();
             
-            _logger.LogInformation("✅ Order created: {OrderId}", result?.CommandeId);
+            //_logger.LogInformation("✅ Order created: {OrderId}", result?.CommandeId);
             
             return result ?? throw new Exception("Failed to create order");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error creating order");
+            //_logger.LogError(ex, "❌ Error creating order");
             throw;
         }
     }
 
-    public async Task<List<OrderDTO>> GetUserOrdersAsync(int userId)
+    public async Task<List<OrderDTO>> GetUserOrdersAsync()
     {
         try
         {
-            var response = await _httpClient.GetAsync($"api/order/user/{userId}");
+            var response = await GetWithCredentialsAsync($"order/user");
             response.EnsureSuccessStatusCode();
             
             var orders = await response.Content.ReadFromJsonAsync<List<OrderDTO>>();
@@ -50,16 +45,16 @@ public class OrderWebService : IOrderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error getting user orders for user {UserId}", userId);
+            //_logger.LogError(ex, "❌ Error getting user orders for user {UserId}", userId);
             return new List<OrderDTO>();
         }
     }
 
-    public async Task<List<OrderDTO>> GetSellerOrdersAsync(int sellerId)
+    public async Task<List<OrderDTO>> GetSellerOrdersAsync()
     {
         try
         {
-            var response = await _httpClient.GetAsync($"api/order/seller/{sellerId}");
+            var response = await GetWithCredentialsAsync($"order/seller");
             response.EnsureSuccessStatusCode();
             
             var orders = await response.Content.ReadFromJsonAsync<List<OrderDTO>>();
@@ -67,7 +62,7 @@ public class OrderWebService : IOrderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error getting seller orders for seller {SellerId}", sellerId);
+            //_logger.LogError(ex, "❌ Error getting seller orders for seller {SellerId}", sellerId);
             return new List<OrderDTO>();
         }
     }
@@ -76,7 +71,7 @@ public class OrderWebService : IOrderService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"api/order/{orderId}");
+            var response = await GetWithCredentialsAsync($"order/{orderId}");
             
             if (!response.IsSuccessStatusCode)
             {
@@ -87,7 +82,7 @@ public class OrderWebService : IOrderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error getting order {OrderId}", orderId);
+            //_logger.LogError(ex, "❌ Error getting order {OrderId}", orderId);
             return null;
         }
     }
@@ -96,7 +91,7 @@ public class OrderWebService : IOrderService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"api/order/payment-intent/{paymentIntentId}");
+            var response = await GetWithCredentialsAsync($"order/payment-intent/{paymentIntentId}");
             
             if (!response.IsSuccessStatusCode)
             {
@@ -107,7 +102,7 @@ public class OrderWebService : IOrderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error getting order by payment intent {PaymentIntentId}", paymentIntentId);
+            //_logger.LogError(ex, "❌ Error getting order by payment intent {PaymentIntentId}", paymentIntentId);
             return null;
         }
     }
@@ -116,12 +111,12 @@ public class OrderWebService : IOrderService
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/order/{orderId}/status", statusUpdate);
+            var response = await PutWithCredentialsAsync($"order/{orderId}/status", JsonContent.Create(statusUpdate));
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error updating order status for {OrderId}", orderId);
+            //_logger.LogError(ex, "❌ Error updating order status for {OrderId}", orderId);
             return false;
         }
     }
@@ -130,7 +125,7 @@ public class OrderWebService : IOrderService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"api/order/user/{userId}/stats");
+            var response = await GetWithCredentialsAsync($"order/user/{userId}/stats");
             response.EnsureSuccessStatusCode();
             
             var stats = await response.Content.ReadFromJsonAsync<OrderStatsDTO>();
@@ -138,7 +133,7 @@ public class OrderWebService : IOrderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error getting order stats for user {UserId}", userId);
+            //_logger.LogError(ex, "❌ Error getting order stats for user {UserId}", userId);
             return new OrderStatsDTO();
         }
     }
