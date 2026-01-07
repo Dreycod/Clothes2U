@@ -201,6 +201,8 @@ namespace FrontBlazor.ViewModel
 
         private async Task ApplyFilters()
         {
+            Console.WriteLine("ordre : " + SelectedSortOrder);
+            Console.WriteLine("champs : " + SelectedSortField);
             var filterRequest = new FilterDTO
             {
                 MotCle = Query,
@@ -212,6 +214,8 @@ namespace FrontBlazor.ViewModel
                 Genre = SelectedGenres,
                 PrixMax = SelectedMaxPrice,
                 PrixMin = SelectedMinPrice,
+                SortOrder = SelectedSortOrder,
+                SortBy = SelectedSortField
             };
 
             CurrentPage = 1;
@@ -369,21 +373,9 @@ namespace FrontBlazor.ViewModel
             Marques = await _marqueService.SearchAsync(marqueSearch);
         }
 
-        public async Task OnGenreInput(string genre)
-        {
-            Query = genre;
-            _searchCts?.Cancel();
-            _searchCts = new CancellationTokenSource();
-            var token = _searchCts.Token;
-
-            try
-            {
-                await Task.Delay(500, token);
-                await ApplyFilters();
-            }
-            catch (TaskCanceledException) { }
-        }
+        public SortField SelectedSortField { get; set; } = SortField.DateAnnonce;
+        public SortOrder SelectedSortOrder { get; set; } = SortOrder.Descending;
+        
+        
     }
-    
-    
 }

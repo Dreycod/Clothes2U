@@ -96,4 +96,17 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
         return await BaseUtilisateurQuery()
             .FirstOrDefaultAsync(u => u.Email == email);
     }
+
+    public async Task BanUser(int userId)
+    {
+        Utilisateur user = _context.Utilisateurs.Where(u => u.UtilisateurId == userId).FirstOrDefault();
+        user.StatutId = 3;
+        await _context.SaveChangesAsync();
+    }
+    public async Task SuspendUser(int userId)
+    {
+        Utilisateur user = _context.Utilisateurs.Where(u => u.UtilisateurId == userId).FirstOrDefault();
+        user.StatutId = 2;
+        await _context.SaveChangesAsync();
+    }
 }

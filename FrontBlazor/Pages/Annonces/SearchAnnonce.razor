@@ -270,8 +270,8 @@
                         @foreach (var annonce in VM_Search.Annonces)
                         {
                             <AnnonceCard annonceComponent="annonce"
-                                            OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                            OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                         OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
                         }
                     </div>
 
@@ -319,11 +319,41 @@
                     }
                 }
             </div>
+            <aside class="sort-container">
+                <div class="sort-header">
+                    <h4 class="sort-title">Trier par</h4>
+                </div>
+                
+                <div class="sort-section">
+                    <label class="sort-label">Champ</label>
+                    <select class="sort-select" 
+                            @bind="VM_Search.SelectedSortField"
+                            @bind:after="VM_Search.OnFilterChanged">
+                        @foreach (var field in Enum.GetValues<SortField>())
+                        {
+                            <option value="@field">@field.ToString()</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="sort-section">
+                    <label class="sort-label">Ordre</label>
+                    <select class="sort-select" 
+                            @bind="VM_Search.SelectedSortOrder"
+                            @bind:after="VM_Search.OnFilterChanged">
+                        @foreach (var order in Enum.GetValues<SortOrder>())
+                        {
+                            <option value="@order">@order.ToString()</option>
+                        }
+                    </select>
+                </div>
+            </aside>
+                    
         </div>
     </div>
 </div>
 
-<Footer />
+
 
 @code {
     protected override async Task OnInitializedAsync()

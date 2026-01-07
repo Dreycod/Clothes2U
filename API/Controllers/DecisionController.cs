@@ -18,6 +18,7 @@ namespace API.Controllers;
 public class DecisionController : ControllerBase
 {
     private readonly IDecisionRepository _decisionManager;
+    private readonly IUtilisateurRepository _utilisateurRepository;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly ISignalementRepository _signalementManager;
     private readonly INoteUtilisateurRepository _noteUtilisateurManager;
@@ -27,6 +28,7 @@ public class DecisionController : ControllerBase
 
     public DecisionController(
         IDecisionRepository decisionManager,
+        IUtilisateurRepository utilisateurRepository,
         ISignalementRepository signalementManager,
         ICurrentUserService currentUserService,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
@@ -36,6 +38,7 @@ public class DecisionController : ControllerBase
     {
         _currentUserService =  currentUserService;
         _signalementManager = signalementManager;
+        _utilisateurRepository = utilisateurRepository;
         _decisionManager = decisionManager;
         _annonceManager = annonceManager;
         _noteUtilisateurManager = noteUtilisateurManager;
@@ -102,15 +105,17 @@ public class DecisionController : ControllerBase
             switch (decisionDTO)
             {
                 case DecisionAvertissementPostDTO avertissement:
-                    decision = await CreateAvertissement(decision);
+                    decision = await CreateAvertissement(decision); 
                     break;
 
                 case SanctionSuspensionPostDTO suspension:
+                    await _utilisateurRepository.SuspendUser(decisionDTO.UtilisateurId);
                     await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateSanctionSuspension(decision, suspension);
                     break;
 
                 case SanctionBannissementPostDTO bannissement:
+                    await _utilisateurRepository.BanUser(decisionDTO.UtilisateurId);
                     await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateSanctionBannissement(decision, bannissement);
                     break;
@@ -144,7 +149,6 @@ public class DecisionController : ControllerBase
 
     private async Task<Decision> CreateSanctionSuspension(Decision decision, SanctionSuspensionPostDTO dto)
     {
-        Console.WriteLine("--------------------------------------------------------------------------------------------------- suspension");
         var sanction = new DecisionSanction
         {
             EstEnCours = true,
@@ -162,7 +166,6 @@ public class DecisionController : ControllerBase
 
     private async Task<Decision> CreateSanctionBannissement(Decision decision, SanctionBannissementPostDTO dto)
     {
-        Console.WriteLine("--------------------------------------------------------------------------------------------------- bannissement");
         var sanction = new DecisionSanction
         {
             EstEnCours = true,
