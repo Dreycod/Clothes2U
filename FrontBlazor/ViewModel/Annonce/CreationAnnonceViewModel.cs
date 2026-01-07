@@ -32,7 +32,7 @@ namespace FrontBlazor.ViewModel
         public List<MarqueDTO> Marques { get; set; }
         public List<TailleDTO> Tailles { get; set; }
         public List<EtatArticleDTO> Etats { get; set; }
-        
+
         private readonly IListableService<CategorieDTO> _categorieService;
         private readonly IListableService<CouleurDTO> _couleurService;
         private readonly IListableService<MarqueDTO> _marqueService;
@@ -43,12 +43,15 @@ namespace FrontBlazor.ViewModel
         // État de l'annonce en cours de création
         public CreateAnnonceDTO NewAnnonce { get; private set; } = new();
 
-        // ✅ CORRECTION: Même structure que MessagerieViewModel
+        // Photos
         public List<IBrowserFile> SelectedFiles { get; set; } = new();
         public List<(IBrowserFile File, string PreviewBase64)> SelectedFilePreviews { get; set; } = new();
 
         // IDs des couleurs sélectionnées (multi-sélection)
         public List<int> SelectedCouleurIds { get; private set; } = new();
+
+        // Tags personnalisés
+        public List<string> Tags { get; private set; } = new();
 
         // Cache des mesures pour filtrage des tailles
         private List<MesureDTO>? _allMesures;
@@ -68,9 +71,9 @@ namespace FrontBlazor.ViewModel
             IMediasService mediaService,
             IAuthService authService,
             IMesureService mesureService,
-            IListableService<CategorieDTO> categorieService, 
-            IListableService<CouleurDTO> couleurService, 
-            IListableService<MarqueDTO> marqueService, 
+            IListableService<CategorieDTO> categorieService,
+            IListableService<CouleurDTO> couleurService,
+            IListableService<MarqueDTO> marqueService,
             IListableService<EtatArticleDTO> etatService,
             IListableService<GenreDTO> genreService,
             IListableService<TailleDTO> tailleService, 
@@ -115,16 +118,12 @@ namespace FrontBlazor.ViewModel
             Tailles = await _tailleService.GetAllAsync();
             IsLoading = false;
 
-            // ✅ Charger les mesures pour le filtrage des tailles
             await LoadMesuresAsync();
 
             Console.WriteLine($"✅ ViewModel initialisé pour utilisateur {currentUser.UtilisateurId}");
             NotifyStateChanged();
         }
 
-        /// <summary>
-        /// Charge toutes les mesures en cache pour le filtrage
-        /// </summary>
         private async Task LoadMesuresAsync()
         {
             try
@@ -139,9 +138,6 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        /// <summary>
-        /// Filtre les tailles disponibles selon la catégorie sélectionnée
-        /// </summary>
         public void UpdateAvailableTailles(int sousCategorieId)
         {
             if (_allMesures == null || sousCategorieId == 0)
@@ -151,7 +147,6 @@ namespace FrontBlazor.ViewModel
                 return;
             }
 
-            // Filtrer les tailles selon la catégorie
             AvailableTailleIds = _allMesures
                 .Where(m => m.SousCategorieId == sousCategorieId)
                 .Select(m => m.TailleId)
@@ -160,7 +155,6 @@ namespace FrontBlazor.ViewModel
 
             Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour catégorie {sousCategorieId}");
 
-            // Reset la taille sélectionnée si elle n'est plus disponible
             if (NewAnnonce.TailleId != 0 && !AvailableTailleIds.Contains(NewAnnonce.TailleId))
             {
                 NewAnnonce.TailleId = 0;
@@ -172,17 +166,13 @@ namespace FrontBlazor.ViewModel
 
         #endregion
 
-        #region Photo Management - COPIE EXACTE de MessagerieViewModel
+        #region Photo Management
 
-        /// <summary>
-        /// ✅ COPIE EXACTE de MessagerieViewModel.OnImagesSelectedAsync
-        /// </summary>
         public async Task OnImagesSelectedAsync(InputFileChangeEventArgs e)
         {
             const int maxPhotos = 5;
-            const long maxFileSize = 10 * 1024 * 1024; // 10 MB
+            const long maxFileSize = 10 * 1024 * 1024;
 
-            // Vérifier qu'on ne dépasse pas le max
             if (SelectedFilePreviews.Count >= maxPhotos)
             {
                 AddError($"Maximum {maxPhotos} photos autorisées");
@@ -195,7 +185,6 @@ namespace FrontBlazor.ViewModel
             {
                 try
                 {
-                    // Validation du fichier
                     if (file.Size > maxFileSize)
                     {
                         AddError($"{file.Name} est trop volumineux (max 10MB)");
@@ -208,7 +197,6 @@ namespace FrontBlazor.ViewModel
                         continue;
                     }
 
-                    // ✅ EXACTEMENT comme MessagerieViewModel
                     using var ms = new MemoryStream();
                     await file.OpenReadStream(maxAllowedSize: maxFileSize).CopyToAsync(ms);
 
@@ -229,9 +217,6 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
         }
 
-        /// <summary>
-        /// ✅ COPIE EXACTE de MessagerieViewModel.RemoveSelectedPhotoAt
-        /// </summary>
         public void RemoveSelectedPhotoAt(int index)
         {
             if (index < 0 || index >= SelectedFilePreviews.Count)
@@ -270,6 +255,37 @@ namespace FrontBlazor.ViewModel
         public bool IsCouleurSelected(int couleurId)
         {
             return SelectedCouleurIds.Contains(couleurId);
+        }
+
+        #endregion
+
+        #region Tags Management
+
+        public void AddTag(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return;
+
+            var cleanTag = tag.Trim().ToLower();
+
+            if (Tags.Any(t => t.Equals(cleanTag, StringComparison.OrdinalIgnoreCase)))
+            {
+                Console.WriteLine($"⚠️ Tag '{cleanTag}' déjà ajouté");
+                return;
+            }
+
+            Tags.Add(cleanTag);
+            Console.WriteLine($"✅ Tag ajouté: {cleanTag}");
+            NotifyStateChanged();
+        }
+
+        public void RemoveTag(string tag)
+        {
+            if (Tags.Remove(tag))
+            {
+                Console.WriteLine($"🗑️ Tag supprimé: {tag}");
+                NotifyStateChanged();
+            }
         }
 
         #endregion
@@ -323,7 +339,6 @@ namespace FrontBlazor.ViewModel
             HasCreated = null;
             NotifyStateChanged();
 
-            // Validation
             var validationErrors = ValidateAnnonce();
             if (validationErrors.Any())
             {
@@ -346,23 +361,22 @@ namespace FrontBlazor.ViewModel
                     return;
                 }
 
-                // Préparer les données
                 NewAnnonce.UtilisateurId = currentUser.UtilisateurId;
                 NewAnnonce.DateAnnonce = DateTime.UtcNow;
                 NewAnnonce.StatutAnnonceId = 1;
-
-                // Ajouter les couleurs sélectionnées
                 NewAnnonce.Couleurs = SelectedCouleurIds;
+
+                // TODO: Ajouter les tags à l'annonce quand le DTO sera mis à jour
+                // NewAnnonce.Tags = Tags;
 
                 Console.WriteLine($"📤 Envoi de l'annonce: {NewAnnonce.Titre}");
                 Console.WriteLine($"   - Prix: {NewAnnonce.Prix}€");
                 Console.WriteLine($"   - Photos: {SelectedFilePreviews.Count}");
+                Console.WriteLine($"   - Tags: {string.Join(", ", Tags)}");
 
-                // ✅ Créer l'annonce
                 await _annonceService.CreateAnnonce(NewAnnonce);
                 Console.WriteLine($"✅ Annonce créée avec succès");
 
-                // 📸 Upload des photos si présentes
                 if (SelectedFilePreviews.Any())
                 {
                     IsUploadingPhotos = true;
@@ -372,7 +386,6 @@ namespace FrontBlazor.ViewModel
 
                     try
                     {
-                        // Récupérer l'annonce créée
                         var userAnnonces = await _annonceService.GetAnnoncesByUserIdAsync(currentUser.UtilisateurId);
                         var createdAnnonce = userAnnonces?
                             .OrderByDescending(a => a.AnnonceId)
@@ -382,12 +395,10 @@ namespace FrontBlazor.ViewModel
                         {
                             Console.WriteLine($"✅ Annonce retrouvée avec ID: {createdAnnonce.AnnonceId}");
 
-                            // ✅ Extraire les data URLs (COMME MessagerieViewModel)
                             var photosDataUrls = SelectedFilePreviews
                                 .Select(p => p.PreviewBase64)
                                 .ToList();
 
-                            // ✅ Utiliser le service existant
                             var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(
                                 createdAnnonce.AnnonceId,
                                 photosDataUrls
@@ -422,7 +433,6 @@ namespace FrontBlazor.ViewModel
                 HasCreated = true;
                 NotifyStateChanged();
 
-                // Redirection après succès
                 await Task.Delay(2000);
                 _nav.NavigateTo($"/profile/{currentUser.Login}");
             }

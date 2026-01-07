@@ -90,7 +90,7 @@
                            min="0" />
                 </div>
 
-                <!-- Négociable - Toggle Switch -->
+                <!-- Négociable - Toggle Switch CORRIGÉ -->
                 <div class="form-group">
                     <label class="form-label">Offre négociable?</label>
                     <div class="toggle-switch-container">
@@ -144,7 +144,7 @@
         </div>
 
         <!-- ============================================ -->
-        <!-- SECTION 4: MARQUE (avec recherche) -->
+        <!-- SECTION 4: MARQUE (Dropdown avec recherche) -->
         <!-- ============================================ -->
         <div class="form-section brand-section">
             <h2 class="section-title">Marque *</h2>
@@ -158,32 +158,56 @@
             }
             else if (VM_CreationAnnonce.Marques?.Any() == true)
             {
-                <!-- Barre de recherche -->
-                <div class="search-box">
-                    <i class="bi bi-search"></i>
-                    <input type="text"
-                           class="search-input"
-                           placeholder="Rechercher une marque..."
-                           @bind="marqueSearch"
-                           @bind:event="oninput" />
-                </div>
+                <div class="dropdown-container @(isMarqueDropdownOpen ? "open" : "")">
+                    <div class="dropdown-input" @onclick="ToggleMarqueDropdown">
+                        @if (VM_CreationAnnonce.NewAnnonce.MarqueId != 0)
+                        {
+                            var selectedMarque = VM_CreationAnnonce.Marques.FirstOrDefault(m => m.MarqueID == VM_CreationAnnonce.NewAnnonce.MarqueId);
+                            <span class="selected-value">@selectedMarque?.NomMarque</span>
+                            <button type="button"
+                                    class="clear-btn"
+                                    @onclick="ClearMarque"
+                                    @onclick:stopPropagation="true">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        }
+                        else if (isMarqueDropdownOpen)
+                        {
+                            <input type="text"
+                                   class="search-input-inline"
+                                   placeholder="Rechercher une marque..."
+                                   @bind="marqueSearch"
+                                   @bind:event="oninput"
+                                   @onblur="OnMarqueSearchBlur"
+                                   @onclick:stopPropagation="true"
+                                   @ref="marqueSearchInput" />
+                        }
+                        else
+                        {
+                            <span class="placeholder-text">Sélectionner une marque</span>
+                        }
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
+                    </div>
 
-                <!-- Liste des marques filtrées -->
-                <div class="marque-list">
-                    @foreach (var marque in GetFilteredMarques())
+                    @if (isMarqueDropdownOpen)
                     {
-                        <button type="button"
-                                class="marque-item @(VM_CreationAnnonce.NewAnnonce.MarqueId == marque.MarqueID ? "active" : "")"
-                                @onclick="() => VM_CreationAnnonce.NewAnnonce.MarqueId = marque.MarqueID">
-                            @marque.NomMarque
-                        </button>
+                        <div class="dropdown-list">
+                            @foreach (var marque in GetFilteredMarques())
+                            {
+                                <div class="dropdown-item @(VM_CreationAnnonce.NewAnnonce.MarqueId == marque.MarqueID ? "selected" : "")"
+                                     @onclick="() => SelectMarque(marque.MarqueID)"
+                                     @onmousedown:preventDefault="true">
+                                    @marque.NomMarque
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
             }
         </div>
 
         <!-- ============================================ -->
-        <!-- SECTION 5: CATÉGORIE & ÉTAT -->
+        <!-- SECTION 5: CATÉGORIE & ÉTAT (Dropdown) -->
         <!-- ============================================ -->
         <div class="form-section category-section">
             <h2 class="section-title">Catégorie & État</h2>
@@ -236,7 +260,7 @@
                     }
                 </div>
 
-                <!-- État de l'article -->
+                <!-- État de l'article - DROPDOWN -->
                 <div class="state-group">
                     <label class="form-label">État de l'article *</label>
                     @if (VM_CreationAnnonce.IsLoading)
@@ -248,14 +272,31 @@
                     }
                     else if (VM_CreationAnnonce.Etats?.Any() == true)
                     {
-                        <div class="state-buttons">
-                            @foreach (var etat in VM_CreationAnnonce.Etats)
+                        <div class="dropdown-container @(isEtatDropdownOpen ? "open" : "")">
+                            <div class="dropdown-input" @onclick="() => isEtatDropdownOpen = !isEtatDropdownOpen">
+                                @if (VM_CreationAnnonce.NewAnnonce.EtatId != 0)
+                                {
+                                    var selectedEtat = VM_CreationAnnonce.Etats.FirstOrDefault(e => e.EtatArticleId == VM_CreationAnnonce.NewAnnonce.EtatId);
+                                    <span class="selected-value">@selectedEtat?.NomEtat</span>
+                                }
+                                else
+                                {
+                                    <span class="placeholder-text">Sélectionner l'état</span>
+                                }
+                                <i class="bi bi-chevron-down dropdown-arrow"></i>
+                            </div>
+
+                            @if (isEtatDropdownOpen)
                             {
-                                <button type="button"
-                                        class="state-btn @(VM_CreationAnnonce.NewAnnonce.EtatId == etat.EtatArticleId ? "active" : "")"
-                                        @onclick="() => VM_CreationAnnonce.NewAnnonce.EtatId = etat.EtatArticleId">
-                                    @etat.NomEtat
-                                </button>
+                                <div class="dropdown-list">
+                                    @foreach (var etat in VM_CreationAnnonce.Etats)
+                                    {
+                                        <div class="dropdown-item @(VM_CreationAnnonce.NewAnnonce.EtatId == etat.EtatArticleId ? "selected" : "")"
+                                             @onclick="() => SelectEtat(etat.EtatArticleId)">
+                                            @etat.NomEtat
+                                        </div>
+                                    }
+                                </div>
                             }
                         </div>
                     }
@@ -269,7 +310,7 @@
         <div class="form-section size-section">
             <h2 class="section-title">Taille *</h2>
 
-            @if (VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
+            @if (VM_CreationAnnonce.NewAnnonce.CategorieId == 0)
             {
                 <p class="info-message">
                     <i class="bi bi-info-circle"></i>
@@ -338,6 +379,42 @@
         </div>
 
         <!-- ============================================ -->
+        <!-- SECTION 8: TAGS -->
+        <!-- ============================================ -->
+        <div class="form-section tags-section">
+            <h2 class="section-title">Tags</h2>
+            <p class="section-subtitle">Ajoutez des mots-clés pour faciliter la recherche (optionnel)</p>
+
+            <div class="tags-input-container">
+                <div class="tags-list" @onclick="FocusTagsInput">
+                    @foreach (var tag in VM_CreationAnnonce.Tags)
+                    {
+                        <span class="tag-item">
+                            @tag
+                            <button type="button"
+                                    class="tag-remove-btn"
+                                    @onclick="() => RemoveTag(tag)"
+                                    @onclick:stopPropagation="true">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </span>
+                    }
+                    <input type="text"
+                           class="tags-input"
+                           placeholder="Ajouter un tag..."
+                           @bind="currentTag"
+                           @bind:event="oninput"
+                           @onkeydown="HandleTagKeyDown"
+                           @ref="tagsInputElement" />
+                </div>
+                <div class="tags-info">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Appuyez sur Entrée pour ajouter un tag</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
         <!-- MESSAGES D'ERREUR -->
         <!-- ============================================ -->
         @if (VM_CreationAnnonce.ErrorMessages.Any())
@@ -402,6 +479,12 @@
 
 @code {
     private string marqueSearch = "";
+    private bool isMarqueDropdownOpen = false;
+    private bool isEtatDropdownOpen = false;
+    private ElementReference marqueSearchInput;
+    private ElementReference tagsInputElement;
+    private string currentTag = "";
+    private bool shouldFocusMarqueSearch = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -409,32 +492,91 @@
         VM_CreationAnnonce.OnChange += StateHasChanged;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldFocusMarqueSearch)
+        {
+            shouldFocusMarqueSearch = false;
+            await Task.Delay(50); // Petit délai pour assurer que le DOM est prêt
+            try
+            {
+                await marqueSearchInput.FocusAsync();
+            }
+            catch { }
+        }
+    }
+
     public void Dispose()
     {
         VM_CreationAnnonce.OnChange -= StateHasChanged;
     }
 
-    // ✅ EXACTEMENT comme Messages.razor
+    // Photos
     private async Task OnPhotosSelected(InputFileChangeEventArgs e)
     {
         await VM_CreationAnnonce.OnImagesSelectedAsync(e);
     }
 
-    // ✅ EXACTEMENT comme Messages.razor
     private void RemovePhoto(int index)
     {
         Console.WriteLine($"[Page] 🗑️ Removing photo at index {index}");
         VM_CreationAnnonce.RemoveSelectedPhotoAt(index);
     }
 
+    // Marque Dropdown
+    private void ToggleMarqueDropdown()
+    {
+        isMarqueDropdownOpen = !isMarqueDropdownOpen;
+        if (isMarqueDropdownOpen)
+        {
+            shouldFocusMarqueSearch = true;
+        }
+        else
+        {
+            marqueSearch = "";
+        }
+    }
+
+    private void OnMarqueSearchBlur()
+    {
+        // Délai pour permettre le clic sur un élément de la liste
+        Task.Delay(200).ContinueWith(_ => InvokeAsync(() =>
+        {
+            isMarqueDropdownOpen = false;
+            marqueSearch = "";
+            StateHasChanged();
+        }));
+    }
+
+    private void SelectMarque(int marqueId)
+    {
+        VM_CreationAnnonce.NewAnnonce.MarqueId = marqueId;
+        isMarqueDropdownOpen = false;
+        marqueSearch = "";
+        StateHasChanged();
+    }
+
+    private void ClearMarque()
+    {
+        VM_CreationAnnonce.NewAnnonce.MarqueId = 0;
+        marqueSearch = "";
+        StateHasChanged();
+    }
+
+    // État Dropdown
+    private void SelectEtat(int etatId)
+    {
+        VM_CreationAnnonce.NewAnnonce.EtatId = etatId;
+        isEtatDropdownOpen = false;
+        StateHasChanged();
+    }
+
+    // Catégories
     private void OnCategorieSelected(int categorieId)
     {
         VM_CreationAnnonce.NewAnnonce.CategorieId = categorieId;
         VM_CreationAnnonce.NewAnnonce.SousCategorieId = 0;
-
-        // ✅ Mettre à jour les tailles disponibles
         VM_CreationAnnonce.UpdateAvailableTailles(categorieId);
-
         StateHasChanged();
     }
 
@@ -444,6 +586,32 @@
         StateHasChanged();
     }
 
+    // Tags
+    private void HandleTagKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (!string.IsNullOrWhiteSpace(currentTag))
+            {
+                VM_CreationAnnonce.AddTag(currentTag.Trim());
+                currentTag = "";
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void RemoveTag(string tag)
+    {
+        VM_CreationAnnonce.RemoveTag(tag);
+        StateHasChanged();
+    }
+
+    private async Task FocusTagsInput()
+    {
+        await tagsInputElement.FocusAsync();
+    }
+
+    // Publication
     private async Task OnPublishClick()
     {
         await VM_CreationAnnonce.PublishAnnonceAsync();
@@ -454,7 +622,7 @@
         Navigation.NavigateTo("/");
     }
 
-    // Filtrer les marques selon la recherche (ordre alphabétique)
+    // Filtres
     private IEnumerable<MarqueDTO> GetFilteredMarques()
     {
         if (VM_CreationAnnonce.Marques == null)
@@ -472,13 +640,11 @@
         return filtered.OrderBy(m => m.NomMarque);
     }
 
-    // Filtrer les tailles selon la catégorie sélectionnée
     private IEnumerable<TailleDTO>? GetFilteredTailles()
     {
         if (VM_CreationAnnonce.Tailles == null || VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
             return null;
 
-        // ✅ Filtrer selon les tailles disponibles pour cette catégorie
         if (!VM_CreationAnnonce.AvailableTailleIds.Any())
             return null;
 
