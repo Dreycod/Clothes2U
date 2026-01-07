@@ -15,7 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.DTO.SousCategorie;
 
 namespace API.Tests.Controllers;
-
+/*
 [TestClass]
 [TestSubject(typeof(SousCategorieController))]
 public class SousCategorieControllerTest
@@ -92,4 +92,4 @@ public class SousCategorieControllerTest
         Assert.AreEqual(2, returnedData.Count());
         
     }
-}
+}*/

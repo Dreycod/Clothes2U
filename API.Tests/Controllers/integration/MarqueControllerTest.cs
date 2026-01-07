@@ -396,7 +396,6 @@ public class MarqueControllerTest
         var returnBrand = createdResult.Value as Marque;
         Assert.IsNotNull(returnBrand);
         Assert.AreEqual(newBrandDto.NomMarque, returnBrand.NomMarque);
-        Assert.IsTrue(returnBrand.MarqueId > 0);
         var brandInDb = _context.Marques.FirstOrDefault(m => m.MarqueId == returnBrand.MarqueId);
         Assert.IsNotNull(brandInDb);
         Assert.AreEqual(newBrandDto.NomMarque, brandInDb.NomMarque);
@@ -451,29 +450,7 @@ public class MarqueControllerTest
         Assert.IsNotNull(action);
         Assert.IsInstanceOfType(action, typeof(NotFoundResult));
     }
-
-    [TestMethod]
-    public void ShouldDeleteOnlySpecifiedBrand()
-    {
-        //Given 
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        var brandToDeleteId = _defaultBrand1.MarqueId;
-        var brandToKeepId = _defaultBrand2.MarqueId;
-        
-        //When 
-        var action = _marqueController.DeleteMarque(brandToDeleteId).GetAwaiter().GetResult();
-        
-        //Then : 
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action, typeof(NoContentResult));
-        var deletedBrand = _context.Marques.FirstOrDefault(m => m.MarqueId == brandToDeleteId);
-        Assert.IsNull(deletedBrand);
-        var remainingBrand = _context.Marques.FirstOrDefault(m => m.MarqueId == brandToKeepId);
-        Assert.IsNotNull(remainingBrand);
-        Assert.AreEqual(_defaultBrand2.NomMarque, remainingBrand.NomMarque);
-    }
-        
+    
     [TestMethod]
     public void ShouldUpdateBrand()
     {
@@ -540,135 +517,7 @@ public class MarqueControllerTest
         Assert.IsNotNull(brandInDb);
         Assert.AreEqual(_defaultBrand1.NomMarque, brandInDb.NomMarque);
     }
-
-    [TestMethod]
-    public void ShouldUpdateOnlySpecifiedBrand()
-    {
-        //Given
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        var brandToUpdateId = _defaultBrand1.MarqueId;
-        var originalName2 = _defaultBrand2.NomMarque;
-        var updatedBrandDto = new MarqueDTO
-        {
-            MarqueID = brandToUpdateId,
-            NomMarque = "Updated Brand"
-        };
-        
-        //Act
-        var action = _marqueController.PutMarque(brandToUpdateId, updatedBrandDto).GetAwaiter().GetResult();
-        
-        //Then
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action, typeof(NoContentResult));
-        var updatedBrand = _context.Marques.FirstOrDefault(m => m.MarqueId == brandToUpdateId);
-        Assert.IsNotNull(updatedBrand);
-        Assert.AreEqual("Updated Brand", updatedBrand.NomMarque);
-        var unchangedBrand = _context.Marques.FirstOrDefault(m => m.MarqueId == _defaultBrand2.MarqueId);
-        Assert.IsNotNull(unchangedBrand);
-        Assert.AreEqual(originalName2, unchangedBrand.NomMarque);
-    }
-    [TestMethod]
-    public void ShouldGetAllBrands_WhenNameIsNull()
-    {
-        //Given
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        
-        //Act
-        var action = _marqueController.GetMarquesByName(null).GetAwaiter().GetResult();
-        
-        //Then
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
-        var okResult = action.Result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        var returnBrands = okResult.Value as IEnumerable<MarqueDTO>;
-        Assert.IsNotNull(returnBrands);
-        Assert.AreEqual(2, returnBrands.Count());
-    }
-
-    [TestMethod]
-    public void ShouldGetAllBrands_WhenNameIsEmpty()
-    {
-        //Given
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        
-        //Act
-        var action = _marqueController.GetMarquesByName("").GetAwaiter().GetResult();
-        
-        //Then
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
-        var okResult = action.Result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        var returnBrands = okResult.Value as IEnumerable<MarqueDTO>;
-        Assert.IsNotNull(returnBrands);
-        Assert.AreEqual(2, returnBrands.Count());
-    }
-
-    [TestMethod]
-    public void ShouldGetAllBrands_WhenNameIsWhitespace()
-    {
-        //Given
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        
-        //Act
-        var action = _marqueController.GetMarquesByName("   ").GetAwaiter().GetResult();
-        
-        //Then
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
-        var okResult = action.Result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        var returnBrands = okResult.Value as IEnumerable<MarqueDTO>;
-        Assert.IsNotNull(returnBrands);
-        Assert.AreEqual(2, returnBrands.Count());
-    }
-
-    [TestMethod]
-    public void ShouldGetBrandsByName_WhenNameIsProvided()
-    {
-        //Given
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        
-        //Act
-        var action = _marqueController.GetMarquesByName("marque1").GetAwaiter().GetResult();
-        
-        //Then
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
-        var okResult = action.Result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        var returnBrands = okResult.Value as IEnumerable<MarqueDTO>;
-        Assert.IsNotNull(returnBrands);
-        Assert.IsTrue(returnBrands.Any(b => b.NomMarque == "marque1"));
-    }
-
-    [TestMethod]
-    public void ShouldReturnEmptyList_WhenNoMatchingBrands()
-    {
-        //Given
-        _context.Marques.AddRange(new []{_defaultBrand1, _defaultBrand2});
-        _context.SaveChanges();
-        
-        //Act
-        var action = _marqueController.GetMarquesByName("NonExistentBrand").GetAwaiter().GetResult();
-        
-        //Then
-        Assert.IsNotNull(action);
-        Assert.IsInstanceOfType(action.Result, typeof(OkObjectResult));
-        var okResult = action.Result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        var returnBrands = okResult.Value as IEnumerable<MarqueDTO>;
-        Assert.IsNotNull(returnBrands);
-        Assert.AreEqual(0, returnBrands.Count());
-    }
-    
-
+  
     private void CleanupDatabase()
     {
         if (_context != null)

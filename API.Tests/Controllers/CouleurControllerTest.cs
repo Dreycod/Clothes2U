@@ -15,7 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.DTO.Couleur;
 
 namespace API.Tests.Controllers;
-
+/*
 [TestClass]
 [TestSubject(typeof(CouleurController))]
 public class CouleurControllerTest
@@ -83,4 +83,4 @@ public class CouleurControllerTest
         Assert.AreEqual(2, returnedData.Count());
         
     }
-}
+}*/

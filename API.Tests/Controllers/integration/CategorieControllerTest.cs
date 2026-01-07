@@ -121,7 +121,146 @@ public class CategorieControllerTest
         Assert.IsTrue(returncategories.Any(b => b.GetId() == _default1.GetId()));
         Assert.IsTrue(returncategories.Any(b => b.GetId() == _default2.GetId()));
     }
+
+    [TestMethod]
+    public void ShouldAddCategory()
+    {
+        //Given
+        var newCategoryDto = new CategorieDTO
+        {
+            LibelleCategorie = "categorie"
+        };
+        //When
+        var action = _controller.AddCategorie(newCategoryDto).GetAwaiter().GetResult();
+        
+        //Then
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action.Result, typeof(CreatedAtActionResult));
+        var  createdResult = action.Result as CreatedAtActionResult;
+        Assert.IsNotNull(createdResult);
+        Assert.AreEqual(nameof(_controller.GetById), createdResult.ActionName);
+        Assert.IsInstanceOfType(createdResult.Value, typeof(Categorie));
+        var returnCategory = createdResult.Value as Categorie;
+        Assert.IsNotNull(returnCategory);
+        Assert.AreEqual(newCategoryDto.LibelleCategorie, returnCategory.LibelleCategorie);
+        var categoryInDb = _context.Categories.FirstOrDefault(c => c.CategorieId == returnCategory.GetId());
+        Assert.IsNotNull(categoryInDb);
+        Assert.AreEqual(returnCategory.GetId(), categoryInDb.GetId());
+
+    }
+    [TestMethod]
+    public void ShouldReturnBadRequest_AddCategorie_WhenModelStateInvalid()
+    {
+        //Given
+        var invalidCategoryDto = new CategorieDTO
+        {
+            LibelleCategorie = null 
+        };
+        _controller.ModelState.AddModelError("LibelleCategorie", "Required");
     
+        //When
+        var action = _controller.AddCategorie(invalidCategoryDto).GetAwaiter().GetResult();
+    
+        //Then 
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action.Result, typeof(BadRequestObjectResult));
+    }
+    
+    [TestMethod]
+    public void ShouldDeletedCategory()
+    {
+        //Given 
+        _context.Categories.Add(_default1);
+        _context.SaveChanges();
+        var categorieId = _default1.CategorieId;
+        
+        //When 
+        var action = _controller.DeleteCategorie(categorieId).GetAwaiter().GetResult();
+        
+        //Then 
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(NoContentResult));
+        var categorieInDb = _context.Categories.FirstOrDefault(m => m.CategorieId == categorieId);
+        Assert.IsNull(categorieInDb);
+    }
+    [TestMethod]
+    public void ShouldReturnNotFound_DeleteCategory_WhenIdDoesNotExist()
+    {
+        //Given 
+        var nonExistentId = 9999;
+        
+        //When 
+        var action = _controller.DeleteCategorie(nonExistentId).GetAwaiter().GetResult();
+        
+        //Then 
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(NotFoundResult));
+    }
+    [TestMethod]
+    public void ShouldUpdateCategory()
+    {
+        //Given
+        _context.Categories.Add(_default1);
+        _context.SaveChanges();
+        var categoryId = _default1.GetId();
+        var updatedCategoryDto = new CategorieDTO
+        {
+            IdCategorie = categoryId,
+            LibelleCategorie = "Categorie"
+        };
+        
+        //Act
+        var action = _controller.PutCategorie(categoryId, updatedCategoryDto).GetAwaiter().GetResult();
+        
+        //Then
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(NoContentResult));
+        var categoryInDb = _context.Categories.FirstOrDefault(m => m.CategorieId == categoryId);
+        Assert.IsNotNull(categoryInDb);
+        Assert.AreEqual("Categorie", categoryInDb.LibelleCategorie);
+    }
+    
+    [TestMethod]
+    public void ShouldReturnNotFound_PutCategory_WhenIdDoesNotExist()
+    {
+        //Given
+        var nonExistentId = 9999;
+        var elementDto = new CategorieDTO
+        {
+            IdCategorie = nonExistentId,
+            LibelleCategorie = "Categorie"
+        };
+        
+        //Act
+        var action = _controller.PutCategorie(nonExistentId, elementDto).GetAwaiter().GetResult();
+        
+        //Then
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(NotFoundResult));
+    }
+    [TestMethod]
+    public void ShouldReturnBadRequest_PutCategory_WhenIdsDoNotMatch()
+    {
+        //Given
+        _context.Categories.Add(_default1);
+        _context.SaveChanges();
+        var urlId = _default1.CategorieId;
+        var elementDto = new CategorieDTO
+        {
+            IdCategorie = urlId + 1,
+            LibelleCategorie = "Categorie"
+        };
+        
+        //Act
+        var action = _controller.PutCategorie(urlId, elementDto).GetAwaiter().GetResult();
+        
+        //Then
+        Assert.IsNotNull(action);
+        Assert.IsInstanceOfType(action, typeof(BadRequestResult));
+        var elementInDb = _context.Categories.FirstOrDefault(m => m.CategorieId == urlId);
+        Assert.IsNotNull(elementInDb);
+        Assert.AreEqual(_default1.CategorieId, elementInDb.CategorieId);
+    }
 
     private void CleanupDatabase()
     {
