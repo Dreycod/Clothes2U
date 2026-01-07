@@ -14,6 +14,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
         private readonly NavigationManager _navigationManager;
+        private SearchAnnonceViewModel? _searchViewModel;
         
         
         #region recommandation 
@@ -56,6 +57,10 @@ namespace FrontBlazor.ViewModel
                 Console.WriteLine($"Error: {ex.Message}");
                 return null;
             }
+        }
+        public async Task SetSearchViewModel(SearchAnnonceViewModel searchViewModel)
+        {
+            _searchViewModel = searchViewModel;
         }
 
         public override async Task LoadAsync()
@@ -189,6 +194,11 @@ namespace FrontBlazor.ViewModel
                 await _favorisService.AddFavoris(annonceId);
             else
                 await _favorisService.DeleteFavoris(annonceId);
+        }
+
+        public async Task OnGenreSelected(string genre)
+        {
+            _navigationManager.NavigateTo($"/search?genre={Uri.EscapeDataString(genre)}");
         }
     }
 }

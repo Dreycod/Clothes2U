@@ -2,6 +2,7 @@
 @using FrontBlazor.ViewModel.Generic
 @using Microsoft.AspNetCore.WebUtilities
 @inject SearchAnnonceViewModel VM_Search
+@inject ClientBaseViewModel VM_ClientBase
 @layout ClientLayout
 @implements IDisposable
 
@@ -327,15 +328,14 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        VM_Search.SetSearchViewModel(VM_Search);
+        await VM_ClientBase.SetSearchViewModel(VM_Search); 
         await VM_Search.InitializeFromUrlAsync();
         VM_Search.OnStateChange += StateHasChanged;
     }
 
     public void Dispose()
     {
-        /*
-        VM_ClientBase.OnStateChange -= StateHasChanged;
-        Vm_NavBar.SetSearchViewModel(null);*/
+        VM_Search.OnStateChange -= StateHasChanged;
+        VM_ClientBase.SetSearchViewModel(null);  // ✅ Nettoyez la référence
     }
 }

@@ -158,58 +158,20 @@
 
 <!-- Categories Section -->
 <div class="categories-section">
-    <div class="category-card category-femmes">
+    <div class="category-card category-femmes" @onclick='() => VM_Home.OnGenreSelected("Femme")'>
         <div class="category-overlay">
             <h3 class="category-title">Femmes</h3>
         </div>
     </div>
-    <div class="category-card category-hommes">
+    <div class="category-card category-hommes" @onclick='() => VM_Home.OnGenreSelected("Homme")'>
         <div class="category-overlay">
             <h3 class="category-title">Hommes</h3>
         </div>
     </div>
-    <div class="category-card category-enfants">
+    <div class="category-card category-enfants" @onclick='() => VM_Home.OnGenreSelected("Unisexe")'>
         <div class="category-overlay">
-            <h3 class="category-title">Enfants</h3>
+            <h3 class="category-title">Unisexe</h3>
         </div>
-    </div>
-    <div class="category-card category-accessoires">
-        <div class="category-overlay">
-            <h3 class="category-title">Accessoires</h3>
-        </div>
-    </div>
-</div>
-
-<!-- Trends Section -->
-<div class="section-container">
-    <div class="section-header">
-        <h2 class="section-title">TENDANCES</h2>
-        <p class="section-subtitle">Les articles les plus populaires</p>
-    </div>
-
-    <div class="product-grid">
-        @for (int i = 0; i < 8; i++)
-        {
-            <div class="product-card">
-                <div class="product-image-container">
-                    <div class="product-image"></div>
-                    <button class="wishlist-btn">
-                        <i class="bi bi-heart"></i>
-                    </button>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Template</h3>
-                    <div class="product-meta">
-                        <span class="product-size">Taille Template</span>
-                        <span class="product-condition">Attente de l'algorithme suggestion</span>
-                    </div>
-                    <div class="product-footer">
-                        <span class="product-price">20.99€</span>
-                        <span class="product-seller">SaeUserTemplate</span>
-                    </div>
-                </div>
-            </div>
-        }
     </div>
 </div>
 

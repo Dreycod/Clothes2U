@@ -105,16 +105,27 @@ namespace FrontBlazor.ViewModel
         {
             var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
             string? query = null;
+            string? genre = null;
 
-            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("q", out var q))
+            var queryParams = QueryHelpers.ParseQuery(uri.Query);
+    
+            if (queryParams.TryGetValue("q", out var q))
                 query = q;
+    
+            if (queryParams.TryGetValue("genre", out var g))
+                genre = g;
 
-            await InitializeAsync(query);
+            await InitializeAsync(query, genre);
         }
 
-        public async Task InitializeAsync(string? queryFromUrl)
+        public async Task InitializeAsync(string? queryFromUrl, string? genreFromUrl = null)
         {
             Query = queryFromUrl;
+    
+            if (!string.IsNullOrEmpty(genreFromUrl))
+            {
+                SelectedGenres.Add(genreFromUrl);
+            }
             await LoadAsync();
         }
         
@@ -185,7 +196,6 @@ namespace FrontBlazor.ViewModel
 
         public async Task OnPriceChanged()
         {
-            Console.WriteLine("bonjour");
             await OnFilterChanged();
         }
 
@@ -219,6 +229,7 @@ namespace FrontBlazor.ViewModel
             {
                 await Task.Delay(500, token);
                 await ApplyFilters();
+                NotifyStateChanged();
             }
             catch (TaskCanceledException) { }
         }
@@ -356,6 +367,21 @@ namespace FrontBlazor.ViewModel
         public async Task GetFilteredMarques()
         {
             Marques = await _marqueService.SearchAsync(marqueSearch);
+        }
+
+        public async Task OnGenreInput(string genre)
+        {
+            Query = genre;
+            _searchCts?.Cancel();
+            _searchCts = new CancellationTokenSource();
+            var token = _searchCts.Token;
+
+            try
+            {
+                await Task.Delay(500, token);
+                await ApplyFilters();
+            }
+            catch (TaskCanceledException) { }
         }
     }
     
