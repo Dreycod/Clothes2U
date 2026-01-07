@@ -5,6 +5,7 @@ using Shared.DTO.Message;
 using Shared.DTO.Utilisateur;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
@@ -13,7 +14,7 @@ using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel;
 
-public class MessagerieViewModel : ComponentBase, IDisposable
+public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 {
     private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IAuthService _authService;
@@ -57,7 +58,10 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         IMediasService mediaService,
         NavigationManager nav,
         ISignalRService signalRService,
-        ISignalementService signalementService)
+        ISignalementService signalementService,
+        NavigationManager navigationManager,
+    INotificationService notificationService)
+        : base(navigationManager, authService, notificationService)
     
     {
         _conversationService = conversationService;
@@ -75,7 +79,7 @@ public class MessagerieViewModel : ComponentBase, IDisposable
         _signalRService.OnPriceProposalReceived += HandlePriceProposalReceived;
     }
 
-    public async Task LoadAsync()
+    public override async Task LoadAsync()
     {
         CurrentUser = await _authService.GetCurrentUserAsync();
         if (CurrentUser == null)

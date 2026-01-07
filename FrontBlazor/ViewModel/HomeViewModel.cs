@@ -58,7 +58,7 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public async Task LoadAsync()
+        public override async Task LoadAsync()
         {
             await  base.LoadAsync();
             ErrorMessage = SuccessMessage = string.Empty;

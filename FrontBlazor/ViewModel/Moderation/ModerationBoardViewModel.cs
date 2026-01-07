@@ -24,11 +24,14 @@ public class ModerationBoardViewModel : ModerationViewModel
     public List<ActivityDTO> Activity { get; set; }
     public async override Task LoadAsync()
     {
-        base.LoadAsync();
-        IsLoading = true;
-        Activity = await _moderationDashboardService.GetActivity();
-        DashBoardStatistics = await _moderationDashboardService.GetStatistics();
-        IsLoading = false;
+        await base.LoadAsync();
+        if (IsModerator)
+        {
+            IsLoading = true;
+            Activity = await _moderationDashboardService.GetActivity();
+            DashBoardStatistics = await _moderationDashboardService.GetStatistics();
+            IsLoading = false;
+        }
     }
 
     public async Task NavigateToSignalement(int id)
