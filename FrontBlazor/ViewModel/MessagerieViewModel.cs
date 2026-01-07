@@ -45,6 +45,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private System.Threading.Timer? _typingDisplayTimer;
     private bool _typingNotified = false;
 
+    public List<string> ErrorMessages { get; private set; } = new();
     public bool ShowReportModal { get; set; }
     public bool IsSubmittingReport { get; set; }
     private int? ReportingMessageId { get; set; }
@@ -105,14 +106,20 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         }
 
         var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
+        
         Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
-
+        
         await _signalRService.StartAsync();
         
         foreach (var c in Conversations)
         {
             await _signalRService.JoinConversation(c.ConversationId);
+            if (c.ListMessages.LastOrDefault()?.SentByCurrentUser == false && c.ListMessages.LastOrDefault().Lu == false)
+            {
+                c.HasNewMessages = true;
+            }
         }
+        
 
         IsLoading = false;
         NotifyStateChanged();
@@ -586,16 +593,49 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     
     public async Task OnImagesSelectedAsync(InputFileChangeEventArgs e)
     {
-        SelectedFilePreviews.Clear();
+        const int maxFileSize = 10 * 1024 * 1024;
+        const int maxPhotos = 5;
+
+        if (e.GetMultipleFiles().Count > maxPhotos)
+        {
+            AddError($"Maximum {maxPhotos} photos autorisées");
+            return;
+        }
+        
+        // SelectedFilePreviews.Clear();
         SelectedFile = e.GetMultipleFiles().ToList();
 
         foreach (var file in SelectedFile)
         {
-            using var ms = new MemoryStream();
-            await file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(ms);
+            try
+            {
+                if (file.Size > maxFileSize)
+                {
+                    AddError($"{file.Name} est trop volumineux (max 10MB)");
+                    continue;
+                }
 
-            var base64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
-            SelectedFilePreviews.Add((file, base64));
+                if (!file.ContentType.StartsWith("image/"))
+                {
+                    AddError($"{file.Name} n'est pas une image valide");
+                    continue;
+                }
+
+                using var ms = new MemoryStream();
+                await file.OpenReadStream(maxAllowedSize: maxFileSize).CopyToAsync(ms);
+
+                var base64 = Convert.ToBase64String(ms.ToArray());
+                var dataUrl = $"data:{file.ContentType};base64,{base64}";
+
+                SelectedFilePreviews.Add((file, dataUrl));
+
+                Console.WriteLine($"✅ Photo ajoutée: {file.Name} ({file.Size} bytes)");
+            }
+            catch (Exception ex)
+            {
+                AddError($"Erreur lors du chargement de {file.Name}: {ex.Message}");
+                Console.WriteLine($"❌ Erreur photo upload: {ex.Message}");
+            }
         }
 
         NotifyStateChanged();
@@ -695,5 +735,17 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             IsSubmittingReport = false;
             NotifyStateChanged();
         }
+    }
+    
+    private void AddError(string errorMessage)
+    {
+        ErrorMessages.Add(errorMessage);
+        NotifyStateChanged();
+    }
+
+    public void ClearErrors()
+    {
+        ErrorMessages.Clear();
+        NotifyStateChanged();
     }
 }

@@ -1,7 +1,9 @@
+using System.Collections.ObjectModel;
 using Shared.DTO.Message;
 using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Managers;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +24,7 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageValidation, int> _messageValidationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
-    private readonly IPhotoService _photoService;
+    private readonly IPhotoRepository _photoService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub> _hubContext;
@@ -34,7 +36,7 @@ public class MessageController : ControllerBase
         IMessageDemandeRepository messageDemandeManager,
         IDataRepository<MessageValidation, int> messageValidationManager,
         IDataRepository<MessageContientImage, int> messageContientImageManager,
-        IPhotoService photoService,
+        IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
         IHubContext<ChatHub> hubContext)
@@ -78,27 +80,30 @@ public class MessageController : ControllerBase
          
          await _messageTexteManager.AddAsync(messageTexte);
          
-         var listMessageContientPhotos = new List<MessageContientImage>();
+         var listMessageContientPhotos = new Collection<MessageContientImage>();
          var photoIds = new List<int>();
          if (dto.Photos != null)
          {
              foreach (var photoDto in dto.Photos)
              {
-                 var photo = await _photoService.UploadMessagePhotoAsync(photoDto);
+                 var photo = await _photoService.AddPhotoAsync(photoDto);
                  photoIds.Add(photo.PhotoId);
                  if (photo != null)
                  {
-                     await _messageContientImageManager.AddAsync(
-                         new MessageContientImage
-                         {
-                             MessageTexteId = messageTexte.MessageTexteId, 
-                             PhotoId = photo.PhotoId
-                         });
+                     var mesconima = new MessageContientImage
+                     {
+                         MessageTexteId = messageTexte.MessageTexteId,
+                         PhotoId = photo.PhotoId
+                     };
+                     Console.WriteLine($"cjbhekhjwfvbhrewbfvkjfewbrvkhjberkjhfvgkehwgrvkberhwkvgnreiwnhgjkerwhuogvub :{messageTexte.MessageTexteId} + {photo.PhotoId}");
+                     await _messageContientImageManager.AddAsync(mesconima);
+                     listMessageContientPhotos.Add(mesconima);
+                     Console.WriteLine("cjbhekhjwfvbhrewbfvkjfewbrvkhjberkjhfvgkehwgrvkberhwkvgnreiwnhgjkerwhuogvub1212352634823");
                  }
              }
  
          }
-         
+         Console.WriteLine($"Photos liées : {listMessageContientPhotos.Count}");
          messageTexte.Photos = listMessageContientPhotos;
          
          var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);

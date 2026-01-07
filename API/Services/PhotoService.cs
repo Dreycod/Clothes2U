@@ -108,29 +108,11 @@ public class PhotoService : IPhotoService
     
     public async Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto)
     {
-        //using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // Validation métier
-            // var message = await _messageRepository.GetByIdAsync(messageId);
-            // if (message == null)
-            // {
-            //     throw new NotFoundException($"Message {messageId} introuvable");
-            // }
-    
-            
-            // Création de la photo
             var photo = await _photoRepository.AddPhotoAsync(photoDto);
     
-            // Mise à jour de l'utilisateur
-            // var messageContientImage = new MessageContientImage
-            // {
-            //     MessageId = messageId,
-            //     PhotoId = photo.PhotoId
-            // };
-            //
-            // await _messageContientImageRepository.AddAsync(messageContientImage);
-            //await transaction.CommitAsync();
+            
             return photo;
         }
         catch (Exception ex)

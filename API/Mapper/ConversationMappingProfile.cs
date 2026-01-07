@@ -18,14 +18,34 @@ public class ConversationMappingProfile : Profile
                     ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList() 
                     : new List<int>()));
             
+        // CreateMap<Conversation, ConversationDTO>()
+        //     .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+        //     .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
+        //         src.Messages.OrderByDescending(m => m.MessageDate)
+        //             .FirstOrDefault().MessageTexte.Content ?? string.Empty))
+        //     .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
+        //         src.Messages.OrderByDescending(m => m.MessageDate)
+        //             .FirstOrDefault().MessageDate.Date))
+        //     .ForMember(dest => dest.Interlocuteur,
+        //         opt => opt.MapFrom((src, dest, _, context) =>
+        //             (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+        //                 ? src.Vendeur?.UtilisateurVendeur?.Login
+        //                 : src.Acheteur?.UtilisateurAcheteur?.Login
+        //         ))
+        //     .ForMember(dest => dest.PhotoInterlocuteurId,
+        //         opt => opt.MapFrom((src, dest, _, context) =>
+        //             (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
+        //                 ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
+        //                 : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
+        //         ));
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
-                src.Messages.OrderByDescending(m => m.MessageDate)
-                    .FirstOrDefault().MessageTexte.Content ?? string.Empty))
+                    src.Messages.OrderByDescending(m => m.MessageDate)
+                        .FirstOrDefault().MessageTexte.Content ?? string.Empty))
             .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
-                src.Messages.OrderByDescending(m => m.MessageDate)
-                    .FirstOrDefault().MessageDate))
+                    src.Messages.OrderByDescending(m => m.MessageDate)
+                        .FirstOrDefault().MessageDate.Date))
             .ForMember(dest => dest.Interlocuteur,
                 opt => opt.MapFrom((src, dest, _, context) =>
                     (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
@@ -37,9 +57,7 @@ public class ConversationMappingProfile : Profile
                     (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
                         ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
                         : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
-                ));
-        CreateMap<Conversation, ConversationDTO>()
-            .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
+                ))
             .ForMember(dest => dest.TitreAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Title))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix != null ? src.Prix : src.LAnnonce.Prix))
             .ForMember(dest => dest.PrixAnnonce, opt => opt.MapFrom(src => src.LAnnonce.Prix))
@@ -70,7 +88,7 @@ public class ConversationMappingProfile : Profile
                             SenderName = message.Utilisateur?.Login ?? string.Empty,
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             Content = message.MessageTexte.Content ?? string.Empty,
-                            Photos = new List<int>(message.MessageTexte.Photos?.Select(p => p.PhotoId).ToList()) ?? new List<int>()
+                            Photos = new List<int>(message.MessageTexte.Photos.Select(p => p.PhotoId).ToList() ?? new List<int>())
                         };
                     }
                     else if (message.MessageDemande != null)

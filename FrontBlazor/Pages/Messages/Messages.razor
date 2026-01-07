@@ -34,14 +34,25 @@
                             </div>
                             <div class="conversation-info">
                                 <h3 class="conversation-name">
-                                    @conversation.Interlocuteur
-                                    @conversation.TitreAnnonce
+                                    <span class="conversation-title">@conversation.TitreAnnonce</span>
+                                    <span class="conversation-interlocuteur">@conversation.Interlocuteur</span>
+                                    
                                     @if (conversation.HasNewMessages)
                                     {
                                         <span class="new-indicator">Nouveau</span>
                                     }
+                                    
                                 </h3>
                                 <p class="conversation-preview @(conversation.HasNewMessages ? "unread" : "")">
+                                    @if (conversation.ListMessages != null && conversation.ListMessages.Any())
+                                    {
+                                        var lastMessage = conversation.ListMessages.Last();
+                                        if (lastMessage.TypeMessage == "Demande")
+                                        {
+                                            <i class="bi bi-tag-fill"></i>
+                                            <span>Nouvelle proposition de prix</span>
+                                        }
+                                    }
                                     @conversation.LastMessage
                                 </p>
                                 
