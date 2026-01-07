@@ -26,6 +26,7 @@ public class ClientBaseViewModel
     public bool showDropDownNotification { get; set; }
     public bool LoadingNotifications { get; set; }
     public bool IsLoadingBase { get; set; }
+    public string RoleUtilisateur { get; set; }
 
     #endregion
     public ClientBaseViewModel(
@@ -53,10 +54,12 @@ public class ClientBaseViewModel
         {
             IsLoggedIn = true;
             utilisateur = user;
+            RoleUtilisateur = user.RoleUtilisateur;
+            Console.WriteLine($"User role: {RoleUtilisateur}");
             if (user.StatutId != 1)
             {
                 _nav.NavigateTo("/Sanction");
-            }  
+            }
         }
         else
         {
