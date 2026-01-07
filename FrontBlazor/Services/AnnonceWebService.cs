@@ -153,4 +153,10 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
         return annonces ?? new List<AnnonceDTO>();
     }
+
+    public async Task VendreAnnonce(int AnnonceId)
+    {
+        var response = await PutWithCredentialsAsync($"Annonce/Vendu/{AnnonceId}", null);
+        response.EnsureSuccessStatusCode();
+    }
 }

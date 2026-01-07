@@ -23,9 +23,6 @@
                 <i class="bi bi-exclamation-triangle"></i>
                 <h2>Erreur</h2>
                 <p>@VM.ErrorMessage</p>
-                @* <button class="btn-primary" @onclick="() => Navigation.NavigateTo(hfg)"> *@
-                @*     Retour à l'accueil *@
-                @* </button> *@
             </div>
         }
         else if (VM.SelectedAnnonce != null)
@@ -141,7 +138,7 @@
                                     }
                                 </div>
 
-                                <button class="btn-link" @onclick="AddNewAddress">
+                                <button class="btn-link" @onclick="ShowAddAddressModal">
                                     <i class="bi bi-plus-circle"></i> Ajouter une nouvelle adresse
                                 </button>
                             }
@@ -212,12 +209,12 @@
                                 Le vendeur va préparer votre colis et vous recevrez un numéro de suivi prochainement.
                             </p>
                             <div class="action-buttons">
-                            @*     <button class="btn-secondary" @onclick="() => Navigation.NavigateTo(orders)"> *@
-                            @*         Voir mes commandes *@
-                            @*     </button> *@
-                            @* <button class="btn-primary" @onclick="() => Navigation.NavigateTo()"> *@
-                            @*         Retour à l'accueil *@
-                            @*     </button> *@
+                                @* <button class="btn-secondary" @onclick="() => Navigation.NavigateTo("/orders")"> *@
+                                @*     Voir mes commandes *@
+                                @* </button> *@
+                                @* <button class="btn-primary" @onclick="() => Navigation.NavigateTo("/")"> *@
+                                @*     Retour à l'accueil *@
+                                @* </button> *@
                             </div>
                         </div>
                     }
@@ -227,24 +224,143 @@
     </div>
 </div>
 
+<!-- Modal d'ajout d'adresse -->
+@if (showAddAddressModal && VM.CurrentUser != null)
+{
+    <AddAddress UserId="@VM.CurrentUser.UtilisateurId"
+                     OnAddressAdded="HandleAddressAdded"
+                     OnCancelled="() => showAddAddressModal = false" />
+}
+
 @code {
     [Parameter]
     public int ConversationId { get; set; }
+    
+    private bool showAddAddressModal = false;
+    private bool stripeInitialized = false;
+    private bool elementsInitialized = false; // ✅ NEW: Track Elements separately
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
+    
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        VM.OnChange += StateHasChanged;
+        VM.OnChange += OnVmChange;
+
+        // 🔑 ÉTAPE 1 : Initialiser Stripe avec la clé publique
+        await InitializeStripeAsync();
+
+        // ÉTAPE 2 : Charger les données
         await VM.LoadAsync(ConversationId);
+    }
+    
+    private async Task InitializeStripeAsync()
+    {
+        try
+        {
+            Console.WriteLine("[Acheter] 🔧 Fetching Stripe key...");
+            
+            // Récupérer la clé publique depuis l'API
+            var response = await Http.GetFromJsonAsync<PublishableKeyResponse>("Payment/publishable-key");
+            Console.WriteLine($"bfhdsgfjdgafghgsdgf {response}");
+            if (response?.PublishableKey != null)
+            {
+                Console.WriteLine($"[Acheter] 📥 Got key: {response.PublishableKey.Substring(0, 20)}...");
+                
+                // ✅ FIX: Add try-catch and proper boolean handling
+                try
+                {
+                    var success = await JSRuntime.InvokeAsync<bool>("initializeStripe", response.PublishableKey);
+                    
+                    if (success)
+                    {
+                        Console.WriteLine("[Acheter] ✅ Stripe initialized!");
+                        stripeInitialized = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("[Acheter] ❌ Failed to init Stripe");
+                        //VM.ErrorMessage = "Erreur lors de l'initialisation du paiement";
+                    }
+                }
+                catch (Exception jsEx)
+                {
+                    Console.WriteLine($"[Acheter] ❌ JS Interop error: {jsEx.Message}");
+                    stripeInitialized = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Acheter] ❌ Error: {ex.Message}");
+        }
+    }
+    
+    private void OnVmChange()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            
+            // ✅ FIX: Initialize Elements when transitioning to payment step
+            if (VM.CurrentStep == PurchaseStep.Payment 
+                && !elementsInitialized 
+                && stripeInitialized 
+                && !string.IsNullOrEmpty(VM.StripeClientSecret))
+            {
+                await InitializeStripeElementsAsync();
+            }
+        });
+    }
+
+    public void ShowAddAddressModal()
+    {
+        showAddAddressModal = true;
+        OnVmChange();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && VM.CurrentStep == PurchaseStep.Payment && !string.IsNullOrEmpty(VM.StripeClientSecret))
+        // ✅ FIX: Initialize Elements in OnAfterRender
+        if (VM.CurrentStep == PurchaseStep.Payment 
+            && !elementsInitialized
+            && stripeInitialized
+            && !string.IsNullOrEmpty(VM.StripeClientSecret))
         {
-            await JSRuntime.InvokeVoidAsync("initializeStripeElements", VM.StripeClientSecret);
+            await InitializeStripeElementsAsync();
+        }
+    }
+    
+    // ✅ NEW: Separate method for initializing Elements
+    private async Task InitializeStripeElementsAsync()
+    {
+        if (elementsInitialized) return; // Prevent double initialization
+        
+        try
+        {
+            Console.WriteLine("[Acheter] 🎨 Initializing Stripe Elements...");
+            
+            // Petit délai pour s'assurer que le DOM est prêt
+            await Task.Delay(300);
+            
+            var success = await JSRuntime.InvokeAsync<bool>("initializeStripeElements", VM.StripeClientSecret);
+            
+            if (success)
+            {
+                Console.WriteLine("[Acheter] ✅ Elements initialized!");
+                elementsInitialized = true;
+            }
+            else
+            {
+                Console.WriteLine("[Acheter] ❌ Elements initialization failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Acheter] ❌ Error initializing Elements: {ex.Message}");
         }
     }
 
@@ -253,6 +369,8 @@
         var success = await VM.ConfirmPayment();
         if (success)
         {
+            // ✅ Reset Elements flag for next time
+            elementsInitialized = false;
             StateHasChanged();
         }
     }
@@ -261,10 +379,398 @@
     {
         Navigation.NavigateTo($"/profile/addresses/?returnUrl=/acheter/{ConversationId}");
     }
+    
+    private async Task HandleAddressAdded(AdresseDTO newAddress)
+    {
+        showAddAddressModal = false;
+        
+        // Recharger les adresses et sélectionner la nouvelle
+        await VM.LoadAsync(ConversationId);
+        VM.SelectAddress(newAddress);
+        
+        StateHasChanged();
+    }
 
     public void Dispose()
     {
-        VM.OnChange -= StateHasChanged;
+        VM.OnChange -= OnVmChange;
+        
+        // ✅ Cleanup Stripe Elements
+        try
+        {
+            JSRuntime.InvokeVoidAsync("destroyStripeElements");
+        }
+        catch { /* Ignore cleanup errors */ }
+    }
+    
+    public class PublishableKeyResponse
+    {
+        public string PublishableKey { get; set; } = "";
     }
 }
-}
+
+@* @page "/acheter/{ConversationId:int}" *@
+@* @inject AcheterViewModel VM *@
+@* @inject IJSRuntime JSRuntime *@
+@* @implements IDisposable *@
+@* *@
+@* <PageTitle>Achat - Clothes2U</PageTitle> *@
+@* *@
+@* <NavBar /> *@
+@* *@
+@* <div class="purchase-page"> *@
+@*     <div class="purchase-container"> *@
+@*         @if (VM.IsLoading) *@
+@*         { *@
+@*             <div class="loading-state"> *@
+@*                 <div class="spinner"></div> *@
+@*                 <p>Chargement...</p> *@
+@*             </div> *@
+@*         } *@
+@*         else if (!string.IsNullOrEmpty(VM.ErrorMessage)) *@
+@*         { *@
+@*             <div class="error-state"> *@
+@*                 <i class="bi bi-exclamation-triangle"></i> *@
+@*                 <h2>Erreur</h2> *@
+@*                 <p>@VM.ErrorMessage</p> *@
+@*                 $1$ <button class="btn-primary" @onclick="() => Navigation.NavigateTo(hfg)"> #1# *@
+@*                 $1$     Retour à l'accueil #1# *@
+@*                 $1$ </button> #1# *@
+@*             </div> *@
+@*         } *@
+@*         else if (VM.SelectedAnnonce != null) *@
+@*         { *@
+@*             <!-- Progress Steps --> *@
+@*             <div class="progress-steps"> *@
+@*                 <div class="step @(VM.CurrentStep >= PurchaseStep.AddressSelection ? "active" : "")"> *@
+@*                     <div class="step-circle">1</div> *@
+@*                     <span>Adresse</span> *@
+@*                 </div> *@
+@*                 <div class="step-line @(VM.CurrentStep >= PurchaseStep.Payment ? "active" : "")"></div> *@
+@*                 <div class="step @(VM.CurrentStep >= PurchaseStep.Payment ? "active" : "")"> *@
+@*                     <div class="step-circle">2</div> *@
+@*                     <span>Paiement</span> *@
+@*                 </div> *@
+@*                 <div class="step-line @(VM.CurrentStep >= PurchaseStep.Success ? "active" : "")"></div> *@
+@*                 <div class="step @(VM.CurrentStep >= PurchaseStep.Success ? "active" : "")"> *@
+@*                     <div class="step-circle">3</div> *@
+@*                     <span>Confirmation</span> *@
+@*                 </div> *@
+@*             </div> *@
+@* *@
+@*             <div class="purchase-content"> *@
+@*                 <!-- Sidebar - Récapitulatif --> *@
+@*                 <aside class="order-summary"> *@
+@*                     <h2>Récapitulatif</h2> *@
+@*                      *@
+@*                     <div class="product-info"> *@
+@*                         @if (VM.SelectedAnnonce.Photos != null && VM.SelectedAnnonce.Photos.Any()) *@
+@*                         { *@
+@*                             <img src="@VM.SelectedAnnonce.Photos[0]" alt="@VM.SelectedAnnonce.Title" /> *@
+@*                         } *@
+@*                         else *@
+@*                         { *@
+@*                             <img src="/images/no-image.png" alt="Aucune image disponible" /> *@
+@*                         } *@
+@*                         <div> *@
+@*                             <h3>@VM.SelectedAnnonce.Title</h3> *@
+@*                             <p class="product-size">Taille: @VM.SelectedAnnonce.Taille</p> *@
+@*                         </div> *@
+@*                     </div> *@
+@* *@
+@*                     <div class="price-breakdown"> *@
+@*                         <div class="price-row"> *@
+@*                             <span>Prix de l'article</span> *@
+@*                             <span>@string.Format("{0:F2}", VM.ProductPrice) €</span> *@
+@*                         </div> *@
+@*                         <div class="price-row"> *@
+@*                             <span>Frais de service</span> *@
+@*                             <span>@string.Format("{0:F2}", VM.ServiceFee) €</span> *@
+@*                         </div> *@
+@*                         <div class="price-row"> *@
+@*                             <span>Frais de livraison</span> *@
+@*                             <span>@string.Format("{0:F2}", VM.ShippingCost) €</span> *@
+@*                         </div> *@
+@*                         <div class="price-row total"> *@
+@*                             <span>Total</span> *@
+@*                             <span>@string.Format("{0:F2}", VM.TotalAmount) €</span> *@
+@*                         </div> *@
+@*                     </div> *@
+@* *@
+@*                     @if (VM.SelectedAddress != null) *@
+@*                     { *@
+@*                         <div class="selected-address"> *@
+@*                             <h4>Adresse de livraison</h4> *@
+@*                             <p>@VM.SelectedAddress.AdresseRue</p> *@
+@*                             <p>@VM.SelectedAddress.AdresseCodePostal @VM.SelectedAddress.AdresseVille</p> *@
+@*                             <p>@VM.SelectedAddress.AdressePays</p> *@
+@*                         </div> *@
+@*                     } *@
+@*                 </aside> *@
+@* *@
+@*                 <!-- Main Content --> *@
+@*                 <main class="purchase-main"> *@
+@*                     @if (VM.CurrentStep == PurchaseStep.AddressSelection) *@
+@*                     { *@
+@*                         <div class="address-selection"> *@
+@*                             <h1>Sélectionnez une adresse de livraison</h1> *@
+@* *@
+@*                             @if (!VM.UserAddresses.Any()) *@
+@*                             { *@
+@*                                 <div class="empty-state"> *@
+@*                                     <i class="bi bi-house"></i> *@
+@*                                     <p>Vous n'avez pas d'adresse enregistrée</p> *@
+@*                                     <button class="btn-secondary" @onclick="AddNewAddress"> *@
+@*                                         Ajouter une adresse *@
+@*                                     </button> *@
+@*                                 </div> *@
+@*                             } *@
+@*                             else *@
+@*                             { *@
+@*                                 <div class="address-list"> *@
+@*                                     @foreach (var address in VM.UserAddresses) *@
+@*                                     { *@
+@*                                         <div class="address-card @(VM.SelectedAddress?.AdresseId == address.AdresseId ? "selected" : "")" *@
+@*                                              @onclick="() => VM.SelectAddress(address)"> *@
+@*                                             <div class="address-content"> *@
+@*                                                 <h3> *@
+@*                                                     @address.AdresseRue *@
+@*                                                     @if (address.IsDefault) *@
+@*                                                     { *@
+@*                                                         <span class="badge">Par défaut</span> *@
+@*                                                     } *@
+@*                                                 </h3> *@
+@*                                                 <p>@address.AdresseCodePostal @address.AdresseVille</p> *@
+@*                                                 <p>@address.AdressePays</p> *@
+@*                                             </div> *@
+@*                                             @if (VM.SelectedAddress?.AdresseId == address.AdresseId) *@
+@*                                             { *@
+@*                                                 <i class="bi bi-check-circle-fill"></i> *@
+@*                                             } *@
+@*                                         </div> *@
+@*                                     } *@
+@*                                 </div> *@
+@* *@
+@*                                 <button class="btn-link" @onclick="ShowAddAddressModal"> *@
+@*                                     <i class="bi bi-plus-circle"></i> Ajouter une nouvelle adresse *@
+@*                                 </button> *@
+@*                             } *@
+@* *@
+@*                             <div class="action-buttons"> *@
+@*                                 <button class="btn-secondary" @onclick="VM.GoBack"> *@
+@*                                     Retour *@
+@*                                 </button> *@
+@*                                 <button class="btn-primary"  *@
+@*                                         @onclick="VM.ProceedToPayment" *@
+@*                                         disabled="@(VM.SelectedAddress == null)"> *@
+@*                                     Continuer vers le paiement *@
+@*                                 </button> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     } *@
+@*                     else if (VM.CurrentStep == PurchaseStep.Payment) *@
+@*                     { *@
+@*                         <div id="payment-element"></div> *@
+@*                         <div class="payment-section"> *@
+@*                             <h1>Paiement sécurisé</h1> *@
+@*                              *@
+@*                             <div class="payment-badges"> *@
+@*                                 <i class="bi bi-shield-check"></i> *@
+@*                                 <span>Paiement sécurisé par Stripe</span> *@
+@*                             </div> *@
+@* *@
+@*                             <!-- Stripe Payment Element --> *@
+@*                             <div id="payment-element"></div> *@
+@*                              *@
+@*                             @if (!string.IsNullOrEmpty(VM.ErrorMessage)) *@
+@*                             { *@
+@*                                 <div class="error-message"> *@
+@*                                     <i class="bi bi-exclamation-circle"></i> *@
+@*                                     @VM.ErrorMessage *@
+@*                                 </div> *@
+@*                             } *@
+@* *@
+@*                             <div class="action-buttons"> *@
+@*                                 <button class="btn-secondary" @onclick="VM.GoBack"> *@
+@*                                     Retour *@
+@*                                 </button> *@
+@*                                 <button class="btn-primary"  *@
+@*                                         @onclick="HandlePayment" *@
+@*                                         disabled="@VM.IsProcessingPayment"> *@
+@*                                     @if (VM.IsProcessingPayment) *@
+@*                                     { *@
+@*                                         <span class="spinner-small"></span> *@
+@*                                         <text>Traitement en cours...</text> *@
+@*                                     } *@
+@*                                     else *@
+@*                                     { *@
+@*                                         <text>Payer @string.Format("{0:F2}", VM.TotalAmount) €</text> *@
+@*                                     } *@
+@*                                 </button> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     } *@
+@*                     else if (VM.CurrentStep == PurchaseStep.Success) *@
+@*                     { *@
+@*                         <div class="success-state"> *@
+@*                             <div class="success-icon"> *@
+@*                                 <i class="bi bi-check-circle"></i> *@
+@*                             </div> *@
+@*                             <h1>Commande confirmée !</h1> *@
+@*                             <p>Votre achat a été effectué avec succès.</p> *@
+@*                             <p class="success-details"> *@
+@*                                 Un email de confirmation a été envoyé à votre adresse. *@
+@*                                 Le vendeur va préparer votre colis et vous recevrez un numéro de suivi prochainement. *@
+@*                             </p> *@
+@*                             <div class="action-buttons"> *@
+@*                                 $1$     <button class="btn-secondary" @onclick="() => Navigation.NavigateTo(orders)"> #1# *@
+@*                                 $1$         Voir mes commandes #1# *@
+@*                                 $1$     </button> #1# *@
+@*                                 $1$ <button class="btn-primary" @onclick="() => Navigation.NavigateTo()"> #1# *@
+@*                                 $1$         Retour à l'accueil #1# *@
+@*                                 $1$     </button> #1# *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     } *@
+@*                 </main> *@
+@*             </div> *@
+@*         } *@
+@*     </div> *@
+@* </div> *@
+@* *@
+@* <!-- Modal d'ajout d'adresse --> *@
+@* @if (showAddAddressModal && VM.CurrentUser != null) *@
+@* { *@
+@*     <AddAddress UserId="@VM.CurrentUser.UtilisateurId" *@
+@*                      OnAddressAdded="HandleAddressAdded" *@
+@*                      OnCancelled="() => showAddAddressModal = false" /> *@
+@* } *@
+@* *@
+@* @code { *@
+@*     [Parameter] *@
+@*     public int ConversationId { get; set; } *@
+@*      *@
+@*     private bool showAddAddressModal = false; *@
+@*     private bool stripeInitialized = false; *@
+@* *@
+@*     [Inject] *@
+@*     private NavigationManager Navigation { get; set; } = null!; *@
+@*      *@
+@*     [Inject] *@
+@*     private HttpClient Http { get; set; } = null!; *@
+@* *@
+@*     protected override async Task OnInitializedAsync() *@
+@*     { *@
+@*         VM.OnChange += OnVmChange; *@
+@* *@
+@*         // 🔑 ÉTAPE 1 : Initialiser Stripe avec la clé publique *@
+@*         await InitializeStripeAsync(); *@
+@* *@
+@*         // ÉTAPE 2 : Charger les données *@
+@*         await VM.LoadAsync(ConversationId); *@
+@*     } *@
+@*      *@
+@*     private async Task InitializeStripeAsync() *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             Console.WriteLine("[Acheter] 🔧 Fetching Stripe key..."); *@
+@*              *@
+@*             // Récupérer la clé publique depuis l'API *@
+@*             var response = await Http.GetFromJsonAsync<PublishableKeyResponse>("Payment/publishable-key"); *@
+@*              *@
+@*             if (response?.PublishableKey != null) *@
+@*             { *@
+@*                 Console.WriteLine($"[Acheter] 📥 Got key: {response.PublishableKey.Substring(0, 20)}..."); *@
+@*                  *@
+@*                 // Initialiser Stripe *@
+@*                 var success = await JSRuntime.InvokeAsync<bool>("initializeStripe", response.PublishableKey); *@
+@*                  *@
+@*                 if (success) *@
+@*                 { *@
+@*                     Console.WriteLine("[Acheter] ✅ Stripe initialized!"); *@
+@*                     stripeInitialized = true; *@
+@*                 } *@
+@*                 else *@
+@*                 { *@
+@*                     Console.WriteLine("[Acheter] ❌ Failed to init Stripe"); *@
+@*                 } *@
+@*             } *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             Console.WriteLine($"[Acheter] ❌ Error: {ex.Message}"); *@
+@*         } *@
+@*     } *@
+@*      *@
+@*     private void OnVmChange() *@
+@*     { *@
+@*         _ = InvokeAsync(StateHasChanged); *@
+@*     } *@
+@* *@
+@*     public void ShowAddAddressModal() *@
+@*     { *@
+@*         showAddAddressModal = true; *@
+@*         OnVmChange(); *@
+@*     } *@
+@* *@
+@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*     { *@
+@*         // Initialiser les Elements quand on arrive sur la page de paiement *@
+@*         if (VM.CurrentStep == PurchaseStep.Payment  *@
+@*             && !string.IsNullOrEmpty(VM.StripeClientSecret) *@
+@*             && stripeInitialized) *@
+@*         { *@
+@*             try *@
+@*             { *@
+@*                 Console.WriteLine("[Acheter] 🎨 Initializing Stripe Elements..."); *@
+@*                  *@
+@*                 // Petit délai pour s'assurer que le DOM est prêt *@
+@*                 await Task.Delay(200); *@
+@*                  *@
+@*                 await JSRuntime.InvokeVoidAsync("initializeStripeElements", VM.StripeClientSecret); *@
+@*                  *@
+@*                 Console.WriteLine("[Acheter] ✅ Elements initialized!"); *@
+@*             } *@
+@*             catch (Exception ex) *@
+@*             { *@
+@*                 Console.WriteLine($"[Acheter] ❌ Error initializing Elements: {ex.Message}"); *@
+@*             } *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task HandlePayment() *@
+@*     { *@
+@*         var success = await VM.ConfirmPayment(); *@
+@*         if (success) *@
+@*         { *@
+@*             StateHasChanged(); *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private void AddNewAddress() *@
+@*     { *@
+@*         Navigation.NavigateTo($"/profile/addresses/?returnUrl=/acheter/{ConversationId}"); *@
+@*     } *@
+@*      *@
+@*     private async Task HandleAddressAdded(AdresseDTO newAddress) *@
+@*     { *@
+@*         showAddAddressModal = false; *@
+@*          *@
+@*         // Recharger les adresses et sélectionner la nouvelle *@
+@*         await VM.LoadAsync(ConversationId); *@
+@*         VM.SelectAddress(newAddress); *@
+@*          *@
+@*         StateHasChanged(); *@
+@*     } *@
+@* *@
+@*     public void Dispose() *@
+@*     { *@
+@*         VM.OnChange -= OnVmChange; *@
+@*     } *@
+@*      *@
+@*     public class PublishableKeyResponse *@
+@*     { *@
+@*         public string PublishableKey { get; set; } = ""; *@
+@*     } *@
+@* } *@

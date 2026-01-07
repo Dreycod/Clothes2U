@@ -55,6 +55,7 @@ builder.Services.AddScoped<IMesureService, MesureWebService>();
 builder.Services.AddScoped<IOrderService, OrderWebService>();
 builder.Services.AddScoped<IPaymentService, PaymentWebService>();
 builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<StripeWebService>();
 
 
 //caracteristiques

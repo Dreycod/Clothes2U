@@ -51,7 +51,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
         IPaymentService paymentService,
         IAnnonceService annonceService,
         IConversationService<ConversationDTO> conversationService,
-        //IOrderService orderService,
+        IOrderService orderService,
         NavigationManager nav,
         NavigationManager navigationManager,
         INotificationService notificationService,
@@ -61,7 +61,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
         _paymentService = paymentService;
         _annonceService = annonceService;
         _conversationService = conversationService;
-        //_orderService = orderService;
+        _orderService = orderService;
         _nav = nav;
         _jsRuntime = jsRuntime;
     }
@@ -192,6 +192,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
             NotifyStateChanged();
         }
     }
+    
 
     public async Task<bool> ConfirmPayment()
     {
@@ -245,13 +246,15 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
             StripePaymentIntentId = paymentIntentId,
             StatutCommande = "Payée"
         };
-
+        
+        Console.WriteLine("bchjdsfgcjherfgcjkhgercgy");
+        
         await _orderService.CreateOrderAsync(order);
 
         SelectedAnnonce.EtatArticle = "Vendu";
         
         // Mettre à jour le statut de l'annonce
-        await _annonceService.ModificationAnnonce(SelectedAnnonce);
+        await _annonceService.VendreAnnonce(SelectedAnnonce.AnnonceId);
     }
 
     public void GoBack()
