@@ -1,0 +1,11 @@
+@using Shared.DTO.Recense
+
+
+<div class="annonce-tag">
+    <span>@Tag?.LibelleTag</span>
+</div>
+
+@code {
+    [Parameter] 
+    public RecenseDetailDTO Tag { get; set; } = null!;
+}

@@ -19,6 +19,7 @@ using Shared.DTO.Couleur;
 using Shared.DTO.Favoris;
 using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Photo;
+using Shared.DTO.Recense;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IMesureService, MesureWebService>();
 builder.Services.AddScoped<IOrderService, OrderWebService>();
 builder.Services.AddScoped<IPaymentService, PaymentWebService>();
 builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<IRecenseService<RecenseDetailDTO>, RecenseWebService>();
 
 
 //caracteristiques
