@@ -258,6 +258,8 @@ builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
 builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+builder.Services.AddScoped<IDetectionService, DetectionService>();
+
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();
 builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();
