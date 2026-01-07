@@ -1,0 +1,11 @@
+﻿.annonce-tag {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.625rem 1rem 0.2rem;
+    background: #969696;
+    color: #ffffff;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}

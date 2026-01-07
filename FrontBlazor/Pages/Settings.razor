@@ -1,6 +1,7 @@
 ﻿@page "/settings"
-@inject NavigationManager NavigationManager
+@layout ClientLayout
 @inject SettingsViewModel VM_Settings
+@inject NavigationManager NavigationManager
 
 <PageTitle>Paramètres - Clothes2U</PageTitle>
 
@@ -24,17 +25,18 @@
 
             <div class="settings-tabs">
                 <button class="tab-btn @(VM_Settings.ActiveTab == "account" ? "active" : "")"
-                        @onclick='() => VM_Settings.SetActiveTab("account")'>
+                        @onclick='async () => await VM_Settings.SetActiveTab("account")'>
+
                     <i class="bi bi-person"></i>
                     <span>Compte</span>
                 </button>
                 <button class="tab-btn @(VM_Settings.ActiveTab == "security" ? "active" : "")"
-                        @onclick='() => VM_Settings.SetActiveTab("security")'>
+                        @onclick='async () => await VM_Settings.SetActiveTab("security")'>
                     <i class="bi bi-shield-lock"></i>
                     <span>Sécurité</span>
                 </button>
                 <button class="tab-btn @(VM_Settings.ActiveTab == "blocked" ? "active" : "")"
-                        @onclick='() => VM_Settings.SetActiveTab("blocked")'>
+                        @onclick='async () => await VM_Settings.SetActiveTab("blocked")'>
                     <i class="bi bi-person-x"></i>
                     <span>Utilisateurs bloqués</span>
                 </button>
@@ -183,7 +185,11 @@
                             </div>
                             <div class="card-body">
                                 <p class="preference-description">Choisissez comment vous souhaitez recevoir les notifications</p>
-                                
+                                <button class="tab-btn"
+                                        @onclick='() => NavigationManager.NavigateTo("/verification")'>
+                                    <i class="bi bi-shield-check"></i>
+                                    <span>Vérifiez ici votre compte</span>
+                                </button>
                                 @if (!VM_Settings.CurrentUser.ValidEmail == true)
                                 {
                                     <div class="alert alert-warning">
@@ -308,7 +314,7 @@
                                     <p>Chargement des utilisateurs bloqués...</p>
                                 </div>
                             }
-                            else if (VM_Settings.UtilisateursBloques != null || VM_Settings.UtilisateursBloques.Any())
+                            else if (VM_Settings.UtilisateursBloques != null && VM_Settings.UtilisateursBloques.Any())
                             {
                                 <div class="blocked-users-list">
                                     @foreach (BloqueDetailDTO user in VM_Settings.UtilisateursBloques)

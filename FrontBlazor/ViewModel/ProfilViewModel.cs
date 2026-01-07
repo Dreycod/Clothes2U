@@ -3,6 +3,7 @@ using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Xml.Linq;
+using FrontBlazor.ViewModel.Generic;
 using Shared.DTO.Favoris;
 using Shared.DTO.Abonnement;
 using Shared.DTO.Photo;
@@ -13,7 +14,7 @@ using Shared.DTO.Signalement;
 
 namespace FrontBlazor.ViewModel
 {
-    public class ProfilViewModel : BaseViewModel
+    public class ProfilViewModel : ClientBaseViewModel
     {
         #region Variables
         public UtilisateurViewDTO? ViewingUser { get; set; } = null;
@@ -84,8 +85,11 @@ namespace FrontBlazor.ViewModel
             IAbonnementService<AbonnementDTO> abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
-            IMediasService mediasService, ISignalementService signalementService, IBloqueService bloqueService)
-        : base(authService, navigationManager )
+            IMediasService mediasService,
+            ISignalementService signalementService,
+            IBloqueService bloqueService,
+            INotificationService notificationService)
+        : base(navigationManager, authService, notificationService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -106,7 +110,7 @@ namespace FrontBlazor.ViewModel
             IsLoading = true;
             UserNotFound = false;
             UserSuspended = false;
-            await VerifiyAccountAsync();
+            await base.LoadAsync();
             await LoadCurrentUserId();
             try
             {

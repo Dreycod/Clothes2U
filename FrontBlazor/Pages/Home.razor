@@ -1,82 +1,125 @@
 ﻿@page "/"
+@layout ClientLayout
 @inject IJSRuntime JS
 @inject HomeViewModel VM_Home
 @inject NavigationManager navigationManager
-@inject LoginViewModel VM_Connexion
-
 <PageTitle>Clothes2U - Home</PageTitle>
 
-<NavBar />
-
-@if (VM_Home.IsLoading)
-{
-    <div class="loader"></div>
-}
-else
-{
-    <!-- Recents Section -->
-    <div id="recent" class="section-container">
-        <div class="section-header">
-            <h2 class="section-title">RECENTS</h2>
-            <div class="carousel-controls">
-                <button class="carousel-btn">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="carousel-btn">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-        <!-- Products Grid -->
-        <div class="products-section">
-            @if (VM_Home.IsLoading)
-            {
-                <div class="loading-state">
-                    <p class="spinner-small"></p> Chargement des annonces...
-                </div>
-            }
-            else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
-            {
-                <div class="error-state">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <p>@VM_Home.ErrorMessage</p>
-                    <button class="btn-retry" @onclick="async () => await VM_Home.LoadRecentAnnonces()">Réessayer</button>
-                </div>
-            }
-            else if (VM_Home.AnnoncesRecents == null || !VM_Home.AnnoncesRecents.Any())
-            {
-                <div class="loading-state">
-                    <p class="spinner-small"></p> Chargement des annonces...
-                </div>
-            }
-            else
-            {
-                <div class="product-grid">
-                    @foreach (var annonce in VM_Home.AnnoncesRecents)
-                    {
-                        <AnnonceCard annonceComponent="annonce"
-                                     OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
-                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)" />
-                    }
-                </div>
-            }
+<!-- Recents Section -->
+<div id="recent" class="section-container">
+    <div class="section-header">
+        <h2 class="section-title">RECENTS</h2>
+        <div class="carousel-controls">
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
     </div>
+    <!-- Products Grid -->
+    <div class="products-section">
+        @if (VM_Home.IsLoading)
+        {
+            <div class="loading-state">
+                <p class="spinner-small"></p> Chargement des annonces...
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
+        {
+            <div class="error-state">
+                <i class="bi bi-exclamation-circle"></i>
+                <p>@VM_Home.ErrorMessage</p>
+                <button class="btn-retry" @onclick="async () => await VM_Home.LoadRecentAnnonces()">Réessayer</button>
+            </div>
+        }
+        else if (VM_Home.AnnoncesRecents == null || !VM_Home.AnnoncesRecents.Any())
+        {
+            <div class="loading-state">
+                <p class="spinner-small"></p> Chargement des annonces...
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var annonce in VM_Home.AnnoncesRecents)
+                {
+                    <AnnonceCard annonceComponent="annonce"
+                                 OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
+                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)" />
+                }
+            </div>
+        }
+    </div>
+</div>
 
-    <!-- Populaires Section -->
-    <div id="tendance" class="section-container">
+<!-- Populaires Section -->
+<div id="tendance" class="section-container">
+    <div class="section-header">
+        <h2 class="section-title">POPULAIRES</h2>
+        <div class="carousel-controls">
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-btn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <!-- Products Grid -->
+    <div class="products-section">
+        @if (VM_Home.IsLoading)
+        {
+            <div class="loading-state">
+                <p class="spinner-small"></p> Chargement des annonces...
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
+        {
+            <div class="error-state">
+                <i class="bi bi-exclamation-circle"></i>
+                <p>@VM_Home.ErrorMessage</p>
+                <button class="btn-retry" @onclick="async () => await VM_Home.LoadPopularAnnonces()">Réessayer</button>
+            </div>
+        }
+        else if (VM_Home.AnnoncesPopulaires == null || !VM_Home.AnnoncesPopulaires.Any())
+        {
+            <div class="loading-state">
+                <p class="spinner-small"></p> Chargement des annonces...
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var annonce in VM_Home.AnnoncesPopulaires)
+                {
+                    <AnnonceCard annonceComponent="annonce"
+                                 OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
+                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)" />
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@if (VM_Home.IsLoggedIn)
+{
+    <!-- Recommendations Section -->
+    <div class="section-container">
         <div class="section-header">
-            <h2 class="section-title">POPULAIRES</h2>
+            <h2 class="section-title">RECOMMENDATIONS</h2>
             <div class="carousel-controls">
-                <button class="carousel-btn">
+                <button class="carousel-btn"
+                        @onclick="VM_Home.PreviousRecommandation">
                     <i class="bi bi-chevron-left"></i>
                 </button>
-                <button class="carousel-btn">
+                <button class="carousel-btn"
+                        @onclick="VM_Home.NextRecommandation">
                     <i class="bi bi-chevron-right"></i>
-                </button>
+                </button>   
             </div>
         </div>
-        <!-- Products Grid -->
         <div class="products-section">
             @if (VM_Home.IsLoading)
             {
@@ -101,7 +144,7 @@ else
             else
             {
                 <div class="product-grid">
-                    @foreach (var annonce in VM_Home.AnnoncesPopulaires)
+                    @foreach(AnnonceDTO annonce in VM_Home.AnnoncesRecommended)
                     {
                         <AnnonceCard annonceComponent="annonce"
                                      OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
@@ -111,114 +154,69 @@ else
             }
         </div>
     </div>
-
-
-    <!-- Recommendations Section -->
-    <div class="section-container">
-        <div class="section-header">
-            <h2 class="section-title">RECOMMENDATIONS</h2>
-            <div class="carousel-controls">
-                <button class="carousel-btn">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="carousel-btn">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="product-grid">
-            @for (int i = 0; i < 6; i++)
-            {
-                <div class="product-card">
-                    <div class="product-image-container">
-                        <div class="product-image"></div>
-                        <button class="wishlist-btn">
-                            <i class="bi bi-heart"></i>
-                        </button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Template</h3>
-                        <div class="product-meta">
-                            <span class="product-size">Taille Template</span>
-                            <span class="product-condition">Attente de l'algorithme suggestion</span>
-                        </div>
-                        <div class="product-footer">
-                            <span class="product-price">20.99€</span>
-                            <span class="product-seller">SaeUserTemplate</span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- Categories Section -->
-    <div class="categories-section">
-        <div class="category-card category-femmes">
-            <div class="category-overlay">
-                <h3 class="category-title">Femmes</h3>
-            </div>
-        </div>
-        <div class="category-card category-hommes">
-            <div class="category-overlay">
-                <h3 class="category-title">Hommes</h3>
-            </div>
-        </div>
-        <div class="category-card category-enfants">
-            <div class="category-overlay">
-                <h3 class="category-title">Enfants</h3>
-            </div>
-        </div>
-        <div class="category-card category-accessoires">
-            <div class="category-overlay">
-                <h3 class="category-title">Accessoires</h3>
-            </div>
-        </div>
-    </div>
-
-    <!-- Trends Section -->
-    <div class="section-container">
-        <div class="section-header">
-            <h2 class="section-title">TENDANCES</h2>
-            <p class="section-subtitle">Les articles les plus populaires</p>
-        </div>
-
-        <div class="product-grid">
-            @for (int i = 0; i < 8; i++)
-            {
-                <div class="product-card">
-                    <div class="product-image-container">
-                        <div class="product-image"></div>
-                        <button class="wishlist-btn">
-                            <i class="bi bi-heart"></i>
-                        </button>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Template</h3>
-                        <div class="product-meta">
-                            <span class="product-size">Taille Template</span>
-                            <span class="product-condition">Attente de l'algorithme suggestion</span>
-                        </div>
-                        <div class="product-footer">
-                            <span class="product-price">20.99€</span>
-                            <span class="product-seller">SaeUserTemplate</span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
 }
 
-<Footer/>
+<!-- Categories Section -->
+<div class="categories-section">
+    <div class="category-card category-femmes">
+        <div class="category-overlay">
+            <h3 class="category-title">Femmes</h3>
+        </div>
+    </div>
+    <div class="category-card category-hommes">
+        <div class="category-overlay">
+            <h3 class="category-title">Hommes</h3>
+        </div>
+    </div>
+    <div class="category-card category-enfants">
+        <div class="category-overlay">
+            <h3 class="category-title">Enfants</h3>
+        </div>
+    </div>
+    <div class="category-card category-accessoires">
+        <div class="category-overlay">
+            <h3 class="category-title">Accessoires</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Trends Section -->
+<div class="section-container">
+    <div class="section-header">
+        <h2 class="section-title">TENDANCES</h2>
+        <p class="section-subtitle">Les articles les plus populaires</p>
+    </div>
+
+    <div class="product-grid">
+        @for (int i = 0; i < 8; i++)
+        {
+            <div class="product-card">
+                <div class="product-image-container">
+                    <div class="product-image"></div>
+                    <button class="wishlist-btn">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Template</h3>
+                    <div class="product-meta">
+                        <span class="product-size">Taille Template</span>
+                        <span class="product-condition">Attente de l'algorithme suggestion</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">20.99€</span>
+                        <span class="product-seller">SaeUserTemplate</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await JS.InvokeVoidAsync("console.log", "OnInitializedAsync triggered");
-        await VM_Home.LoadRecentAnnonces();
-        await VM_Home.LoadPopularAnnonces();
+        await VM_Home.LoadAsync();
         StateHasChanged();
     }
 

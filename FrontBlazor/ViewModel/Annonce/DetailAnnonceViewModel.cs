@@ -8,12 +8,14 @@ using Shared.DTO.Utilisateur;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Shared.DTO.Recense;
 
 namespace FrontBlazor.ViewModel;
 
-public class DetailAnnonceViewModel : BaseViewModel
+public class DetailAnnonceViewModel : ClientBaseViewModel
 {
     private readonly IAnnonceService _annonceService;
     private readonly IFavorisService<FavorisDTO> _favorisService;
@@ -25,11 +27,13 @@ public class DetailAnnonceViewModel : BaseViewModel
     private readonly IMediasService _mediaService;
     private readonly IVisualisationService _visualisationService;
     private readonly ISignalementService _signalementService;
+    private readonly IRecenseService<RecenseDetailDTO> _recenseWebService;
 
     private CancellationTokenSource? _viewTimerCts;
 
     public AnnonceDetailDTO? AnnonceDetail { get; set; }
     public UtilisateurViewDTO? utilisateurAnnonce { get; set; }
+    public List<RecenseDetailDTO> TagsAnnonce { get; set; } = new List<RecenseDetailDTO>();
     public List<AnnonceDTO>? similarAnnonces = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
@@ -48,8 +52,15 @@ public class DetailAnnonceViewModel : BaseViewModel
         IFavorisService<FavorisDTO> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
         IConversationService<ConversationDTO> conversationService,
+        ClipboardService clipboardService, NavigationManager navigationManager, 
+        IMediasService mediasService,
+        IVisualisationService visualisationService, 
+        ISignalementService signalementService,
+        INotificationService notificationService
+        )
+        : base(navigationManager, authService, notificationService)
         ClipboardService clipboardService, NavigationManager navigationManager, IMediasService mediasService
-        , IVisualisationService visualisationService, ISignalementService signalementService)
+        , IVisualisationService visualisationService, ISignalementService signalementService, IRecenseService<RecenseDetailDTO> recenseWebService)
         : base(authService, navigationManager)
     {
         _annonceService = annonceService;
@@ -62,6 +73,8 @@ public class DetailAnnonceViewModel : BaseViewModel
         _clipboardService = clipboardService;
         _visualisationService = visualisationService;
         _signalementService = signalementService;
+        _recenseWebService = recenseWebService;
+
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -70,10 +83,11 @@ public class DetailAnnonceViewModel : BaseViewModel
         ErrorMessage = null;
         IsLoadingSimilar = true;
         PageNumber = 1;
-        await VerifiyAccountAsync();
+        await base.LoadAsync();
         try
         {
             AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
+            TagsAnnonce = await _recenseWebService.GetTagsByAnnonce(id);
             if (AnnonceDetail == null)
             {
                 ErrorMessage = "Annonce introuvable";

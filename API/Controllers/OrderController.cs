@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +16,20 @@ public class OrderController : ControllerBase
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IDataRepository<Annonce, int> _annonceRepository;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     private readonly ILogger<OrderController> _logger;
 
     public OrderController(
         IOrderRepository orderRepository,
         IDataRepository<Annonce, int> annonceRepository,
+        ICurrentUserService currentUserService,
         IMapper mapper,
         ILogger<OrderController> logger)
     {
         _orderRepository = orderRepository;
         _annonceRepository = annonceRepository;
+        _currentUserService = currentUserService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -49,7 +53,7 @@ public class OrderController : ControllerBase
                 return NotFound("Annonce not found");
             }
 
-            if (annonce.Etat.NomEtat != "Disponible")
+            if (annonce.Statut.StatutLibelle != "En Ligne")
             {
                 return BadRequest("Annonce is not available");
             }
@@ -71,10 +75,8 @@ public class OrderController : ControllerBase
 
             await _orderRepository.AddAsync(commande);
 
-            // Mettre à jour le statut de l'annonce
-            //TODO : changer avec l'id
-            annonce.EtatId = 0;
-            await _annonceRepository.UpdateAsync(annonce);
+            // // Mettre à jour le statut de l'annonce
+            // annonce.EtatId = 0;
 
             _logger.LogInformation($"✅ Order created: {commande.CommandeId}");
 
@@ -112,11 +114,16 @@ public class OrderController : ControllerBase
     /// <summary>
     /// Obtenir toutes les commandes d'un acheteur
     /// </summary>
-    [HttpGet("user/{userId}")]
+    [HttpGet("user")]
     [ProducesResponseType(typeof(List<OrderDTO>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrderDTO>>> GetUserOrders(int userId)
+    public async Task<ActionResult<List<OrderDTO>>> GetUserOrders()
     {
-        var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);
+        var userId = await _currentUserService.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        var orders = await _orderRepository.GetOrdersByUserIdAsync((int)userId);
         var orderDtos = _mapper.Map<List<OrderDTO>>(orders);
         return Ok(orderDtos);
     }
@@ -124,11 +131,14 @@ public class OrderController : ControllerBase
     /// <summary>
     /// Obtenir toutes les ventes d'un vendeur
     /// </summary>
-    [HttpGet("seller/{sellerId}")]
+    [HttpGet("seller")]
     [ProducesResponseType(typeof(List<OrderDTO>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrderDTO>>> GetSellerOrders(int sellerId)
+    public async Task<ActionResult<List<OrderDTO>>> GetSellerOrders()
     {
-        var orders = await _orderRepository.GetOrdersBySellerIdAsync(sellerId);
+        var sellerId = await _currentUserService.GetUserId();
+        if (sellerId == null)
+            return Unauthorized();
+        var orders = await _orderRepository.GetOrdersBySellerIdAsync((int)sellerId);
         var orderDtos = _mapper.Map<List<OrderDTO>>(orders);
         return Ok(orderDtos);
     }

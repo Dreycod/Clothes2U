@@ -1,0 +1,57 @@
+@* Placez ce composant dans App.razor ou MainLayout.razor *@
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+
+@code {
+    private static bool _alreadyInitialized;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeStripeAsync();
+        }
+    }
+
+    private async Task InitializeStripeAsync()
+    {
+        try
+        {
+            if (_alreadyInitialized)
+                return;
+
+            _alreadyInitialized = true;
+            
+            Console.WriteLine("[StripeInit] 🔧 Fetching Stripe publishable key...");
+            
+            // Récupérer la clé publique depuis l'API
+            var response = await Http.GetFromJsonAsync<PublishableKeyResponse>("payment/publishable-key");
+            
+            if (response != null && !string.IsNullOrEmpty(response.PublishableKey))
+            {
+                Console.WriteLine($"[StripeInit] 📥 Received key: {response.PublishableKey.Substring(0, 20)}...");
+                
+                // Initialiser Stripe
+                await JSRuntime.InvokeVoidAsync(
+                    "initializeStripe",
+                    response.PublishableKey
+                );
+
+                Console.WriteLine("[StripeInit] ✅ Stripe initialized successfully");
+            }
+            else
+            {
+                Console.WriteLine("[StripeInit] ❌ No publishable key received from API");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[StripeInit] ❌ Error initializing Stripe: {ex.Message}");
+        }
+    }
+
+    public class PublishableKeyResponse
+    {
+        public string PublishableKey { get; set; } = "";
+    }
+}

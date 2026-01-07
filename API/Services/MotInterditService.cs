@@ -23,7 +23,7 @@ public class MotInterditService :  IMotInterditService
         {
             if (phraseLower.Contains(motInterdit.ToLower()))
             {
-                return true; // Dès qu'on trouve un mot interdit, on retourne true
+                return true;
             }
         }
 

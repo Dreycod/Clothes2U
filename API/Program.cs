@@ -249,6 +249,7 @@ builder.Services.AddScoped<IPasswordResetRepository<PasswordResetToken, int>, Pa
 builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>();
 builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
 builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
+builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
@@ -258,6 +259,8 @@ builder.Services.AddScoped<ICurrentUserService,  CurrentUserService>();
 builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+builder.Services.AddScoped<IDetectionService, DetectionService>();
+
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();
 builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();

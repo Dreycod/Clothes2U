@@ -257,5 +257,14 @@ public class AnnonceController : ControllerBase
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return  Ok(annoncesDTO);
     }
+
+    [HttpPut("Vendu/{annonceId}")]
+    public async Task<IActionResult> PutAnnonce(int annonceId)
+    {
+        var annonceToSell = _annonceManager.GetByIdAsync(annonceId);
+        annonceToSell.Result.StatutAnnonceId = 4;
+        await _annonceManager.UpdateAsync(annonceToSell.Result);
+        return NoContent();
+    }
     
 }

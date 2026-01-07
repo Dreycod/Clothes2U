@@ -125,7 +125,7 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page = 1, int pageSize = 30)
+    public async Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page, int pageSize)
     {
         var queryParams = new List<KeyValuePair<string, string?>>();
 
@@ -140,5 +140,23 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 
         var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
         return annonces ?? new List<AnnonceDTO>();
+    }
+
+    public async Task<List<AnnonceDTO>> GetRecommendedAnnonces(int page, int pageSize )
+    {
+        var queryParams = new List<KeyValuePair<string, string?>>();
+        queryParams.Add(new("page", page.ToString()));
+        queryParams.Add(new("pageSize", pageSize.ToString()));
+        var url = QueryHelpers.AddQueryString("Annonce/Recommandations", queryParams);
+        var response = await GetWithCredentialsAsync(url);
+        response.EnsureSuccessStatusCode();
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? new List<AnnonceDTO>();
+    }
+
+    public async Task VendreAnnonce(int AnnonceId)
+    {
+        var response = await PutWithCredentialsAsync($"Annonce/Vendu/{AnnonceId}", null);
+        response.EnsureSuccessStatusCode();
     }
 }

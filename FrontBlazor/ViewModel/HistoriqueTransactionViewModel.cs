@@ -1,20 +1,22 @@
 ﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Shared.DTO.Historique;
 
 namespace FrontBlazor.ViewModel
 {
-    public class HistoriqueTransactionViewModel : BaseViewModel
+    public class HistoriqueTransactionViewModel : ClientBaseViewModel
     {
         private readonly TransactionService _service;
 
         public HistoriqueTransactionViewModel(
             TransactionService service,
             IAuthService authService,
-            NavigationManager navigationManager)
-            : base(authService, navigationManager)
+            NavigationManager navigationManager,
+            INotificationService notificationService)
+            : base(navigationManager, authService, notificationService)
         {
             _service = service;
         }
@@ -27,7 +29,7 @@ namespace FrontBlazor.ViewModel
         {
             IsLoading = true;
             NotifyStateChanged();
-
+            await base.LoadAsync();
             var user = await _authService.GetCurrentUserAsync();
             if (user == null)
             {

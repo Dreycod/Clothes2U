@@ -1,9 +1,7 @@
 ﻿@page "/product/{Id:int}"
+@layout ClientLayout
+@using Shared.DTO.Recense
 @using Shared.DTO.Utilisateur
-
-
-
-
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 <NavBar />
@@ -142,6 +140,23 @@
                     <p class="description-text">
                         @(annonce.Description ?? "Aucune description disponible.")
                     </p>
+                </div>
+
+                <div class="tags-section">
+                    <h3 class="section-title">Tags</h3>
+                    <div class="tags-container">
+                        @if (VM_DetailAnnonce.TagsAnnonce != null && VM_DetailAnnonce.TagsAnnonce.Any())
+                        {
+                            @foreach (RecenseDetailDTO tag in VM_DetailAnnonce.TagsAnnonce)
+                            {
+                                <AnnonceTag Tag="tag"/>
+                            }
+                        }
+                        else
+                        {
+                            <p>Aucun tag associé.</p>
+                        }
+                    </div>
                 </div>
 
                 <!-- Publication Date & Likes -->
