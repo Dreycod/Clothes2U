@@ -14,10 +14,10 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class MarqueController : ControllerBase
 {
-    private readonly ICaracteristiquesRepository<Marque> _marqueManager;
+    private readonly IMarqueRepository _marqueManager;
     private readonly IMapper _mapper;
 
-    public MarqueController(ICaracteristiquesRepository<Marque> manager, IMapper mapper)
+    public MarqueController(IMarqueRepository manager, IMapper mapper)
     {
         _marqueManager= manager;
         _mapper = mapper;
@@ -94,5 +94,15 @@ public class MarqueController : ControllerBase
 
         await _marqueManager.UpdateAsync(updatedBrand);
         return NoContent();
+    }
+
+    [HttpGet("byName")]
+    public async Task<ActionResult<IEnumerable<MarqueDTO>>> GetMarquesByName([FromQuery] string? name)
+    {
+        var marques = string.IsNullOrWhiteSpace(name)
+            ? await _marqueManager.GetAllAsync()
+            : await _marqueManager.GetByString(name);
+
+        return Ok(_mapper.Map<IEnumerable<MarqueDTO>>(marques));
     }
 }

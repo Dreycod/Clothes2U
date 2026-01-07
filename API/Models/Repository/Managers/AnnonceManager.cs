@@ -86,7 +86,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             );
         }
 
-        query = query.Where(p => p.Utilisateur.Statut.StatutLibelle == "Actif");
+        query = query.Where(p => p.Utilisateur.Statut.StatutLibelle == "Actif" && p.Statut.StatutLibelle == "En Ligne");
         if (filterDto.Marques != null && filterDto.Marques.Any())
         {
             query = query.Where(p => filterDto.Marques.Contains(p.Marque.NomMarque));

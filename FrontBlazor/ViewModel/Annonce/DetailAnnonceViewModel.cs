@@ -8,13 +8,14 @@ using Shared.DTO.Utilisateur;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO.Recense;
 
 namespace FrontBlazor.ViewModel;
 
-public class DetailAnnonceViewModel : BaseViewModel
+public class DetailAnnonceViewModel : ClientBaseViewModel
 {
     private readonly IAnnonceService _annonceService;
     private readonly IFavorisService<FavorisDTO> _favorisService;
@@ -51,6 +52,13 @@ public class DetailAnnonceViewModel : BaseViewModel
         IFavorisService<FavorisDTO> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
         IConversationService<ConversationDTO> conversationService,
+        ClipboardService clipboardService, NavigationManager navigationManager, 
+        IMediasService mediasService,
+        IVisualisationService visualisationService, 
+        ISignalementService signalementService,
+        INotificationService notificationService
+        )
+        : base(navigationManager, authService, notificationService)
         ClipboardService clipboardService, NavigationManager navigationManager, IMediasService mediasService
         , IVisualisationService visualisationService, ISignalementService signalementService, IRecenseService<RecenseDetailDTO> recenseWebService)
         : base(authService, navigationManager)
@@ -75,7 +83,7 @@ public class DetailAnnonceViewModel : BaseViewModel
         ErrorMessage = null;
         IsLoadingSimilar = true;
         PageNumber = 1;
-        await VerifiyAccountAsync();
+        await base.LoadAsync();
         try
         {
             AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);

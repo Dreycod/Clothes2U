@@ -1,3 +1,4 @@
+@using FrontBlazor.ViewModel.Generic
 @using Shared.DTO.Notification
 
 <div class="notification-item @(Notification.EstLu ? "read" : "unread")" @onclick="HandleClick">
@@ -85,7 +86,7 @@
 </div>
 
 @code {
-    [Parameter] public NavBarViewModel Vm_NavBar { get; set; }
+    [Parameter] public ClientBaseViewModel Vm_NavBar { get; set; }
     [Parameter] public NotificationDTO Notification { get; set; }
 
     private async Task HandleDelete()

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Shared;
 using Shared.DTO.Annonce;
 using Shared.DTO.Conversation;
@@ -11,7 +12,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel;
 
-public class AcheterViewModel : ComponentBase, IDisposable
+public class AcheterViewModel : ClientBaseViewModel, IDisposable
 {
     private readonly IAuthService _authService;
     private readonly IPaymentService _paymentService;
@@ -50,15 +51,17 @@ public class AcheterViewModel : ComponentBase, IDisposable
         IPaymentService paymentService,
         IAnnonceService annonceService,
         IConversationService<ConversationDTO> conversationService,
-        //IOrderService orderService,
+        IOrderService orderService,
         NavigationManager nav,
-        IJSRuntime jsRuntime)
+        NavigationManager navigationManager,
+        INotificationService notificationService,
+        IJSRuntime jsRuntime): base(navigationManager, authService, notificationService)
     {
         _authService = authService;
         _paymentService = paymentService;
         _annonceService = annonceService;
         _conversationService = conversationService;
-        //_orderService = orderService;
+        _orderService = orderService;
         _nav = nav;
         _jsRuntime = jsRuntime;
     }
@@ -68,6 +71,7 @@ public class AcheterViewModel : ComponentBase, IDisposable
         IsLoading = true;
         ErrorMessage = null;
         NotifyStateChanged();
+        await base.LoadAsync();
 
         try
         {
@@ -188,6 +192,7 @@ public class AcheterViewModel : ComponentBase, IDisposable
             NotifyStateChanged();
         }
     }
+    
 
     public async Task<bool> ConfirmPayment()
     {
@@ -241,13 +246,15 @@ public class AcheterViewModel : ComponentBase, IDisposable
             StripePaymentIntentId = paymentIntentId,
             StatutCommande = "Payée"
         };
-
+        
+        Console.WriteLine("bchjdsfgcjherfgcjkhgercgy");
+        
         await _orderService.CreateOrderAsync(order);
 
         SelectedAnnonce.EtatArticle = "Vendu";
         
         // Mettre à jour le statut de l'annonce
-        await _annonceService.ModificationAnnonce(SelectedAnnonce);
+        await _annonceService.VendreAnnonce(SelectedAnnonce.AnnonceId);
     }
 
     public void GoBack()

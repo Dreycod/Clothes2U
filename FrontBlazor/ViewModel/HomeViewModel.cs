@@ -4,30 +4,43 @@ using Shared.DTO.Favoris;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel
 {
-    public class HomeViewModel :  BaseViewModel
+    public class HomeViewModel :  ClientBaseViewModel
     {
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
-        private readonly IAuthService _authService;
         private readonly NavigationManager _navigationManager;
-
-        public List<AnnonceDTO> AnnoncesRecents { get; set; } = new List<AnnonceDTO>();
-        public List<AnnonceDTO> AnnoncesPopulaires { get; set; } = new List<AnnonceDTO>();
-        public AnnonceDTO? AnnonceDetail { get; set; }
+        
+        
+        #region recommandation 
+        private int PageRecommandation { get; set; } 
+        private int PageSizeRecommandation { get; set; } = 15;
+        public List<AnnonceDTO> AnnoncesRecommended { get; set; } 
+        #endregion
+        
+        
+        
+        public List<AnnonceDTO> AnnoncesRecents { get; set; } 
+        public List<AnnonceDTO> AnnoncesPopulaires { get; set; } 
         public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
         public string SuccessMessage { get; set; } = string.Empty;
 
-        public HomeViewModel(IAnnonceService annonceService, IFavorisService<FavorisDTO> favorisService, IAuthService authService, NavigationManager navigationManager)
-        : base(authService, navigationManager)
+        public HomeViewModel(
+            IAnnonceService annonceService,
+            IFavorisService<FavorisDTO> favorisService,
+            IAuthService authService,
+            NavigationManager navigationManager,
+            INotificationService notificationService
+            )
+        : base(navigationManager, authService, notificationService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
-            _authService = authService;
             _navigationManager = navigationManager;
         }
 
@@ -45,17 +58,51 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public async Task LoadRecentAnnonces()
+        public async Task LoadAsync()
         {
+            await  base.LoadAsync();
             ErrorMessage = SuccessMessage = string.Empty;
             IsLoading = true;
-            await VerifiyAccountAsync();
+            PageRecommandation = 1;
+            await LoadRecentAnnonces();
+            await LoadPopularAnnonces();
+            if (IsLoggedIn)
+            {
+                AnnoncesRecommended = await _annonceService.GetRecommendedAnnonces(PageRecommandation, PageSizeRecommandation);
+            }
+            IsLoading = false;
+        }
+
+        public async Task PreviousRecommandation()
+        {
+            if (PageRecommandation > 1)
+            {
+                PageRecommandation--;
+                AnnoncesRecommended = await _annonceService.GetRecommendedAnnonces(PageRecommandation, PageSizeRecommandation);
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task NextRecommandation()
+        {
+            if (AnnoncesRecommended.Count == PageSizeRecommandation)
+            {
+                List<AnnonceDTO> NewAnnoncesRecommended = await _annonceService.GetRecommendedAnnonces(PageRecommandation + 1, PageSizeRecommandation);
+                if (NewAnnoncesRecommended.Count > 0)
+                {
+                    PageRecommandation++;
+                    AnnoncesRecommended = NewAnnoncesRecommended;
+                    NotifyStateChanged();
+                }
+            }
+        }
+        public async Task LoadRecentAnnonces()
+        {
             FilterDTO filter = new FilterDTO
             {
                 SortBy = SortField.DateAnnonce,
                 SortOrder = SortOrder.Descending,
             };
-
             try
             {
                 List<AnnonceDTO> result = await GetAnnoncesByFiltreAsync(filter, 1, 10);
@@ -82,10 +129,6 @@ namespace FrontBlazor.ViewModel
 
         public async Task LoadPopularAnnonces()
         {
-            ErrorMessage = SuccessMessage = string.Empty;
-            IsLoading = true;
-            await VerifiyAccountAsync();
-
             FilterDTO filter = new FilterDTO
             {
                 SortBy = SortField.NombreFavoris,
