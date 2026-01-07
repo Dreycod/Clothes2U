@@ -184,7 +184,7 @@
             {
                 SuccessMessage = "Connexion réussie.";
                 // Le ViewModel met à jour le _userStateService; on navigue
-                navigationManager.NavigateTo("/");
+                navigationManager.NavigateTo("/", forceLoad: true);
             }
             else
             {
