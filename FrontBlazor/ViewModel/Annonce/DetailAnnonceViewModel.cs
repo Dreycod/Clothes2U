@@ -56,12 +56,11 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         IMediasService mediasService,
         IVisualisationService visualisationService, 
         ISignalementService signalementService,
-        INotificationService notificationService
+        INotificationService notificationService,
+        IRecenseService<RecenseDetailDTO> recenseWebService
         )
         : base(navigationManager, authService, notificationService)
-        ClipboardService clipboardService, NavigationManager navigationManager, IMediasService mediasService
-        , IVisualisationService visualisationService, ISignalementService signalementService, IRecenseService<RecenseDetailDTO> recenseWebService)
-        : base(authService, navigationManager)
+    
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
