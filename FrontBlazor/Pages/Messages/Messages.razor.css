@@ -57,9 +57,17 @@
 .conversation-avatar {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    border-radius: 8px;
+    overflow: hidden;
     background: #d3d3d3;
     flex-shrink: 0;
+}
+
+.conversation-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .conversation-info {
@@ -106,9 +114,17 @@
 .product-thumbnail {
     width: 60px;
     height: 60px;
-    background: #d3d3d3;
     border-radius: 8px;
+    overflow: hidden;
     flex-shrink: 0;
+    background: #d3d3d3;
+}
+
+.product-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .product-name {
@@ -1410,4 +1426,65 @@
 
 input[type="file"] {
     display: none !important;
+}
+
+
+/* ===============================
+   MESSAGES + AVATAR INTERLOCUTEUR
+   =============================== */
+
+/* Ligne message + avatar */
+.message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+/* Messages reçus à gauche */
+.message-row.received {
+    justify-content: flex-start;
+}
+
+/* Messages envoyés à droite */
+.message-row.sent {
+    justify-content: flex-end;
+}
+
+/* Avatar de l’interlocuteur */
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #d3d3d3;
+    flex-shrink: 0;
+}
+
+/* Image dans l’avatar */
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Conteneur de la bulle */
+.message-bubble {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Ajustement largeur message avec avatar */
+.message.received {
+    max-width: calc(70% + 44px);
+}
+
+.message.sent {
+    max-width: 70%;
+}
+
+/* Petite séparation entre avatar et première bulle */
+.message.received .message-text {
+    margin-left: 0;
 }
