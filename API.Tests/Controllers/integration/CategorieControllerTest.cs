@@ -268,8 +268,8 @@ public class CategorieControllerTest
         {
             try
             {
-                var allBrands = _context.Marques.ToList();
-                _context.Marques.RemoveRange(allBrands);
+                var allElements = _context.Categories.ToList();
+                _context.Categories.RemoveRange(allElements);
                 _context.SaveChanges();
             }
             catch (Exception ex)
