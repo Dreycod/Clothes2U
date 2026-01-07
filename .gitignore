@@ -53,3 +53,8 @@
 /Shared/bin
 /Shared/obj/Debug/net8.0
 /Shared/bin/Debug/net8.0
+/Shared/obj
+/Shared/obj/Debug/net8.0/Shared.assets.cache
+/Shared/obj/project.nuget.cache
+/Shared/obj/Shared.csproj.nuget.dgspec.json
+/Shared/obj/Shared.csproj.nuget.g.props
