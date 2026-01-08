@@ -145,23 +145,30 @@
             <h3>@(VM_CommercialTailles.isEditing ? "Modifier" : "Ajouter") une taille</h3>
 
             <div class="form-group">
-                <label class="form-label">Catégorie</label>
-                <select class="form-select" @bind="VM_CommercialTailles.selectedCategorieId">
-                    <option value="0">-- Sélectionnez une catégorie --</option>
-                    @if (VM_CommercialTailles.Categories != null)
+                <label class="form-label">Catégories</label>
+                <div class="category-selection">
+                    @if (VM_CommercialTailles.allSubcategories != null)
                     {
-                        @foreach (var cat in VM_CommercialTailles.Categories)
-                        {
-                            <option value="@cat.IdCategorie">@cat.LibelleCategorie</option>
+                        @foreach (var cat in VM_CommercialTailles.allSubcategories)
+                                        {
+                            <label class="category-checkbox">
+                                <input type="checkbox"
+                                       checked="@VM_CommercialTailles.selectedSousCategoriesIds.Contains(cat.Subcategory.SousCategorieId)"
+                                       @onchange="e => VM_CommercialTailles.ToggleCategory(e, cat.Subcategory.SousCategorieId)" />
+                                <span>@cat.Subcategory.LibelleSousCategorie</span>
+                            </label>
                         }
                     }
-                </select>
+                </div>
+                <small class="form-hint">
+                    Sélectionnez une ou plusieurs catégories qui partagent cette taille
+                </small>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Libellé de la taille</label>
                 <input type="text" class="form-input" placeholder="Ex: S, M, L, XL, 38, 40..." @bind="VM_CommercialTailles.currentTaille.Libelletaille" />
-                <small style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                <small class="form-hint">
                     Utilisez des formats standards: XS, S, M, L, XL, XXL pour les vêtements, ou des numéros pour les chaussures
                 </small>
             </div>

@@ -1,9 +1,11 @@
-﻿using Shared.DTO;
-using FrontBlazor.Services;
+﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
-using Shared.DTO.Taille;
+using Microsoft.AspNetCore.Components;
+using Shared.DTO;
 using Shared.DTO.Categorie;
+using Shared.DTO.SousCategorie;
+using Shared.DTO.Taille;
 
 namespace FrontBlazor.ViewModel;
 
@@ -13,17 +15,19 @@ public class CommercialTaillesViewModel
     public bool showDeleteModal = false;
     public bool isEditing = false;
     public TailleDTO currentTaille = new TailleDTO();
-    public int selectedCategorieId = 0;
+    public List<int> selectedSousCategoriesIds { get; set; }
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
     
     public List<TailleDTO> Tailles { get; set; }
     public List<CategorieDTO> Categories { get; set; }
+    public List<(SousCategorieDTO Subcategory, CategorieDTO ParentCategory)> allSubcategories = new();
+    private ICaracteristiqueService<CategorieDTO> _categorieService;
+    private ICaracteristiqueService<TailleDTO> _tailleService;
     public bool IsLoading { get; set; }
 
-    private ICaracteristiqueService<TailleDTO> _tailleService;
-    private ICaracteristiqueService<CategorieDTO> _categorieService;
     public event Action? OnStateChange;
+
 
     public CommercialTaillesViewModel(ICaracteristiqueService<TailleDTO> tailleService, ICaracteristiqueService<CategorieDTO> categorieService)
     {
@@ -41,27 +45,44 @@ public class CommercialTaillesViewModel
                 .ToList();
         }
         Categories = await _categorieService.GetAllAsync();
+        LoadAllSubcategories();
+
         IsLoading = false;
+    }
+
+    public void LoadAllSubcategories()
+    {
+        allSubcategories.Clear();
+
+        if (Categories == null)
+            return;
+
+        allSubcategories = Categories
+            .Where(c => c.SousCategories != null)
+            .SelectMany(c => c.SousCategories.Select(sc => (subcat: sc, category: c)))
+            .OrderBy(x => x.subcat.SousCategorieId)
+            .ToList();
     }
 
     public void ShowAddModal()
     {
         isEditing = false;
         currentTaille = new TailleDTO();
-        selectedCategorieId = 0;
+        selectedSousCategoriesIds = new List<int>();
         showModal = true;
     }
 
     public void ShowEditModal(TailleDTO taille)
     {
         isEditing = true;
+        selectedSousCategoriesIds = taille.Mesures.Select(m => m.SousCategorieId).ToList();
+
         currentTaille = new TailleDTO
         {
-        //    TailleId = taille.TailleId,
-        //    Libelletaille = taille.Libelletaille,
-        //    CategorieId = taille.CategorieId
+            TailleId = taille.TailleId,
+            Libelletaille = taille.Libelletaille,
         };
-        //selectedCategorieId = taille.CategorieId;
+
         showModal = true;
     }
 
@@ -75,7 +96,7 @@ public class CommercialTaillesViewModel
     {
         showModal = false;
         currentTaille = new TailleDTO();
-        selectedCategorieId = 0;
+        selectedSousCategoriesIds = new List<int>();
         errorMessage = string.Empty;
     }
 
@@ -93,7 +114,7 @@ public class CommercialTaillesViewModel
             return;
         }
 
-        if (selectedCategorieId == 0)
+        if (selectedSousCategoriesIds.Count == 0)
         {
             errorMessage = "Veuillez sélectionner une catégorie";
             return;
@@ -101,8 +122,16 @@ public class CommercialTaillesViewModel
 
         try
         {
-            //currentTaille.CategorieId = selectedCategorieId;
-
+            // Make all selected sous-categories be connected to the taille
+            //currentTaille.Mesures.Clear();
+            //foreach (var sousCatId in selectedSousCategoriesIds)
+            //{
+            //    currentTaille.Mesures.Add(new Shared.DTO.Mesures.MesureDTO
+            //    {
+            //        SousCategorieId = sousCatId,
+            //        TailleId = currentTaille.TailleId
+            //    });
+            //}
             if (isEditing)
             {
                 await _tailleService.UpdateAsync(currentTaille);
@@ -118,7 +147,6 @@ public class CommercialTaillesViewModel
             Tailles = await _tailleService.GetAllAsync();
             OnStateChange?.Invoke();
 
-            // Clear success message after 3 seconds
             await Task.Delay(3000);
             successMessage = string.Empty;
             OnStateChange?.Invoke();
@@ -159,6 +187,17 @@ public class CommercialTaillesViewModel
             return "0";
 
         return categoryNumber.ToString();
+    }
+
+    public void ToggleCategory(ChangeEventArgs e, int categoryId)
+    {
+        bool isChecked = (bool)e.Value;
+
+        if (isChecked && !selectedSousCategoriesIds.Contains(categoryId))
+            selectedSousCategoriesIds.Add(categoryId);
+
+        if (!isChecked && selectedSousCategoriesIds.Contains(categoryId))
+            selectedSousCategoriesIds.Remove(categoryId);
     }
 }
 
