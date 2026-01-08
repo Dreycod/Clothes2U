@@ -4,6 +4,7 @@ using API.Hubs;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Shared.DTO.Detection;
 
 namespace API.Controllers;
 
@@ -12,14 +13,16 @@ namespace API.Controllers;
 public class MediasController : ControllerBase
 {
     private readonly IPhotoService _photoService;
+    private readonly IDetectionService _detectionService;
     private readonly ILogger<MediasController> _logger;
     private readonly IHubContext<ChatHub> _hubContext;
     
-    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IHubContext<ChatHub> hubContext)
+    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IHubContext<ChatHub> hubContext, IDetectionService detectionService)
     {
         _photoService = photoService;
         _logger = logger;
         _hubContext = hubContext;
+        _detectionService = detectionService;
     }
 
     [HttpGet("Photos/{id}")]
@@ -92,6 +95,57 @@ public class MediasController : ControllerBase
             return StatusCode(500, new { message = "Erreur lors de l'upload de la photo", error = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Upload d'une photo pour une annonce (multipart/form-data)
+    /// </summary>
+    [HttpPost("detectPhotoDanger")]
+    [RequestSizeLimit(5_242_880)] // 5 MB
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(DetectionResultDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DetectPhotoDanger(IFormFile file)
+    {
+
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("Fichier requis");
+        }
+
+        if (file.Length > 5_242_880) // 5 MB
+        {
+            return BadRequest("Le fichier est trop volumineux (max 5MB)");
+        }
+
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            return BadRequest("Le fichier doit être une image");
+        }
+
+        try
+        {
+            // Convertir IFormFile en PhotoUploadDTO
+            PhotoUploadDTO photoDto = await ConvertFormFileToDTO(file);
+
+            DetectionResultDTO result = await _detectionService.DetectImageDanger(photoDto);
+            Console.WriteLine("Précision de la détection : " + result.Accuracy);
+            Console.WriteLine("Résultat de la détection : " + result.IsDangerous);
+
+            return Ok(result);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de la détection d'image", error = ex.Message });
+        }
+    }
+
+
+
 
     /// <summary>
     /// Upload d'une photo de profil pour un compte

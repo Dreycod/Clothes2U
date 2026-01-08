@@ -203,6 +203,8 @@ namespace FrontBlazor.ViewModel
                     var base64 = Convert.ToBase64String(ms.ToArray());
                     var dataUrl = $"data:{file.ContentType};base64,{base64}";
 
+
+
                     SelectedFilePreviews.Add((file, dataUrl));
 
                     Console.WriteLine($"✅ Photo ajoutée: {file.Name} ({file.Size} bytes)");
