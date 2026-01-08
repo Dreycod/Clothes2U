@@ -16,28 +16,27 @@ public class CommercialTaillesViewModel
     public bool showDeleteModal = false;
     public bool isEditing = false;
     public TailleDTO currentTaille = new TailleDTO();
-    public List<int> beforeChangeSousCategoriesIds { get; set; }
     public List<int> selectedSousCategoriesIds { get; set; }
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
     
     public List<TailleDTO> Tailles { get; set; }
     public List<CategorieDTO> Categories { get; set; }
+    public List<MesureDTO> mesuresToAdd { get; set; } = new List<MesureDTO>();
     public List<(SousCategorieDTO Subcategory, CategorieDTO ParentCategory)> allSubcategories = new();
     private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
-    private readonly ICaracteristiqueService<TailleDTO> _tailleService;
-   // private readonly ICaracteristiqueService<MesureDTO> _mesureService;
+    private readonly ITailleService _tailleService;
+
 
     public bool IsLoading { get; set; }
 
     public event Action? OnStateChange;
 
 
-    public CommercialTaillesViewModel(ICaracteristiqueService<TailleDTO> tailleService, ICaracteristiqueService<CategorieDTO> categorieService) // ICaracteristiqueService<MesureDTO> mesureService )
+    public CommercialTaillesViewModel(ITailleService tailleService, ICaracteristiqueService<CategorieDTO> categorieService )
     {
         _tailleService =  tailleService;
         _categorieService = categorieService;
-        //_mesureService = mesureService;
     }
     public async Task LoadAsync()
     {
@@ -74,6 +73,7 @@ public class CommercialTaillesViewModel
         isEditing = false;
         currentTaille = new TailleDTO();
         selectedSousCategoriesIds = new List<int>();
+        mesuresToAdd.Clear();
         showModal = true;
     }
 
@@ -81,7 +81,6 @@ public class CommercialTaillesViewModel
     {
         isEditing = true;
         selectedSousCategoriesIds = taille.Mesures.Select(m => m.SousCategorieId).ToList();
-        beforeChangeSousCategoriesIds = selectedSousCategoriesIds;
 
         currentTaille = new TailleDTO
         {
@@ -102,9 +101,9 @@ public class CommercialTaillesViewModel
     {
         showModal = false;
         currentTaille = new TailleDTO();
-        beforeChangeSousCategoriesIds = new List<int>();
         selectedSousCategoriesIds = new List<int>();
         errorMessage = string.Empty;
+        mesuresToAdd.Clear();
     }
 
     public void CloseDeleteModal()
@@ -129,32 +128,22 @@ public class CommercialTaillesViewModel
 
         try
         {
-            var mesuresToAdd = selectedSousCategoriesIds.Except(beforeChangeSousCategoriesIds).ToList();
-            var mesuresToRemove = beforeChangeSousCategoriesIds.Except(selectedSousCategoriesIds).ToList();
-            Console.WriteLine("Mesures to add: " + string.Join(", ", mesuresToAdd));
-            Console.WriteLine("Mesures to remove: " + string.Join(", ", mesuresToRemove));
             
-            for (int i = 0; i < mesuresToAdd.Count; i++)
-            {
-                MesureDTO newMesure = new MesureDTO
-                {
-                    TailleId = currentTaille.TailleId,
-                    SousCategorieId = mesuresToAdd[i]
-                };
-               //await _mesureService.AddAsync(newMesure);
-            }
-
-            for (int i = 0; i < mesuresToRemove.Count; i++)
-            {
-                var mesureToDelete = currentTaille.Mesures.FirstOrDefault(m => m.SousCategorieId == mesuresToRemove[i]);
-                if (mesureToDelete != null)
-                {
-                   // await _mesureService.DeleteAsync(mesureToDelete.MesureId);
-                }
-            }
 
             if (isEditing)
             {
+                for (int i = 0; i < selectedSousCategoriesIds.Count; i++)
+                {
+                    MesureDTO newMesure = new MesureDTO
+                    {
+                        SousCategorieId = selectedSousCategoriesIds[i],
+                        TailleId = currentTaille.TailleId
+                    };
+                    mesuresToAdd.Add(newMesure);
+                }
+
+
+                await _tailleService.PutTailleMesuresAsync(currentTaille.TailleId, mesuresToAdd);
                 await _tailleService.UpdateAsync(currentTaille);
 
                 successMessage = "Taille modifiée avec succès";

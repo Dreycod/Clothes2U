@@ -32,6 +32,7 @@ builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>)
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthWebService>();
+builder.Services.AddScoped<ITailleService, TailleWebService>();
 builder.Services.AddScoped<INotificationService, NotificationWebService>();
 builder.Services.AddScoped<ISignalementService, SignalementWebService>();
 builder.Services.AddScoped<IBloqueService, BloqueWebService>();

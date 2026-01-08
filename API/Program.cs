@@ -216,7 +216,6 @@ builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieMan
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
 builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurManager>();
-builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
 builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
@@ -233,7 +232,7 @@ builder.Services.AddScoped<INoteUtilisateurRepository,  NoteUtilisateurManager>(
 builder.Services.AddScoped<IAbonnementRepository<Abonnement, int>, AbonnementManager>();
 builder.Services.AddScoped<IVisualisationRepository<Visualisation, int>, VisualisationManager>();
 builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
-builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
+builder.Services.AddScoped<ITailleRepository, TailleManager>();
 builder.Services.AddScoped<IDataRepository<EtatArticle, int>, EtatArticleManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Marque>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();

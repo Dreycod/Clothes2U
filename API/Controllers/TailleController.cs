@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTO.Categorie;
 using Shared.DTO.Taille;
+using Shared.DTO.Mesures;
 
 namespace API.Controllers;
 
@@ -14,13 +15,15 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class TailleController : ControllerBase
 {
-    private readonly IDataRepository<Taille, int> _tailleManager;
+    private readonly ITailleRepository _tailleManager;
+    private readonly ICaracteristiquesRepository<Mesure> _mesureRepository;
     private readonly IMapper _mapper;
 
-    public TailleController(IDataRepository<Taille, int> manager, IMapper mapper)
+    public TailleController(ITailleRepository manager, IMapper mapper, ICaracteristiquesRepository<Mesure> mesureRepository)
     {
         _tailleManager = manager;
         _mapper = mapper;
+        _mesureRepository = mesureRepository;
     }
     
     [HttpGet]
@@ -28,7 +31,7 @@ public class TailleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<TailleDTO>>> GetAllTaille()
     {
-        IEnumerable<Taille> tailles =  await _tailleManager.GetAllAsync();
+        IEnumerable<Taille> tailles =  await _tailleManager.GetAllWithDetailsAsync();
         IEnumerable<TailleDTO> taillesDTO = _mapper.Map<IEnumerable<TailleDTO>>(tailles);
         return Ok(taillesDTO);
     }
@@ -94,5 +97,29 @@ public class TailleController : ControllerBase
         if (Taille == null)
             return NotFound();
         return Ok(Taille);
+    }
+
+    [HttpPut("id/{id}/mesures")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> PutTailleMesures(int id, [FromBody] List<MesureDTO> MesuresDTO)
+    {
+        if (id != MesuresDTO.First().TailleId)
+        {
+            return BadRequest();
+        }
+
+        List<Mesure> Mesures = _mapper.Map<List<Mesure>>(MesuresDTO);                                                                                                      
+
+        IEnumerable<Mesure> result = await _tailleManager.PutTailleMesuresAsync(id,Mesures);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+        List<MesureDTO> _mesuresDTO = _mapper.Map<List<MesureDTO>>(result);
+
+        return NoContent();
     }
 }
