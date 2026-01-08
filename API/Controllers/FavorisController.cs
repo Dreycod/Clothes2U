@@ -31,18 +31,6 @@ public class FavorisController :  ControllerBase
         _suggestionService =  suggestionService;
         _mapper = mapper;
     }
-    [HttpGet("id/{id}")]
-    [ProducesResponseType(typeof(Favoris),StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Favoris>> GetById(int id)
-    {
-        Favoris favoris = await _favorisManager.GetByIdAsync(id);
-        if (favoris == null)
-            return NotFound();
-        return favoris;
-    } 
-    
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(FavorisDTO), StatusCodes.Status201Created)]
@@ -55,26 +43,24 @@ public class FavorisController :  ControllerBase
         {
             return NotFound("L'annonce n'existe pas");
         }
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized("Vous devez être connecté pour ajouter un favori");
-        }
-        bool alreadyLiked = await _favorisManager.CheckIfLiked((int)userId, annonceId);
+
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        bool alreadyLiked = await _favorisManager.CheckIfLiked(userId, annonceId);
         if (alreadyLiked)
         {
             return Conflict("Vous avez déjà ajouté cette annonce à vos favoris");
         }
         Favoris favoris = new Favoris
         {
-            UtilisateurId = (int)userId,
+            UtilisateurId = userId,
             AnnonceId = annonceId
         };
         await _favorisManager.AddAsync(favoris);
-        _suggestionService.CalculSuggestion((int)userId);
+        await _suggestionService.CalculSuggestion(userId);
         FavorisDTO favorisDto = _mapper.Map<FavorisDTO>(favoris);
     
-        return CreatedAtAction(nameof(GetById), new { id = favoris.FavorisId }, favorisDto);
+        return StatusCode(StatusCodes.Status201Created, favorisDto);
+
     }
     [HttpDelete("id/{annonceId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -83,12 +69,7 @@ public class FavorisController :  ControllerBase
     public async Task<IActionResult> DeleteFavoris(int annonceId)
     {
        
-       int? userId = await _currentUserService.GetUserId();
-       if (userId == null)
-       {
-           return Unauthorized();
-       }
-        
+        int userId = await _currentUserService.GetUserIdOrThrow();
         Favoris? favorisToDelete = await _favorisManager.GetFavorisByAnnonceAndUserId((int)userId, annonceId);
         if (favorisToDelete == null)
         {

@@ -12,10 +12,10 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class EtatArticleController: ControllerBase
 {
-    private readonly IEtatArticleRepository _etatManager;
+    private readonly IDataRepository<EtatArticle, int> _etatManager;
     private readonly IMapper _mapper;
 
-    public EtatArticleController(IEtatArticleRepository manager, IMapper mapper)
+    public EtatArticleController(IDataRepository<EtatArticle, int> manager, IMapper mapper)
     {
         _etatManager = manager;
         _mapper = mapper;

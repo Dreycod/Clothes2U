@@ -14,10 +14,10 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class TailleController : ControllerBase
 {
-    private readonly ITailleRepository _tailleManager;
+    private readonly IDataRepository<Taille, int> _tailleManager;
     private readonly IMapper _mapper;
 
-    public TailleController(ITailleRepository manager, IMapper mapper)
+    public TailleController(IDataRepository<Taille, int> manager, IMapper mapper)
     {
         _tailleManager = manager;
         _mapper = mapper;
@@ -28,17 +28,7 @@ public class TailleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<TailleDTO>>> GetAllTaille()
     {
-        IEnumerable<Taille> tailles =  await _tailleManager.GetAllWithDetailsAsync();
-        IEnumerable<TailleDTO> taillesDTO = _mapper.Map<IEnumerable<TailleDTO>>(tailles);
-        return Ok(taillesDTO);
-    }
-    
-    [HttpGet("byCategoryId/{id}")]
-    [ProducesResponseType(typeof(IEnumerable<Taille>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<TailleDTO>>> GetAllTailleByCategorieId(int id)
-    {
-        IEnumerable<Taille> tailles =  await _tailleManager.GetAllAsyncByIdentifier(id);
+        IEnumerable<Taille> tailles =  await _tailleManager.GetAllAsync();
         IEnumerable<TailleDTO> taillesDTO = _mapper.Map<IEnumerable<TailleDTO>>(tailles);
         return Ok(taillesDTO);
     }

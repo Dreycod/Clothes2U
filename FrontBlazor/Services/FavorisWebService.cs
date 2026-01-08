@@ -8,11 +8,6 @@ namespace FrontBlazor.Services
     public class FavorisWebService : WritableService<FavorisDTO>, IFavorisService<FavorisDTO>
     {
         public FavorisWebService(HttpClient httpClient) : base(httpClient) { }
-
-        public Task<FavorisDTO> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
         public async Task AddFavoris(int annonceId)
         {
             var body = JsonContent.Create(annonceId);

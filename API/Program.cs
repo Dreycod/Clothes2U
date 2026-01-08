@@ -233,8 +233,8 @@ builder.Services.AddScoped<INoteUtilisateurRepository,  NoteUtilisateurManager>(
 builder.Services.AddScoped<IAbonnementRepository<Abonnement, int>, AbonnementManager>();
 builder.Services.AddScoped<IVisualisationRepository<Visualisation, int>, VisualisationManager>();
 builder.Services.AddScoped<IRecenseRepository<Recense, int>, RecenseManager>();
-builder.Services.AddScoped<ITailleRepository, TailleManager>();
-builder.Services.AddScoped<IEtatArticleRepository, EtatArticleManager>();
+builder.Services.AddScoped<IDataRepository<Taille, int>, TailleManager>();
+builder.Services.AddScoped<IDataRepository<EtatArticle, int>, EtatArticleManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Marque>, MarqueManager>(); 
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeManager>();
 builder.Services.AddScoped<IMotInterditRepository, MotInterditManager>();
