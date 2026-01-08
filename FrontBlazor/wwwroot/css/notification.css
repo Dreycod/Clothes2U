@@ -435,6 +435,27 @@
     }
 }
 
+.btn-moderation {
+    border: 2px solid #206be1;
+    background: transparent;
+    color: #206be1;
+}
+.btn-moderation:hover {
+    background: #e5e5e5;
+    color: white;
+}
+
+.btn-commercial {
+    border: 2px solid #007222;
+    background: transparent;
+    color: #007222;
+}
+
+.btn-commercial:hover {
+    background: #e5e5e5;
+    color: white;
+}
+
 @media (max-width: 480px) {
     .navbar-logo {
         font-size: 1.25rem;

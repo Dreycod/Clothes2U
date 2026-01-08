@@ -110,6 +110,29 @@
                                 </div>
                             }
                         </div>
+
+                        @if (Vm_NavBar.RoleUtilisateur == "Admin" || Vm_NavBar.RoleUtilisateur == "Modérateur")
+                        {
+                            <button class="btn btn-login btn-moderation">
+                                <a href="/moderation" class="tab-btn">
+                                    <i class="bi bi-shield-lock"></i>
+                                </a>
+                            </button>
+                           
+
+
+                        }
+                        @if (Vm_NavBar.RoleUtilisateur == "Admin" || Vm_NavBar.RoleUtilisateur == "Commercial")
+                        {
+                          @*  <a href="/commercial" class="tab-btn">
+                                <i class="bi bi-graph-up"></i>
+                            </a> *@
+                            <button class="btn btn-login btn-commercial">
+                                <a href="/commercial" class="tab-btn">
+                                    <i class="bi bi-graph-up"></i>
+                                </a>
+                            </button>
+                        }
                     }
                     else
                     {
