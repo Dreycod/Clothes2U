@@ -1,11 +1,13 @@
-﻿using Shared.DTO;
-using FrontBlazor.Services;
+﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Commercial;
+using Microsoft.AspNetCore.Components;
+using Shared.DTO;
 using Shared.DTO.Marque;
 
 namespace FrontBlazor.ViewModel;
-public class CommercialMarquesViewModel
+public class CommercialMarquesViewModel: BaseCommercialViewModel
 {
     public bool showModal = false;
     public bool showDeleteModal = false;
@@ -20,7 +22,7 @@ public class CommercialMarquesViewModel
     public bool IsLoading { get; set; }
 
 
-    public CommercialMarquesViewModel(ICaracteristiqueService<MarqueDTO> marqueService)
+    public CommercialMarquesViewModel(ICaracteristiqueService<MarqueDTO> marqueService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _marqueService = marqueService;
     }
@@ -28,6 +30,7 @@ public class CommercialMarquesViewModel
     public async Task LoadAsync()
     {
         IsLoading = true;
+        await base.LoadAsync();
         Marques = await _marqueService.GetAllAsync();
         if (Marques != null)
         {

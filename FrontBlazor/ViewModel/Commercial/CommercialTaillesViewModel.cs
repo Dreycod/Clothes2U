@@ -1,6 +1,7 @@
 ﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Commercial;
 using Microsoft.AspNetCore.Components;
 using Shared.DTO;
 using Shared.DTO.Categorie;
@@ -10,7 +11,7 @@ using Shared.DTO.Taille;
 
 namespace FrontBlazor.ViewModel;
 
-public class CommercialTaillesViewModel
+public class CommercialTaillesViewModel: BaseCommercialViewModel
 {
     public bool showModal = false;
     public bool showDeleteModal = false;
@@ -33,7 +34,7 @@ public class CommercialTaillesViewModel
     public event Action? OnStateChange;
 
 
-    public CommercialTaillesViewModel(ITailleService tailleService, ICaracteristiqueService<CategorieDTO> categorieService )
+    public CommercialTaillesViewModel(ITailleService tailleService, ICaracteristiqueService<CategorieDTO> categorieService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _tailleService =  tailleService;
         _categorieService = categorieService;
@@ -41,6 +42,7 @@ public class CommercialTaillesViewModel
     public async Task LoadAsync()
     {
         IsLoading = true;
+        await base.LoadAsync();
         Tailles = await _tailleService.GetAllAsync();
         if (Tailles != null)
         {

@@ -1,11 +1,13 @@
-﻿using Shared.DTO;
-using FrontBlazor.Services;
+﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Commercial;
+using Microsoft.AspNetCore.Components;
+using Shared.DTO;
 
 namespace FrontBlazor.ViewModel;
 
-public class CommercialGenresViewModel
+public class CommercialGenresViewModel: BaseCommercialViewModel
 {
     public bool showModal = false;
     public bool showDeleteModal = false;
@@ -19,7 +21,7 @@ public class CommercialGenresViewModel
     public List<GenreDTO> Genres { get; set; }
     public event Action? OnStateChange;
 
-    public CommercialGenresViewModel(ICaracteristiqueService<GenreDTO> genreService)
+    public CommercialGenresViewModel(ICaracteristiqueService<GenreDTO> genreService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _genreService = genreService;
     }

@@ -7,10 +7,11 @@ using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using FrontBlazor.ViewModel.Commercial;
 
 namespace FrontBlazor.ViewModel;
 
-public class CommercialViewModel
+public class CommercialViewModel: BaseCommercialViewModel
 {
     NavigationManager _navigationManager;
     #region Attributes
@@ -33,7 +34,7 @@ public class CommercialViewModel
     public List<TailleDTO> Tailles { get; set; }
     #endregion
     public Action? OnStateChange;
-    public CommercialViewModel(NavigationManager navigationManager, ICaracteristiqueService<CouleurDTO> couleurService, ICaracteristiqueService<MarqueDTO> marqueService, ICategorieService<CategorieDTO> categorieService, ICaracteristiqueService<TailleDTO> tailleService)
+    public CommercialViewModel(NavigationManager navigationManager, ICaracteristiqueService<CouleurDTO> couleurService, ICaracteristiqueService<MarqueDTO> marqueService, ICategorieService<CategorieDTO> categorieService, ICaracteristiqueService<TailleDTO> tailleService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _navigationManager = navigationManager;
         _couleurService =  couleurService;
@@ -45,6 +46,7 @@ public class CommercialViewModel
 
     public async Task LoadAsync()
     {
+        await base.LoadAsync();
         Tailles = await _tailleService.GetAllAsync();
         Couleurs = await _couleurService.GetAllAsync();
         Marques = await _marqueService.GetAllAsync();

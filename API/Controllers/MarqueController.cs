@@ -78,6 +78,7 @@ public class MarqueController : ControllerBase
         return NoContent();
     }
     [HttpPut("id/{id}")]
+    [Authorize(Roles="Admin, Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

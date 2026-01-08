@@ -2,10 +2,11 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTO.Categorie;
-using Shared.DTO.Taille;
 using Shared.DTO.Mesures;
+using Shared.DTO.Taille;
 
 namespace API.Controllers;
 
@@ -37,6 +38,7 @@ public class TailleController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin, Commercial")]
     [ProducesResponseType(typeof(Taille), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -52,6 +54,7 @@ public class TailleController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = _Taille.TailleId }, _Taille);
     }
     [HttpDelete("id/{id}")]
+    [Authorize(Roles = "Admin, Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -66,6 +69,7 @@ public class TailleController : ControllerBase
         return NoContent();
     }
     [HttpPut("id/{id}")]
+    [Authorize(Roles = "Admin, Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -100,6 +104,7 @@ public class TailleController : ControllerBase
     }
 
     [HttpPut("id/{id}/mesures")]
+    [Authorize(Roles = "Admin, Commercial")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

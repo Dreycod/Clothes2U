@@ -1,11 +1,14 @@
 ﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Commercial;
+using Microsoft.AspNetCore.Components;
 using Shared.DTO;
 using Shared.DTO.Categorie;
+using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel;
-public class CommercialCategoriesViewModel
+public class CommercialCategoriesViewModel: BaseCommercialViewModel
 {
     public bool showModal = false;
     public bool showDeleteModal = false;
@@ -13,20 +16,21 @@ public class CommercialCategoriesViewModel
     public CategorieDTO currentCategorie = new CategorieDTO();
     public string successMessage = string.Empty;
     public string errorMessage = string.Empty;
-
+    public bool isCommercial = false;
     public List<CategorieDTO> Categories  { get; set; }
     private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
 
     public event Action? OnStateChange;
     public bool IsLoading { get; set; }
 
-    public CommercialCategoriesViewModel(ICaracteristiqueService<CategorieDTO> categorieService)
+    public CommercialCategoriesViewModel(ICaracteristiqueService<CategorieDTO> categorieService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _categorieService = categorieService;
     }
     public async Task LoadAsync()
     {
         IsLoading = true;
+        await base.LoadAsync();
         Categories = await _categorieService.GetAllAsync();
 
         if (Categories != null)

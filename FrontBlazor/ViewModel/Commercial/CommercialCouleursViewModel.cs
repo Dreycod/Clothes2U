@@ -1,11 +1,13 @@
 ﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Commercial;
+using Microsoft.AspNetCore.Components;
 using Shared.DTO;
 using Shared.DTO.Couleur;
 
 namespace FrontBlazor.ViewModel;
-public class CommercialCouleursViewModel
+public class CommercialCouleursViewModel: BaseCommercialViewModel
 {
     public bool showModal = false;
     public bool showDeleteModal = false;
@@ -19,14 +21,14 @@ public class CommercialCouleursViewModel
     public bool IsLoading { get; set; }
 
     public List<CouleurDTO> Couleurs { get; set; } 
-    public CommercialCouleursViewModel(ICaracteristiqueService<CouleurDTO> couleurViewModel)
+    public CommercialCouleursViewModel(ICaracteristiqueService<CouleurDTO> couleurViewModel, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _couleurService =  couleurViewModel;
     }
     public async Task LoadAsync()
     {
         IsLoading = true;
-        
+        await base.LoadAsync();
         Couleurs = await _couleurService.GetAllAsync();
         if (Couleurs != null)
         {

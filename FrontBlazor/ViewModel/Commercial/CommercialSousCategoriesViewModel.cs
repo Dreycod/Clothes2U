@@ -1,12 +1,14 @@
-﻿using Shared.DTO;
-using FrontBlazor.Services;
+﻿using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Commercial;
+using Microsoft.AspNetCore.Components;
+using Shared.DTO;
 using Shared.DTO.Categorie;
 using Shared.DTO.SousCategorie;
 
 namespace FrontBlazor.ViewModel;
-public class CommercialSousCategoriesViewModel
+public class CommercialSousCategoriesViewModel: BaseCommercialViewModel
 {
     public bool showModal = false;
     public bool showDeleteModal = false;
@@ -24,7 +26,7 @@ public class CommercialSousCategoriesViewModel
     public bool IsLoading { get; set; }
 
     public event Action? OnStateChange;
-    public CommercialSousCategoriesViewModel(ICaracteristiqueService<CategorieDTO> categorieService, WritableService<SousCategoriePostDTO> sousCategorieService)
+    public CommercialSousCategoriesViewModel(ICaracteristiqueService<CategorieDTO> categorieService, WritableService<SousCategoriePostDTO> sousCategorieService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
        _categorieService = categorieService;
        _sousCategorieService = sousCategorieService;
@@ -32,6 +34,7 @@ public class CommercialSousCategoriesViewModel
     public async Task LoadAsync()
     {
         IsLoading = true;
+        await base.LoadAsync();
         Categories = await _categorieService.GetAllAsync();
         LoadAllSubcategories();
         IsLoading = false;
