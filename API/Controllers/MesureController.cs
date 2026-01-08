@@ -40,7 +40,7 @@ public class MesureController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la récupération des mesures");
         }
     }
-/*
+
     /// <summary>
     /// GET: api/Mesure/id/{id}
     /// Récupère une mesure par son ID
@@ -162,5 +162,5 @@ public class MesureController : ControllerBase
             Console.WriteLine($"❌ Erreur DELETE /api/Mesure/id/{id}: {ex.Message}");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-    }*/
+    }
 }
