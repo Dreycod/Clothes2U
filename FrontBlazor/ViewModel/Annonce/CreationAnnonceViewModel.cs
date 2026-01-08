@@ -24,7 +24,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAnnonceService _annonceService;
         private readonly IMediasService _mediaService;
         private readonly IAuthService _authService;
-        private readonly IMesureService _mesureService;
+        private readonly IListableService<MesureDTO> _mesureService;
         private readonly NavigationManager _nav;
         public List<CategorieDTO> Categories { get; set; }
         public List<CouleurDTO> Couleurs { get; set; }
@@ -70,7 +70,7 @@ namespace FrontBlazor.ViewModel
             IAnnonceService annonceService,
             IMediasService mediaService,
             IAuthService authService,
-            IMesureService mesureService,
+            IListableService<MesureDTO> mesureService,
             IListableService<CategorieDTO> categorieService,
             IListableService<CouleurDTO> couleurService,
             IListableService<MarqueDTO> marqueService,
@@ -128,7 +128,7 @@ namespace FrontBlazor.ViewModel
         {
             try
             {
-                _allMesures = await _mesureService.GetAllMesuresAsync();
+                _allMesures = await _mesureService.GetAllAsync();
                 Console.WriteLine($"✅ {_allMesures?.Count ?? 0} mesures chargées");
             }
             catch (Exception ex)

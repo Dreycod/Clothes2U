@@ -36,13 +36,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(typeof(List<AdresseDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<AdresseDTO>>> GetUserAddresses()
     {
-        var userId = await _currentUserService.GetUserId();
-
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-        
+        int userId = await _currentUserService.GetUserIdOrThrow();
         var addresses = await _context.Adresses
             .Where(a => a.UtilisateurId == userId)
             .Select(a => _mapper.Map<AdresseDTO>(a))

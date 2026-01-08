@@ -40,41 +40,7 @@ public class MesureController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la récupération des mesures");
         }
     }
-
-    /// <summary>
-    /// GET: api/Mesure/byCategorie/{categorieId}
-    /// Récupère les IDs de tailles disponibles pour une catégorie donnée
-    /// </summary>
-    [HttpGet("byCategorie/{categorieId}")]
-    [ProducesResponseType(typeof(IEnumerable<int>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<int>>> GetTaillesByCategorie(int categorieId)
-    {
-        try
-        {
-            IEnumerable<Mesure> mesures = await _mesureRepository.GetAllAsync();
-
-            var tailleIds = mesures
-                .Where(m => m.SousCategorieId == categorieId)
-                .Select(m => m.TailleId)
-                .Distinct()
-                .ToList();
-
-            if (!tailleIds.Any())
-            {
-                return NotFound($"Aucune taille trouvée pour la catégorie {categorieId}");
-            }
-
-            return Ok(tailleIds);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Erreur GET /api/Mesure/byCategorie/{categorieId}: {ex.Message}");
-            return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la récupération des tailles");
-        }
-    }
-
+/*
     /// <summary>
     /// GET: api/Mesure/id/{id}
     /// Récupère une mesure par son ID
@@ -196,5 +162,5 @@ public class MesureController : ControllerBase
             Console.WriteLine($"❌ Erreur DELETE /api/Mesure/id/{id}: {ex.Message}");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-    }
+    }*/
 }
