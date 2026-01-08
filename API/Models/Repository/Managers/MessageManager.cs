@@ -14,7 +14,7 @@ public class MessageManager :  GenericCRUDManager<Message>
             .Include(m => m.MessageTexte)
             .ThenInclude(mt => mt.Photos)
             .Include(m => m.MessageDemande)
-            .Include(m => m.MessageValidation)
+            .Include(m => m.MessageEstPayee)
             .AsSplitQuery();
     }
 
@@ -43,9 +43,9 @@ public class MessageDemandeManager : GenericCRUDManager<MessageDemande>, IMessag
     }
 }
 
-public class MessageValidationManager : GenericCRUDManager<MessageValidation>
+public class MessageEstPayeeManager : GenericCRUDManager<MessageEstPayee>
 {
-    public MessageValidationManager(Clothes2UDbContext context) : base(context) {}
+    public MessageEstPayeeManager(Clothes2UDbContext context) : base(context) {}
 }
 
 public class MessageContientImageManager : GenericCRUDManager<MessageContientImage>

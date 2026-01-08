@@ -930,6 +930,39 @@ namespace API.Migrations
                     b.ToTable("t_e_message_demande_mesdem", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
+                {
+                    b.Property<int>("MessageEstPayeeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("mespay_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageEstPayeeId"));
+
+                    b.Property<bool>("EstAnnule")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mespay_est_annulee");
+
+                    b.Property<bool>("EstEnvoye")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mespay_est_acceptee");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mespay_message_id");
+
+                    b.Property<int>("PhotoPreuveId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mespay_photo_preuve_id");
+
+                    b.HasKey("MessageEstPayeeId");
+
+                    b.HasIndex("MessageId")
+                        .IsUnique();
+
+                    b.ToTable("t_e_message_payee_mespay", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>
                 {
                     b.Property<int>("MessageTexteId")
@@ -954,38 +987,6 @@ namespace API.Migrations
                         .IsUnique();
 
                     b.ToTable("t_e_message_texte_mestex", "sae_clothes2u");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.MessageValidation", b =>
-                {
-                    b.Property<int>("MessageValidationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("mesval_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageValidationId"));
-
-                    b.Property<bool>("EstAcceptee")
-                        .HasColumnType("boolean")
-                        .HasColumnName("mesval_est_acceptee");
-
-                    b.Property<int>("MessageDemandeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mesval_proposition_validee_id");
-
-                    b.Property<int>("MessageId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mesval_message_id");
-
-                    b.HasKey("MessageValidationId");
-
-                    b.HasIndex("MessageDemandeId")
-                        .IsUnique();
-
-                    b.HasIndex("MessageId")
-                        .IsUnique();
-
-                    b.ToTable("t_e_message_validation_mesval", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Mesure", b =>
@@ -2416,6 +2417,17 @@ namespace API.Migrations
                     b.Navigation("Offre");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Message", "Message")
+                        .WithOne("MessageEstPayee")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEstPayee", "MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
@@ -2425,25 +2437,6 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("Message");
-                });
-
-            modelBuilder.Entity("API.Models.EntityFramework.MessageValidation", b =>
-                {
-                    b.HasOne("API.Models.EntityFramework.MessageDemande", "PropositionValidee")
-                        .WithOne("Validation")
-                        .HasForeignKey("API.Models.EntityFramework.MessageValidation", "MessageDemandeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.EntityFramework.Message", "Message")
-                        .WithOne("MessageValidation")
-                        .HasForeignKey("API.Models.EntityFramework.MessageValidation", "MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("PropositionValidee");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Mesure", b =>
@@ -2943,9 +2936,9 @@ namespace API.Migrations
 
                     b.Navigation("MessageDemande");
 
-                    b.Navigation("MessageTexte");
+                    b.Navigation("MessageEstPayee");
 
-                    b.Navigation("MessageValidation");
+                    b.Navigation("MessageTexte");
 
                     b.Navigation("NotificationsMessage");
 
@@ -2957,8 +2950,6 @@ namespace API.Migrations
                     b.Navigation("ContreOffres");
 
                     b.Navigation("NotificationProposition");
-
-                    b.Navigation("Validation");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>

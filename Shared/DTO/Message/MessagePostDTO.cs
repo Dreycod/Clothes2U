@@ -21,7 +21,6 @@ public class MessageDemandePostDTO : MessagePostDTO
     public decimal PrixPropose { get; set; }
 }
 
-public class MessageValidationPostDTO : MessagePostDTO
+public class MessageEstPayeePostDTO : MessagePostDTO
 {
-    public int MessageDemandeId { get; set; }
 }

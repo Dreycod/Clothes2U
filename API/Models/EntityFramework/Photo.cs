@@ -25,6 +25,9 @@ public class Photo : IEntity
     
     [InverseProperty(nameof(Utilisateur.PhotoProfil))]
     public virtual Utilisateur?  Utilisateur { get; set; }
+    //
+    // [InverseProperty(nameof(MessageEstPayee.PhotoPreuve))]
+    // public virtual MessageEstPayee? MessageEstPayee { get; set; }
     
     public int GetId() => PhotoId;
 }

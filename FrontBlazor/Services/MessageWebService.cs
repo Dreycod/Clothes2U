@@ -40,6 +40,12 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         return await PostWithCredentialsAsync($"Message/demande",body);
     }
 
+    public Task<HttpResponseMessage> PostMessagePayee(MessageEstPayeePostDTO message)
+    {
+        var body = JsonContent.Create(message);
+        return PostWithCredentialsAsync($"Message/payee",body);
+    }
+
     public async Task MaskAsRead(int messageId)
     {
         var response = await _httpClient.PutAsync($"Message/markAsRead/{messageId}", null);

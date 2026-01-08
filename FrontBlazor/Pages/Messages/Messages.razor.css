@@ -1488,3 +1488,57 @@ input[type="file"] {
 .message.received .message-text {
     margin-left: 0;
 }
+
+/* ===============================
+   MESSAGE PAIEMENT
+   =============================== */
+
+.payment-status-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    max-width: 420px;
+    margin: 0.5rem auto;
+    animation: fadeIn 0.3s ease-in-out;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    border: 2px solid transparent;
+}
+
+.payment-status-card.paid {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.payment-status-card.cancelled {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-color: #ef4444;
+    color: #7f1d1d;
+}
+
+.payment-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.payment-status-card.paid .payment-icon {
+    color: #10b981;
+}
+
+.payment-status-card.cancelled .payment-icon {
+    color: #ef4444;
+}
+
+.payment-content h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.payment-content p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.85;
+}

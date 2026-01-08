@@ -55,8 +55,8 @@ public class Message : IEntity
     // [InverseProperty(nameof(MessageTexte.Photos))]
     // public virtual ICollection<string> Photos { get; set; }
 
-    [InverseProperty(nameof(MessageValidation.Message))]
-    public virtual MessageValidation? MessageValidation { get; set; }
+    [InverseProperty(nameof(MessageEstPayee.Message))]
+    public virtual MessageEstPayee? MessageEstPayee { get; set; }
     
     //moderation
     [InverseProperty(nameof(ElementDecisionMessage.Message))]

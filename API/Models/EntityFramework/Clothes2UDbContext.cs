@@ -35,7 +35,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<MessageContientImage> MessageContientImages { get; set; }
     public DbSet<MessageDemande> MessageDemandes { get; set; }
     public DbSet<MessageTexte> MessageTextes { get; set; }
-    public DbSet<MessageValidation> MessageValidations { get; set; }
+    public DbSet<MessageEstPayee> MessageEstPayees { get; set; }
     public DbSet<Mesure> Mesures { get; set; }
     public DbSet<MotInterdit> MotsInterdits { get; set; }
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
@@ -530,9 +530,9 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(m => m.Message)
                 .HasForeignKey<MessageDemande>(m => m.MessageId);
 
-            entity.HasOne(e => e.MessageValidation)
+            entity.HasOne(e => e.MessageEstPayee)
                 .WithOne(m => m.Message)
-                .HasForeignKey<MessageValidation>(m => m.MessageId);
+                .HasForeignKey<MessageEstPayee>(m => m.MessageId);
             
             entity.HasMany(e => e.Decisions)
                 .WithOne(d => d.Message)
@@ -598,30 +598,19 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.DemandeId)
                 .OnDelete(DeleteBehavior.NoAction);
     
-            // Relation MessageDemande -> MessageValidation (One-to-One optionnelle)
-            entity.HasOne(e => e.Validation)
-                .WithOne(v => v.PropositionValidee)
-                .HasForeignKey<MessageValidation>(v => v.MessageDemandeId)
-                .OnDelete(DeleteBehavior.NoAction);
         });
 
-        modelBuilder.Entity<MessageValidation>(entity =>
+        modelBuilder.Entity<MessageEstPayee>(entity =>
         {
-            entity.ToTable("t_e_message_validation_mesval");
+            entity.ToTable("t_e_message_payee_mespay");
 
-            entity.HasKey(e => e.MessageValidationId);
+            entity.HasKey(e => e.MessageEstPayeeId);
 
             // Relation MessageValidation -> Message (One-to-One)
             entity.HasOne(e => e.Message)
-                .WithOne(m => m.MessageValidation)
-                .HasForeignKey<MessageValidation>(e => e.MessageId)
+                .WithOne(m => m.MessageEstPayee)
+                .HasForeignKey<MessageEstPayee>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
-            entity.HasOne(e => e.PropositionValidee)
-                .WithOne(d => d.Validation)
-                .HasForeignKey<MessageValidation>(e => e.MessageDemandeId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired(); 
         });
 
         modelBuilder.Entity<Mesure>(entity =>

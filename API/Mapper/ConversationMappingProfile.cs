@@ -18,26 +18,6 @@ public class ConversationMappingProfile : Profile
                     ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList() 
                     : new List<int>()));
             
-        // CreateMap<Conversation, ConversationDTO>()
-        //     .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
-        //     .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
-        //         src.Messages.OrderByDescending(m => m.MessageDate)
-        //             .FirstOrDefault().MessageTexte.Content ?? string.Empty))
-        //     .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
-        //         src.Messages.OrderByDescending(m => m.MessageDate)
-        //             .FirstOrDefault().MessageDate.Date))
-        //     .ForMember(dest => dest.Interlocuteur,
-        //         opt => opt.MapFrom((src, dest, _, context) =>
-        //             (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
-        //                 ? src.Vendeur?.UtilisateurVendeur?.Login
-        //                 : src.Acheteur?.UtilisateurAcheteur?.Login
-        //         ))
-        //     .ForMember(dest => dest.PhotoInterlocuteurId,
-        //         opt => opt.MapFrom((src, dest, _, context) =>
-        //             (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
-        //                 ? src.Vendeur?.UtilisateurVendeur?.PhotoProfil?.PhotoId ?? 0
-        //                 : src.Acheteur?.UtilisateurAcheteur?.PhotoProfil?.PhotoId ?? 0
-        //         ));
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
             .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src =>
@@ -107,14 +87,16 @@ public class ConversationMappingProfile : Profile
                             EstRepondue = message.MessageDemande.EstRepondue
                         };
                     }
-                    else if (message.MessageValidation != null)
+                    else if (message.MessageEstPayee != null)
                     {
-                        dto = new MessageValidationDTO
+                        dto = new MessageEstPayeeDTO
                         {
                             MessageId = message.MessageId,
                             Date = message.MessageDate,
                             Lu = message.MessageLu,
-                            EstAcceptee = message.MessageValidation.EstAcceptee,
+                            EstAnnule = message.MessageEstPayee.EstAnnule,
+                            EstEnvoye = message.MessageEstPayee.EstEnvoye,
+                            MessageEstPayeeId = message.MessageEstPayee.MessageEstPayeeId
                             //PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
                         };
                     }

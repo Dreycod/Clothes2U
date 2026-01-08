@@ -21,7 +21,7 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<Message, int> _messageManager;
     private readonly IDataRepository<MessageTexte, int> _messageTexteManager;
     private readonly IMessageDemandeRepository _messageDemandeManager;
-    private readonly IDataRepository<MessageValidation, int> _messageValidationManager;
+    private readonly IDataRepository<MessageEstPayee, int> _messageValidationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
@@ -34,7 +34,7 @@ public class MessageController : ControllerBase
         IDataRepository<MessageTexte, int> messageTexteManager,
         IConversationRepository<Conversation, int> conversationManager,
         IMessageDemandeRepository messageDemandeManager,
-        IDataRepository<MessageValidation, int> messageValidationManager,
+        IDataRepository<MessageEstPayee, int> messageValidationManager,
         IDataRepository<MessageContientImage, int> messageContientImageManager,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
@@ -225,10 +225,10 @@ public class MessageController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
 
-    [HttpPost("validation")]
-    [ProducesResponseType(typeof(MessageValidationPostDTO), StatusCodes.Status201Created)]
+    [HttpPost("payee")]
+    [ProducesResponseType(typeof(MessageEstPayeePostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MessageValidationPostDTO>> PostMessageValidation(MessageValidationPostDTO dto)
+    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessageValidation(MessageEstPayeePostDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -243,9 +243,10 @@ public class MessageController : ControllerBase
         
         await _messageManager.AddAsync(message);
 
-        var messageValidation = new MessageValidation
+        
+        var messageValidation = new MessageEstPayee()
         {
-            MessageId = message.MessageId
+            MessageId = message.MessageId,
         };
         
         await _messageValidationManager.AddAsync(messageValidation);

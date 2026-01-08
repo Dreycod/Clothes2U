@@ -36,8 +36,8 @@ public class MessageDemande : IEntity
     [InverseProperty(nameof(Message.MessageDemande))]
     public virtual Message Message{ set; get; }
     
-    [InverseProperty(nameof(MessageValidation.PropositionValidee))]
-    public virtual MessageValidation? Validation{ set; get; }
+    // [InverseProperty(nameof(MessageValidation.PropositionValidee))]
+    // public virtual MessageValidation? Validation{ set; get; }
     
     //notification : 
     [InverseProperty(nameof(NotificationProposition.MessageDemande))]

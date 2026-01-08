@@ -178,25 +178,23 @@
                         @foreach (var message in VM_Messagerie.SelectedConversation.ListMessages)
                         {
                             <div class="message @(message.SentByCurrentUser ? "sent" : "received")">
-                                @* <div class="message-row @(message.SentByCurrentUser ? "sent" : "received")"> *@
-                                    @if (!message.SentByCurrentUser)
+                                @if (!message.SentByCurrentUser)
+                                {
+                                <div class="message-avatar">
+                                    @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != null &&
+                                         VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != 0)
                                     {
-                                        <div class="message-avatar">
-                                            @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != null &&
-                                                 VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != 0)
-                                            {
-                                                <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)"
-                                                     alt="Photo interlocuteur" />
-                                            }
-                                            else
-                                            {
-                                                <img src="images/placeholder_message.jpeg"
-                                                     alt="Photo interlocuteur" />
-                                            }
-                                            </div>
+                                        <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)"
+                                             alt="Photo interlocuteur"/>
                                     }
-                                @* </div> *@
-                                    @if (message.TypeMessage == "Texte")
+                                    else
+                                    {
+                                        <img src="images/placeholder_message.jpeg"
+                                             alt="Photo interlocuteur"/>
+                                    }
+                                </div>
+                                }
+                                @if (message.TypeMessage == "Texte")
                                 {
                                     MessageTextDTO newmessage = message as MessageTextDTO;
                                     <div class="message-content-wrapper">
@@ -309,7 +307,69 @@
                                         }
                                     </div>
                                 }
+                                else if (message.TypeMessage == "Payee")
+                                {
+                                    MessageEstPayeeDTO payee = message as MessageEstPayeeDTO;
 
+                                    <div class="payment-status-card @(payee.EstAnnule ? "cancelled" : "paid")">
+                                        <div class="payment-icon">
+                                            @if (payee.EstAnnule)
+                                            {
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            }
+                                        </div>
+
+                                        <div class="payment-content">
+                                            @if (payee.EstAnnule)
+                                            {
+                                                <h4>Paiement annulé</h4>
+                                                <p>La transaction a été annulée.</p>
+                                            }
+                                            else
+                                            {
+                                                <h4>Produit payé</h4>
+                                                
+                                                @if (!payee.EstEnvoye)
+                                                {
+                                                    <p>En attente d’envoi du colis par le vendeur.</p>
+                                                }
+                                                else
+                                                {
+                                                    <p>Le colis a été envoyé.</p>
+                                                }
+                                            }
+                                            
+                                            
+                                            @* Bouton visible uniquement pour le vendeur tant que le colis n'est pas envoyé *@
+                                            @if (!payee.EstAnnule &&
+                                                 !payee.EstEnvoye &&
+                                                 VM_Messagerie.CurrentUser.UtilisateurId == VM_Messagerie.SelectedConversation.VendeurId)
+                                            {
+                                                <button class="btn-primary"
+                                                        @* @onclick="() => VM_Messagerie.MarquerColisEnvoyeAsync(payee.MessageId.Value)"*@> 
+                                                    <i class="bi bi-truck"></i>
+                                                    Marquer comme envoyé
+                                                </button>
+                                            }
+                                            
+                                            @* Bouton annuler visible pour l'acheteur tant que le colis n'est pas envoyé *@
+                                            @if (!payee.EstAnnule &&
+                                                 !payee.EstEnvoye &&
+                                                 VM_Messagerie.CurrentUser.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                            {
+                                                <button class="btn-secondary btn-danger"
+                                                        @*@onclick="() => VM_Messagerie.AnnulerPaiementAsync(payee.MessageId.Value)"*@>
+                                                    <i class="bi bi-x-circle"></i>
+                                                    Annuler
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                                 <div class="message-info">
                                     <span class="message-time">@message.Date</span>
                                     @* ✅ CORRECTION ICI : IsRead au lieu de Lu *@

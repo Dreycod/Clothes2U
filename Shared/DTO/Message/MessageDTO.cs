@@ -5,7 +5,7 @@ using Shared.Interfaces;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeMessage")]
 [JsonDerivedType(typeof(MessageTextDTO), "Texte")]
 [JsonDerivedType(typeof(MessageDemandeDTO), "Demande")]
-[JsonDerivedType(typeof(MessageValidationDTO), "Validation")]
+[JsonDerivedType(typeof(MessageEstPayeeDTO), "Payee")]
 public abstract class MessageDTO : IEntity
 {
     public int? MessageId { get; set; }
@@ -42,11 +42,10 @@ public class MessageDemandeDTO : MessageDTO
     public bool EstRepondue { get; set; } = false;
 }
 
-public class MessageValidationDTO : MessageDTO
+public class MessageEstPayeeDTO : MessageDTO
 {
-    public override string TypeMessage => "Validation";
-    public int MessageDemandeId { get; set; }
-    public MessageDemandeDTO? Demande { get; set; }
-    public bool EstAcceptee { get; set; }
-    public double PrixValide { get; set; }
+    public override string TypeMessage => "Payee";
+    public int MessageEstPayeeId { get; set; }
+    public bool EstEnvoye { get; set; }
+    public bool EstAnnule { get; set; }
 }

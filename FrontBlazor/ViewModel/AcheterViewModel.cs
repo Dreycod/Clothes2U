@@ -8,6 +8,7 @@ using FrontBlazor.ViewModel.Generic;
 using Shared;
 using Shared.DTO.Annonce;
 using Shared.DTO.Conversation;
+using Shared.DTO.Message;
 using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel;
@@ -18,6 +19,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
     private readonly IPaymentService _paymentService;
     private readonly IAnnonceService _annonceService;
     private readonly IConversationService<ConversationDTO> _conversationService;
+    private readonly IMessageService _messageService;
     private readonly IOrderService _orderService;
     private readonly NavigationManager _nav;
     private readonly IJSRuntime _jsRuntime;
@@ -52,6 +54,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
         IAnnonceService annonceService,
         IConversationService<ConversationDTO> conversationService,
         IOrderService orderService,
+        IMessageService messageService,
         NavigationManager nav,
         NavigationManager navigationManager,
         INotificationService notificationService,
@@ -60,6 +63,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
         _authService = authService;
         _paymentService = paymentService;
         _annonceService = annonceService;
+        _messageService = messageService;
         _conversationService = conversationService;
         _orderService = orderService;
         _nav = nav;
@@ -211,6 +215,16 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
                 await CreateOrder(result.PaymentIntentId);
                 
                 CurrentStep = PurchaseStep.Success;
+
+                MessageEstPayeePostDTO messagePayeeDTO = new MessageEstPayeePostDTO
+                {
+                    ConversationId = SelectedConversation.ConversationId,
+                    UtilisateurId = CurrentUser.UtilisateurId,
+                    
+                };
+
+                _messageService.PostMessagePayee(messagePayeeDTO);
+                
                 return true;
             }
             else

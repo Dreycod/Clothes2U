@@ -11,7 +11,7 @@ public class MessageMapperProfile : Profile
         CreateMap<Message, MessageDTO>()
             .Include<Message, MessageTextDTO>()
             .Include<Message, MessageDemandeDTO>()
-            .Include<Message, MessageValidationDTO>()
+            .Include<Message, MessageEstPayeeDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
             .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu));
@@ -59,15 +59,15 @@ public class MessageMapperProfile : Profile
                 src.MessageDemande != null ? src.MessageDemande.EstAcceptee : false))
             .ForMember(dest => dest.EstRepondue, opt => opt.MapFrom(src => 
                 src.MessageDemande != null ? src.MessageDemande.EstRepondue : false));
-        
-        CreateMap<Message, MessageValidationDTO>()
+
+        CreateMap<Message, MessageEstPayeeDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
             .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
-            .ForMember(dest => dest.PrixValide, opt => opt.MapFrom(src =>
-                src.MessageValidation != null && src.MessageValidation.PropositionValidee != null
-                    ? src.MessageValidation.PropositionValidee.PrixPropose
-                    : 0))
-            .ForMember(dest => dest.Demande, opt => opt.MapFrom(src => src.MessageValidation.PropositionValidee));
+            .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.MessageEstPayeeId, opt =>opt.MapFrom(src => src.MessageEstPayee.MessageEstPayeeId))
+            .ForMember(dest => dest.EstAnnule, opt => opt.MapFrom(src => src.MessageEstPayee.EstAnnule))
+            .ForMember(dest => dest.EstEnvoye, opt => opt.MapFrom(src => src.MessageEstPayee.EstEnvoye));
     }
 }
