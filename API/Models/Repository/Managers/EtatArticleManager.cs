@@ -7,8 +7,5 @@ public class EtatArticleManager : GenericCRUDManager<EtatArticle>, IEtatArticleR
 {
     public EtatArticleManager(Clothes2UDbContext context) : base(context) { }
 
-    public async Task<IEnumerable<EtatArticle>> GetAllAsyncByIdentifier(int id)
-    {
-        return await _context.EtatArticles.Where(e => e.EtatArticleId == id).ToListAsync();
-    }
+
 }

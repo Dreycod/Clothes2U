@@ -30,15 +30,6 @@ public class EtatArticleController: ControllerBase
         IEnumerable<EtatArticleDTO> EtatArticlesDTO = _mapper.Map<IEnumerable<EtatArticleDTO>>(EtatArticles);
         return Ok(EtatArticlesDTO);
     }
-    [HttpGet("byCategoryId/{id}")]
-    [ProducesResponseType(typeof(IEnumerable<EtatArticle>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<EtatArticleDTO>>> GetAllEtatArticleByCategorieId(int id)
-    {
-        IEnumerable<EtatArticle> EtatArticles = await _etatManager.GetAllAsyncByIdentifier(id);
-        IEnumerable<EtatArticleDTO> EtatArticlesDTO = _mapper.Map<IEnumerable<EtatArticleDTO>>(EtatArticles);
-        return Ok(EtatArticlesDTO);
-    }
 }
 
 

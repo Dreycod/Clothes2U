@@ -3,7 +3,7 @@ using API.Models.Repository.Managers;
 
 namespace API.Models.Repository;
 
-public interface IEtatArticleRepository : IDataRepository<EtatArticle, int>, IFiltrableByIdRepository<EtatArticle, int>
+public interface IEtatArticleRepository : IDataRepository<EtatArticle, int>
 {
 
 }
