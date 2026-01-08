@@ -26,18 +26,18 @@ public class CommercialTaillesViewModel
     public List<(SousCategorieDTO Subcategory, CategorieDTO ParentCategory)> allSubcategories = new();
     private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
     private readonly ICaracteristiqueService<TailleDTO> _tailleService;
-    private readonly ICaracteristiqueService<MesureDTO> _mesureService;
+   // private readonly ICaracteristiqueService<MesureDTO> _mesureService;
 
     public bool IsLoading { get; set; }
 
     public event Action? OnStateChange;
 
 
-    public CommercialTaillesViewModel(ICaracteristiqueService<TailleDTO> tailleService, ICaracteristiqueService<CategorieDTO> categorieService, ICaracteristiqueService<MesureDTO> mesureService )
+    public CommercialTaillesViewModel(ICaracteristiqueService<TailleDTO> tailleService, ICaracteristiqueService<CategorieDTO> categorieService) // ICaracteristiqueService<MesureDTO> mesureService )
     {
         _tailleService =  tailleService;
         _categorieService = categorieService;
-        _mesureService = mesureService;
+        //_mesureService = mesureService;
     }
     public async Task LoadAsync()
     {
@@ -141,7 +141,7 @@ public class CommercialTaillesViewModel
                     TailleId = currentTaille.TailleId,
                     SousCategorieId = mesuresToAdd[i]
                 };
-                await _mesureService.AddAsync(newMesure);
+               //await _mesureService.AddAsync(newMesure);
             }
 
             for (int i = 0; i < mesuresToRemove.Count; i++)
@@ -149,7 +149,7 @@ public class CommercialTaillesViewModel
                 var mesureToDelete = currentTaille.Mesures.FirstOrDefault(m => m.SousCategorieId == mesuresToRemove[i]);
                 if (mesureToDelete != null)
                 {
-                    await _mesureService.DeleteAsync(mesureToDelete.MesureId);
+                   // await _mesureService.DeleteAsync(mesureToDelete.MesureId);
                 }
             }
 
