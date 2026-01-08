@@ -17,15 +17,13 @@ namespace API.Controllers;
 public class MotInterditController : ControllerBase
 {
     private readonly IMotInterditRepository _motInterditRepository;
-    private readonly ICurrentUserService _currentUserService;
     private  readonly IMapper _mapper;
 
-    public MotInterditController(IMotInterditRepository motInterditRepository,
-        ICurrentUserService currentUserService,
+    public MotInterditController(
+        IMotInterditRepository motInterditRepository,
         IMapper mapper)
     {
         _motInterditRepository = motInterditRepository;
-        _currentUserService = currentUserService;
         _mapper = mapper;
     }
 
@@ -40,21 +38,6 @@ public class MotInterditController : ControllerBase
         IEnumerable<MotInterditDTO> motsDTO = _mapper.Map<List<MotInterditDTO>>(mots);
         return Ok(motsDTO);
     }
-    [HttpGet("id/{id}")]
-    [Authorize]
-    [ProducesResponseType(typeof(MotInterditDTO),StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<MotInterditDTO>> GetById(int id)
-    {
-        var mot = await _motInterditRepository.GetByIdAsync(id);
-        if (mot == null)
-            return NotFound();
-        
-        MotInterditDTO motDTO = _mapper.Map<MotInterditDTO>(mot);
-        return Ok(motDTO);
-    }
-
     [HttpPost]
     [Authorize(Roles="Admin, Moderateur")]
     [ProducesResponseType(typeof(MotInterditDTO), StatusCodes.Status201Created)]
@@ -72,7 +55,7 @@ public class MotInterditController : ControllerBase
         try
         {
             await _motInterditRepository.AddAsync(motToAdd);
-            return CreatedAtAction(nameof(GetById), new { id = motToAdd.MotinterditId }, motToAdd);
+            return StatusCode(StatusCodes.Status201Created, motToAdd);
         }
         catch (DbUpdateException dbEx)
         {
