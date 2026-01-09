@@ -81,7 +81,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
     {
         var request = new HttpRequestMessage(
             HttpMethod.Patch,
-            $"Utilisateur/PatchSettings")
+            $"Utilisateur/{id}/PatchSettings")
         {
             Content = JsonContent.Create(utilisateurSettingsDTO)
         };

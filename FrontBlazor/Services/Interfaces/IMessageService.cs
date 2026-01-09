@@ -10,6 +10,8 @@ public interface IMessageService : IReadableService<MessageTextDTO>, IWritableSe
     Task<HttpResponseMessage> PostMessageTexte(MessageTextePostDTO message);
     Task<HttpResponseMessage> PostMessageDemande(MessageDemandePostDTO message);
     Task<HttpResponseMessage> PostMessagePayee(MessageEstPayeePostDTO message);
+    Task<HttpResponseMessage> PostMessageEnvoieColis(MessageEnvoisColisPostDTO message);
+    Task<HttpResponseMessage> CancelMessagePayee(int messageId);
     Task<MessageDTO> GetLastMessageByConversationId(int id);
     Task MaskAsRead(int messageId);
     Task AnswerPriceProposal(int messageId, bool accepted);

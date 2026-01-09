@@ -54,3 +54,8 @@ public class MessageContientImageManager : GenericCRUDManager<MessageContientIma
     {
     }
 }
+
+public class MessageEnvoieColisManager : GenericCRUDManager<MessageEnvoieColis>
+{
+    public MessageEnvoieColisManager(Clothes2UDbContext context) : base(context) {}
+}

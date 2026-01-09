@@ -94,10 +94,29 @@ public class ConversationMappingProfile : Profile
                             MessageId = message.MessageId,
                             Date = message.MessageDate,
                             Lu = message.MessageLu,
+                            SenderId = message.UtilisateurId,
+                            SenderName = message.Utilisateur?.Login ?? string.Empty,
+                            SentByCurrentUser = message.UtilisateurId == currentUserId,
                             EstAnnule = message.MessageEstPayee.EstAnnule,
                             EstEnvoye = message.MessageEstPayee.EstEnvoye,
                             MessageEstPayeeId = message.MessageEstPayee.MessageEstPayeeId
                             //PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
+                        };
+                    }
+                    else if (message.MessageEnvoieColis != null)
+                    {
+                        dto = new MessageEnvoieColisDTO
+                        {
+                            MessageId = message.MessageId,
+                            Date = message.MessageDate,
+                            Lu = message.MessageLu,
+                            SenderId = message.UtilisateurId,
+                            SenderName = message.Utilisateur?.Login ?? string.Empty,
+                            SentByCurrentUser = message.UtilisateurId == currentUserId,
+                            MessageEnvoieColisId = message.MessageEnvoieColis.MessageEnvoieColisId,
+                            PhotoId = message.MessageEnvoieColis.PhotoId,
+                            MessageEstPayeeId = message.MessageEnvoieColis.MessageEstPayeeId
+
                         };
                     }
                     if (dto != null)

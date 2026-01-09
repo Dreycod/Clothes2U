@@ -349,11 +349,33 @@
                                                  !payee.EstEnvoye &&
                                                  VM_Messagerie.CurrentUser.UtilisateurId == VM_Messagerie.SelectedConversation.VendeurId)
                                             {
-                                                <button class="btn-primary"
-                                                        @* @onclick="() => VM_Messagerie.MarquerColisEnvoyeAsync(payee.MessageId.Value)"*@> 
-                                                    <i class="bi bi-truck"></i>
-                                                    Marquer comme envoyé
-                                                </button>
+                                                <div class="mt-2">
+
+                                                    <InputFile OnChange="VM_Messagerie.OnColisPhotoSelected"
+                                                               accept="image/*" />
+
+                                                    @if (VM_Messagerie.ColisPhotoPreviewBase64 != null)
+                                                    {
+                                                        <img src="@VM_Messagerie.ColisPhotoPreviewBase64"
+                                                             class="img-thumbnail mt-2"
+                                                             style="max-width:200px" />
+                                                    }
+
+                                                    @if (!string.IsNullOrEmpty(VM_Messagerie.ColisError))
+                                                    {
+                                                        <div class="text-danger mt-1">
+                                                            @VM_Messagerie.ColisError
+                                                        </div>
+                                                    }
+
+                                                    <button class="btn btn-primary mt-3"
+                                                            disabled="@VM_Messagerie.IsSendingColis"
+                                                            @onclick="() => VM_Messagerie.MarquerColisEnvoyeAsync(payee.MessageEstPayeeId)">
+                                                        <i class="bi bi-truck"></i>
+                                                        Marquer comme envoyé
+                                                    </button>
+
+                                                </div>
                                             }
                                             
                                             @* Bouton annuler visible pour l'acheteur tant que le colis n'est pas envoyé *@
@@ -362,10 +384,32 @@
                                                  VM_Messagerie.CurrentUser.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                                             {
                                                 <button class="btn-secondary btn-danger"
-                                                        @*@onclick="() => VM_Messagerie.AnnulerPaiementAsync(payee.MessageId.Value)"*@>
+                                                        @onclick="() => CancelPayement(payee.MessageEstPayeeId)">
                                                     <i class="bi bi-x-circle"></i>
                                                     Annuler
                                                 </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                else if (message.TypeMessage == "EnvoieColis")
+                                {
+                                    MessageEnvoieColisDTO colis = message as MessageEnvoieColisDTO;
+
+                                    <div class="payment-status-card paid">
+                                        <div class="payment-icon">
+                                            <i class="bi bi-truck"></i>
+                                        </div>
+
+                                        <div class="payment-content">
+                                            <h4>Colis envoyé</h4>
+                                            <p>Le vendeur a expédié le colis.</p>
+
+                                            @if (colis.PhotoId != 0 || colis.PhotoId != null)
+                                            {
+                                                <img src="@VM_Messagerie._mediaService.GetPhotoUrl(colis.PhotoId)"
+                                                     alt="Preuve d'envoi du colis"
+                                                     style="margin-top:10px; max-width:220px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15);" />
                                             }
                                         </div>
                                     </div>
@@ -641,6 +685,11 @@
 
             StateHasChanged();
         }
+    }
+
+    private async Task CancelPayement(int id)
+    {
+        await VM_Messagerie.CancelMessagePayeeAsync(id);
     }
     
     
