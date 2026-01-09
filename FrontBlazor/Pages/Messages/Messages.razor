@@ -595,6 +595,14 @@
                 await VM_Messagerie.SelectConversationAsync(convId);
             }
         }
+
+        if (query.TryGetValue("makeOffer", out var makeOfferValue))
+        {
+            if (makeOfferValue == "true")
+            {
+                showPriceModal = true;
+            }
+        }
         
         VM_Messagerie.OnChange += StateHasChanged;
         VM_Messagerie.OnMessageReceivedUI += async () =>
