@@ -185,17 +185,26 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}");
     }
 
-    public void MakeOffer()
+    public async void MakeOffer()
     {
-        // TODO: Open make offer dialog
-        // open something like review form thing for the avis
-        // but he inserts the price, then checks if conversation exists, if not creates and 
-        // creates a new message too of type Proposition.
+        if ( CheckLoginStatus == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}&makeOffer=true");
     }
 
-    public void BuyProduct()
+    public async void BuyProduct()
     {
-        // TODO go to page payment and ye
+        if (CheckLoginStatus == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/acheter/{conv.ConversationId}");
     }
 
     public async void ShareProduct()
