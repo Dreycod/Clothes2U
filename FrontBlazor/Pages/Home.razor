@@ -47,7 +47,9 @@
                 {
                     <AnnonceCard annonceComponent="annonce"
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
-                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)" />
+                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
+                                 IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+
                 }
             </div>
         }
@@ -96,7 +98,9 @@
                 {
                     <AnnonceCard annonceComponent="annonce"
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
-                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)" />
+                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
+                                 IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+
                 }
             </div>
         }
@@ -148,7 +152,9 @@
                     {
                         <AnnonceCard annonceComponent="annonce"
                                      OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
-                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)" />
+                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
+                                     IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+
                     }
                 </div>
             }

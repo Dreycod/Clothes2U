@@ -89,7 +89,10 @@
                             @if (Vm_NavBar.showDropdown)
                             {
                                 <div class="profile-dropdown">
-                                    <a href="/profile/@Vm_NavBar.utilisateur.Login" class="dropdown-item" @onclick="Vm_NavBar.ToggleDropdown">
+                                    <a href="/profile/@Vm_NavBar.utilisateur.Login"
+                                       class="dropdown-item"
+                                       @onclick="() => Vm_NavBar.NavigateToProfile(Vm_NavBar.utilisateur.Login)"
+                                       @onclick:preventDefault="true">
                                         <i class="bi bi-person"></i>
                                         <span>Profil du compte</span>
                                     </a>

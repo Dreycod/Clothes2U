@@ -6,6 +6,7 @@ using Shared.Interfaces;
 [JsonDerivedType(typeof(MessageTextDTO), "Texte")]
 [JsonDerivedType(typeof(MessageDemandeDTO), "Demande")]
 [JsonDerivedType(typeof(MessageEstPayeeDTO), "Payee")]
+[JsonDerivedType(typeof(MessageEnvoieColisDTO), "EnvoieColis")]
 public abstract class MessageDTO : IEntity
 {
     public int? MessageId { get; set; }
@@ -50,7 +51,7 @@ public class MessageEstPayeeDTO : MessageDTO
     public bool EstAnnule { get; set; }
 }
 
-public class MessageEnvoisColisDTO : MessageDTO
+public class MessageEnvoieColisDTO : MessageDTO
 {
     public override string TypeMessage => "EnvoieColis";
     public int MessageEnvoieColisId { get; set; }

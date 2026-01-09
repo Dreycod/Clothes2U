@@ -105,7 +105,7 @@ public class ConversationMappingProfile : Profile
                     }
                     else if (message.MessageEnvoieColis != null)
                     {
-                        dto = new MessageEnvoisColisDTO
+                        dto = new MessageEnvoieColisDTO
                         {
                             MessageId = message.MessageId,
                             Date = message.MessageDate,

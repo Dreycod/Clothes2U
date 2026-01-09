@@ -11,6 +11,7 @@ using Shared.DTO.EtatArticle;
 using Shared.DTO.Favoris;
 using Shared.DTO.Marque;
 using Shared.DTO.Taille;
+using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
@@ -34,14 +35,14 @@ namespace FrontBlazor.ViewModel
         public LoginViewModel VM_Login { get; set; }
         public string marqueSearch { get; set; }
         #endregion
-        
+
         #region services
 
         private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
         private readonly IMarqueService _marqueService;
         private readonly ICaracteristiqueService<EtatArticleDTO> _etatService;
         private readonly ICaracteristiqueService<GenreDTO> _genreService;
-        private readonly ICaracteristiqueService<TailleDTO> _tailleService; 
+        private readonly ICaracteristiqueService<TailleDTO> _tailleService;
         #endregion
 
         #region Properties
@@ -49,7 +50,7 @@ namespace FrontBlazor.ViewModel
         public bool IsLoading { get; set; } = false;
         public string? ErrorMessage { get; set; }
         public string? Query { get; set; }
-        
+
         public List<string> SelectedCategories { get; set; } = new();
         public List<string> SelectedSousCategories { get; set; } = new();
         public List<string> SelectedMarques { get; set; } = new();
@@ -69,15 +70,15 @@ namespace FrontBlazor.ViewModel
         #endregion
 
         public SearchAnnonceViewModel(
-            IAnnonceService annonceService, 
+            IAnnonceService annonceService,
             IAuthService authService,
-            IFavorisService<FavorisDTO> favorisService, 
-            ICaracteristiqueService<CategorieDTO> categorieService, 
-            IMarqueService marqueService, 
+            IFavorisService<FavorisDTO> favorisService,
+            ICaracteristiqueService<CategorieDTO> categorieService,
+            IMarqueService marqueService,
             ICaracteristiqueService<EtatArticleDTO> etatService,
             ICaracteristiqueService<GenreDTO> genreService,
-            ICaracteristiqueService<TailleDTO> tailleService, 
-            NavigationManager navManager, 
+            ICaracteristiqueService<TailleDTO> tailleService,
+            NavigationManager navManager,
             INotificationService notificationPopUpService,
             NavigationManager navigationManager,
             INotificationService notificationService,
@@ -86,13 +87,13 @@ namespace FrontBlazor.ViewModel
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
-            
+
             _categorieService = categorieService;
             _marqueService = marqueService;
             _etatService = etatService;
             _genreService = genreService;
             _tailleService = tailleService;
-            
+
             NavigationManager = navManager;
             _notificationPopUpService = notificationPopUpService;
             VM_Login = vM_Login;
@@ -107,10 +108,10 @@ namespace FrontBlazor.ViewModel
             string? genre = null;
 
             var queryParams = QueryHelpers.ParseQuery(uri.Query);
-    
+
             if (queryParams.TryGetValue("q", out var q))
                 query = q;
-    
+
             if (queryParams.TryGetValue("genre", out var g))
                 genre = g;
 
@@ -120,14 +121,14 @@ namespace FrontBlazor.ViewModel
         public async Task InitializeAsync(string? queryFromUrl, string? genreFromUrl = null)
         {
             Query = queryFromUrl;
-    
+
             if (!string.IsNullOrEmpty(genreFromUrl))
             {
                 SelectedGenres.Add(genreFromUrl);
             }
             await LoadAsync();
         }
-        
+
         private async Task LoadAsync()
         {
             IsLoading = true;
@@ -139,7 +140,7 @@ namespace FrontBlazor.ViewModel
             Etats = await _etatService.GetAllAsync();
             Marques = await _marqueService.GetAllAsync();
             await ApplyFilters();
-            
+
             IsLoading = false;
             NotifyStateChanged();
         }
@@ -151,7 +152,7 @@ namespace FrontBlazor.ViewModel
                 ExpandedCategories.Remove(categoryId);
             else
                 ExpandedCategories.Add(categoryId);
-            
+
             NotifyStateChanged();
         }
 
@@ -175,7 +176,7 @@ namespace FrontBlazor.ViewModel
             ExpandedCategories.Clear();
             CurrentPage = 1;
             SelectedMaxPrice = SliderMax / 2;
-            
+
             await OnFilterChanged();
         }
 
@@ -184,7 +185,7 @@ namespace FrontBlazor.ViewModel
             _filterCts?.Cancel();
             _filterCts = new CancellationTokenSource();
             var token = _filterCts.Token;
-            
+
             try
             {
                 await Task.Delay(300, token);
@@ -244,7 +245,7 @@ namespace FrontBlazor.ViewModel
             await CountTotalItems(filterRequest);
 
             var result = await _annonceService.GetAnnonceByFilter(filterRequest, CurrentPage, ItemsPerPage);
-            
+
             Annonces = result ?? new List<AnnonceDTO>();
             NotifyStateChanged();
         }
@@ -365,8 +366,8 @@ namespace FrontBlazor.ViewModel
         public int GetStartItem() => (CurrentPage - 1) * ItemsPerPage + 1;
         public int GetEndItem() => Math.Min(CurrentPage * ItemsPerPage, TotalItems);
         #endregion
-        
-        
+
+
         public async Task GetFilteredMarques()
         {
             Marques = await _marqueService.SearchAsync(marqueSearch);
@@ -374,7 +375,14 @@ namespace FrontBlazor.ViewModel
 
         public SortField SelectedSortField { get; set; } = SortField.DateAnnonce;
         public SortOrder SelectedSortOrder { get; set; } = SortOrder.Descending;
-        
-        
+
+        public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
+        {
+            UtilisateurDTO? currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+                return false;
+
+            return annonce.IdAuteur == currentUser.UtilisateurId;
+        }
     }
 }

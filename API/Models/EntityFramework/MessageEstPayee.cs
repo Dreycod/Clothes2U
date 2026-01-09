@@ -25,6 +25,7 @@ public class MessageEstPayee : IEntity
     [InverseProperty(nameof(Message.MessageEstPayee))]
     public virtual Message Message{ set; get; }
     
+    
     [InverseProperty(nameof(MessageEnvoieColis.MessageEstPayee))]
     public virtual MessageEnvoieColis? MessageEnvoieColis { get; set; }
 

@@ -89,6 +89,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             if (AnnonceDetail == null)
             {
                 ErrorMessage = "Annonce introuvable";
+                return;
             }
             else
             {
@@ -98,17 +99,12 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             utilisateurAnnonce = await _utilisateurService.GetUserById(AnnonceDetail.UtilisateurId);
             IsBlockedByUser = utilisateurAnnonce.BlockedByCurrentUser;
             if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
+            {
                 IsUserSuspended = true;
-            
-            
+                return;
+            }
 
-            UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
-            if (utilisateur != null && utilisateurAnnonce != null &&
-                utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
-                IsSameUser = true;
-
-            else
-                IsSameUser = false;
+            IsSameUser = await CheckIfOwnerAnnonce(id, "AnnonceDetail");
         }
         catch (Exception ex)
         {
@@ -184,17 +180,26 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}");
     }
 
-    public void MakeOffer()
+    public async void MakeOffer()
     {
-        // TODO: Open make offer dialog
-        // open something like review form thing for the avis
-        // but he inserts the price, then checks if conversation exists, if not creates and 
-        // creates a new message too of type Proposition.
+        if ( CheckLoginStatus == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}&makeOffer=true");
     }
 
-    public void BuyProduct()
+    public async void BuyProduct()
     {
-        // TODO go to page payment and ye
+        if (CheckLoginStatus == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/acheter/{conv.ConversationId}");
     }
 
     public async void ShareProduct()
@@ -299,6 +304,26 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 similarAnnonces = newAnnonces;
                 NotifyStateChanged();
             }
+        }
+    }
+
+   public async Task<bool> CheckIfOwnerAnnonce(int annonceId, string typeAnnonce)
+    {
+        UtilisateurDTO utilisateur = await _authService.GetCurrentUserAsync();
+        if (utilisateur == null)
+            return false;
+
+        switch (typeAnnonce?.ToLower())
+        {
+            case "announcedetail":
+                return AnnonceDetail != null && AnnonceDetail.UtilisateurId == utilisateur.UtilisateurId;
+
+            case "similarannonce":
+                var annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
+                return annonce != null && annonce.IdAuteur == utilisateur.UtilisateurId;
+
+            default:
+                return false;
         }
     }
 }

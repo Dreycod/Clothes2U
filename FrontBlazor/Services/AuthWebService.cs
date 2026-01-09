@@ -7,6 +7,7 @@ using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Shared.DTO.LoginRegister;
+using Shared;
 
 namespace FrontBlazor.Services;
 
@@ -117,7 +118,7 @@ public class AuthWebService : BaseGenericService, IAuthService
         return $"{baseUrl}/Login/google-login?returnUrl={Uri.EscapeDataString(returnUrl)}";
     }
 
-    public async Task<bool> ModificationMotDePasse(ChangePasswordDTO passwordDTO)
+    public async Task<APIResponse<object>> ModificationMotDePasse(ChangePasswordDTO passwordDTO)
     {
         var request = new HttpRequestMessage(
         HttpMethod.Put,
@@ -129,7 +130,14 @@ public class AuthWebService : BaseGenericService, IAuthService
         request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
 
         var response = await _httpClient.SendAsync(request);
-        return response.IsSuccessStatusCode;
+        var apiResponse = await response.Content.ReadFromJsonAsync<APIResponse<object>>();
+
+        if (apiResponse == null)
+        {
+            return APIResponse<object>.ErrorResponse("Réponse serveur invalide");
+        }
+
+        return apiResponse;
     }
 
     public async Task<List<AdresseDTO>> GetUserAddressesAsync()
