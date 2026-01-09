@@ -153,7 +153,7 @@ namespace FrontBlazor.ViewModel
                 .Distinct()
                 .ToList();
 
-            Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour catégorie {sousCategorieId}");
+            Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour sous catégorie {sousCategorieId}");
 
             if (NewAnnonce.TailleId != 0 && !AvailableTailleIds.Contains(NewAnnonce.TailleId))
             {
