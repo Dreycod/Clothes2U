@@ -27,7 +27,6 @@ public class ModerationBoardViewModel : ModerationViewModel
         await base.LoadAsync();
         if (IsModerator)
         {
-            IsLoading = true;
             Activity = await _moderationDashboardService.GetActivity();
             DashBoardStatistics = await _moderationDashboardService.GetStatistics();
             IsLoading = false;
