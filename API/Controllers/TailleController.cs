@@ -17,14 +17,12 @@ namespace API.Controllers;
 public class TailleController : ControllerBase
 {
     private readonly ITailleRepository _tailleManager;
-    private readonly ICaracteristiquesRepository<Mesure> _mesureRepository;
     private readonly IMapper _mapper;
 
-    public TailleController(ITailleRepository manager, IMapper mapper, ICaracteristiquesRepository<Mesure> mesureRepository)
+    public TailleController(ITailleRepository manager, IMapper mapper)
     {
         _tailleManager = manager;
         _mapper = mapper;
-        _mesureRepository = mesureRepository;
     }
     
     [HttpGet]

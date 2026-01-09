@@ -81,7 +81,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
     {
         var request = new HttpRequestMessage(
             HttpMethod.Patch,
-            $"Utilisateur/{id}/PatchSettings")
+            $"Utilisateur/PatchSettings")
         {
             Content = JsonContent.Create(utilisateurSettingsDTO)
         };
@@ -104,7 +104,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
 
         var request = new HttpRequestMessage(
             HttpMethod.Put,
-            $"Utilisateur/{userId}/notif-mail")
+            $"Utilisateur/notif-mail")
         {
             Content = JsonContent.Create(dto)
         };

@@ -18,4 +18,10 @@ public class MotInterditManager : GenericCRUDManager<MotInterdit>, IMotInterditR
             .Select(m => m.LibelleMot)
             .ToListAsync();
     }
+
+    public async Task<bool> Exists(string libelleMot)
+    {
+        return await _context.MotsInterdits
+            .AnyAsync(m => m.LibelleMot == libelleMot);
+    }
 }

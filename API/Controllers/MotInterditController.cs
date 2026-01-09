@@ -51,11 +51,19 @@ public class MotInterditController : ControllerBase
                 LibelleMot = "Le mot ne peut pas être vide." 
             });
         }
+        var exists = await _motInterditRepository.Exists(motInterditDTO.LibelleMot);
+        if (exists)
+        {
+            return BadRequest(new { 
+                LibelleMot = "Ce mot est déjà utilisé." 
+            });
+        }
         var motToAdd = _mapper.Map<MotInterdit>(motInterditDTO);
         try
         {
             await _motInterditRepository.AddAsync(motToAdd);
-            return StatusCode(StatusCodes.Status201Created, motToAdd);
+            var motDTO = _mapper.Map<MotInterditDTO>(motToAdd);
+            return StatusCode(StatusCodes.Status201Created, motDTO);
         }
         catch (DbUpdateException dbEx)
         {
