@@ -24,3 +24,9 @@ public class MessageDemandePostDTO : MessagePostDTO
 public class MessageEstPayeePostDTO : MessagePostDTO
 {
 }
+
+public class MessageEnvoisColisPostDTO : MessagePostDTO
+{
+    public PhotoUploadDTO Photo { get; set; }
+    public int MessageEstPayeeId { get; set; }
+}
