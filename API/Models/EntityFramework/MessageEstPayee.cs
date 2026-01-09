@@ -14,9 +14,6 @@ public class MessageEstPayee : IEntity
     [Column("mespay_message_id")]
     public int MessageId { get; set; }
     
-    [Column("mespay_photo_preuve_id")]
-    public int PhotoPreuveId { get; set; }
-    
     [Column("mespay_est_acceptee")]
     public bool EstEnvoye { get; set; } = false;
     
@@ -28,11 +25,8 @@ public class MessageEstPayee : IEntity
     [InverseProperty(nameof(Message.MessageEstPayee))]
     public virtual Message Message{ set; get; }
     
-    
-    // [ForeignKey(nameof(MessageDemandeId))]
-    // [InverseProperty(nameof(MessageDemande.Validation))]
-    // public virtual MessageDemande PropositionValidee { set; get; }
-
+    [InverseProperty(nameof(MessageEnvoieColis.MessageEstPayee))]
+    public virtual MessageEnvoieColis? MessageEnvoieColis { get; set; }
 
     public int GetId() => MessageEstPayeeId;
 }

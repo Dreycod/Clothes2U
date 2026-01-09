@@ -24,14 +24,14 @@ public abstract class ModerationViewModel
         IsLoading = true;
         IsModerator = false;
         UtilisateurViewDTO user = (UtilisateurViewDTO)await _authService.GetCurrentUserAsync();
-        if (user != null && user.RoleUtilisateur == "Admin" || user.RoleUtilisateur == "Moderateur")
+        if (user != null && (user.RoleUtilisateur == "Admin" || user.RoleUtilisateur == "Moderateur"))
         {
             IsModerator = true;
+            IsLoading = false;
         }
         else
         {
             _nav.NavigateTo("/");
         }
-        IsLoading = false;
     }
 }

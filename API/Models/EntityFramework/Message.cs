@@ -58,6 +58,9 @@ public class Message : IEntity
     [InverseProperty(nameof(MessageEstPayee.Message))]
     public virtual MessageEstPayee? MessageEstPayee { get; set; }
     
+    [InverseProperty(nameof(MessageEnvoieColis.Message))]
+    public virtual MessageEnvoieColis? MessageEnvoieColis { get; set; }
+    
     //moderation
     [InverseProperty(nameof(ElementDecisionMessage.Message))]
     public ICollection<ElementDecisionMessage> Decisions{ get; set; } = new List<ElementDecisionMessage>();
