@@ -153,7 +153,7 @@ namespace FrontBlazor.ViewModel
                 .Distinct()
                 .ToList();
 
-            Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour catégorie {sousCategorieId}");
+            Console.WriteLine($"✅ {AvailableTailleIds.Count} tailles disponibles pour sous catégorie {sousCategorieId}");
 
             if (NewAnnonce.TailleId != 0 && !AvailableTailleIds.Contains(NewAnnonce.TailleId))
             {
@@ -367,9 +367,8 @@ namespace FrontBlazor.ViewModel
                 NewAnnonce.DateAnnonce = DateTime.UtcNow;
                 NewAnnonce.StatutAnnonceId = 1;
                 NewAnnonce.Couleurs = SelectedCouleurIds;
+                NewAnnonce.Tags = Tags;
 
-                // TODO: Ajouter les tags à l'annonce quand le DTO sera mis à jour
-                // NewAnnonce.Tags = Tags;
 
                 Console.WriteLine($"📤 Envoi de l'annonce: {NewAnnonce.Titre}");
                 Console.WriteLine($"   - Prix: {NewAnnonce.Prix}€");
