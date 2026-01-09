@@ -392,6 +392,28 @@
                                         </div>
                                     </div>
                                 }
+                                else if (message.TypeMessage == "EnvoieColis")
+                                {
+                                    MessageEnvoisColisDTO colis = message as MessageEnvoisColisDTO;
+
+                                    <div class="payment-status-card paid">
+                                        <div class="payment-icon">
+                                            <i class="bi bi-truck"></i>
+                                        </div>
+
+                                        <div class="payment-content">
+                                            <h4>Colis envoyé</h4>
+                                            <p>Le vendeur a expédié le colis.</p>
+
+                                            @if (colis.PhotoId != 0 || colis.PhotoId != null)
+                                            {
+                                                <img src="@VM_Messagerie._mediaService.GetPhotoUrl(colis.PhotoId)"
+                                                     alt="Preuve d'envoi du colis"
+                                                     @*style="margin-top:10px; max-width:220px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15);"*@ />
+                                            }
+                                        </div>
+                                    </div>
+                                }
                                 <div class="message-info">
                                     <span class="message-time">@message.Date</span>
                                     @* ✅ CORRECTION ICI : IsRead au lieu de Lu *@
