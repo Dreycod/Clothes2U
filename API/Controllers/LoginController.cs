@@ -352,7 +352,7 @@ public class LoginController : ControllerBase
     {
         // Cherche si un utilisateur existe déjà avec cet email
         var existingUsers = await _utilisateurManager.GetAllAsync();
-        var utilisateur = await _utilisateurManager.GetUtilisateurByEmail(userInfo.Email);
+        Utilisateur utilisateur = await _utilisateurManager.GetUtilisateurByEmail(userInfo.Email);
 
         if (utilisateur != null)
         {
@@ -385,6 +385,7 @@ public class LoginController : ControllerBase
 
         await _utilisateurManager.AddAsync(utilisateur);
         Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
+        utilisateur = await _utilisateurManager.GetUtilisateurByLogin(login);
 
         return utilisateur;
     }
