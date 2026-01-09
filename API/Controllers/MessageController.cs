@@ -22,6 +22,7 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageTexte, int> _messageTexteManager;
     private readonly IMessageDemandeRepository _messageDemandeManager;
     private readonly IDataRepository<MessageEstPayee, int> _messageValidationManager;
+    private readonly IDataRepository<MessageEnvoieColis, int> _messageEnvoieColisManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
@@ -36,6 +37,7 @@ public class MessageController : ControllerBase
         IMessageDemandeRepository messageDemandeManager,
         IDataRepository<MessageEstPayee, int> messageValidationManager,
         IDataRepository<MessageContientImage, int> messageContientImageManager,
+        IDataRepository<MessageEnvoieColis, int> messageEnvoieColisManager,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
@@ -46,6 +48,7 @@ public class MessageController : ControllerBase
         _conversationManager = conversationManager;
         _messageDemandeManager = messageDemandeManager;
         _messageValidationManager = messageValidationManager;
+        _messageEnvoieColisManager = messageEnvoieColisManager;
         _notificationService = notificationMessageManager;
         _messageContientImageManager = messageContientImageManager;
         _photoService = photoService;
@@ -253,6 +256,64 @@ public class MessageController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
+    
+    [HttpPost("envoieColis")]
+    [ProducesResponseType(typeof(MessageEstPayeePostDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessageEnvoieColis(MessageEnvoisColisPostDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var message = new Message
+        {
+            MessageDate = DateTime.UtcNow,
+            MessageLu = false,
+            UtilisateurId = dto.UtilisateurId,
+            ConversationId = dto.ConversationId
+        };
+        
+        await _messageManager.AddAsync(message);
+
+        var photo = await _photoService.AddPhotoAsync(dto.Photo);
+
+        var messageEnvoieColis = new MessageEnvoieColis
+        {
+            MessageId = message.MessageId,
+            PhotoId = photo.PhotoId,
+            MessageEstPayeeId = dto.MessageEstPayeeId
+        };
+        
+        await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
+        
+        var messagePayee = await _messageValidationManager.GetByIdAsync(dto.MessageEstPayeeId);
+        
+        messagePayee.EstEnvoye = true;
+        
+        await _messageValidationManager.UpdateAsync(messagePayee);
+
+        return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+    }
+
+    [HttpPut("annulePayement/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AnnulePayement(int id)
+    {
+        var messagePayee = await _messageValidationManager.GetByIdAsync(id);
+        
+        if (messagePayee == null) return NotFound();
+
+        if (messagePayee.EstEnvoye) return BadRequest();
+        
+        messagePayee.EstAnnule = true;
+        
+        await _messageValidationManager.UpdateAsync(messagePayee);
+        
+        return NoContent();
+    }
+    
     
     [HttpGet("{id}")]
     public async Task<ActionResult<Message>> GetById(int id)

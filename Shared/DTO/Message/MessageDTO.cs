@@ -49,3 +49,11 @@ public class MessageEstPayeeDTO : MessageDTO
     public bool EstEnvoye { get; set; }
     public bool EstAnnule { get; set; }
 }
+
+public class MessageEnvoisColisDTO : MessageDTO
+{
+    public override string TypeMessage => "EnvoieColis";
+    public int MessageEnvoieColisId { get; set; }
+    public int PhotoId { get; set; }
+    public int MessageEstPayeeId { get; set; }
+}
