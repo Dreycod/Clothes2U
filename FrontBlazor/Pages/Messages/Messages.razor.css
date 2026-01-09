@@ -1489,6 +1489,21 @@ input[type="file"] {
     margin-left: 0;
 }
 
+/* =============================
+
+MESSAGE COLIS ENVOYÉ
+=============================== */
+
+.payment-status-card .payment-content img {
+    display: block;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.payment-status-card .payment-content img:hover {
+    transform: scale(1.03);
+}
+
 /* ===============================
    MESSAGE PAIEMENT
    =============================== */
@@ -1542,3 +1557,7 @@ input[type="file"] {
     font-size: 0.85rem;
     opacity: 0.85;
 }
+
+
+
+/* ===============================
