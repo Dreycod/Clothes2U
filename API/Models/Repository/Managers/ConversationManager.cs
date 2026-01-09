@@ -36,6 +36,9 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             // MessageValidation avec la proposition validée
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEstPayee)
+            
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageEnvoieColis)
             // Utiliser AsSplitQuery pour éviter les cartesian explosions
             // avec autant de includes
             .AsSplitQuery();

@@ -12,7 +12,7 @@ public class MessageMapperProfile : Profile
             .Include<Message, MessageTextDTO>()
             .Include<Message, MessageDemandeDTO>()
             .Include<Message, MessageEstPayeeDTO>()
-            .Include<Message, MessageEnvoisColisDTO>()
+            .Include<Message, MessageEnvoieColisDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
             .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu));
@@ -73,7 +73,7 @@ public class MessageMapperProfile : Profile
             .ForMember(dest => dest.EstAnnule, opt => opt.MapFrom(src => src.MessageEstPayee.EstAnnule))
             .ForMember(dest => dest.EstEnvoye, opt => opt.MapFrom(src => src.MessageEstPayee.EstEnvoye));
         
-        CreateMap<Message, MessageEnvoisColisDTO>()
+        CreateMap<Message, MessageEnvoieColisDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.MessageDate))
             .ForMember(dest => dest.Lu, opt => opt.MapFrom(src => src.MessageLu))
