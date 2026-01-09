@@ -36,7 +36,6 @@ namespace API.Controllers
             {
                 return NotFound();
             }
-
             var result = _mapper.Map<SignalementDetailsDTO>(sig);
             return new ObjectResult(result)
             {
