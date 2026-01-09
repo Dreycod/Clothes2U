@@ -5,6 +5,7 @@ using API.Models.Repository.Managers;
 using Microsoft.EntityFrameworkCore;
 using Shared.DTO.Photo;
 using System.Numerics;
+using API.Models.Repository.Interfaces;
 
 namespace API.Services;
 
@@ -13,7 +14,7 @@ public class PhotoService : IPhotoService
     private readonly IPhotoRepository _photoRepository;
     private readonly IDataRepository<Annonce, int> _annonceRepository;
     private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
-    private readonly IDataRepository<Message, int> _messageRepository;
+    private readonly IMessageRepository _messageRepository;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageRepository;
     private readonly ILogger<PhotoService> _logger;
 
@@ -21,7 +22,7 @@ public class PhotoService : IPhotoService
         IPhotoRepository photoRepository,
         IDataRepository<Annonce, int> annonceRepository,
         IDataRepository<Utilisateur, int> utilisateurRepository,
-        IDataRepository<Message, int> messageRepository,
+        IMessageRepository messageRepository,
         IDataRepository<MessageContientImage, int> messageContientImageRepository,
         ILogger<PhotoService> logger)
     {

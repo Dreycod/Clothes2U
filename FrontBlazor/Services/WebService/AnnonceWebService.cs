@@ -13,15 +13,6 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
     public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public async Task<List<AnnonceDTO>> GetActiveAnnonces()
-    {
-        var response = await GetWithCredentialsAsync("Annonce/GetActiveAnnonces");
-        response.EnsureSuccessStatusCode();
-
-        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
-
-        return annonces ?? new List<AnnonceDTO>();
-    }
     public async Task<AnnonceDetailDTO> GetAnnonceDetailById(int Id)
     {
         try

@@ -151,7 +151,7 @@
                     @foreach(AnnonceDTO annonce in VM_Home.AnnoncesRecommended)
                     {
                         <AnnonceCard annonceComponent="annonce"
-                                     OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
+                                     OnToggleFavorite="(a) => HandleToggleFavorite(annonce.AnnonceId)"
                                      OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
                                      IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
 

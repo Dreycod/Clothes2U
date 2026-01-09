@@ -309,7 +309,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
    public async Task<bool> CheckIfOwnerAnnonce(int annonceId, string typeAnnonce)
     {
-        UtilisateurDTO utilisateur = await _authService.GetCurrentUserAsync();
+        CurrentUtilisateurDTO utilisateur = await _authService.GetCurrentUserAsync();
         if (utilisateur == null)
             return false;
 

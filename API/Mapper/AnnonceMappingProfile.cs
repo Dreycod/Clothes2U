@@ -53,6 +53,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(p => p.Photo.PhotoId).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => t.Tag.LibelleTag).ToList()))
+            .ForMember(dest => dest.Couleurs, opt => opt.MapFrom(src => src.Couleurs.Select(t => t.Couleur.Nom).ToList()))
             .ForMember(dest => dest.StatutAnnonce, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
             .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
             .ReverseMap();
@@ -169,7 +170,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille))
             .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque))
             .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat))
-            .ForMember(dest => dest.Couleurs, opt => opt.MapFrom(src => 
-                src.Couleurs.Select(ac => ac.Couleur.Nom).ToList()));
+            .ForMember(dest => dest.Couleurs,
+                opt => opt.MapFrom(src => src.Couleurs.Select(t => t.Couleur.Nom).ToList()));
     }
 }

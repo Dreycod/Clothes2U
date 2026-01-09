@@ -28,15 +28,13 @@ public class SanctionedUserViewModel
     public string MessageDemande { get; set; } = "";
     public string? ErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
-    public UtilisateurDTO? CurrentUser { get; set; }
     
     public async Task LoadAsync()
     {
         IsLoading = true;
         NotifyStateChanged();
-        
-        CurrentUser = await _authService.GetCurrentUserAsync();
-        if (CurrentUser == null || (CurrentUser.StatutId != 2 && CurrentUser.StatutId != 3))
+        CurrentUtilisateurDTO CurrentUser = (CurrentUtilisateurDTO)await _authService.GetCurrentUserAsync();
+        if (CurrentUser == null || CurrentUser.Statut == "Actif")
         {
             _navigationManager.NavigateTo("/");
             return;

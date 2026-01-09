@@ -1,6 +1,7 @@
 using Shared.DTO.Conversation;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class ConversationController : ControllerBase
 {
-    private readonly IDataRepository<Message, int> _messageManager;
+    private readonly IMessageRepository _messageManager;
     private readonly INotificationRepository _notificationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly ICurrentUserService _currentUserService;
@@ -23,7 +24,7 @@ public class ConversationController : ControllerBase
     
     public ConversationController(
         IConversationRepository<Conversation, int> manager,
-        IDataRepository<Message, int> messageManager,
+        IMessageRepository messageManager,
         INotificationRepository notificationManager,
         ICurrentUserService currentUserService,
         IConversationService conversationService, 

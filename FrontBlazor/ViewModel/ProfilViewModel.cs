@@ -154,8 +154,6 @@ namespace FrontBlazor.ViewModel
                          NotifyStateChanged();
                      })
                  };
-
-                UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
                 {
                     IsSameUser = true;
@@ -567,11 +565,10 @@ namespace FrontBlazor.ViewModel
 
         public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
         {
-            UtilisateurDTO? currentUser = await _authService.GetCurrentUserAsync();
-            if (currentUser == null)
+            if (utilisateur == null)
                 return false;
 
-            return annonce.IdAuteur == currentUser.UtilisateurId;
+            return annonce.IdAuteur == utilisateur.UtilisateurId;
         }
     }
 }

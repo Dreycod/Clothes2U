@@ -13,7 +13,7 @@ public interface IAuthService
     public Task<HttpStatusCode> LoginAsync(LoginRequestDTO compte);
     public Task<AuthResult> SignUpAsync(RegisterRequestDTO compte);
     public Task LogoutAsync();
-    public Task<UtilisateurViewDTO?> GetCurrentUserAsync();
+    public Task<CurrentUtilisateurDTO?> GetCurrentUserAsync();
     public string GetGoogleLoginUrl(string returnUrl = "/");
     public Task<APIResponse<object>> ModificationMotDePasse(ChangePasswordDTO passwordDTO);
     Task<List<AdresseDTO>> GetUserAddressesAsync();

@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using API.Models.Entity;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
@@ -32,14 +33,25 @@ public class LoginController : ControllerBase
     private readonly ILoginService _loginService;
     private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IMessageRepository _messageRepository;
 
-    public LoginController(IConfiguration config, IMapper mapper, IUtilisateurRepository dataRepo, ILoginService loginService, ICurrentUserService currentUserService)
+    public LoginController(
+        IConfiguration config,
+        IMapper mapper,
+        IUtilisateurRepository dataRepo,
+        ILoginService loginService,
+        ICurrentUserService currentUserService,
+        INotificationRepository NotificationRepository,
+        IMessageRepository messageRepository)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
         _currentUserService = currentUserService;
         _utilisateurManager = dataRepo;
         _loginService = loginService;
+        _notificationRepository = NotificationRepository;
+        _messageRepository = messageRepository;
     }
 
     [HttpPost]
@@ -130,18 +142,16 @@ public class LoginController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public async Task<IActionResult> GetCurrentUser()
+    public async Task<ActionResult<CurrentUtilisateurDTO>> GetCurrentUser()
     {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-        var utilisateur = await _utilisateurManager.GetByIdAsync((int)userId);
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        var utilisateur = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateur == null)
             return NotFound();
         
-        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        CurrentUtilisateurDTO utilisateurDTO = _mapper.Map<CurrentUtilisateurDTO>(utilisateur);
+        utilisateurDTO.MessagesCount = await _messageRepository.GetMessageCountByUserId(userId);
+        utilisateurDTO.NotificationsCount = await _notificationRepository.GetNotificationsUnreadCountByUserId(userId);
         return Ok(utilisateurDTO);
     }
 

@@ -56,8 +56,7 @@ public class AddressViewModel : ClientBaseViewModel, IDisposable
         await base.LoadAsync();
         try
         {
-            CurrentUser = await _authService.GetCurrentUserAsync();
-            if (CurrentUser == null)
+            if (utilisateur == null)
             {
                 _nav.NavigateTo("/login");
                 return;

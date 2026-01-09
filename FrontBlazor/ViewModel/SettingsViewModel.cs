@@ -1,4 +1,5 @@
 ﻿using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Shared.DTO.Annonce;
@@ -8,7 +9,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
-    public class SettingsViewModel
+    public class SettingsViewModel : ClientBaseViewModel
     {
         
         private readonly NavigationManager _navigationManager;
@@ -16,8 +17,6 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IMediasService _mediaService;
         private readonly IBloqueService _bloqueService;
-
-        public bool IsLoading { get; set; } = true;
         public string ActiveTab { get; set; } = "account";
 
         public UtilisateurSettingsDTO? CurrentUser { get; set; }
@@ -53,16 +52,16 @@ namespace FrontBlazor.ViewModel
         public bool IsUnblocking { get; set; }
 
         public byte[]? ImgBytes { get; set; }
-
-
-        public event Action OnStateChanged;
+        
 
         public SettingsViewModel(
             NavigationManager navigationManager,
             IUtilisateurService utilisateurService,
             IAuthService authService,
             IMediasService mediaService,
+            INotificationService notificationService,
             IBloqueService bloqueService)
+            : base(navigationManager, authService, notificationService)
         {
             _navigationManager = navigationManager;
             _utilisateurService = utilisateurService;
@@ -74,14 +73,15 @@ namespace FrontBlazor.ViewModel
 
         public async Task LoadSettings()
         {
-            IsLoading = true;
-            NotifyStateChanged();
-
+            await base.LoadAsync();
             try
             {
-                UtilisateurViewDTO utilisaterView = await _authService.GetCurrentUserAsync();
-                CurrentUser = await _utilisateurService.GetUserSettingsById(utilisaterView.UtilisateurId);
-                if (CurrentUser == null)
+                Console.WriteLine(IsLoggedIn);
+                if (IsLoggedIn)
+                {
+                    CurrentUser = await _utilisateurService.GetUserSettingsById(utilisateur.UtilisateurId);
+                }
+                else
                 {
                     _navigationManager.NavigateTo("/login");
                     return;
@@ -455,11 +455,6 @@ namespace FrontBlazor.ViewModel
             {
                 return false;
             }
-        }
-
-        private void NotifyStateChanged()
-        {
-            OnStateChanged?.Invoke();
         }
     }
 }

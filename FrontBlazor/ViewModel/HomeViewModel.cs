@@ -27,7 +27,6 @@ namespace FrontBlazor.ViewModel
         
         public List<AnnonceDTO> AnnoncesRecents { get; set; } 
         public List<AnnonceDTO> AnnoncesPopulaires { get; set; } 
-        public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
         public string SuccessMessage { get; set; } = string.Empty;
 
@@ -67,7 +66,6 @@ namespace FrontBlazor.ViewModel
         {
             await  base.LoadAsync();
             ErrorMessage = SuccessMessage = string.Empty;
-            IsLoading = true;
             PageRecommandation = 1;
             await LoadRecentAnnonces();
             await LoadPopularAnnonces();
@@ -202,11 +200,10 @@ namespace FrontBlazor.ViewModel
         }
         public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
         {
-            UtilisateurDTO? currentUser = await _authService.GetCurrentUserAsync();
-            if (currentUser == null)
+            if (utilisateur == null)
                 return false;
 
-            return annonce.IdAuteur == currentUser.UtilisateurId;
+            return annonce.IdAuteur == utilisateur.UtilisateurId;
         }
     }
 }

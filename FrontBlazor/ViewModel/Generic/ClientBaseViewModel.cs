@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using FrontBlazor.Services;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -13,11 +14,14 @@ public class ClientBaseViewModel
     protected readonly NavigationManager _nav;
     private SearchAnnonceViewModel? _searchViewModel;
     private readonly INotificationService _notificationService;
+
+    public int NotificationCount { get; set; }
+    public int MessageCount { get; set; }
     
     #region variables
     public bool IsLoggedIn { get; set; }
     public event Action? OnStateChanged;
-    public UtilisateurDTO utilisateur { get; set; }
+    public CurrentUtilisateurDTO utilisateur { get; set; }
     public ObservableCollection<NotificationDTO> notifications { get; set; }
     public bool showDropdown;
     public string SearchQuery { get; set; } = "";
@@ -25,6 +29,7 @@ public class ClientBaseViewModel
     public bool showDropDownNotification { get; set; }
     public bool LoadingNotifications { get; set; }
     public bool IsLoadingBase { get; set; }
+    public bool IsLoading { get; set; }
     public string RoleUtilisateur { get; set; }
 
     #endregion
@@ -45,17 +50,19 @@ public class ClientBaseViewModel
     }
     public virtual async Task LoadAsync()
     {
+        IsLoading = true;
         showDropdown = false;
         showDropDownNotification =  false;
         IsLoadingBase = true;
         var user =  await _authService.GetCurrentUserAsync();
         if (user != null)
         {
+            NotificationCount = user.NotificationsCount;
+            MessageCount = user.MessagesCount;
             IsLoggedIn = true;
             utilisateur = user;
             RoleUtilisateur = user.RoleUtilisateur;
-            Console.WriteLine($"User role: {RoleUtilisateur}");
-            if (user.StatutId != 1)
+            if (user.Statut != "Actif")
             {
                 _nav.NavigateTo("/Sanction");
             }
@@ -82,7 +89,6 @@ public class ClientBaseViewModel
         showDropDownNotification = !showDropDownNotification;
         showDropdown = false;
         LoadingNotifications = true;
-
         NotifyStateChanged();
 
         if (showDropDownNotification)

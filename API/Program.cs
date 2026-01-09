@@ -16,6 +16,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using API.Models.Repository.Interfaces;
 using Shared.DTO.Photo;
 using Shared.DTO.Tag;
 
@@ -221,7 +222,7 @@ builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
-builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
+builder.Services.AddScoped<IMessageRepository, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEstPayee, int>, MessageEstPayeeManager>();
