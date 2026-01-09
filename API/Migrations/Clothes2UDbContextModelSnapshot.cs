@@ -930,6 +930,41 @@ namespace API.Migrations
                     b.ToTable("t_e_message_demande_mesdem", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEnvoieColis", b =>
+                {
+                    b.Property<int>("MessageEnvoieColisId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("mesenvcol_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageEnvoieColisId"));
+
+                    b.Property<int>("MessageEstPayeeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mesenvcol_est_payee_id");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mesenvcol_message_id");
+
+                    b.Property<int>("PhotoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mesenvcol_photo_id");
+
+                    b.HasKey("MessageEnvoieColisId");
+
+                    b.HasIndex("MessageEstPayeeId")
+                        .IsUnique();
+
+                    b.HasIndex("MessageId")
+                        .IsUnique();
+
+                    b.HasIndex("PhotoId")
+                        .IsUnique();
+
+                    b.ToTable("t_e_message_envoie_colis_mesenvcol", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
                 {
                     b.Property<int>("MessageEstPayeeId")
@@ -950,10 +985,6 @@ namespace API.Migrations
                     b.Property<int>("MessageId")
                         .HasColumnType("integer")
                         .HasColumnName("mespay_message_id");
-
-                    b.Property<int>("PhotoPreuveId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mespay_photo_preuve_id");
 
                     b.HasKey("MessageEstPayeeId");
 
@@ -2417,6 +2448,33 @@ namespace API.Migrations
                     b.Navigation("Offre");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEnvoieColis", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.MessageEstPayee", "MessageEstPayee")
+                        .WithOne("MessageEnvoieColis")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEnvoieColis", "MessageEstPayeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Message", "Message")
+                        .WithOne("MessageEnvoieColis")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEnvoieColis", "MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Photo", "PhotoPreuve")
+                        .WithOne("MessageEnvoieColis")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEnvoieColis", "PhotoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+
+                    b.Navigation("MessageEstPayee");
+
+                    b.Navigation("PhotoPreuve");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
@@ -2936,6 +2994,8 @@ namespace API.Migrations
 
                     b.Navigation("MessageDemande");
 
+                    b.Navigation("MessageEnvoieColis");
+
                     b.Navigation("MessageEstPayee");
 
                     b.Navigation("MessageTexte");
@@ -2950,6 +3010,11 @@ namespace API.Migrations
                     b.Navigation("ContreOffres");
 
                     b.Navigation("NotificationProposition");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
+                {
+                    b.Navigation("MessageEnvoieColis");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>
@@ -2988,6 +3053,8 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.EntityFramework.Photo", b =>
                 {
                     b.Navigation("Annonces");
+
+                    b.Navigation("MessageEnvoieColis");
 
                     b.Navigation("Messages");
 

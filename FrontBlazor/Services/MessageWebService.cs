@@ -40,10 +40,21 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         return await PostWithCredentialsAsync($"Message/demande",body);
     }
 
-    public Task<HttpResponseMessage> PostMessagePayee(MessageEstPayeePostDTO message)
+    public async Task<HttpResponseMessage> PostMessagePayee(MessageEstPayeePostDTO message)
     {
         var body = JsonContent.Create(message);
-        return PostWithCredentialsAsync($"Message/payee",body);
+        return await PostWithCredentialsAsync($"Message/payee",body);
+    }
+    
+    public async Task<HttpResponseMessage> PostMessageEnvoieColis(MessageEnvoisColisPostDTO message)
+    {
+        var body = JsonContent.Create(message);
+        return await PostWithCredentialsAsync($"Message/envoieColis",body);
+    }
+
+    public async Task<HttpResponseMessage> CancelMessagePayee(int messageId)
+    {
+        return await PutWithCredentialsAsync($"Message/annulePayement/{messageId}", null);
     }
 
     public async Task MaskAsRead(int messageId)

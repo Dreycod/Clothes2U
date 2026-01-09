@@ -28,6 +28,11 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public ConversationDTO? SelectedConversation { get; private set; }
     public int? SelectedConversationId { get; private set; }
     public UtilisateurDTO? CurrentUser { get; private set; }
+    public IBrowserFile? ColisPhoto { get; private set; }
+    public string? ColisPhotoPreviewBase64 { get; private set; }
+
+    public bool IsSendingColis { get; private set; }
+    public string? ColisError { get; private set; }
 
     public string NewMessage { get; set; } = "";
     public List<IBrowserFile> SelectedFile { get; set; }
@@ -311,6 +316,38 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             Console.WriteLine($"[VM] ❌ Error sending price proposal: {ex.Message}");
             throw;
         }
+    }
+    
+    public async Task OnColisPhotoSelected(InputFileChangeEventArgs e)
+    {
+        ColisError = null;
+        ColisPhoto = null;
+        ColisPhotoPreviewBase64 = null;
+
+        var file = e.File;
+
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            ColisError = "Le fichier doit être une image";
+            NotifyStateChanged();
+            return;
+        }
+        
+        if (file.Size > 10 * 1024 * 1024)
+        {
+            ColisError = "La photo ne doit pas dépasser 10 Mo";
+            NotifyStateChanged();
+            return;
+        }
+
+        using var ms = new MemoryStream();
+        await file.OpenReadStream(10 * 1024 * 1024).CopyToAsync(ms);
+
+        ColisPhoto = file;
+        ColisPhotoPreviewBase64 =
+            $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+
+        NotifyStateChanged();
     }
 
     public async Task AnswerPriceProposal(int messageId, bool accepted)
@@ -747,5 +784,64 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     {
         ErrorMessages.Clear();
         NotifyStateChanged();
+    }
+    
+    public async Task MarquerColisEnvoyeAsync(int messagePayeeId)
+    {
+        if (SelectedConversation == null || CurrentUser == null)
+            return;
+
+        if (ColisPhoto == null)
+        {
+            ColisError = "Une photo est obligatoire pour prouver l’envoi du colis";
+            NotifyStateChanged();
+            return;
+        }
+
+        IsSendingColis = true;
+        ColisError = null;
+        NotifyStateChanged();
+
+        try
+        {
+            var bytes = await ConvertIBrowserFileToBytesAsync(ColisPhoto);
+
+            var photoDto = new PhotoUploadDTO
+            {
+                FileName = ColisPhoto.Name,
+                ContentType = ColisPhoto.ContentType,
+                FileSize = ColisPhoto.Size,
+                Base64Data = Convert.ToBase64String(bytes)
+            };
+
+            var dto = new MessageEnvoisColisPostDTO
+            {
+                ConversationId = SelectedConversation.ConversationId,
+                UtilisateurId = CurrentUser.UtilisateurId,
+                Photo = photoDto,
+                MessageEstPayeeId = messagePayeeId
+            };
+
+            await _messageService.PostMessageEnvoieColis(dto);
+
+            // Reset UI
+            ColisPhoto = null;
+            ColisPhotoPreviewBase64 = null;
+        }
+        catch (Exception ex)
+        {
+            ColisError = "Erreur lors de l’envoi du colis";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            IsSendingColis = false;
+            NotifyStateChanged();
+        }
+    }
+
+    public async Task CancelMessagePayeeAsync(int id)
+    {
+        await _messageService.CancelMessagePayee(id);
     }
 }

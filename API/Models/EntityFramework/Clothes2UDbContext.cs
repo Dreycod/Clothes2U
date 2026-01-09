@@ -36,6 +36,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<MessageDemande> MessageDemandes { get; set; }
     public DbSet<MessageTexte> MessageTextes { get; set; }
     public DbSet<MessageEstPayee> MessageEstPayees { get; set; }
+    public DbSet<MessageEnvoieColis> MessageEnvoieColis { get; set; }
     public DbSet<Mesure> Mesures { get; set; }
     public DbSet<MotInterdit> MotsInterdits { get; set; }
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
@@ -534,6 +535,10 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(m => m.Message)
                 .HasForeignKey<MessageEstPayee>(m => m.MessageId);
             
+            entity.HasOne(e => e.MessageEnvoieColis)
+                .WithOne(e => e.Message)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageId);
+            
             entity.HasMany(e => e.Decisions)
                 .WithOne(d => d.Message)
                 .HasForeignKey(d => d.MessageId)
@@ -610,6 +615,32 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Message)
                 .WithOne(m => m.MessageEstPayee)
                 .HasForeignKey<MessageEstPayee>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.MessageEnvoieColis)
+                .WithOne(e => e.MessageEstPayee)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageEstPayeeId);
+        });
+
+        modelBuilder.Entity<MessageEnvoieColis>(entity =>
+        {
+            entity.ToTable("t_e_message_envoie_colis_mesenvcol");
+
+            entity.HasKey(e => e.MessageEnvoieColisId);
+
+            entity.HasOne(e => e.MessageEstPayee)
+                .WithOne(e => e.MessageEnvoieColis)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageEstPayeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.PhotoPreuve)
+                .WithOne(e => e.MessageEnvoieColis)
+                .HasForeignKey<MessageEnvoieColis>(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Message)
+                .WithOne(m => m.MessageEnvoieColis)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
