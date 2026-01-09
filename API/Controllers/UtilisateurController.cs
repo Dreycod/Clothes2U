@@ -63,6 +63,24 @@ public class UtilisateurController :  ControllerBase
     
         return NoContent();
     }
+    [Authorize]
+    [HttpPatch("{id}/PatchSettings")]
+    public async Task<IActionResult> PatchUtilisateurSettings(int id, [FromBody] UtilisateurSettingsDTO settingsDTO)
+    {
+        if ((await _currentUserService.GetUserId()) != id)
+            return Forbid();
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateurToUpdate == null)
+            return NotFound();
+    
+        _mapper.Map(settingsDTO, utilisateurToUpdate);
+        await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
+        return NoContent();
+    }
 
     [HttpGet("{id}/GetSettings")]
     public async Task<ActionResult<UtilisateurSettingsDTO>> GetUtilisateurSettings(int id)

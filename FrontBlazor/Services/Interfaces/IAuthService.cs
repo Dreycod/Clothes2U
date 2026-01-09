@@ -4,6 +4,7 @@ using Shared.DTO;
 using System.Net.Http;
 using Shared.DTO.LoginRegister;
 using Shared.DTO.Utilisateur;
+using Shared;
 
 namespace FrontBlazor.Services.GenericIServices;
 
@@ -14,7 +15,7 @@ public interface IAuthService
     public Task LogoutAsync();
     public Task<UtilisateurViewDTO?> GetCurrentUserAsync();
     public string GetGoogleLoginUrl(string returnUrl = "/");
-    public Task<bool> ModificationMotDePasse(ChangePasswordDTO passwordDTO);
+    public Task<APIResponse<object>> ModificationMotDePasse(ChangePasswordDTO passwordDTO);
     Task<List<AdresseDTO>> GetUserAddressesAsync();
     Task<AdresseDTO> AddAddressAsync(CreateAdresseDTO address);
     Task<bool> UpdateAddressAsync(int addressId, UpdateAdresseDTO address);

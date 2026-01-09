@@ -1,4 +1,5 @@
-﻿using FrontBlazor.Services.GenericIServices;
+﻿using System.Net;
+using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -331,12 +332,12 @@ namespace FrontBlazor.ViewModel
                 return;
             }
 
-            if (NewPassword.Length < 6)
-            {
-                PasswordError = "Le mot de passe doit contenir au moins 6 caractères";
-                NotifyStateChanged();
-                return;
-            }
+            //if (NewPassword.Length < 6)
+            //{
+            //    PasswordError = "Le mot de passe doit contenir au moins 6 caractères";
+            //    NotifyStateChanged();
+            //    return;
+            //}
 
             if (NewPassword != ConfirmPassword)
             {
@@ -361,18 +362,18 @@ namespace FrontBlazor.ViewModel
                 password.Password = CurrentPassword;
                 password.NewPassword = NewPassword;
                 password.ConfirmNewPassword = ConfirmPassword;
-                var success = await _authService.ModificationMotDePasse(password);
+                var response = await _authService.ModificationMotDePasse(password);
 
-                if (success)
+                if (!response.Success)
+                {
+                    PasswordError = response.ErrorMessage ?? "Erreur lors de la mise à jour";
+                }
+                else
                 {
                     PasswordUpdateSuccess = true;
                     CurrentPassword = string.Empty;
                     NewPassword = string.Empty;
                     ConfirmPassword = string.Empty;
-                }
-                else
-                {
-                    PasswordError = "Mot de passe actuel incorrect";
                 }
             }
             catch (Exception ex)
