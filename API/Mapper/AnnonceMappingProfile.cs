@@ -56,7 +56,7 @@ public class AnnonceMappingProfile : Profile
             .ReverseMap();
 
         CreateMap<CreateAnnonceDTO, Annonce>()
-                .ForMember(dest => dest.AnnonceId, opt => opt.Ignore()) // L'ID sera g�n�r�
+                .ForMember(dest => dest.AnnonceId, opt => opt.Ignore())
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Titre))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DateAnnonce, opt => opt.MapFrom(src => src.DateAnnonce))
@@ -70,7 +70,6 @@ public class AnnonceMappingProfile : Profile
                 .ForMember(dest => dest.CategorieId, opt => opt.MapFrom(src => src.CategorieId))
                 .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
                 .ForMember(dest => dest.GenreId, opt => opt.MapFrom(src => src.GenreId))
-                // Les relations (Marque, Taille, etc.) seront charg�es par EF Core
                 .ForMember(dest => dest.Marque, opt => opt.Ignore())
                 .ForMember(dest => dest.Taille, opt => opt.Ignore())
                 .ForMember(dest => dest.Etat, opt => opt.Ignore())
@@ -79,7 +78,6 @@ public class AnnonceMappingProfile : Profile
                 .ForMember(dest => dest.Statut, opt => opt.Ignore())
                 .ForMember(dest => dest.GenreAnnonce, opt => opt.Ignore())
                 .ForMember(dest => dest.Utilisateur, opt => opt.Ignore())
-                // Les collections seront g�r�es s�par�ment
                 .ForMember(dest => dest.Photos, opt => opt.Ignore())
                 .ForMember(dest => dest.Tags, opt => opt.Ignore())
                 .ForMember(dest => dest.Couleurs, opt => opt.Ignore())
