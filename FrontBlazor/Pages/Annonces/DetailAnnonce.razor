@@ -217,11 +217,14 @@
                     }
                     else if(VM_DetailAnnonce.similarAnnonces != null && VM_DetailAnnonce.similarAnnonces.Any())
                     {
+						string product = "SimilarAnnonce";
                         @foreach (AnnonceDTO similairAnnonce in VM_DetailAnnonce.similarAnnonces)
                         {
+
                             <AnnonceCard annonceComponent="similairAnnonce"
-                                         OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                         OnToggleFavorite="VM_Profil.ToggleFavorite"    
+                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
+										 IsOwnerTask="VM_DetailAnnonce.CheckIfOwnerAnnonce(similairAnnonce.AnnonceId, product)"/>
                         }
                     }
                     else

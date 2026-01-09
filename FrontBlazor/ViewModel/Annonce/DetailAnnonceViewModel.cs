@@ -90,6 +90,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             if (AnnonceDetail == null)
             {
                 ErrorMessage = "Annonce introuvable";
+                return;
             }
             else
             {
@@ -99,17 +100,12 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             utilisateurAnnonce = await _utilisateurService.GetUserById(AnnonceDetail.UtilisateurId);
             IsBlockedByUser = utilisateurAnnonce.BlockedByCurrentUser;
             if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
+            {
                 IsUserSuspended = true;
-            
-            
+                return;
+            }
 
-            UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
-            if (utilisateur != null && utilisateurAnnonce != null &&
-                utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
-                IsSameUser = true;
-
-            else
-                IsSameUser = false;
+            IsSameUser = await CheckIfOwnerAnnonce(id, "AnnonceDetail");
         }
         catch (Exception ex)
         {
@@ -309,6 +305,26 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 similarAnnonces = newAnnonces;
                 NotifyStateChanged();
             }
+        }
+    }
+
+   public async Task<bool> CheckIfOwnerAnnonce(int annonceId, string typeAnnonce)
+    {
+        UtilisateurDTO utilisateur = await _authService.GetCurrentUserAsync();
+        if (utilisateur == null)
+            return false;
+
+        switch (typeAnnonce?.ToLower())
+        {
+            case "announcedetail":
+                return AnnonceDetail != null && AnnonceDetail.UtilisateurId == utilisateur.UtilisateurId;
+
+            case "similarannonce":
+                var annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
+                return annonce != null && annonce.IdAuteur == utilisateur.UtilisateurId;
+
+            default:
+                return false;
         }
     }
 }

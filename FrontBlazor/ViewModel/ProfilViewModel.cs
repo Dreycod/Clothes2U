@@ -564,5 +564,14 @@ namespace FrontBlazor.ViewModel
         {
             return _mediaService.GetPhotoUrl(id);
         }
+
+        public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
+        {
+            UtilisateurDTO? currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+                return false;
+
+            return annonce.IdAuteur == currentUser.UtilisateurId;
+        }
     }
 }

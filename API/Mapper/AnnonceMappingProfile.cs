@@ -29,6 +29,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.NombreVues, opt => opt.MapFrom(src => src.LesVisualisations.Count))
             .ForMember(dest => dest.Prix, opt => opt.MapFrom(src => src.Prix))
             .ForMember(dest => dest.NomAuteur, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.IdAuteur, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.UriPhotoProfilAuteur,
                 opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoId))
             .ReverseMap();

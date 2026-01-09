@@ -1,11 +1,12 @@
-using Shared.DTO;
-using Shared.DTO.Annonce;
-using Shared.DTO.Favoris;
 using FrontBlazor.Services;
 using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
+using Shared.DTO;
+using Shared.DTO.Annonce;
+using Shared.DTO.Favoris;
+using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
@@ -199,6 +200,14 @@ namespace FrontBlazor.ViewModel
         public async Task OnGenreSelected(string genre)
         {
             _navigationManager.NavigateTo($"/search?genre={Uri.EscapeDataString(genre)}");
+        }
+        public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
+        {
+            UtilisateurDTO? currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser == null)
+                return false;
+
+            return annonce.IdAuteur == currentUser.UtilisateurId;
         }
     }
 }

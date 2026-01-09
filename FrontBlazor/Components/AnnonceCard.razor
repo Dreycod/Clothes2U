@@ -1,6 +1,7 @@
 ﻿@using Shared.DTO.Photo
 @inject IMediasService MediasService
 @inject IAuthService AuthService
+@inject NavigationManager _nav
 
 <div class="product-card" @onclick="OnClick">
     <div class="product-image-container">
@@ -34,31 +35,48 @@
 
         <div class="product-footer">
             <span class="product-price">@annonceComponent.Prix€</span>
-            <span class="product-seller">par @(annonceComponent.NomAuteur ?? "Vendeur")</span>
+            <span class="product-seller">
+                <a class="product-seller"
+                   href="/profile/@annonceComponent.NomAuteur"
+                   @onclick='() => _nav.NavigateTo($"/profile/{annonceComponent.NomAuteur}", true)'
+                   @onclick:preventDefault="true"
+                   @onclick:stopPropagation="true">
+                    par @(annonceComponent.NomAuteur ?? "Vendeur")
+                </a>
+            </span>
         </div>
     </div>
 </div>
 
 @code {
 
+
+
     [Parameter] public AnnonceDTO annonceComponent { get; set; }
     [Parameter] public EventCallback<AnnonceDTO> OnToggleFavorite { get; set; }
     [Parameter] public EventCallback<AnnonceDTO> OnClickAnnonce { get; set; }
+    [Parameter] public Task<bool> IsOwnerTask { get; set; }
+    private bool IsOwner;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        IsOwner = await IsOwnerTask;
+    }
 
     private string PhotoUrl => annonceComponent.Photos.Any() && annonceComponent.Photos.First() > 0
                                  ? MediasService.GetPhotoUrl(annonceComponent.Photos.First())
                                  : "";
     private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
 
-    public bool IsOwner { get; set; } = false;
-
     private async Task ToggleFavorite()
     {
         await OnToggleFavorite.InvokeAsync(annonceComponent);
     }
-
     private async Task OnClick()
+
     {
+
         await OnClickAnnonce.InvokeAsync(annonceComponent);
+
     }
 }

@@ -110,6 +110,13 @@ public class ClientBaseViewModel
         else
             _nav.NavigateTo("/search");
     }
+
+    public void NavigateToProfile(string login)
+    {
+        ToggleDropdown();
+        _nav.NavigateTo($"/profile/{login}", true);
+    }
+
     public async Task OnSearchInputChanged()
     {
         if (_nav.Uri.Contains("/search") && _searchViewModel != null)
@@ -197,5 +204,4 @@ public class ClientBaseViewModel
             showDropDownNotification = false;
             NotifyStateChanged();
         }
-    
 }
