@@ -42,37 +42,27 @@ public class UtilisateurController :  ControllerBase
         utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(id);
         return Ok(utilisateurDTO);
     }
-
+    [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutUtilisateur(int id, [FromBody] UtilisateurPutDTO utilisateurDTO)
+    public async Task<IActionResult> PutUtilisateur([FromBody] UtilisateurPutDTO utilisateurDTO)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
-        int oldStatut = utilisateurToUpdate.StatutId;
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        if (userId != utilisateurDTO.UtilisateurId)
+        {
+            return Forbid();
+        }
+    
+        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateurToUpdate == null)
             return NotFound();
+        int oldStatut = utilisateurToUpdate.StatutId;
+    
         _mapper.Map(utilisateurDTO, utilisateurToUpdate);
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
         await _mailService.NotifyUserStatusChangedAsync(utilisateurToUpdate, oldStatut);
+    
         return NoContent();
     }
-    [HttpPatch("{id}/PatchSettings")]
-    public async Task<IActionResult> PatchUtilisateurSettings(int id, [FromBody] UtilisateurSettingsDTO putDTO)
-    {
-        if ((await _currentUserService.GetUserId()) != id)
-            return Forbid();
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
-        if (utilisateurToUpdate == null)
-            return NotFound();
-        _mapper.Map(putDTO, utilisateurToUpdate);
-        await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
-        return NoContent();
-    }
-
 
     [HttpGet("{id}/GetSettings")]
     public async Task<ActionResult<UtilisateurSettingsDTO>> GetUtilisateurSettings(int id)
@@ -84,44 +74,18 @@ public class UtilisateurController :  ControllerBase
         return Ok(settingsDTO);
     }
     [Authorize]
-    [HttpPut("{id}/notif-mail")]
+    [HttpPut("notif-mail")]
     public async Task<IActionResult> UpdateNotifMailPreference(
-    int id,
     [FromBody] UpdateNotifMailDTO dto)
     {
-        // S�curit� : seul l'utilisateur lui-m�me
-        if ((await _currentUserService.GetUserId()) != id)
-            return Forbid();
-
-        var utilisateur = await _utilisateurManager.GetByIdAsync(id);
-        if (utilisateur == null)
-            return NotFound();
-
-        if (!utilisateur.ValidEmail)
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        Utilisateur user = await _utilisateurManager.GetByIdAsync(userId);
+        if (!user.ValidEmail)
             return BadRequest("Email non v�rifi�");
-
-        utilisateur.PreferenceNotifMail = dto.PreferenceNotifMail;
-        await _utilisateurManager.UpdateAsync(utilisateur);
-
+        user.PreferenceNotifMail = dto.PreferenceNotifMail;
+        await _utilisateurManager.UpdateAsync(user);
         return NoContent();
     }
-
-    [Authorize]
-    [HttpGet("adresses/{id}")]
-    public async Task<ActionResult<AdresseDTO>> GetAdresses(int id)
-    {
-        var user = _utilisateurManager.GetByIdAsync(id);
-        if (user == null) return NotFound();
-        ICollection<Adresse> adresses = user!.Result.Adresses;
-        ICollection<AdresseDTO> adressesDTO = new List<AdresseDTO>();
-        foreach (Adresse adresse in adresses)
-        {
-            adressesDTO.Add(_mapper.Map<AdresseDTO>(adresse));
-        }
-        return Ok(adressesDTO);
-    }
-
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {

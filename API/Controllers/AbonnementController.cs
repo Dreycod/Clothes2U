@@ -54,18 +54,16 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<AbonnementDTO>> Create([FromBody] int idUtilisateur)
         {
-            int? connectedUserId = await _currentUserService.GetUserId();
-            if (connectedUserId == null)
-            {
-                return Unauthorized();
-            }
-            bool exists = await _abonnementRepo.Exists((int)connectedUserId, idUtilisateur);
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            bool exists = await _abonnementRepo.Exists(userId, idUtilisateur);
 
             if (exists)
                 return BadRequest("Cet utilisateur est déjà suivi.");
+            if (userId == idUtilisateur)
+                return BadRequest();
             Abonnement abonnement = new Abonnement
             {
-                UtilisateurSuiveurId = (int)connectedUserId,
+                UtilisateurSuiveurId = userId,
                 UtilisateurSuivisId = idUtilisateur
             };
             await _abonnementRepo.AddAsync(abonnement);
@@ -76,12 +74,8 @@ namespace API.Controllers
         [HttpDelete("{idUtilisateur}")]
         public async Task<IActionResult> Delete(int idUtilisateur)
         {
-            int? connectedUserId = await _currentUserService.GetUserId();
-            if (connectedUserId == null)
-            {
-                return Unauthorized();
-            }
-            Abonnement abonnement = await _abonnementRepo.FindAbonnement((int)connectedUserId, idUtilisateur);
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            Abonnement abonnement = await _abonnementRepo.FindAbonnement(userId, idUtilisateur);
             if (abonnement == null)
             {
                 return NotFound();
