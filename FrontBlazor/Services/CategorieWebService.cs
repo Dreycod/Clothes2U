@@ -1,7 +1,8 @@
 using System.Net.Http.Json;
 using Shared.DTO;
 using Shared.DTO.Categorie;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.Services
 {

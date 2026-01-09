@@ -11,6 +11,7 @@ using Shared.DTO.Marque;
 using Shared.DTO.Mesures;
 using API.Models.EntityFramework;
 using AutoMapper;
+using Shared.DTO.Tag;
 
 namespace API.Mapper;
 
@@ -84,6 +85,12 @@ public class AnnonceMappingProfile : Profile
                 .ForMember(dest => dest.UtilisateursFavoris, opt => opt.Ignore())
                 .ForMember(dest => dest.LesVisualisations, opt => opt.Ignore());
 
+        CreateMap<CreateRecenseDTO, Recense>()
+            .ForMember(dest => dest.RecenseId, opt => opt.Ignore())
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ReverseMap();
+
         CreateMap<Recense, RecenseDTO>()
             .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
@@ -98,6 +105,16 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.Tag.LibelleTag))
             .ReverseMap();
         
+        CreateMap<Tag, TagDTO>()
+            .ForMember(dest => dest.IdTag, opt => opt.MapFrom(src => src.TagId))
+            .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.LibelleTag))
+            .ReverseMap();
+
+        CreateMap<CreateTagDTO, Tag>()
+            .ForMember(dest => dest.TagId, opt => opt.Ignore())
+            .ForMember(dest => dest.LibelleTag, opt => opt.MapFrom(src => src.Libelle))
+            .ReverseMap();
+
         CreateMap<StatutAnnonce, StatutAnnonceDTO>();
         
         CreateMap<Taille, TailleDTO>()

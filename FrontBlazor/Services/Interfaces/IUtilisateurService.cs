@@ -1,5 +1,5 @@
 ﻿using Shared.DTO;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces.GenericIServices;
 using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.Services.Interfaces;

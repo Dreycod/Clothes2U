@@ -1,4 +1,3 @@
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Shared.DTO;

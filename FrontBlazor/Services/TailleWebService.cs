@@ -1,6 +1,5 @@
-﻿using FrontBlazor.Services.GenericIServices;
+﻿using FrontBlazor.Services.Interfaces;
 using FrontBlazor.Services.GenericService;
-using FrontBlazor.Services.Interfaces;
 using Shared.DTO.Marque;
 using Shared.DTO.Mesures;
 using Shared.DTO.Taille;

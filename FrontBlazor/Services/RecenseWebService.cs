@@ -1,4 +1,5 @@
 ﻿using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Services.GenericService;
 using Shared.DTO.Annonce;
 using Shared.DTO.Recense;
 using System.Net.Http.Json;

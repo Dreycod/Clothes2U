@@ -1,6 +1,6 @@
 using Shared.DTO.Photo;
 
-namespace FrontBlazor.Services.GenericIServices
+namespace FrontBlazor.Services.Interfaces
 {
     public interface IMediasService
     {

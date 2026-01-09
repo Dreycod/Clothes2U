@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Shared.DTO.Historique;
+using FrontBlazor.Services.GenericService;
 
 namespace FrontBlazor.Services
 {

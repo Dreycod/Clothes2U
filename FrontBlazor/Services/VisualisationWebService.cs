@@ -1,5 +1,4 @@
-﻿using FrontBlazor.Services.GenericIServices;
-using FrontBlazor.Services.Interfaces;
+﻿using FrontBlazor.Services.Interfaces;
 using System.Net.Http.Json;
 using Shared.DTO.Visualisation;
 

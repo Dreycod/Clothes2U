@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Shared.DTO.Notification;
 using Shared.DTO.Moderation;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.Services;

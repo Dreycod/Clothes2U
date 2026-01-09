@@ -1,5 +1,4 @@
-﻿using FrontBlazor.Services.GenericIServices;
-using FrontBlazor.Services.Interfaces;
+﻿using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Shared.DTO.Annonce;

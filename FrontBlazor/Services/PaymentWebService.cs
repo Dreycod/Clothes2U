@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel;
 using Shared;

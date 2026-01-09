@@ -3,7 +3,6 @@ using Shared.DTO;
 using Shared.DTO.Conversation;
 using Shared.DTO.Message;
 using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;

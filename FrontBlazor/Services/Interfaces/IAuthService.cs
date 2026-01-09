@@ -5,7 +5,7 @@ using System.Net.Http;
 using Shared.DTO.LoginRegister;
 using Shared.DTO.Utilisateur;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.Interfaces;
 
 public interface IAuthService
 {

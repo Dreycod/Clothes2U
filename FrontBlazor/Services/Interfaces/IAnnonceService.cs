@@ -1,7 +1,7 @@
 using Shared.DTO;
 using Shared.DTO.Annonce;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.Interfaces;
 
 public interface IAnnonceService 
 {

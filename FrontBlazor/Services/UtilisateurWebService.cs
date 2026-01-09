@@ -1,7 +1,7 @@
 ﻿using Shared.DTO;
 using Shared.DTO.Utilisateur;
 using FrontBlazor.Pages;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using System.Net.Http.Json;

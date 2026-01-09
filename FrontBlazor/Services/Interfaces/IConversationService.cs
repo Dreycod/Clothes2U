@@ -1,6 +1,7 @@
 using Shared.DTO.Message;
+using FrontBlazor.Services.Interfaces.GenericIServices;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.Interfaces;
 
 public interface IConversationService<TEntity> : IReadableService<TEntity>, IWritableService<TEntity> where TEntity : class
 {

@@ -2,11 +2,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using FrontBlazor;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
-using FrontBlazor.Models;
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
-using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.ViewModel;
 using FrontBlazor.ViewModel.Generic;
 using FrontBlazor.ViewModel.Moderation;
@@ -21,6 +19,8 @@ using Shared.DTO.Favoris;
 using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Photo;
 using Shared.DTO.Recense;
+using FrontBlazor.Services.Interfaces.GenericIServices;
+using Shared.DTO.Tag;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -59,6 +59,7 @@ builder.Services.AddScoped<IMarqueService, MarqueWebService>();
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<StripeWebService>();
 builder.Services.AddScoped<IRecenseService<RecenseDetailDTO>, RecenseWebService>();
+builder.Services.AddScoped<ITagService<TagDTO>, TagWebService>();
 
 
 //caracteristiques

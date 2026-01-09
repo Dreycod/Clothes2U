@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Services.GenericIServices;
+﻿using FrontBlazor.Services.GenericService;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Shared.DTO.Annonce;
@@ -12,6 +12,10 @@ using Shared.DTO.Categorie;
 using Shared.DTO.EtatArticle;
 using Shared.DTO.Marque;
 using Shared.DTO.Taille;
+using Shared.DTO.Tag;
+using Shared.DTO.Recense; 
+using FrontBlazor.Services.Interfaces.GenericIServices;
+using System.Diagnostics;
 
 namespace FrontBlazor.ViewModel
 {
@@ -26,6 +30,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IListableService<MesureDTO> _mesureService;
         private readonly NavigationManager _nav;
+        private readonly ITagService<TagDTO> _tagService;
         public List<CategorieDTO> Categories { get; set; }
         public List<CouleurDTO> Couleurs { get; set; }
         public List<GenreDTO> Genres { get; set; }
@@ -55,11 +60,13 @@ namespace FrontBlazor.ViewModel
 
         // Cache des mesures pour filtrage des tailles
         private List<MesureDTO>? _allMesures;
+        private List<TagDTO>? _allTags;
         public List<int> AvailableTailleIds { get; private set; } = new();
 
         // État de l'UI
         public bool IsLoading { get; private set; } = false;
         public bool IsUploadingPhotos { get; private set; } = false;
+        public bool IsUpdatingTags { get; private set; } = false;
         public List<string> ErrorMessages { get; private set; } = new();
         public bool? HasCreated { get; private set; } = null;
 
@@ -79,6 +86,7 @@ namespace FrontBlazor.ViewModel
             IListableService<TailleDTO> tailleService, 
             NavigationManager navigationManager,
             INotificationService notificationService,
+            ITagService<TagDTO> tagService,
             NavigationManager nav): base(navigationManager, authService, notificationService)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
@@ -92,6 +100,7 @@ namespace FrontBlazor.ViewModel
             _etatService = etatService;
             _genreService = genreService;
             _tailleService = tailleService;
+            _tagService = tagService;
         }
 
         #region Initialization
@@ -119,6 +128,7 @@ namespace FrontBlazor.ViewModel
             IsLoading = false;
 
             await LoadMesuresAsync();
+            await LoadTagsAsync();
 
             Console.WriteLine($"✅ ViewModel initialisé pour utilisateur {currentUser.UtilisateurId}");
             NotifyStateChanged();
@@ -135,6 +145,20 @@ namespace FrontBlazor.ViewModel
             {
                 Console.WriteLine($"❌ Erreur chargement mesures: {ex.Message}");
                 _allMesures = new List<MesureDTO>();
+            }
+        }
+
+        private async Task LoadTagsAsync()
+        {
+            try
+            {
+                _allTags = await _tagService.GetAllAsync();
+                Console.WriteLine($"✅ {_allTags?.Count ?? 0} tags chargées");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Erreur chargement tags: {ex.Message}");
+                _allTags = new List<TagDTO>();
             }
         }
 
@@ -378,7 +402,12 @@ namespace FrontBlazor.ViewModel
                 await _annonceService.CreateAnnonce(NewAnnonce);
                 Console.WriteLine($"✅ Annonce créée avec succès");
 
-                if (SelectedFilePreviews.Any())
+                var userAnnonces = await _annonceService.GetAnnoncesByUserIdAsync(currentUser.UtilisateurId);
+                var createdAnnonce = userAnnonces?
+                    .OrderByDescending(a => a.AnnonceId)
+                    .FirstOrDefault(a => a.Titre == NewAnnonce.Titre);
+
+                if (SelectedFilePreviews.Count != 0)
                 {
                     IsUploadingPhotos = true;
                     NotifyStateChanged();
@@ -387,11 +416,6 @@ namespace FrontBlazor.ViewModel
 
                     try
                     {
-                        var userAnnonces = await _annonceService.GetAnnoncesByUserIdAsync(currentUser.UtilisateurId);
-                        var createdAnnonce = userAnnonces?
-                            .OrderByDescending(a => a.AnnonceId)
-                            .FirstOrDefault(a => a.Titre == NewAnnonce.Titre);
-
                         if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
                         {
                             Console.WriteLine($"✅ Annonce retrouvée avec ID: {createdAnnonce.AnnonceId}");
@@ -399,25 +423,26 @@ namespace FrontBlazor.ViewModel
                             var photosDataUrls = SelectedFilePreviews
                                 .Select(p => p.PreviewBase64)
                                 .ToList();
-
-                            var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(
+                            try
+                            {
+                                var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(
                                 createdAnnonce.AnnonceId,
                                 photosDataUrls
                             );
 
-                            if (!uploadSuccess)
+                                if (!uploadSuccess)
+                                {
+                                    AddError("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"✅ Toutes les photos uploadées avec succès");
+                                }
+                            }catch(Exception ex)
                             {
-                                AddError("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
+                                Console.WriteLine($"❌ Erreur upload photos: {ex.Message}");
+                                AddError("⚠️ L'annonce a été créée mais erreur lors de l'upload des photos.");
                             }
-                            else
-                            {
-                                Console.WriteLine($"✅ Toutes les photos uploadées avec succès");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine($"⚠️ Impossible de retrouver l'annonce pour uploader les photos");
-                            AddError("⚠️ L'annonce a été créée mais les photos n'ont pas pu être uploadées.");
                         }
                     }
                     catch (Exception photoEx)
@@ -428,6 +453,96 @@ namespace FrontBlazor.ViewModel
                     finally
                     {
                         IsUploadingPhotos = false;
+                    }
+                }
+                if (Tags.Count > 0)
+                {
+                    IsUpdatingTags = true;
+                    NotifyStateChanged();
+                    Console.WriteLine($"🏷️ Ajout de {Tags.Count} tags...");
+
+                    try
+                    {
+                        var tagDTOs = new List<TagDTO>();
+
+                        // ✅ Crée d'abord TOUS les tags
+                        foreach (var tag in Tags)
+                        {
+                            var searchTag = _allTags.FirstOrDefault(t =>
+                                t.LibelleTag.Equals(tag, StringComparison.OrdinalIgnoreCase));
+
+                            if (searchTag != null)
+                            {
+                                Console.WriteLine($"📌 Tag existant trouvé: {searchTag.LibelleTag}");
+                                tagDTOs.Add(searchTag);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"🆕 Création nouveau tag: {tag}");
+                                var newTag = new CreateTagDTO { Libelle = tag };
+
+                                try
+                                {
+                                    var newTagDTO = await _tagService.AddAsync(newTag);
+
+                                    if (newTagDTO != null)
+                                    {
+                                        Console.WriteLine($"✅ Tag créé: ID={newTagDTO.IdTag}, Libelle={newTagDTO.LibelleTag}");
+                                        tagDTOs.Add(newTagDTO);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"⚠️ AddAsync a retourné null pour: {tag}");
+                                    }
+                                }
+                                catch (Exception addTagEx)
+                                {
+                                    Console.WriteLine($"❌ Erreur création tag '{tag}': {addTagEx.Message}");
+                                    AddError($"Le tag '{tag}' n'a pas pu être créé");
+                                }
+                            }
+                        }
+
+                        // ✅ Ensuite crée les associations Recense
+                        if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
+                        {
+                            Console.WriteLine($"📎 Création de {tagDTOs.Count} associations Recense...");
+
+                            foreach (var tagDTO in tagDTOs)
+                            {
+                                if (tagDTO == null)
+                                {
+                                    Console.WriteLine("⚠️ TagDTO null détecté, skip");
+                                    continue;
+                                }
+
+                                try
+                                {
+                                    Console.WriteLine($"🔄 Association Tag {tagDTO.IdTag} avec Annonce {createdAnnonce.AnnonceId}");
+
+                                    var recense = await _tagService.TagToRecense(tagDTO, createdAnnonce);
+
+                                    if (recense != null)
+                                    {
+                                        Console.WriteLine($"✅ Recense créé: ID={recense.RecenseId}");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"⚠️ TagToRecense a retourné null");
+                                    }
+                                }
+                                catch (Exception tagEx)
+                                {
+                                    Console.WriteLine($"❌ Erreur association tag '{tagDTO.LibelleTag}': {tagEx.Message}");
+                                    AddError($"Le tag '{tagDTO.LibelleTag}' n'a pas pu être associé");
+                                }
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        IsUpdatingTags = false;
+                        NotifyStateChanged();
                     }
                 }
 

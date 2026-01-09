@@ -3,7 +3,8 @@ using System.Net;
 using System.Net.Http.Json;
 using Shared.DTO;
 using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Shared.DTO.LoginRegister;
 

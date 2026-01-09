@@ -1,9 +1,11 @@
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Shared.DTO;
 using Shared.DTO.Conversation;
 using System.Net.Http.Json;
 using Shared.DTO.Message;
+using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.Services;
 

@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Shared.DTO.Moderation;
 using Shared.DTO.Notification;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 
 
 namespace FrontBlazor.Services.Interfaces;

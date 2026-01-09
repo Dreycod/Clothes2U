@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO;

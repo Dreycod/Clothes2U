@@ -1,5 +1,5 @@
 using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
 

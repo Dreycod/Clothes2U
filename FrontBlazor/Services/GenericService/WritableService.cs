@@ -4,8 +4,9 @@ using Shared.Interfaces;
 using System.Net.Http.Json;
 using System.Numerics;
 using System.Xml.Linq;
+using FrontBlazor.Services.Interfaces.GenericIServices;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.GenericService;
 
 public class WritableService<T> : BaseGenericService, IWritableService<T>  where T : class, IEntity
 {

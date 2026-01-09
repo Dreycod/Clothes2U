@@ -13,3 +13,8 @@ public class CouleurDTO: IEntity
         return CouleurId;
     }
 }
+
+public class CreateCouleurDTO
+{
+    public string Nom { get; set; }
+}

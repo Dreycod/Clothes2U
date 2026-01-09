@@ -1,6 +1,7 @@
 ﻿using Shared.DTO;
 using Shared.DTO.Photo;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 

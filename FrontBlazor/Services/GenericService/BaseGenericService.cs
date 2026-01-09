@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
-namespace FrontBlazor.Services;
+namespace FrontBlazor.Services.GenericService;
 
 public abstract class BaseGenericService
 {

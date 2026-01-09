@@ -447,13 +447,13 @@
         <div class="action-buttons">
             <button class="btn-cancel"
                     @onclick="OnCancel"
-                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos)">
+                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos || VM_CreationAnnonce.IsUpdatingTags)">
                 Annuler
             </button>
 
             <button class="btn-submit"
                     @onclick="OnPublishClick"
-                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos)">
+                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos || VM_CreationAnnonce.IsUpdatingTags)">
                 @if (VM_CreationAnnonce.IsLoading)
                 {
                     <span class="spinner-small-inline"></span>
@@ -463,6 +463,11 @@
                 {
                     <span class="spinner-small-inline"></span>
                     <span>Upload des photos...</span>
+                }
+                else if(VM_CreationAnnonce.IsUpdatingTags)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Mise à jour des tags...</span>
                 }
                 else
                 {

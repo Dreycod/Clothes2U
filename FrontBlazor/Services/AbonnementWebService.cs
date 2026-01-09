@@ -1,5 +1,6 @@
 ﻿using Shared.DTO;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
 using System.Net.Http.Json;
 using Shared.DTO.Abonnement;
 

@@ -1,14 +1,13 @@
-﻿using FrontBlazor.Services.GenericIServices;
+﻿using FrontBlazor.Services.Interfaces.GenericIServices;
 using Shared.DTO.Tag;
+using Shared.DTO.Annonce;
+using Shared.DTO.Recense;
 
 namespace FrontBlazor.Services.Interfaces
 {
-    public interface ITagService
+    public interface ITagService<TEntity> : IService<TEntity> where TEntity : TagDTO
     {
-        Task<List<TagDTO>?> GetAllTagsAsync();
-        Task<TagDTO?> GetTagById(int id);
-        Task<TagDTO?> GetTagByName(string name);
-        Task<TagDTO?> AddTagAsync(CreateTagDTO tag);
-        Task<bool> DeleteTagAsync(int id);
+        Task<RecenseDTO?> TagToRecense(TagDTO tag, AnnonceDTO annonce);
+        Task<TagDTO?> AddAsync(CreateTagDTO tag);
     }
 }

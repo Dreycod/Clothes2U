@@ -1,4 +1,4 @@
-﻿using FrontBlazor.Services.GenericIServices;
+﻿using FrontBlazor.Services.Interfaces.GenericIServices;
 using Shared.DTO.Recense;
 
 namespace FrontBlazor.Services.Interfaces

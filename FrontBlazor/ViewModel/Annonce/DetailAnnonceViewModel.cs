@@ -6,7 +6,6 @@ using Shared.DTO.Photo;
 using Shared.DTO.Signalement;
 using Shared.DTO.Utilisateur;
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
