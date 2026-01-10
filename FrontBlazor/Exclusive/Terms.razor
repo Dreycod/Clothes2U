@@ -1,6 +1,9 @@
 ﻿@page "/terms"
+@using FrontBlazor.ViewModel.Generic
 @inject NavigationManager NavigationManager
 
+@layout ClientLayout
+@inject ClientBaseViewModel Vm_ClientBase
 <PageTitle>Terms & Conditions</PageTitle>
 
 <NavBar />
@@ -130,5 +133,9 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"><strong><bdt clas
 </div>
 
 @code {
-
+    protected override async Task OnInitializedAsync()
+    {
+        await Vm_ClientBase.LoadAsync();
+        StateHasChanged();
+        }
 }
