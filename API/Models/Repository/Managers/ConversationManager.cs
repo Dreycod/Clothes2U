@@ -10,7 +10,6 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
     private IQueryable<Conversation> BaseConversationQuery()
     {
         return _context.Conversations
-            // Relations principales de la conversation
             .Include(c => c.Vendeur)
             .ThenInclude(v => v.UtilisateurVendeur)
             .Include(c => c.Acheteur)
@@ -18,32 +17,19 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Include(c => c.LAnnonce)
             .ThenInclude(a => a.Photos)
             .ThenInclude(p => p.Photo)
-        
-            // Messages et leurs relations
             .Include(c => c.Messages)
             .ThenInclude(m => m.Utilisateur)
-        
-            // MessageTexte avec ses photos
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageTexte)
             .ThenInclude(mt => mt.Photos)
-        
-            // MessageDemande avec ses relations
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageDemande)
-            .ThenInclude(md => md.Offre) // Si vous avez besoin de la proposition parente
-        
-            // MessageValidation avec la proposition validée
+            .ThenInclude(md => md.Offre) 
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEstPayee)
-            
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEnvoieColis)
-            
             .Include(c => c.Messages)
-            .ThenInclude(m => m.MessageEstRecu)
-            // Utiliser AsSplitQuery pour éviter les cartesian explosions
-            // avec autant de includes
             .AsSplitQuery();
     }
 
@@ -57,7 +43,17 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
     public async Task<IEnumerable<Conversation>> GetAllAsyncByUser(int id)
     {
         return await BaseConversationQuery()
-            .Where(a => a.Vendeur.UtilisateurVendeurId == id || a.Acheteur.UtilisateurAcheteurId == id)
+            .Where(c => 
+                (c.Vendeur.UtilisateurVendeurId == id || c.Acheteur.UtilisateurAcheteurId == id) &&
+                (c.Vendeur.UtilisateurVendeurId == id 
+                    ? !c.Acheteur.UtilisateurAcheteur.UtilisateursBloques.Any(b => b.UtilisateurBloqueId == id) &&
+                      !c.Acheteur.UtilisateurAcheteur.BloqueParUtilisateurs.Any(b => b.UtilisateurBloqueurId == id)
+                    : !c.Vendeur.UtilisateurVendeur.UtilisateursBloques.Any(b => b.UtilisateurBloqueId == id) &&
+                      !c.Vendeur.UtilisateurVendeur.BloqueParUtilisateurs.Any(b => b.UtilisateurBloqueurId == id)) &&
+                (c.Vendeur.UtilisateurVendeurId == id 
+                    ? c.Acheteur.UtilisateurAcheteur.Statut.StatutLibelle == "Actif"
+                    : c.Vendeur.UtilisateurVendeur.Statut.StatutLibelle == "Actif")
+            )
             .ToListAsync();
     }
 

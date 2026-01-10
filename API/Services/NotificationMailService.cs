@@ -21,41 +21,23 @@ namespace API.Services
         }
 
         /// Nouvelle annonce d’un vendeur suivi
-        public async Task NotifyNewAnnonceAsync(Annonce annonce)
+        public async Task NotifyNewAnnonceAsync(Annonce annonce, string userMail)
         {
-            var followers = await _abonnementRepo
-                .GetAllFollowersByUtilisateurSuivi(annonce.UtilisateurId);
-
-            foreach (var abo in followers)
-            {
-                var user = abo.UtilisateurSuiveur;
-
-                if (!user.PreferenceNotifMail || !user.ValidEmail)
-                    continue;
-
-                await _emailService.SendAsync(
-                    user.Email,
-                    "Nouvelle annonce disponible",
-                    $"Le vendeur {annonce.Utilisateur.Login} a publié une nouvelle annonce : {annonce.Title}"
-                );
-            }
+            await _emailService.SendAsync(
+                userMail,
+                "Nouvelle annonce disponible",
+                $"Le vendeur {annonce.Utilisateur.Login} a publié une nouvelle annonce : {annonce.Title}"
+            );
         }
 
         /// Modification d’une annonce suivie (favoris)
-        public async Task NotifyAnnonceUpdatedAsync(Annonce annonce)
+        public async Task NotifyAnnonceUpdatedAsync(Annonce annonce, string userMail)
         {
-            var users = annonce.UtilisateursFavoris
-                .Select(f => f.Utilisateur)
-                .Where(u => u.PreferenceNotifMail && u.ValidEmail);
-
-            foreach (var user in users)
-            {
-                await _emailService.SendAsync(
-                    user.Email,
-                    "Annonce mise à jour",
-                    $"L’annonce '{annonce.Title}' que vous suivez a été modifiée."
-                );
-            }
+            await _emailService.SendAsync(
+                userMail,
+                "Annonce mise à jour",
+                $"L’annonce '{annonce.Title}' que vous suivez a été modifiée."
+            );
         }
 
         /// Changement de statut utilisateur
