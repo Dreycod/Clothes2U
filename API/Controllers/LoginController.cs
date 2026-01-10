@@ -17,8 +17,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Shared;
+using Shared.DTO;
 using Shared.DTO.ConnexionRequest;
-using Shared.DTO.LoginRegister;
 using Shared.DTO.Utilisateur;
 namespace API.Controllers;
 

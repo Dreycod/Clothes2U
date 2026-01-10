@@ -2,16 +2,16 @@
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Shared.DTO;
 using Shared.DTO.Annonce;
 using Shared.DTO.Bloque;
-using Shared.DTO.LoginRegister;
 using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
     public class SettingsViewModel : ClientBaseViewModel
     {
-        
+
         private readonly NavigationManager _navigationManager;
         private readonly IUtilisateurService _utilisateurService;
         private readonly IAuthService _authService;
@@ -36,9 +36,6 @@ namespace FrontBlazor.ViewModel
         public string EmailError { get; set; }
         public bool EmailUpdateSuccess { get; set; }
 
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
-        public string ConfirmPassword { get; set; }
         public bool IsUpdatingPassword { get; set; }
         public string PasswordError { get; set; }
         public bool PasswordUpdateSuccess { get; set; }
@@ -318,44 +315,29 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public async Task UpdatePassword()
+        public async Task<string> UpdatePassword(string CurrentPassword, string NewPassword, string NewConfirmPassword)
         {
             PasswordError = string.Empty;
             PasswordUpdateSuccess = false;
 
             if (string.IsNullOrWhiteSpace(CurrentPassword))
             {
-                PasswordError = "Veuillez entrer votre mot de passe actuel";
-                NotifyStateChanged();
-                return;
+                return "Veuillez entrer votre mot de passe actuel";
             }
 
             if (string.IsNullOrWhiteSpace(NewPassword))
             {
-                PasswordError = "Veuillez entrer un nouveau mot de passe";
-                NotifyStateChanged();
-                return;
+                return "Veuillez entrer un nouveau mot de passe";
             }
 
-            //if (NewPassword.Length < 6)
-            //{
-            //    PasswordError = "Le mot de passe doit contenir au moins 6 caractères";
-            //    NotifyStateChanged();
-            //    return;
-            //}
-
-            if (NewPassword != ConfirmPassword)
+            if (NewPassword != NewConfirmPassword)
             {
-                PasswordError = "Les mots de passe ne correspondent pas";
-                NotifyStateChanged();
-                return;
+                return "Les mots de passe ne correspondent pas";
             }
 
             if (CurrentPassword == NewPassword)
             {
-                PasswordError = "Le nouveau mot de passe doit être différent de l'ancien";
-                NotifyStateChanged();
-                return;
+                return "Le nouveau mot de passe doit être différent de l'ancien";
             }
 
             IsUpdatingPassword = true;
@@ -366,24 +348,59 @@ namespace FrontBlazor.ViewModel
                 ChangePasswordDTO password = new ChangePasswordDTO();
                 password.Password = CurrentPassword;
                 password.NewPassword = NewPassword;
-                password.ConfirmNewPassword = ConfirmPassword;
+                password.ConfirmNewPassword = NewConfirmPassword;
                 var response = await _authService.ModificationMotDePasse(password);
 
                 if (!response.Success)
                 {
-                    PasswordError = response.ErrorMessage ?? "Erreur lors de la mise à jour";
+                    return response.ErrorMessage ?? "Erreur lors de la mise à jour";
                 }
                 else
                 {
                     PasswordUpdateSuccess = true;
-                    CurrentPassword = string.Empty;
-                    NewPassword = string.Empty;
-                    ConfirmPassword = string.Empty;
+                    return "Success";
                 }
             }
             catch (Exception ex)
             {
-                PasswordError = $"Erreur: {ex.Message}";
+                return $"Erreur: {ex.Message}";
+            }
+            finally
+            {
+                IsUpdatingPassword = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task<string> AccountDeletion(string Password)
+        {
+            if (string.IsNullOrWhiteSpace(Password))
+            {
+                return "Veuillez entrer votre mot de passe actuel";
+            }
+
+            IsUpdatingPassword = true;
+            NotifyStateChanged();
+
+            try
+            {
+                AccountDeletionDTO password = new AccountDeletionDTO();
+                password.Password = Password;
+                var response = await _utilisateurService.SuppressionCompte(password);
+
+                if (!response.Success)
+                {
+                    return response.ErrorMessage ?? "Erreur lors de la mise à jour";
+                }
+                else
+                {
+                    PasswordUpdateSuccess = true;
+                    return "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"Erreur: {ex.Message}";
             }
             finally
             {

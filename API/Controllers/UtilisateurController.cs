@@ -1,14 +1,14 @@
-using Shared.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Interfaces;
 using API.Services;
-using API.Services.Interfaces;
+using API.Services.VerificationSrvceV2;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using API.Services.VerificationSrvceV2;
+using Shared;
 using Shared.DTO;
+using Shared.DTO.Utilisateur;
 
 
 namespace API.Controllers;
@@ -122,6 +122,27 @@ public class UtilisateurController :  ControllerBase
         int adminId = await _currentUserService.GetUserIdOrThrow();
         await _userDeletionService.DeleteUtilisateurByAdminAsync(id, adminId);
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("suppressionCompte")]
+    public async Task<IActionResult> SuppressionCompte([FromBody] AccountDeletionDTO accountDeletionDTO)
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+
+        Utilisateur utilisateur = await _utilisateurManager.GetByIdAsync(userId);
+        if (utilisateur == null)
+        {
+            return NotFound();
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(accountDeletionDTO.Password, utilisateur.Password))
+        {
+            return Unauthorized(APIResponse<object>.ErrorResponse("Votre mot de passe est incorrecte!"));
+        }
+
+        await _utilisateurManager.DeleteAsync(utilisateur);
+        return Ok(APIResponse<object>.SuccessResponse(null));
     }
 
     [HttpGet("login/{login}")]
