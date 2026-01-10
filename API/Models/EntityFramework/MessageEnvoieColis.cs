@@ -32,6 +32,9 @@ public class MessageEnvoieColis : IEntity
     [ForeignKey(nameof(MessageEstPayeeId))]
     [InverseProperty(nameof(MessageEstPayee.MessageEnvoieColis))]
     public virtual MessageEstPayee MessageEstPayee { get; set; }
+    
+    [InverseProperty(nameof(MessageEstRecu.MessageEstEnvoie))]
+    public virtual MessageEstRecu? MessageEstRecu { get; set; }
 
     public int GetId() => MessageEnvoieColisId;
 }

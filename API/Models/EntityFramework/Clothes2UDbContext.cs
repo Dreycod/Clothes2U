@@ -646,6 +646,10 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(m => m.MessageEnvoieColis)
                 .HasForeignKey<MessageEnvoieColis>(e => e.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.MessageEstRecu)
+                .WithOne(e => e.MessageEstEnvoie)
+                .HasForeignKey<MessageEstRecu>(e => e.MessageEstEnvoieId);
         });
 
         modelBuilder.Entity<MessageEstRecu>(entity =>
@@ -662,6 +666,11 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Photo)
                 .WithOne(e => e.MessageEstRecu)
                 .HasForeignKey<MessageEstRecu>(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.MessageEstEnvoie)
+                .WithOne(e => e.MessageEstRecu)
+                .HasForeignKey<MessageEstRecu>(e => e.MessageEstEnvoieId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

@@ -180,19 +180,19 @@
                             <div class="message @(message.SentByCurrentUser ? "sent" : "received")">
                                 @if (!message.SentByCurrentUser)
                                 {
-                                <div class="message-avatar">
-                                    @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != null &&
-                                         VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != 0)
-                                    {
-                                        <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)"
-                                             alt="Photo interlocuteur"/>
-                                    }
-                                    else
-                                    {
-                                        <img src="images/placeholder_message.jpeg"
-                                             alt="Photo interlocuteur"/>
-                                    }
-                                </div>
+                                    <div class="message-avatar">
+                                        @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != null &&
+                                             VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != 0)
+                                        {
+                                            <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)"
+                                                 alt="Photo interlocuteur"/>
+                                        }
+                                        else
+                                        {
+                                            <img src="images/placeholder_message.jpeg"
+                                                 alt="Photo interlocuteur"/>
+                                        }
+                                    </div>
                                 }
                                 @if (message.TypeMessage == "Texte")
                                 {
@@ -405,11 +405,78 @@
                                             <h4>Colis envoyé</h4>
                                             <p>Le vendeur a expédié le colis.</p>
 
-                                            @if (colis.PhotoId != 0 || colis.PhotoId != null)
+                                            @if (colis.PhotoId != 0 && colis.PhotoId != null)
                                             {
                                                 <img src="@VM_Messagerie._mediaService.GetPhotoUrl(colis.PhotoId)"
                                                      alt="Preuve d'envoi du colis"
                                                      style="margin-top:10px; max-width:220px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15);" />
+                                            }
+                                        </div>
+                                        @if (colis.MessageEstRecuId == 0 || colis.MessageEstRecuId == null && VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                        {
+                                            <div class="colis-reception-card">
+                                                <h4>📦 Avez-vous reçu le colis ?</h4>
+                                        
+                                                <div class="reception-actions">
+                                                    <button class="btn-accept" 
+                                                            @onclick="() => VM_Messagerie.OuvrirModalReception(true, colis.MessageEnvoieColisId)">
+                                                        <i class="bi bi-check-circle"></i>
+                                                        Conforme
+                                                    </button>
+                                            
+                                                    <button class="btn-decline" 
+                                                            @onclick="() => VM_Messagerie.OuvrirModalReception(false, colis.MessageEnvoieColisId)">
+                                                        <i class="bi bi-x-circle"></i>
+                                                        Non conforme
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                    </div>
+                                }
+
+                                else if (message.TypeMessage == "Recu")
+                                {
+                                    MessageEstRecuDTO recu = message as MessageEstRecuDTO;
+
+                                    <div class="payment-status-card @(recu.EstConforme ? "paid" : "cancelled")">
+                                        <div class="payment-icon">
+                                            @if (recu.EstConforme)
+                                            {
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                            }
+                                        </div>
+
+                                        <div class="payment-content">
+                                            @if (recu.EstConforme)
+                                            {
+                                                <h4>✅ Colis reçu et conforme</h4>
+                                                <p>L'acheteur a confirmé la réception du colis.</p>
+                                            }
+                                            else
+                                            {
+                                                <h4>⚠️ Colis non conforme</h4>
+                                                <p>L'acheteur a signalé un problème avec le colis.</p>
+                                                
+                                                @if (!string.IsNullOrEmpty(recu.Description))
+                                                {
+                                                    <div class="reception-description">
+                                                        <strong>Description :</strong>
+                                                        <p>@recu.Description</p>
+                                                    </div>
+                                                }
+                                                
+                                                @if (recu.PhotoId != null && recu.PhotoId != 0)
+                                                {
+                                                    <img src="@VM_Messagerie._mediaService.GetPhotoUrl(recu.PhotoId.Value)"
+                                                         alt="Photo du problème"
+                                                         style="margin-top:10px; max-width:220px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15);" />
+                                                }
                                             }
                                         </div>
                                     </div>
@@ -500,6 +567,101 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Réception Colis -->
+@if (VM_Messagerie.ShowReceptionModal)
+{
+    <div class="modal-overlay" @onclick="() => VM_Messagerie.FermerModalReception()">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>
+                    @if (VM_Messagerie.ColisEstConforme)
+                    {
+                        <text>✅ Confirmer la réception</text>
+                    }
+                    else
+                    {
+                        <text>⚠️ Signaler un problème</text>
+                    }
+                </h3>
+                <button class="modal-close" @onclick="() => VM_Messagerie.FermerModalReception()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                @if (VM_Messagerie.ColisEstConforme)
+                {
+                    <div class="confirm-message">
+                        <i class="bi bi-check-circle"></i>
+                        <p>Confirmez-vous que le colis est conforme à la description ?</p>
+                        <p class="confirm-description">Cette action finalisera la transaction.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="confirm-message">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <p>Décrivez le problème rencontré avec le colis</p>
+                        <p class="confirm-description">Ajoutez une photo et une description détaillée.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Photo du problème *</label>
+                        <InputFile OnChange="VM_Messagerie.OnReceptionPhotoSelected"
+                                   accept="image/*" 
+                                   class="form-input" />
+
+                        @if (VM_Messagerie.ReceptionPhotoPreviewBase64 != null)
+                        {
+                            <img src="@VM_Messagerie.ReceptionPhotoPreviewBase64"
+                                 class="img-thumbnail mt-2"
+                                 style="max-width:200px" />
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description du problème *</label>
+                        <textarea class="form-textarea"
+                                  placeholder="Décrivez précisément le problème rencontré..."
+                                  @bind="VM_Messagerie.ReceptionDescription"
+                                  @bind:event="oninput"
+                                  rows="5">
+                        </textarea>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(VM_Messagerie.ReceptionError))
+                    {
+                        <div class="alert alert-error">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <p>@VM_Messagerie.ReceptionError</p>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="() => VM_Messagerie.FermerModalReception()">
+                    Annuler
+                </button>
+
+                <button class="btn-primary @(VM_Messagerie.ColisEstConforme ? "" : "btn-danger")"
+                        @onclick="async () => await VM_Messagerie.ConfirmerReceptionColisAsync()"
+                        disabled="@VM_Messagerie.IsSendingReception">
+                    @if (VM_Messagerie.IsSendingReception)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Envoi...</span>
+                    }
+                    else
+                    {
+                        <span>Confirmer</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Report Message Modal -->
 @if (VM_Messagerie.ShowReportModal)

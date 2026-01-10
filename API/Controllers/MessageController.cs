@@ -320,7 +320,8 @@ public class MessageController : ControllerBase
         var messageRecu = new MessageEstRecu
         {
             MessageId = message.MessageId,
-            EstConforme = dto.EstConforme
+            EstConforme = dto.EstConforme,
+            MessageEstEnvoieId = dto.MessageEstEnvoieId
         };
 
         if (!dto.EstConforme)
@@ -335,6 +336,9 @@ public class MessageController : ControllerBase
             messageRecu.PhotoId = photo.PhotoId;
         }
         await _messageEstRecuManager.AddAsync(messageRecu);
+        
+        var messageEnvoieColis = await _messageEnvoieColisManager.GetByIdAsync(dto.MessageEstEnvoieId);
+        
         
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
         

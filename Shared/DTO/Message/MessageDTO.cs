@@ -58,6 +58,7 @@ public class MessageEnvoieColisDTO : MessageDTO
     public int MessageEnvoieColisId { get; set; }
     public int PhotoId { get; set; }
     public int MessageEstPayeeId { get; set; }
+    public int? MessageEstRecuId { get; set; }
 }
 
 public class MessageEstRecuDTO : MessageDTO
@@ -67,4 +68,5 @@ public class MessageEstRecuDTO : MessageDTO
     public bool EstConforme { get; set; }
     public string? Description { get; set; }
     public int? PhotoId { get; set; }
+    public int MessageEstEnvoieId { get; set; }
 }

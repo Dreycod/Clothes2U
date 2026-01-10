@@ -36,4 +36,5 @@ public class MessageEstRecuPostDTO : MessagePostDTO
     public bool EstConforme { get; set; }
     public PhotoUploadDTO? Photo { get; set; }
     public string? Description { get; set; }
+    public int MessageEstEnvoieId { get; set; }
 }

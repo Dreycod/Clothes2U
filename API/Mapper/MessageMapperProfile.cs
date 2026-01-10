@@ -84,7 +84,8 @@ public class MessageMapperProfile : Profile
                 src.UtilisateurId == (int)context.Items["CurrentUserId"]))
             .ForMember(dest => dest.MessageEstPayeeId, opt =>opt.MapFrom(src => src.MessageEnvoieColis.MessageEstPayeeId))
             .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.MessageEnvoieColis.PhotoId))
-            .ForMember(dest => dest.MessageEnvoieColisId, opt => opt.MapFrom(src => src.MessageEnvoieColis.MessageEnvoieColisId));
+            .ForMember(dest => dest.MessageEnvoieColisId, opt => opt.MapFrom(src => src.MessageEnvoieColis.MessageEnvoieColisId))
+            .ForMember(dest => dest.MessageEstRecuId, opt => opt.MapFrom(src => src.MessageEnvoieColis.MessageEstRecu.MessageEstRecuId != null ? src.MessageEnvoieColis.MessageEstRecu.MessageEstRecuId : 0));
 
         CreateMap<Message, MessageEstRecuDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
@@ -98,7 +99,8 @@ public class MessageMapperProfile : Profile
             .ForMember(dest => dest.EstConforme, opt => opt.MapFrom(src => src.MessageEstRecu.EstConforme))
             .ForMember(dest => dest.PhotoId,
                 opt => opt.MapFrom(src => src.MessageEstRecu.PhotoId != null ? src.MessageEstRecu.PhotoId : 0))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.MessageEstRecu.Description != null ? src.MessageEstRecu.Description : ""));
-
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.MessageEstRecu.Description != null ? src.MessageEstRecu.Description : ""))
+            .ForMember(dest => dest.MessageEstEnvoieId, opt => opt.MapFrom(src => src.MessageEstRecu.MessageEstEnvoieId));
+            
     }
 }

@@ -115,8 +115,8 @@ public class ConversationMappingProfile : Profile
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             MessageEnvoieColisId = message.MessageEnvoieColis.MessageEnvoieColisId,
                             PhotoId = message.MessageEnvoieColis.PhotoId,
-                            MessageEstPayeeId = message.MessageEnvoieColis.MessageEstPayeeId
-
+                            MessageEstPayeeId = message.MessageEnvoieColis.MessageEstPayeeId,
+                            MessageEstRecuId = message.MessageEnvoieColis.MessageEstRecu?.MessageEstRecuId != null ? message.MessageEnvoieColis.MessageEstRecu.MessageEstRecuId : 0
                         };
                     }
                     else if (message.MessageEstRecu != null)
@@ -132,7 +132,8 @@ public class ConversationMappingProfile : Profile
                             MessageEstRecuId = message.MessageEstRecu.MessageEstRecuId,
                             EstConforme = message.MessageEstRecu.EstConforme,
                             Description = message.MessageEstRecu.Description,
-                            PhotoId = message.MessageEstRecu.PhotoId
+                            PhotoId = message.MessageEstRecu.PhotoId,
+                            
                         };
                     }
                     if (dto != null)

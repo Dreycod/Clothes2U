@@ -22,9 +22,16 @@ public class MessageEstRecu : IEntity
     [Column("mesrecu_message_id")]
     public int MessageId { get; set; }
     
+    [Column("mesrecu_est_envoie_id")]
+    public int MessageEstEnvoieId { get; set; }
+    
     [ForeignKey(nameof(MessageId))]
     [InverseProperty(nameof(Message.MessageEstRecu))]
     public virtual Message Message { get; set; }
+    
+    [ForeignKey(nameof(MessageEstEnvoieId))]
+    [InverseProperty(nameof(MessageEnvoieColis.MessageEstRecu))]
+    public virtual MessageEnvoieColis MessageEstEnvoie { get; set; }
     
     [ForeignKey(nameof(PhotoId))]
     [InverseProperty(nameof(Photo.MessageEstRecu))]
