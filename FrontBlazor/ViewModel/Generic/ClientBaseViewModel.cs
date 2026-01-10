@@ -89,6 +89,7 @@ public class ClientBaseViewModel
         showDropDownNotification = !showDropDownNotification;
         showDropdown = false;
         LoadingNotifications = true;
+        NotificationCount = 0;
         NotifyStateChanged();
 
         if (showDropDownNotification)
