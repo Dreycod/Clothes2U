@@ -134,7 +134,22 @@
                         <span>Annecy, France</span>
                     </div> *@
                         <div class="profile-stats-row">
-                            <span class="profile-stat">@VM_Profil.ViewingUser.Abonnements Abonnements, @VM_Profil.ViewingUser.Abonnes Abonnés</span>
+                            @if (VM_Profil.IsSameUser)
+                            {
+                                <span class="profile-stat clickable" @onclick="VM_Profil.OpenAbonnementsModal">
+                                    @VM_Profil.ViewingUser.Abonnements Abonnements
+                                </span>
+                                <span>, </span>
+                                <span class="profile-stat clickable">
+                                    @VM_Profil.ViewingUser.Abonnes Abonnés
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="profile-stat">
+                                    @VM_Profil.ViewingUser.Abonnements Abonnements, @VM_Profil.ViewingUser.Abonnes Abonnés
+                                </span>
+                            }
                         </div>
                         <div class="profile-member-info">
                             <span>Membre depuis @(VM_Profil.ViewingUser.DateInscription.ToString("MMMM yyyy"))</span>
@@ -459,7 +474,41 @@
         </div>
     </div>
 }
-
+@if (VM_Profil.ShowAbonnementsModal)
+{
+    <div class="modal-overlay" @onclick="VM_Profil.CloseAbonnementsModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>Abonnements</h3>
+                <button class="close-btn" @onclick="VM_Profil.CloseAbonnementsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                @if (VM_Profil.IsLoadingAbonnements)
+                {
+                    <div class="loading-spinner">Chargement...</div>
+                }
+                else if (VM_Profil.Abonnements == null || !VM_Profil.Abonnements.Any())
+                {
+                    <p class="empty-message">Vous ne suivez personne pour le moment.</p>
+                }
+                else
+                {
+                    <div class="users-list">
+                        @foreach (var user in VM_Profil.Abonnements)
+                        {
+                            <div class="user-card" @onclick="() => VM_Profil.NavigateToUserProfile(user.NomUtilisateur)">
+                                <img src="@VM_Profil.GetPhoto(user.PhotoId)" alt="@user.NomUtilisateur" class="user-avatar" />
+                                <div class="user-info">
+                                    <span class="user-login">@("@" + user.NomUtilisateur)</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
 @if (VM_Profil.ShowSignalerModal)
 {
     <div class="modal-overlay" @onclick="VM_Profil.ToggleSignalerModal">
@@ -566,3 +615,5 @@
         VM_Profil.OnStateChanged -= StateHasChanged;
     }
 }
+
+
