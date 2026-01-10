@@ -320,8 +320,6 @@
     border: 1px solid #ffeaa7;
 }
 
-/* ===== BUTTONS ===== */
-
 .btn-primary {
     padding: 0.875rem 1.5rem;
     border: none;
@@ -366,7 +364,38 @@
         background: #f5f5f5;
     }
 
-/* ===== BLOCKED USERS LIST ===== */
+.delete-account-actions {
+    margin-top: 1.5rem;
+}
+
+.btn-danger {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+    .btn-danger:hover:not(:disabled) {
+        background: #c82333;
+    }
+
+    .btn-danger:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-danger i {
+        font-size: 1rem;
+    }
 
 .blocked-users-list {
     display: flex;
@@ -446,7 +475,6 @@
         font-size: 1rem;
     }
 
-/* ===== NOTIFICATION PREFERENCES ===== */
 
 .preference-description {
     font-size: 0.95rem;
@@ -537,8 +565,6 @@
     color: #666;
 }
 
-/* ===== EMPTY STATE ===== */
-
 .empty-state {
     padding: 4rem 2rem;
     text-align: center;
@@ -555,8 +581,6 @@
         color: #666;
         margin: 0;
     }
-
-/* ===== RESPONSIVE ===== */
 
 @media (max-width: 768px) {
     .settings-container {

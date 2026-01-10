@@ -25,7 +25,7 @@ public class RegisterRequestDTO
     [DataType(DataType.Password)]
     [RegularExpression(
         @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
-        ErrorMessage = "Mot de passe non conforme."
+        ErrorMessage = "Le mot de passe doit contenir 8 caractères dont une majuscule, une minuscule, un chiffre et un caractère spécial"
     )]
     public string? Password { get; set; }
 

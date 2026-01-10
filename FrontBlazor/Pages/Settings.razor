@@ -256,7 +256,7 @@
                                         </button>
                                     </div>
                                 </div>
-    
+
                                 <div class="form-group">
                                     <label class="form-label">Nouveau mot de passe</label>
                                     <div class="input-wrapper">
@@ -271,7 +271,7 @@
                                         </button>
                                     </div>
                                 </div>
-    
+
                                 <div class="form-group">
                                     <label class="form-label">Confirmer le nouveau mot de passe</label>
                                     <div class="input-wrapper">
@@ -287,25 +287,25 @@
                                     </div>
                                 </div>
 
-                                @if (!string.IsNullOrEmpty(VM_Settings.PasswordError))
+                                @if (!string.IsNullOrEmpty(PasswordError))
                                 {
                                     <div class="alert alert-error">
                                         <i class="bi bi-exclamation-circle"></i>
-                                        <span>@VM_Settings.PasswordError</span>
+                                        <span>@PasswordError</span>
                                     </div>
                                 }
-                                @if (VM_Settings.PasswordUpdateSuccess)
+                                @if (!string.IsNullOrEmpty(PasswordSuccess))
                                 {
                                     <div class="alert alert-success">
                                         <i class="bi bi-check-circle"></i>
-                                        <span>Mot de passe mis à jour avec succès</span>
+                                        <span>@PasswordSuccess</span>
                                     </div>
                                 }
 
                                 <button class="btn-primary" 
                                         @onclick="HandlePasswordUpdate"
-                                        disabled="@VM_Settings.IsUpdatingPassword">
-                                    @if (VM_Settings.IsUpdatingPassword)
+                                        disabled="@IsUpdatingPassword">
+                                    @if (IsUpdatingPassword)
                                     {
                                         <span class="spinner-small-inline"></span>
                                         <span>Mise à jour...</span>
@@ -317,43 +317,59 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="settings-card">
+                        <div class="settings-card">
                             <div class="card-header">
-                                <h3>Suppréssion de compte</h3>
+                                <h3>Suppression de compte</h3>
                             </div>
                             <div class="card-body">
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <span>Cette action est irréversible. Toutes vos données seront définitivement supprimées.</span>
+                                </div>
+
                                 <div class="form-group">
-                                    <label class="form-label">Votre mot de passe</label>
+                                    <label class="form-label">Mot de passe</label>
                                     <div class="input-wrapper">
-                                        <input type="@(ShowCurrentPasswordDelete ? "text" : "password")" 
+                                        <input type="@(ShowDeletePassword ? "text" : "password")" 
                                                class="form-control" 
-                                               placeholder="Entrez votre mot de passe"
-                                               @bind="CurrentPassword" 
+                                               placeholder="Entrez votre mot de passe pour confirmer"
+                                               @bind="DeleteAccountPassword" 
                                                @bind:event="oninput" 
                                                @onkeydown="@HandleKeyDown" />
-                                        <button type="button" class="password-toggle" @onclick="ToggleCurrentPasswordDelete">
-                                            <i class="bi bi-eye@(ShowCurrentPasswordDelete ? "-slash" : "")"></i>
+                                        <button type="button" class="password-toggle" @onclick="ToggleDeletePassword">
+                                            <i class="bi bi-eye@(ShowDeletePassword ? "-slash" : "")"></i>
                                         </button>
                                     </div>
+                                </div>
 
-                                    <button class="btn-primary" 
-                                        @onclick="HandleAccountDeletion"
-                                        disabled="IsDeletingAccount">
+                                @if (!string.IsNullOrEmpty(DeletionError))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>@DeletionError</span>
+                                    </div>
+                                }
+
+                                <div class="delete-account-actions">
                                     @if (IsDeletingAccount)
                                     {
-                                        <span class="spinner-small-inline"></span>
-                                        <span>Suppréssion du compte...</span>
+                                        <button class="btn-danger" disabled>
+                                            <span class="spinner-small-inline"></span>
+                                            Suppression du compte...
+                                        </button>
                                     }
                                     else
                                     {
-                                        <span>Supprimer le compte</span>
+                                        <button class="btn-danger" @onclick="HandleAccountDeletion">
+                                            <i class="bi bi-trash"></i>
+                                            Supprimer le compte
+                                        </button>
                                     }
-                                </button>
                                 </div>
+                            </div>
                         </div>
-                </div>
+                    </div>
                 }
                 else if (VM_Settings.ActiveTab == "blocked")
                 {
@@ -418,22 +434,19 @@
     public string NewPassword { get; set; } = string.Empty;
     public string NewConfirmPassword { get; set; } = string.Empty;
 
-    public bool ShowCurrentPasswordDelete { get; set; } = false;
-    public string CurrentPasswordDelete { get; set; } = string.Empty;
+    public bool ShowDeletePassword { get; set; } = false;
+    public string DeleteAccountPassword { get; set; } = string.Empty;
     public bool IsDeletingAccount { get; set; } = false;
 
-    public string ErrorMessage { get; set; } = string.Empty;
-    public string SuccessMessage { get; set; } = string.Empty;
-
-    public string DeletionErrorMessage { get; set; } = string.Empty;
-
-    public bool PasswordChangeLoading { get; set; } = false;
+    public string PasswordError { get; set; } = string.Empty;
+    public string PasswordSuccess { get; set; } = string.Empty;
+    public string DeletionError { get; set; } = string.Empty;
+    public bool IsUpdatingPassword { get; set; } = false;
 
     public void ToggleCurrentPassword() => ShowCurrentPassword = !ShowCurrentPassword;
     public void ToggleNewPassword() => ShowNewPassword = !ShowNewPassword;
     public void ToggleNewConfirmPassword() => ShowNewConfirmPassword = !ShowNewConfirmPassword;
-    public void ToggleCurrentPasswordDelete() => ShowCurrentPasswordDelete = !ShowCurrentPasswordDelete;
-
+    public void ToggleDeletePassword() => ShowDeletePassword = !ShowDeletePassword;
 
     protected override async Task OnInitializedAsync()
     {
@@ -442,37 +455,60 @@
 
     private async Task HandlePasswordUpdate()
     {
-        ErrorMessage = SuccessMessage = string.Empty;
-        PasswordChangeLoading = true;
+        PasswordError = PasswordSuccess = string.Empty;
+        IsUpdatingPassword = true;
 
         try
         {
             var result = await VM_Settings.UpdatePassword(CurrentPassword, NewPassword, NewConfirmPassword);
             if (result == "Success")
             {
-                SuccessMessage = "Inscription réussie.";
-                // Option : basculer en mode connexion automatiquement
+                PasswordSuccess = "Mot de passe mis à jour avec succès";
+                CurrentPassword = NewPassword = NewConfirmPassword = string.Empty;
             }
             else
             {
-                ErrorMessage = result ?? "Erreur lors de l'inscription.";
+                PasswordError = result ?? "Erreur lors de la mise à jour du mot de passe.";
             }
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Erreur: {ex.Message}";
+            PasswordError = $"Erreur: {ex.Message}";
         }
         finally
         {
-            PasswordChangeLoading = false;
+            IsUpdatingPassword = false;
             StateHasChanged();
         }
     }
 
     private async Task HandleAccountDeletion()
     {
-        
-                
+        DeletionError = string.Empty;
+        IsDeletingAccount = true;
+
+        try
+        {
+            var result = await VM_Settings.AccountDeletion(DeleteAccountPassword);
+            if (result == "Success")
+            {
+                // Redirect to home or login page after successful deletion
+                NavigationManager.NavigateTo("/", true);
+            }
+            else
+            {
+                DeletionError = result ?? "Erreur lors de la suppression du compte.";
+            }
+        }
+        catch (Exception ex)
+        {
+            DeletionError = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsDeletingAccount = false;
+            StateHasChanged();
+        }
     }
 
     public async Task HandleKeyDown(KeyboardEventArgs e) {}

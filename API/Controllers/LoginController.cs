@@ -1,10 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using API.Models.Entity;
 using API.Models.EntityFramework;
 using API.Models.Repository;
@@ -20,6 +13,13 @@ using Shared;
 using Shared.DTO;
 using Shared.DTO.ConnexionRequest;
 using Shared.DTO.Utilisateur;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 namespace API.Controllers;
 
 
@@ -155,36 +155,42 @@ public class LoginController : ControllerBase
         return Ok(utilisateurDTO);
     }
 
-    [HttpPut("modificationMotDePasse")]
+    [HttpPatch("modificationMotDePasse")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO passwordDTO)
     {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
+        if (!ModelState.IsValid)
         {
-            return Unauthorized(APIResponse<object>.ErrorResponse("Mot de passe actuel incorrect"));
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return BadRequest(APIResponse<object>.ErrorResponse(string.Join(" ", errors)));
         }
 
-        if (passwordDTO.NewPassword != passwordDTO.ConfirmNewPassword)
-        {
-            return BadRequest(APIResponse<object>.ErrorResponse("Le mot de passe et la confirmation ne sont pas identiques."));
-        }
-
+        int userId = await _currentUserService.GetUserIdOrThrow();
         Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
-    
+
         if (user == null)
         {
-            return NotFound();
+            return NotFound(APIResponse<object>.ErrorResponse("Utilisateur introuvable"));
         }
-        if (!BCrypt.Net.BCrypt.Verify(passwordDTO.Password, user.Password))
+
+        if (passwordDTO.CurrentPassword == passwordDTO.NewPassword)
+        {
+            return BadRequest(APIResponse<object>.ErrorResponse("Le nouveau mot de passe doit être différent de l'ancien"));
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(passwordDTO.CurrentPassword, user.Password))
         {
             return Unauthorized(APIResponse<object>.ErrorResponse("Mot de passe actuel incorrect."));
         }
-    
+
         await _utilisateurManager.UpdatePassword(user, BCrypt.Net.BCrypt.HashPassword(passwordDTO.NewPassword));
         return Ok(APIResponse<object>.SuccessResponse(null));
     }
