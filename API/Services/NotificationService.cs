@@ -1,6 +1,8 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services.VerificationSrvceV2;
 using AutoMapper;
+using Shared.DTO;
 using Shared.DTO.Notification;
 
 namespace API.Services;
@@ -14,6 +16,11 @@ public class  NotificationService : INotificationService
     private readonly IDataRepository<NotificationMessage, int> _notificationMessageManager;
     private readonly IDataRepository<NotificationNouvelleAnnonce, int> _notificationNouvelleAnnonceManager;
     private readonly IDataRepository<NotificationModificationAnnonce, int> _notificationModificationAnnonceManager;
+    private readonly INotificationMailService _mailService;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
+    private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
+    private readonly IAbonnementRepository<Abonnement, int> abonnementRepo;
+    
 
     public NotificationService(
         IMapper mapper,
@@ -22,7 +29,10 @@ public class  NotificationService : INotificationService
         IDataRepository<NotificationProposition, int> notificationPropositionManager,
         IDataRepository<NotificationMessage, int> notificationMessageManager,
         IDataRepository<NotificationNouvelleAnnonce, int>  notificationNouvelleAnnonceManager,
-        IDataRepository<NotificationModificationAnnonce, int> notificationModificationAnnonceManager
+        IDataRepository<NotificationModificationAnnonce, int> notificationModificationAnnonceManager,
+        INotificationMailService mailService,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
+        IAbonnementRepository<Abonnement, int> abonnementRepo
     )
     {
         _mapper = mapper;
@@ -32,6 +42,9 @@ public class  NotificationService : INotificationService
         _notificationMessageManager = notificationMessageManager;
         _notificationNouvelleAnnonceManager = notificationNouvelleAnnonceManager;
         _notificationModificationAnnonceManager = notificationModificationAnnonceManager;
+        _mailService = mailService;
+        _annonceRepository = annonceRepository;
+        _abonnementRepo = abonnementRepo;
     }
 
     public async Task CreateNotification(NotificationCreateDTO notificationDTO)
@@ -62,6 +75,49 @@ public class  NotificationService : INotificationService
                 NotificationModificationAnnonce notificationModificationAnnonce = _mapper.Map<NotificationModificationAnnonce>(notificationModificationAnnonceCreateDTO);
                 await _notificationModificationAnnonceManager.AddAsync(notificationModificationAnnonce);
                 break;
+        }
+    }
+
+    public async Task CreateModificationAnnonceNotification(int annonceId)
+    {
+        Annonce annonce = await _annonceRepository.GetByIdAsync(annonceId);
+        var users = annonce.UtilisateursFavoris
+            .Select(f => f.Utilisateur);
+        foreach (var user in users)
+        {
+            if (user.PreferenceNotifMail)
+            {
+                await _mailService.NotifyAnnonceUpdatedAsync(annonce, user.Email);
+            }
+
+            NotificationModificationAnnonceCreateDTO notif = new NotificationModificationAnnonceCreateDTO
+            {
+                UtilisateurId = user.UtilisateurId,
+                AnnonceId = annonceId,
+                TypeId = 4
+            };
+            await CreateNotification(notif);
+        }
+    }
+    public async Task CreateNouvelleAnnonceNotification(int annonceId)
+    {
+        Annonce annonce = await _annonceRepository.GetByIdAsync(annonceId);
+        var followers = await _abonnementRepo.GetAllFollowersByUtilisateurSuivi(annonce.UtilisateurId);
+        foreach (var user in followers)
+        {
+            Console.WriteLine("NOTIFICATION------------------------------------------------------------------------------------------------------------------------------------");
+            if (user.UtilisateurSuiveur.PreferenceNotifMail)
+            {
+                await _mailService.NotifyNewAnnonceAsync(annonce, user.UtilisateurSuiveur.Email);
+            }
+
+            NotificationNouvelleAnnonceCreateDTO notif = new NotificationNouvelleAnnonceCreateDTO
+            {
+                UtilisateurId = user.UtilisateurSuiveur.UtilisateurId,
+                AnnonceId = annonceId,
+                TypeId = 4
+            };
+            await CreateNotification(notif);
         }
     }
 }
