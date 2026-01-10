@@ -70,3 +70,8 @@ public class MessageEnvoieColisManager : GenericCRUDManager<MessageEnvoieColis>
 {
     public MessageEnvoieColisManager(Clothes2UDbContext context) : base(context) {}
 }
+
+public class MessageEstRecuManager : GenericCRUDManager<MessageEstRecu>
+{
+    public MessageEstRecuManager(Clothes2UDbContext context) : base(context) {}
+}

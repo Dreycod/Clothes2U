@@ -29,5 +29,8 @@ public class Photo : IEntity
     [InverseProperty(nameof(MessageEnvoieColis.PhotoPreuve))]
     public virtual MessageEnvoieColis? MessageEnvoieColis { get; set; }
     
+    [InverseProperty(nameof(MessageEstRecu.Photo))]
+    public virtual MessageEstRecu? MessageEstRecu { get; set; }
+    
     public int GetId() => PhotoId;
 }

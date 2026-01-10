@@ -119,6 +119,22 @@ public class ConversationMappingProfile : Profile
 
                         };
                     }
+                    else if (message.MessageEstRecu != null)
+                    {
+                        dto = new MessageEstRecuDTO
+                        {
+                            MessageId = message.MessageId,
+                            Date = message.MessageDate,
+                            Lu = message.MessageLu,
+                            SenderId = message.UtilisateurId,
+                            SenderName = message.Utilisateur?.Login ?? string.Empty,
+                            SentByCurrentUser = message.UtilisateurId == currentUserId,
+                            MessageEstRecuId = message.MessageEstRecu.MessageEstRecuId,
+                            EstConforme = message.MessageEstRecu.EstConforme,
+                            Description = message.MessageEstRecu.Description,
+                            PhotoId = message.MessageEstRecu.PhotoId
+                        };
+                    }
                     if (dto != null)
                     {
                         mappedMessages.Add(dto);

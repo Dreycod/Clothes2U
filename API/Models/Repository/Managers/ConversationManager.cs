@@ -39,6 +39,9 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEnvoieColis)
+            
+            .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageEstRecu)
             // Utiliser AsSplitQuery pour éviter les cartesian explosions
             // avec autant de includes
             .AsSplitQuery();

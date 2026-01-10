@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Shared.DTO.ForgotPassword;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 
 namespace FrontBlazor.Services
 {
