@@ -12,5 +12,7 @@ public interface IUtilisateurRepository: IDataRepository<Utilisateur, int>
 
     Task BanUser(int id);
     Task SuspendUser(int id);
+    Task UpdatePassword(int utilisateurId, string hashedPassword);
+
 
 }

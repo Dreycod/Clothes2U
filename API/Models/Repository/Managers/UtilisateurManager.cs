@@ -117,4 +117,17 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
         user.StatutId = 2;
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdatePassword(int utilisateurId, string hashedPassword)
+    {
+        var utilisateur = await _context.Utilisateurs
+            .FirstOrDefaultAsync(u => u.UtilisateurId == utilisateurId);
+
+        if (utilisateur == null)
+            throw new ArgumentException("Utilisateur introuvable");
+
+        utilisateur.Password = hashedPassword;
+
+        await _context.SaveChangesAsync();
+    }
 }

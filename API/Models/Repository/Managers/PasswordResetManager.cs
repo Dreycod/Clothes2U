@@ -38,5 +38,10 @@ namespace API.Models.Repository.Managers
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdToken()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

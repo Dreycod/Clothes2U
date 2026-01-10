@@ -6,5 +6,6 @@ namespace API.Models.Repository
     {
         Task<PasswordResetToken?> GetValidToken(string token);
         Task InvalidateUserTokens(int utilisateurId);
+        Task UpdToken();
     }
 }

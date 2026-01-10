@@ -267,6 +267,7 @@ builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardServi
 builder.Services.AddScoped<IAnnonceExtensionService, AnnonceExtensionService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
+builder.Services.AddScoped<PasswordResetService>();
 
 
 //notification
