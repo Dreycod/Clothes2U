@@ -3,7 +3,7 @@ using Shared.DTO.Decision;
 using Shared.DTO.Detection;
 using Shared.DTO.Photo;
 using System.Net.Http.Json;
-
+using FrontBlazor.Services.GenericService;
 namespace FrontBlazor.Services;
 
 public class DetectionWebService: BaseGenericService, IDetectionService
