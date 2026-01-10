@@ -1,6 +1,7 @@
 using Shared.DTO.Utilisateur;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -20,14 +21,19 @@ public class UtilisateurController :  ControllerBase
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     private readonly INotificationMailService _mailService;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IMessageRepository _messageRepository;
 
-    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper, INotificationMailService mailService)
+    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper, INotificationMailService mailService, INotificationRepository notificationRepository,
+    IMessageRepository messageRepository)
     {
         _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _mailService = mailService;
+        _notificationRepository = notificationRepository;
+        _messageRepository = messageRepository;
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
@@ -61,6 +67,24 @@ public class UtilisateurController :  ControllerBase
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
         await _mailService.NotifyUserStatusChangedAsync(utilisateurToUpdate, oldStatut);
     
+        return NoContent();
+    }
+    [Authorize]
+    [HttpPatch("{id}/PatchSettings")]
+    public async Task<IActionResult> PatchUtilisateurSettings(int id, [FromBody] UtilisateurSettingsDTO settingsDTO)
+    {
+        if ((await _currentUserService.GetUserId()) != id)
+            return Forbid();
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
+        if (utilisateurToUpdate == null)
+            return NotFound();
+    
+        _mapper.Map(settingsDTO, utilisateurToUpdate);
+        await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
         return NoContent();
     }
 
@@ -110,5 +134,16 @@ public class UtilisateurController :  ControllerBase
         utilisateurDTO.FolloweddByCurrentUser = await _currentUserService.IsFollowedByCurrentUser(utilisateurDTO.UtilisateurId);
         utilisateurDTO.BlockedByCurrentUser = await _currentUserService.IsBlockedByCurrentUser(utilisateurDTO.UtilisateurId);
         return Ok(utilisateurDTO);
+    }
+
+    [HttpGet("notificationAndMessagesCount")]
+    [Authorize]
+    public async Task<ActionResult<NewsDTO>> NotificationAndMessagesCount()
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        NewsDTO returnObject = new NewsDTO();
+        returnObject.MessagesCount = await _messageRepository.GetMessageCountByUserId(userId);
+        returnObject.NotificationsCount = await _notificationRepository.GetNotificationsUnreadCountByUserId(userId);
+        return Ok(returnObject);
     }
 }

@@ -1,5 +1,5 @@
-﻿using FrontBlazor.Services.GenericIServices;
-using FrontBlazor.Services.Interfaces;
+﻿using FrontBlazor.Services.Interfaces;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Shared.DTO.Annonce;
@@ -9,7 +9,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
-    public class SettingsViewModel
+    public class SettingsViewModel : ClientBaseViewModel
     {
         
         private readonly NavigationManager _navigationManager;
@@ -17,8 +17,6 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IMediasService _mediaService;
         private readonly IBloqueService _bloqueService;
-
-        public bool IsLoading { get; set; } = true;
         public string ActiveTab { get; set; } = "account";
 
         public UtilisateurSettingsDTO? CurrentUser { get; set; }
@@ -54,16 +52,16 @@ namespace FrontBlazor.ViewModel
         public bool IsUnblocking { get; set; }
 
         public byte[]? ImgBytes { get; set; }
-
-
-        public event Action OnStateChanged;
+        
 
         public SettingsViewModel(
             NavigationManager navigationManager,
             IUtilisateurService utilisateurService,
             IAuthService authService,
             IMediasService mediaService,
+            INotificationService notificationService,
             IBloqueService bloqueService)
+            : base(navigationManager, authService, notificationService)
         {
             _navigationManager = navigationManager;
             _utilisateurService = utilisateurService;
@@ -75,14 +73,15 @@ namespace FrontBlazor.ViewModel
 
         public async Task LoadSettings()
         {
-            IsLoading = true;
-            NotifyStateChanged();
-
+            await base.LoadAsync();
             try
             {
-                UtilisateurViewDTO utilisaterView = await _authService.GetCurrentUserAsync();
-                CurrentUser = await _utilisateurService.GetUserSettingsById(utilisaterView.UtilisateurId);
-                if (CurrentUser == null)
+                Console.WriteLine(IsLoggedIn);
+                if (IsLoggedIn)
+                {
+                    CurrentUser = await _utilisateurService.GetUserSettingsById(utilisateur.UtilisateurId);
+                }
+                else
                 {
                     _navigationManager.NavigateTo("/login");
                     return;
@@ -331,12 +330,12 @@ namespace FrontBlazor.ViewModel
                 return;
             }
 
-            if (NewPassword.Length < 6)
-            {
-                PasswordError = "Le mot de passe doit contenir au moins 6 caractères";
-                NotifyStateChanged();
-                return;
-            }
+            //if (NewPassword.Length < 6)
+            //{
+            //    PasswordError = "Le mot de passe doit contenir au moins 6 caractères";
+            //    NotifyStateChanged();
+            //    return;
+            //}
 
             if (NewPassword != ConfirmPassword)
             {
@@ -361,18 +360,18 @@ namespace FrontBlazor.ViewModel
                 password.Password = CurrentPassword;
                 password.NewPassword = NewPassword;
                 password.ConfirmNewPassword = ConfirmPassword;
-                var success = await _authService.ModificationMotDePasse(password);
+                var response = await _authService.ModificationMotDePasse(password);
 
-                if (success)
+                if (!response.Success)
+                {
+                    PasswordError = response.ErrorMessage ?? "Erreur lors de la mise à jour";
+                }
+                else
                 {
                     PasswordUpdateSuccess = true;
                     CurrentPassword = string.Empty;
                     NewPassword = string.Empty;
                     ConfirmPassword = string.Empty;
-                }
-                else
-                {
-                    PasswordError = "Mot de passe actuel incorrect";
                 }
             }
             catch (Exception ex)
@@ -456,11 +455,6 @@ namespace FrontBlazor.ViewModel
             {
                 return false;
             }
-        }
-
-        private void NotifyStateChanged()
-        {
-            OnStateChanged?.Invoke();
         }
     }
 }

@@ -16,7 +16,9 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using API.Models.Repository.Interfaces;
 using Shared.DTO.Photo;
+using Shared.DTO.Tag;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -220,7 +222,7 @@ builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
-builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
+builder.Services.AddScoped<IMessageRepository, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEstPayee, int>, MessageEstPayeeManager>();
@@ -250,6 +252,7 @@ builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>()
 builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
 builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
+builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();

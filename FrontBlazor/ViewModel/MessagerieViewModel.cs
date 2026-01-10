@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
+using FrontBlazor.Services;
 using Shared.DTO;
 using Shared.DTO.Conversation;
 using Shared.DTO.Message;
 using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
@@ -22,12 +22,13 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private readonly IMessageService _messageService;
     public readonly ISignalRService _signalRService;
     private readonly ISignalementService _signalementService;
+    private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _nav;
 
     public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
     public ConversationDTO? SelectedConversation { get; private set; }
     public int? SelectedConversationId { get; private set; }
-    public UtilisateurDTO? CurrentUser { get; private set; }
+    //public UtilisateurDTO? CurrentUser { get; private set; }
     public IBrowserFile? ColisPhoto { get; private set; }
     public string? ColisPhotoPreviewBase64 { get; private set; }
 
@@ -43,7 +44,6 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public string TypingUserName { get; private set; } = "";
 
     public ElementReference MessagesContainer;
-    public event Action? OnChange;
     public event Action? OnMessageReceivedUI; 
 
     private System.Threading.Timer? _typingTimer;
@@ -59,6 +59,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public MessagerieViewModel(
         IConversationService<ConversationDTO> conversationService,
+        IUtilisateurService utilisateurService,
         IAuthService authService,
         IMessageService messageService,
         IMediasService mediaService,
@@ -75,6 +76,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         _nav = nav;
         _messageService = messageService;
         _signalRService = signalRService;
+        _utilisateurService = utilisateurService;
         _mediaService = mediaService;
         _signalementService = signalementService;
         
@@ -87,30 +89,26 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public override async Task LoadAsync()
     {
-        CurrentUser = await _authService.GetCurrentUserAsync();
-        if (CurrentUser == null)
+        await base.LoadAsync();
+        if (utilisateur == null)
         {
             _nav.NavigateTo("/");
         }
     }
-    
-    
-    private void NotifyStateChanged() => OnChange?.Invoke();
 
     public async Task LoadConversationsAsync()
     {
         IsLoading = true;
         NotifyStateChanged();
 
-        CurrentUser = await _authService.GetCurrentUserAsync();
-        if (CurrentUser == null)
+        if (utilisateur == null)
         {
             IsLoading = false;
             NotifyStateChanged();
             return;
         }
 
-        var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
+        var data = await _conversationService.GetConversationsByUserId(utilisateur.UtilisateurId);
         
         Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
         
@@ -124,16 +122,16 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 c.HasNewMessages = true;
             }
         }
-        
 
+        
         IsLoading = false;
         NotifyStateChanged();
     }
 
     public async Task SelectConversationAsync(int conversationId)
     {
-        if (CurrentUser == null)
-            CurrentUser = await _authService.GetCurrentUserAsync();
+        if (utilisateur == null)
+            utilisateur = await _authService.GetCurrentUserAsync();
 
         SelectedConversationId = conversationId;
         var conv = await _conversationService.GetConversationDetailById(conversationId);
@@ -188,9 +186,13 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 }
             }
         }
-        
-        // ✅ Notifier SignalR que j'ai lu les messages
-        await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+        NewsDTO updateNotifs = await _utilisateurService.GetActivity();
+    
+        // ✅ Mettre à jour localement
+        NotificationCount = updateNotifs.NotificationsCount;
+        MessageCount = updateNotifs.MessagesCount;
+        await base.LoadAsync(); 
+        await _signalRService.MarkMessagesAsRead(conversationId, utilisateur!.UtilisateurId);
         NotifyStateChanged();
     }
 
@@ -232,7 +234,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             {
                 Content = content,
                 ConversationId = SelectedConversation.ConversationId,
-                UtilisateurId = CurrentUser!.UtilisateurId,
+                UtilisateurId = utilisateur!.UtilisateurId,
                 Photos = photoDto
             };
         
@@ -269,7 +271,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public async Task SendProposition(decimal proposedPrice)
     {
-        if (SelectedConversation == null || CurrentUser == null)
+        if (SelectedConversation == null || utilisateur == null)
             return;
         
         PriceProposalError = null;
@@ -295,7 +297,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             var demande = new MessageDemandePostDTO
             {
                 ConversationId = SelectedConversation.ConversationId,
-                UtilisateurId = CurrentUser.UtilisateurId,
+                UtilisateurId = utilisateur.UtilisateurId,
                 PrixPropose = proposedPrice,
             };
 
@@ -405,7 +407,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                     Content = message,
                     SenderId = senderId,
                     Date = date,
-                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId,
+                    SentByCurrentUser = senderId == utilisateur?.UtilisateurId,
                     Photos = photoIds,
                     Lu = false // ✅ Nouveau message non lu
                 };
@@ -419,7 +421,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 }
                 
                 // Marquer automatiquement comme lu si on est dans la conversation
-                if (senderId != CurrentUser?.UtilisateurId)
+                if (senderId != utilisateur?.UtilisateurId)
                 {
                     try
                     {
@@ -430,7 +432,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                         newMessage.Lu = true;
                         
                         // Notifier SignalR
-                        await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+                        await _signalRService.MarkMessagesAsRead(conversationId, utilisateur!.UtilisateurId);
                     }
                     catch (Exception ex)
                     {
@@ -469,7 +471,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private void HandleMessagesRead(int conversationId, int userId)
     {
         // L'autre utilisateur a lu nos messages
-        if (userId != CurrentUser?.UtilisateurId)
+        if (userId != utilisateur?.UtilisateurId)
         {
             ConversationDTO? targetConv = null;
         
@@ -486,7 +488,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             {
                 // Marquer MES messages envoyés comme lus
                 var mySentMessages = targetConv.ListMessages
-                    .Where(m => m.SenderId == CurrentUser!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
+                    .Where(m => m.SenderId == utilisateur!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
                     .ToList();
             
                 if (mySentMessages.Any())
@@ -504,7 +506,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private void HandleUserTyping(int conversationId, int userId, string userName)
     {
         // CORRECTION 4 : Ne pas afficher si c'est nous ou si ce n'est pas la conversation active
-        if (SelectedConversationId != conversationId || userId == CurrentUser?.UtilisateurId)
+        if (SelectedConversationId != conversationId || userId == utilisateur?.UtilisateurId)
         {
             return;
         }
@@ -526,7 +528,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public void HandleTyping(KeyboardEventArgs e)
     {
-        if (SelectedConversation == null || CurrentUser == null)
+        if (SelectedConversation == null || utilisateur == null)
             return;
 
         _typingTimer?.Dispose();
@@ -540,7 +542,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
         _typingNotified = true;
         
-        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser.UtilisateurId, CurrentUser.Login ?? "Utilisateur");
+        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, utilisateur.UtilisateurId, utilisateur.Login ?? "Utilisateur");
     }
     
     private void HandleProposalResponse(int conversationId, int messageId, bool accepted)
@@ -578,7 +580,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                     PrixPropose = proposedPrice,
                     EstAcceptee = false,
                     EstRepondue = false,
-                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId
+                    SentByCurrentUser = senderId == utilisateur?.UtilisateurId
                 };
             
                 SelectedConversation.ListMessages?.Add(newDemande);
@@ -788,7 +790,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     
     public async Task MarquerColisEnvoyeAsync(int messagePayeeId)
     {
-        if (SelectedConversation == null || CurrentUser == null)
+        if (SelectedConversation == null || utilisateur == null)
             return;
 
         if (ColisPhoto == null)
@@ -817,7 +819,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             var dto = new MessageEnvoisColisPostDTO
             {
                 ConversationId = SelectedConversation.ConversationId,
-                UtilisateurId = CurrentUser.UtilisateurId,
+                UtilisateurId = utilisateur.UtilisateurId,
                 Photo = photoDto,
                 MessageEstPayeeId = messagePayeeId
             };

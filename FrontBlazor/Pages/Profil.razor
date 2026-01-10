@@ -233,7 +233,9 @@
                                 {
                                     <AnnonceCard annonceComponent="annonce"
                                                  OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
+                                                 IsOwnerTask="VM_Profil.CheckIfOwnerAnnonce(annonce)" />
+
                                 }
                             </div>
                         }
@@ -270,7 +272,8 @@
                                 {
                                     <AnnonceCard annonceComponent="annonce"
                                                  OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
+                                                 IsOwnerTask="VM_Profil.CheckIfOwnerAnnonce(annonce)" />
                                 }
                             </div>
                         }

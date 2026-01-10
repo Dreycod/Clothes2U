@@ -47,20 +47,6 @@ public class AnnonceController : ControllerBase
         _suggestionService = suggestionService;
     }
 
-    
-    
-    
-    [AllowAnonymous]
-    [HttpGet("GetActiveAnnonces")]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
-    {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
-        return Ok(annoncesDTO);
-    }
-
-
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -154,12 +140,7 @@ public class AnnonceController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null || userId != createAnnonceDto.UtilisateurId)
-        {
-            return Unauthorized();
-        }
-
+        int userId = await _currentUserService.GetUserIdOrThrow();
         var annonce = _mapper.Map<Annonce>(createAnnonceDto);
 
         await _annonceManager.AddAsync(annonce);

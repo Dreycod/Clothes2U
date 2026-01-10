@@ -3,6 +3,7 @@ using Shared.DTO.Message;
 using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
 using AutoMapper;
@@ -18,7 +19,7 @@ namespace API.Controllers;
 [ApiController]
 public class MessageController : ControllerBase
 {
-    private readonly IDataRepository<Message, int> _messageManager;
+    private readonly IMessageRepository _messageManager;
     private readonly IDataRepository<MessageTexte, int> _messageTexteManager;
     private readonly IMessageDemandeRepository _messageDemandeManager;
     private readonly IDataRepository<MessageEstPayee, int> _messageValidationManager;
@@ -31,7 +32,7 @@ public class MessageController : ControllerBase
     private readonly IHubContext<ChatHub> _hubContext;
 
     public MessageController(
-        IDataRepository<Message, int> messageManager,
+        IMessageRepository messageManager,
         IDataRepository<MessageTexte, int> messageTexteManager,
         IConversationRepository<Conversation, int> conversationManager,
         IMessageDemandeRepository messageDemandeManager,

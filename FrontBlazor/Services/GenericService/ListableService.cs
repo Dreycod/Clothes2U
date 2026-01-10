@@ -1,7 +1,8 @@
 using System.Net.Http.Json;
 using System.Xml.Linq;
+using FrontBlazor.Services.Interfaces.GenericIServices;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.GenericService;
 
 public class ListableService<T >: BaseGenericService, IListableService<T> where T : class
 {

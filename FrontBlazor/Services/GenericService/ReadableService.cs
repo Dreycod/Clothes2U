@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
+using FrontBlazor.Services.Interfaces.GenericIServices;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.GenericService;
 
 public class ReadableService<T> : BaseGenericService, IReadableService<T> where T : class
 {

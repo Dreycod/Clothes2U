@@ -1,10 +1,9 @@
 using Shared.DTO;
 using Shared.DTO.LoginRegister;
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 

@@ -1,11 +1,11 @@
-using Shared.DTO;
-using Shared.DTO.Annonce;
-using Shared.DTO.Favoris;
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
+using Shared.DTO;
+using Shared.DTO.Annonce;
+using Shared.DTO.Favoris;
+using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
@@ -27,7 +27,6 @@ namespace FrontBlazor.ViewModel
         
         public List<AnnonceDTO> AnnoncesRecents { get; set; } 
         public List<AnnonceDTO> AnnoncesPopulaires { get; set; } 
-        public bool IsLoading { get; set; }
         public string? ErrorMessage { get; set; }
         public string SuccessMessage { get; set; } = string.Empty;
 
@@ -67,7 +66,6 @@ namespace FrontBlazor.ViewModel
         {
             await  base.LoadAsync();
             ErrorMessage = SuccessMessage = string.Empty;
-            IsLoading = true;
             PageRecommandation = 1;
             await LoadRecentAnnonces();
             await LoadPopularAnnonces();
@@ -199,6 +197,13 @@ namespace FrontBlazor.ViewModel
         public async Task OnGenreSelected(string genre)
         {
             _navigationManager.NavigateTo($"/search?genre={Uri.EscapeDataString(genre)}");
+        }
+        public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
+        {
+            if (utilisateur == null)
+                return false;
+
+            return annonce.IdAuteur == utilisateur.UtilisateurId;
         }
     }
 }

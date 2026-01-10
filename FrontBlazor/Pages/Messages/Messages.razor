@@ -122,7 +122,7 @@
                                 }
                             </div>
                             
-                            @if (VM_Messagerie.CurrentUser.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                            @if (VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                             {
                                 <NavLink class="buy-button"
                                          href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
@@ -347,7 +347,7 @@
                                             @* Bouton visible uniquement pour le vendeur tant que le colis n'est pas envoyé *@
                                             @if (!payee.EstAnnule &&
                                                  !payee.EstEnvoye &&
-                                                 VM_Messagerie.CurrentUser.UtilisateurId == VM_Messagerie.SelectedConversation.VendeurId)
+                                                 VM_Messagerie.utilisateur.UtilisateurId == VM_Messagerie.SelectedConversation.VendeurId)
                                             {
                                                 <div class="mt-2">
 
@@ -381,7 +381,7 @@
                                             @* Bouton annuler visible pour l'acheteur tant que le colis n'est pas envoyé *@
                                             @if (!payee.EstAnnule &&
                                                  !payee.EstEnvoye &&
-                                                 VM_Messagerie.CurrentUser.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                                             {
                                                 <button class="btn-secondary btn-danger"
                                                         @onclick="() => CancelPayement(payee.MessageEstPayeeId)">
@@ -595,8 +595,16 @@
                 await VM_Messagerie.SelectConversationAsync(convId);
             }
         }
+
+        if (query.TryGetValue("makeOffer", out var makeOfferValue))
+        {
+            if (makeOfferValue == "true")
+            {
+                showPriceModal = true;
+            }
+        }
         
-        VM_Messagerie.OnChange += StateHasChanged;
+        VM_Messagerie.OnStateChanged += StateHasChanged;
         VM_Messagerie.OnMessageReceivedUI += async () =>
         {
             StateHasChanged();
@@ -612,7 +620,7 @@
 
     public void Dispose()
     {
-        VM_Messagerie.OnChange -= StateHasChanged;
+        VM_Messagerie.OnStateChanged -= StateHasChanged;
         VM_Messagerie.OnMessageReceivedUI -= null;
     }
 

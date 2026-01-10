@@ -225,9 +225,9 @@
 </div>
 
 <!-- Modal d'ajout d'adresse -->
-@if (showAddAddressModal && VM.CurrentUser != null)
+@if (showAddAddressModal && VM.utilisateur != null)
 {
-    <AddAddress UserId="@VM.CurrentUser.UtilisateurId"
+    <AddAddress UserId="@VM.utilisateur.UtilisateurId"
                      OnAddressAdded="HandleAddressAdded"
                      OnCancelled="() => showAddAddressModal = false" />
 }

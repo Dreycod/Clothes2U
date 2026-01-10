@@ -16,7 +16,7 @@
                 <p>Chargement des paramètres...</p>
             </div>
         }
-        else
+        else if(VM_Settings.IsLoggedIn)
         {
             <div class="settings-header">
                 <h1>Paramètres</h1>
@@ -360,4 +360,9 @@
     {
         await VM_Settings.LoadSettings();
     }
+    public void Dispose()
+    {
+        VM_Settings.OnStateChanged -= StateHasChanged;
+    }
+}
 }

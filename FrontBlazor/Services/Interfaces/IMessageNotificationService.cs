@@ -1,4 +1,3 @@
-using FrontBlazor.Models;
 
 namespace FrontBlazor.Services.Interfaces;
 

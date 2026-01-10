@@ -37,6 +37,13 @@ public class UtilisateurMappingProfile : Profile
                 src.NotesCible.Any()
                     ? src.NotesCible.Average(n => (double)n.Note)
                     : 0.0));
+
+        CreateMap<Utilisateur, CurrentUtilisateurDTO>()
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.Statut, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
+            .ForMember(dest => dest.RoleUtilisateur, opt => opt.MapFrom(src => src.Role.RoleUtilisateurLibelle));
+            
         CreateMap<Utilisateur, UtilisateurSettingsDTO>()
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))

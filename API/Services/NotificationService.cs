@@ -5,7 +5,7 @@ using Shared.DTO.Notification;
 
 namespace API.Services;
 
-public class NotificationService : INotificationService
+public class  NotificationService : INotificationService
 {
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationManager;

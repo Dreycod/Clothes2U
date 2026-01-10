@@ -70,7 +70,7 @@ namespace API.Controllers
         // POST /
         // -------------------------
         [HttpPost]
-        public async Task<ActionResult<RecenseDTO>> Add([FromBody] RecenseDTO dto)
+        public async Task<ActionResult<RecenseDTO>> Add([FromBody] CreateRecenseDTO dto)
         {
             var entity = _mapper.Map<Recense>(dto);
 

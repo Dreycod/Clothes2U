@@ -15,6 +15,7 @@ public class AnnonceDetailDTO
     public string Taille { get; set; } = null!;
     public List<int> Photos { get; set; } = new();
     public List<string> Tags { get; set; } = new();
+    public List<string> Couleurs { get; set; } = new();
     public int NombreLikes { get; set; } = 0;
     public int NombreVues { get; set; } = 0;
     public decimal Prix { get; set; }

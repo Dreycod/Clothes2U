@@ -1,5 +1,5 @@
 using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
 
@@ -23,7 +23,7 @@ public abstract class ModerationViewModel
     {
         IsLoading = true;
         IsModerator = false;
-        UtilisateurViewDTO user = (UtilisateurViewDTO)await _authService.GetCurrentUserAsync();
+        CurrentUtilisateurDTO user = (CurrentUtilisateurDTO)await _authService.GetCurrentUserAsync();
         if (user != null && (user.RoleUtilisateur == "Admin" || user.RoleUtilisateur == "Moderateur"))
         {
             IsModerator = true;

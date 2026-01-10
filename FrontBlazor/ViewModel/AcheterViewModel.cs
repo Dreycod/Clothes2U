@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO;
@@ -26,7 +26,6 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
 
     public ConversationDTO? SelectedConversation { get; private set; }
     public AnnonceDetailDTO? SelectedAnnonce { get; private set; }
-    public UtilisateurDTO? CurrentUser { get; private set; }
     public AdresseDTO? SelectedAddress { get; private set; }
     public List<AdresseDTO> UserAddresses { get; private set; } = new();
     
@@ -79,9 +78,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
 
         try
         {
-            Console.WriteLine("1");
-            CurrentUser = await _authService.GetCurrentUserAsync();
-            if (CurrentUser == null)
+            if (utilisateur == null)
             {
                 _nav.NavigateTo("/login");
                 return;
@@ -108,7 +105,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
             }
             Console.WriteLine("4");
             // Vérifier que l'utilisateur n'achète pas son propre article
-            if (SelectedAnnonce.UtilisateurId == CurrentUser.UtilisateurId)
+            if (SelectedAnnonce.UtilisateurId == utilisateur.UtilisateurId)
             {
                 ErrorMessage = "Vous ne pouvez pas acheter votre propre article";
                 return;
@@ -173,7 +170,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
                 Amount = (int)(TotalAmount * 100), // Stripe utilise les centimes
                 Currency = "eur",
                 AnnonceId = SelectedAnnonce!.AnnonceId,
-                UserId = CurrentUser!.UtilisateurId,
+                UserId = utilisateur!.UtilisateurId,
                 AddressId = SelectedAddress.AdresseId
             });
 
@@ -219,7 +216,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
                 MessageEstPayeePostDTO messagePayeeDTO = new MessageEstPayeePostDTO
                 {
                     ConversationId = SelectedConversation.ConversationId,
-                    UtilisateurId = CurrentUser.UtilisateurId,
+                    UtilisateurId = utilisateur.UtilisateurId,
                     
                 };
 
@@ -251,7 +248,7 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
         var order = new CreateOrderDTO
         {
             AnnonceId = SelectedAnnonce!.AnnonceId,
-            AcheteurId = CurrentUser!.UtilisateurId,
+            AcheteurId = utilisateur!.UtilisateurId,
             VendeurId = SelectedAnnonce.UtilisateurId,
             AdresseLivraisonId = SelectedAddress!.AdresseId,
             MontantTotal = TotalAmount,

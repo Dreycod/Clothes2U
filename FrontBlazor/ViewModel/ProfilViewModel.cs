@@ -1,5 +1,5 @@
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Xml.Linq;
@@ -154,8 +154,6 @@ namespace FrontBlazor.ViewModel
                          NotifyStateChanged();
                      })
                  };
-
-                UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
                 {
                     IsSameUser = true;
@@ -563,6 +561,14 @@ namespace FrontBlazor.ViewModel
         public string GetPhoto(int id)
         {
             return _mediaService.GetPhotoUrl(id);
+        }
+
+        public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
+        {
+            if (utilisateur == null)
+                return false;
+
+            return annonce.IdAuteur == utilisateur.UtilisateurId;
         }
     }
 }

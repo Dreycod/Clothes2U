@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using System.Collections.ObjectModel;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Shared.DTO;
@@ -57,8 +56,7 @@ public class AddressViewModel : ClientBaseViewModel, IDisposable
         await base.LoadAsync();
         try
         {
-            CurrentUser = await _authService.GetCurrentUserAsync();
-            if (CurrentUser == null)
+            if (utilisateur == null)
             {
                 _nav.NavigateTo("/login");
                 return;

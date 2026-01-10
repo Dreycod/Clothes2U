@@ -56,7 +56,7 @@ public class FavorisController :  ControllerBase
             AnnonceId = annonceId
         };
         await _favorisManager.AddAsync(favoris);
-        await _suggestionService.CalculSuggestion(userId);
+        _suggestionService.CalculSuggestion(userId);
         FavorisDTO favorisDto = _mapper.Map<FavorisDTO>(favoris);
     
         return StatusCode(StatusCodes.Status201Created, favorisDto);
@@ -76,6 +76,7 @@ public class FavorisController :  ControllerBase
             return NotFound();
         }
         await _favorisManager.DeleteAsync(favorisToDelete);
+        _suggestionService.CalculSuggestion(userId);
         return NoContent();
     }
 }
