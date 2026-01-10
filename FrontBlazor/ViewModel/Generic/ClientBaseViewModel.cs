@@ -124,6 +124,12 @@ public class ClientBaseViewModel
         _nav.NavigateTo($"/profile/{login}", true);
     }
 
+    public void NavigateToPage(string page)
+    {
+        ToggleDropdown();
+        _nav.NavigateTo(page, true);
+    }
+
     public async Task OnSearchInputChanged()
     {
         if (_nav.Uri.Contains("/search") && _searchViewModel != null)
