@@ -42,6 +42,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<NotificationAdmin> NotificationAdmins { get; set; }
+    public DbSet<NotificationAchatAnnonce>  NotificationAchatAnnonces { get; set; }
     public DbSet<NotificationAvertissement> NotificationAvertissements { get; set; }
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
     public DbSet<NotificationModificationAnnonce> NotificationModificationAnnonces { get; set; }
@@ -789,8 +790,18 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(nn => nn.LaNotification)
                 .HasForeignKey<NotificationNouvelleAnnonce>(nn => nn.NotificationId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(n => n.NotificationAchats)
+                .WithOne(nn => nn.LaNotification)
+                .HasForeignKey<NotificationAchatAnnonce>(nn => nn.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
-    
+        modelBuilder.Entity<NotificationAchatAnnonce>(entity =>
+        {
+            entity.HasKey(e => e.NotificationAchatAnnonceId);
+            // Index unique pour garantir qu'une notification n'a qu'une seule NotificationAdmin
+            entity.HasIndex(e => e.NotificationId)
+                .IsUnique();
+        });
     // Configuration de NotificationType
     modelBuilder.Entity<NotificationType>(entity =>
     {

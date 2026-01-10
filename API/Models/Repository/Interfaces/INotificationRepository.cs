@@ -9,5 +9,6 @@ public interface INotificationRepository : IDataRepository<Notification, int>
     public Task MarkAsRead(int userId);
     public Task CreateNotificationAvertissement(NotificationAvertissement notification);
     public Task DeleteMessageNotificationByConversationId(int id, int userId);
+    Task DeleteNotificationAnnonceForUser(int annonceId, int userId);
 }
 

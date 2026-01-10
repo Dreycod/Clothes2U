@@ -29,7 +29,6 @@ public class AnnonceController : ControllerBase
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
         ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,
         IAnnonceExtensionService annonceExtensionService,
-        IFavorisRepository favorisManager, 
         IMapper mapper,
         ICurrentUserService currentUserService,
         INotificationService notificationService,
@@ -55,7 +54,7 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         return Ok(annoncesDTO);
     }
-    
+    [AllowAnonymous]
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(AnnonceDetailDTO),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -68,6 +67,7 @@ public class AnnonceController : ControllerBase
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
         annonceDTO = await _annonceExtensionService.LikeAnnonceDetail(annonceDTO);
+        await _notificationService.DeleteAnnonceNotificationForUser(id);
         return Ok(annonceDTO);
     }
     [Authorize]
@@ -117,7 +117,6 @@ public class AnnonceController : ControllerBase
         }
         Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
         await _annonceManager.UpdateAsync(annonce);
-        //ajouter la notification une fois le tout pret
         await _notificationService.CreateModificationAnnonceNotification(annonce.AnnonceId);
         return NoContent();
     }

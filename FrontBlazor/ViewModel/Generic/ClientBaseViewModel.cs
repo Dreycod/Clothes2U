@@ -72,6 +72,7 @@ public class ClientBaseViewModel
             IsLoggedIn = false;
         }
         IsLoadingBase = false;
+        NotifyStateChanged();
     }
     public void ToggleDropdown()
     {

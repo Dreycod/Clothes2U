@@ -95,4 +95,22 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
         _context.Notifications.RemoveRange(notifications);
         await _context.SaveChangesAsync();
     }
+
+    public async Task DeleteNotificationAnnonceForUser(int annonceId, int userId)
+    {
+        var notifNouvellesAnnonces = await _context.NotificationNouvelleAnnonces
+            .Where(nna => nna.AnnonceId == annonceId && nna.LaNotification.UtilisateurId == userId)
+            .Select(nna => nna.LaNotification)
+            .ToListAsync();
+    
+        var notifModifications = await _context.NotificationModificationAnnonces
+            .Where(nm => nm.AnnonceId == annonceId && nm.LaNotification.UtilisateurId == userId)
+            .Select(nm => nm.LaNotification)
+            .ToListAsync();
+    
+        var allNotifications = notifNouvellesAnnonces.Concat(notifModifications).Distinct();
+    
+        _context.Notifications.RemoveRange(allNotifications);
+        await _context.SaveChangesAsync();
+    }
 }

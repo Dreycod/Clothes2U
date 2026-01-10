@@ -49,5 +49,8 @@ public class Notification : IEntity
     [InverseProperty(nameof(NotificationNouvelleAnnonce.LaNotification))]
     public virtual NotificationNouvelleAnnonce? NotificationNouvellesAnnonces { get; set; }
     
+    [InverseProperty(nameof(NotificationAchatAnnonce.LaNotification))]
+    public virtual NotificationAchatAnnonce? NotificationAchats { get; set; }
+    
     public int GetId() => NotificationId;
 }
