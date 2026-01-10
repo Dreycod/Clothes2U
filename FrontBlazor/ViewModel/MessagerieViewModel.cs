@@ -120,8 +120,19 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
         var data = await _conversationService.GetConversationsByUserId(utilisateur.UtilisateurId);
         
-        Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
+        if (data != null)
+        {
+            var validConversations = data.Where(c => 
+                !string.IsNullOrEmpty(c.TitreAnnonce) && 
+                !string.IsNullOrEmpty(c.Interlocuteur)
+            ).ToList();
         
+            Conversations = new ObservableCollection<ConversationDTO>(validConversations);
+        }
+        else
+        {
+            Conversations = new ObservableCollection<ConversationDTO>();
+        }
         await _signalRService.StartAsync();
         
         foreach (var c in Conversations)
@@ -148,6 +159,15 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
         if (conv != null)
         {
+            if (string.IsNullOrEmpty(conv.TitreAnnonce))
+            {
+                conv.TitreAnnonce = "Annonce supprimée";
+            }
+            
+            if (string.IsNullOrEmpty(conv.Interlocuteur))
+            {
+                conv.Interlocuteur = "Utilisateur supprimé";
+            }
             SelectedConversation = conv;
             if (conv.ListMessages == null)
                 conv.ListMessages = new ObservableCollection<MessageDTO>();
