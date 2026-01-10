@@ -16,6 +16,7 @@ public class  NotificationService : INotificationService
     private readonly IDataRepository<NotificationMessage, int> _notificationMessageManager;
     private readonly IDataRepository<NotificationNouvelleAnnonce, int> _notificationNouvelleAnnonceManager;
     private readonly IDataRepository<NotificationModificationAnnonce, int> _notificationModificationAnnonceManager;
+    private readonly IDataRepository<NotificationAchatAnnonce, int> _notificationAchatAnnonceManager;
     private readonly INotificationMailService _mailService;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
@@ -31,6 +32,7 @@ public class  NotificationService : INotificationService
         IDataRepository<NotificationMessage, int> notificationMessageManager,
         IDataRepository<NotificationNouvelleAnnonce, int>  notificationNouvelleAnnonceManager,
         IDataRepository<NotificationModificationAnnonce, int> notificationModificationAnnonceManager,
+        IDataRepository<NotificationAchatAnnonce, int>  notificationAchatAnnonceManager,
         INotificationMailService mailService,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         IAbonnementRepository<Abonnement, int> abonnementRepo,
@@ -44,6 +46,7 @@ public class  NotificationService : INotificationService
         _notificationMessageManager = notificationMessageManager;
         _notificationNouvelleAnnonceManager = notificationNouvelleAnnonceManager;
         _notificationModificationAnnonceManager = notificationModificationAnnonceManager;
+        _notificationAchatAnnonceManager = notificationAchatAnnonceManager;
         _mailService = mailService;
         _annonceRepository = annonceRepository;
         _abonnementRepo = abonnementRepo;
@@ -57,6 +60,10 @@ public class  NotificationService : INotificationService
         notificationDTO.NotificationId = notification.NotificationId;
         switch (notificationDTO)
         {
+            case NotificationAchatCreateDTO achatCreateDTO:
+                NotificationAchatAnnonce notificationAchatAnnonce = _mapper.Map<NotificationAchatAnnonce>(achatCreateDTO);
+                await _notificationAchatAnnonceManager.AddAsync(notificationAchatAnnonce);
+                break;
             case NotificationMessageCreateDTO notificationMessageCreateDTO:
                 NotificationMessage notificationMessage = _mapper.Map<NotificationMessage>(notificationMessageCreateDTO);
                 await _notificationMessageManager.AddAsync(notificationMessage);
@@ -129,6 +136,28 @@ public class  NotificationService : INotificationService
         if (userId != null)
         {
             await _notificationManager.DeleteNotificationAnnonceForUser(annonceId, (int)userId);
+        }
+    }
+
+    public async Task CreateNotificationAchat(int annonceId)
+    {
+        Annonce annonce = await _annonceRepository.GetByIdAsync(annonceId);
+        var users = annonce.UtilisateursFavoris
+            .Select(f => f.Utilisateur);
+        int acheteurId = await _currentUserService.GetUserIdOrThrow();
+        foreach (var user in users)
+        {
+            if (user.UtilisateurId != acheteurId)
+            {
+                NotificationAchatCreateDTO notif = new NotificationAchatCreateDTO
+                {
+                    UtilisateurId = user.UtilisateurId,
+                    AnnonceId = annonceId,
+                    TypeId = 6
+                };
+                
+                await CreateNotification(notif);
+            }
         }
     }
 }

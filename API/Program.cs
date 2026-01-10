@@ -283,7 +283,7 @@ builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  Not
 builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
-
+builder.Services.AddScoped<IDataRepository<NotificationAchatAnnonce, int>, NotificationAchatManager>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();

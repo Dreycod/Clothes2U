@@ -118,11 +118,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(List<OrderDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<OrderDTO>>> GetUserOrders()
     {
-        var userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        int userId = await _currentUserService.GetUserIdOrThrow();
         var orders = await _orderRepository.GetOrdersByUserIdAsync((int)userId);
         var orderDtos = _mapper.Map<List<OrderDTO>>(orders);
         return Ok(orderDtos);
@@ -135,9 +131,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(List<OrderDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<OrderDTO>>> GetSellerOrders()
     {
-        var sellerId = await _currentUserService.GetUserId();
-        if (sellerId == null)
-            return Unauthorized();
+        int sellerId = await _currentUserService.GetUserIdOrThrow();
         var orders = await _orderRepository.GetOrdersBySellerIdAsync((int)sellerId);
         var orderDtos = _mapper.Map<List<OrderDTO>>(orders);
         return Ok(orderDtos);
