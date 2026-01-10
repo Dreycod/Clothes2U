@@ -12,6 +12,7 @@ public interface IMessageService : IReadableService<MessageTextDTO>, IWritableSe
     Task<HttpResponseMessage> PostMessageDemande(MessageDemandePostDTO message);
     Task<HttpResponseMessage> PostMessagePayee(MessageEstPayeePostDTO message);
     Task<HttpResponseMessage> PostMessageEnvoieColis(MessageEnvoisColisPostDTO message);
+    Task<HttpResponseMessage> PostMessageEstRecu(MessageEstRecuPostDTO message);
     Task<HttpResponseMessage> CancelMessagePayee(int messageId);
     Task<MessageDTO> GetLastMessageByConversationId(int id);
     Task MaskAsRead(int messageId);
