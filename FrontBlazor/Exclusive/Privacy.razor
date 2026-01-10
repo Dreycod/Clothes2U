@@ -1,6 +1,8 @@
 ﻿@page "/privacy"
+@using FrontBlazor.ViewModel.Generic
 @inject NavigationManager NavigationManager
-
+@layout ClientLayout
+@inject ClientBaseViewModel Vm_ClientBase
 <PageTitle>Privacy Policy</PageTitle>
 
 <NavBar />
@@ -178,7 +180,11 @@
 </div>
 
 @code {
-
+    protected override async Task OnInitializedAsync()
+    {
+        await Vm_ClientBase.LoadAsync();
+        StateHasChanged();
+    }
 }
 
 @* <strong>

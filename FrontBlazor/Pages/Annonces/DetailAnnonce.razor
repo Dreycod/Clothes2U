@@ -97,7 +97,7 @@
 
                         <button class="btn-action"
                         @onclick:stopPropagation="true"
-                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce.AnnonceId, produit)">
+                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
                             <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                         </button>
                         <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
@@ -145,9 +145,9 @@
                 <div class="tags-section">
                     <h3 class="section-title">Tags</h3>
                     <div class="tags-container">
-                        @if (VM_DetailAnnonce.TagsAnnonce != null && VM_DetailAnnonce.TagsAnnonce.Any())
+                        @if (VM_DetailAnnonce.AnnonceDetail.Tags != null && VM_DetailAnnonce.AnnonceDetail.Tags.Any())
                         {
-                            @foreach (RecenseDetailDTO tag in VM_DetailAnnonce.TagsAnnonce)
+                            @foreach (string tag in VM_DetailAnnonce.AnnonceDetail.Tags)
                             {
                                 <AnnonceTag Tag="tag"/>
                             }
@@ -222,7 +222,7 @@
                         {
 
                             <AnnonceCard annonceComponent="similairAnnonce"
-                                         OnToggleFavorite="VM_Profil.ToggleFavorite"    
+                                         OnToggleFavorite="(a) => VM_DetailAnnonce.ToggleFavorite(a)"    
                                          OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
 										 IsOwnerTask="VM_DetailAnnonce.CheckIfOwnerAnnonce(similairAnnonce.AnnonceId, product)"/>
                         }

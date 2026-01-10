@@ -72,6 +72,7 @@ public class ClientBaseViewModel
             IsLoggedIn = false;
         }
         IsLoadingBase = false;
+        NotifyStateChanged();
     }
     public void ToggleDropdown()
     {
@@ -89,6 +90,7 @@ public class ClientBaseViewModel
         showDropDownNotification = !showDropDownNotification;
         showDropdown = false;
         LoadingNotifications = true;
+        NotificationCount = 0;
         NotifyStateChanged();
 
         if (showDropDownNotification)

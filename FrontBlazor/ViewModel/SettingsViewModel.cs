@@ -19,6 +19,7 @@ namespace FrontBlazor.ViewModel
         private readonly IBloqueService _bloqueService;
         public string ActiveTab { get; set; } = "account";
 
+        #region Variables
         public UtilisateurSettingsDTO? CurrentUser { get; set; }
 
         public string Username { get; set; }
@@ -52,7 +53,8 @@ namespace FrontBlazor.ViewModel
         public bool IsUnblocking { get; set; }
 
         public byte[]? ImgBytes { get; set; }
-        
+        #endregion
+
 
         public SettingsViewModel(
             NavigationManager navigationManager,
@@ -74,6 +76,11 @@ namespace FrontBlazor.ViewModel
         public async Task LoadSettings()
         {
             await base.LoadAsync();
+            if (utilisateur == null)
+            {
+                _navigationManager.NavigateTo("/login");
+                return;
+            }
             try
             {
                 Console.WriteLine(IsLoggedIn);

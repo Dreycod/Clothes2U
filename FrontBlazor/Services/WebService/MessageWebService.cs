@@ -53,6 +53,12 @@ public class MessageWebService : WritableService<MessageTextDTO>, IMessageServic
         return await PostWithCredentialsAsync($"Message/envoieColis",body);
     }
 
+    public async Task<HttpResponseMessage> PostMessageEstRecu(MessageEstRecuPostDTO message)
+    {
+        var body = JsonContent.Create(message);
+        return await PostWithCredentialsAsync($"Message/recuColis",body);
+    }
+
     public async Task<HttpResponseMessage> CancelMessagePayee(int messageId)
     {
         return await PutWithCredentialsAsync($"Message/annulePayement/{messageId}", null);

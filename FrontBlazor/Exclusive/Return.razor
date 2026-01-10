@@ -1,6 +1,9 @@
 ﻿@page "/return"
+@using FrontBlazor.ViewModel.Generic
 @inject NavigationManager NavigationManager
 
+@layout ClientLayout
+@inject ClientBaseViewModel Vm_ClientBase
 <PageTitle>Return Policy</PageTitle>
 
 <!-- Navigation Bar -->
@@ -78,5 +81,9 @@
 </div>
       
 @code {
-
+protected override async Task OnInitializedAsync()
+{
+await Vm_ClientBase.LoadAsync();
+StateHasChanged();
+}
 }

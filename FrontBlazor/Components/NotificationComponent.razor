@@ -35,6 +35,11 @@
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
                 break;
+            case NotificationAchatDTO:
+                <div class="notif-icon message">
+                    <i class="bi bi-heartbreak-fill"></i>
+                </div>
+                break;
                 
         }
     </div>
@@ -61,6 +66,10 @@
             case NotificationNouvelleAnnonceDTO notificationNouvelleAnnonce:
                 <div class="notif-title">Nouvelle annonce</div>
                 <div class="notif-message"><strong>@notificationNouvelleAnnonce.NomAuteur</strong> a publié une nouvelle annonce</div>
+                break;
+            case NotificationAchatDTO notificationAchat:
+                <div class="notif-title">Un article favoris a été vendu !</div>
+                <div class="notif-message"><strong>@notificationAchat.Titre</strong> que vous aviez ajouté à vos favoris a été vendu. </div>
                 break;
             case NotificationPropositionDTO notificationProposition:
                 <div class="notif-title">Proposition de prix</div>

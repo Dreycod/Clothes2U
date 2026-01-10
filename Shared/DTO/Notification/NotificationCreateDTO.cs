@@ -34,6 +34,10 @@ public class NotificationNouvelleAnnonceCreateDTO : NotificationCreateDTO
 
 public class NotificationModificationAnnonceCreateDTO : NotificationCreateDTO
 {
-    public int AuteurId { get; set; }
     public int AnnonceId { get; set; }
+}
+public class NotificationAchatCreateDTO : NotificationCreateDTO
+{
+    public int AnnonceId { get; set; }
+    public string Titre { get; set; }
 }

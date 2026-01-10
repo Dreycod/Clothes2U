@@ -56,6 +56,16 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private int? ReportingMessageId { get; set; }
     public string SignalementRaison { get; set; } = string.Empty;
     public string ReportingMessageContent { get; set; } = string.Empty;
+    
+    public bool ShowReceptionModal { get; set; }
+    public bool ColisEstConforme { get; set; }
+    public IBrowserFile? ReceptionPhoto { get; set; }
+    public string? ReceptionPhotoPreviewBase64 { get; set; }
+    public string ReceptionDescription { get; set; } = "";
+    public bool IsSendingReception { get; set; }
+    public string? ReceptionError { get; set; }
+    public int? CurrentMessageEnvoieColisId { get; set; }
+    public bool ColisDejaRecu { get; private set; }
 
     public MessagerieViewModel(
         IConversationService<ConversationDTO> conversationService,
@@ -110,8 +120,19 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
         var data = await _conversationService.GetConversationsByUserId(utilisateur.UtilisateurId);
         
-        Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
+        if (data != null)
+        {
+            var validConversations = data.Where(c => 
+                !string.IsNullOrEmpty(c.TitreAnnonce) && 
+                !string.IsNullOrEmpty(c.Interlocuteur)
+            ).ToList();
         
+            Conversations = new ObservableCollection<ConversationDTO>(validConversations);
+        }
+        else
+        {
+            Conversations = new ObservableCollection<ConversationDTO>();
+        }
         await _signalRService.StartAsync();
         
         foreach (var c in Conversations)
@@ -138,6 +159,15 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
         if (conv != null)
         {
+            if (string.IsNullOrEmpty(conv.TitreAnnonce))
+            {
+                conv.TitreAnnonce = "Annonce supprimée";
+            }
+            
+            if (string.IsNullOrEmpty(conv.Interlocuteur))
+            {
+                conv.Interlocuteur = "Utilisateur supprimé";
+            }
             SelectedConversation = conv;
             if (conv.ListMessages == null)
                 conv.ListMessages = new ObservableCollection<MessageDTO>();
@@ -846,4 +876,141 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     {
         await _messageService.CancelMessagePayee(id);
     }
+    
+    public void OuvrirModalReception(bool estConforme, int messageEnvoieId)
+{
+    ColisEstConforme = estConforme;
+    ShowReceptionModal = true;
+    ReceptionDescription = "";
+    ReceptionPhoto = null;
+    ReceptionPhotoPreviewBase64 = null;
+    ReceptionError = null;
+    
+    // Trouver le MessageEnvoieColisId
+    var colisMessage = SelectedConversation?.ListMessages?
+        .OfType<MessageEnvoieColisDTO>()
+        .LastOrDefault();
+    
+    if (colisMessage != null)
+    {
+        CurrentMessageEnvoieColisId = messageEnvoieId;
+    }
+    
+    NotifyStateChanged();
+}
+
+public void FermerModalReception()
+{
+    ShowReceptionModal = false;
+    ColisEstConforme = false;
+    ReceptionDescription = "";
+    ReceptionPhoto = null;
+    ReceptionPhotoPreviewBase64 = null;
+    ReceptionError = null;
+    CurrentMessageEnvoieColisId = null;
+    NotifyStateChanged();
+}
+
+public async Task OnReceptionPhotoSelected(InputFileChangeEventArgs e)
+{
+    ReceptionError = null;
+    ReceptionPhoto = null;
+    ReceptionPhotoPreviewBase64 = null;
+
+    var file = e.File;
+
+    if (!file.ContentType.StartsWith("image/"))
+    {
+        ReceptionError = "Le fichier doit être une image";
+        NotifyStateChanged();
+        return;
+    }
+    
+    if (file.Size > 10 * 1024 * 1024)
+    {
+        ReceptionError = "La photo ne doit pas dépasser 10 Mo";
+        NotifyStateChanged();
+        return;
+    }
+
+    using var ms = new MemoryStream();
+    await file.OpenReadStream(10 * 1024 * 1024).CopyToAsync(ms);
+
+    ReceptionPhoto = file;
+    ReceptionPhotoPreviewBase64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+
+    NotifyStateChanged();
+}
+
+public async Task ConfirmerReceptionColisAsync()
+{
+    if (SelectedConversation == null || utilisateur == null || CurrentMessageEnvoieColisId == null)
+        return;
+
+    // Validation : si non conforme, photo et description obligatoires
+    if (!ColisEstConforme)
+    {
+        if (ReceptionPhoto == null)
+        {
+            ReceptionError = "Une photo est obligatoire pour signaler un colis non conforme";
+            NotifyStateChanged();
+            return;
+        }
+        
+        if (string.IsNullOrWhiteSpace(ReceptionDescription))
+        {
+            ReceptionError = "Une description est obligatoire pour signaler un colis non conforme";
+            NotifyStateChanged();
+            return;
+        }
+    }
+
+    IsSendingReception = true;
+    ReceptionError = null;
+    NotifyStateChanged();
+
+    try
+    {
+        PhotoUploadDTO? photoDto = null;
+        
+        if (ReceptionPhoto != null)
+        {
+            var bytes = await ConvertIBrowserFileToBytesAsync(ReceptionPhoto);
+            photoDto = new PhotoUploadDTO
+            {
+                FileName = ReceptionPhoto.Name,
+                ContentType = ReceptionPhoto.ContentType,
+                FileSize = ReceptionPhoto.Size,
+                Base64Data = Convert.ToBase64String(bytes)
+            };
+        }
+
+        var dto = new MessageEstRecuPostDTO
+        {
+            ConversationId = SelectedConversation.ConversationId,
+            UtilisateurId = utilisateur.UtilisateurId,
+            EstConforme = ColisEstConforme,
+            Photo = photoDto,
+            Description = string.IsNullOrWhiteSpace(ReceptionDescription) ? null : ReceptionDescription,
+            MessageEstEnvoieId = CurrentMessageEnvoieColisId.Value
+        };
+
+        await _messageService.PostMessageEstRecu(dto);
+
+        // Marquer comme reçu
+        ColisDejaRecu = true;
+        
+        FermerModalReception();
+    }
+    catch (Exception ex)
+    {
+        ReceptionError = "Erreur lors de la confirmation de réception";
+        Console.WriteLine($"[VM] ❌ Error confirming reception: {ex.Message}");
+    }
+    finally
+    {
+        IsSendingReception = false;
+        NotifyStateChanged();
+    }
+}
 }

@@ -32,7 +32,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public AnnonceDetailDTO? AnnonceDetail { get; set; }
     public UtilisateurViewDTO? utilisateurAnnonce { get; set; }
-    public List<RecenseDetailDTO> TagsAnnonce { get; set; } = new List<RecenseDetailDTO>();
     public List<AnnonceDTO>? similarAnnonces = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
@@ -77,6 +76,9 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public async Task LoadAnnonceDetailAsync(int id)
     {
+        if (AnnonceDetail != null && AnnonceDetail.AnnonceId == id)
+            return;
+
         IsLoading = true;
         ErrorMessage = null;
         IsLoadingSimilar = true;
@@ -85,7 +87,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         try
         {
             AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
-            TagsAnnonce = await _recenseWebService.GetTagsByAnnonce(id);
             if (AnnonceDetail == null)
             {
                 ErrorMessage = "Annonce introuvable";
@@ -119,26 +120,13 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         similarAnnonces = await _annonceService.GetSimilarAnnonces(id, PageNumber, 4);
         IsLoadingSimilar = false;
     }
-    public async Task<bool> CheckLoginStatus()
+    public async Task ToggleFavorite(dynamic annonce)
     {
-        if (await _authService.GetCurrentUserAsync() != null)
-            return true;
-        return false;
-    }
-    public async Task ToggleFavorite(int annonceId, string annonceToInteract) //"SimilarAnnonce" or "AnnonceDetail"
-    {
-        if (CheckLoginStatus == null)
+        if (utilisateur == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
         }
-
-        dynamic? annonce = null;
-
-        if (annonceToInteract == "SimilarAnnonce")
-            annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
-        else
-            annonce = AnnonceDetail;
 
         bool isFavorite = annonce.IsLikedByCurrentUser;
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
@@ -161,7 +149,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             annonce.IsLikedByCurrentUser = isFavorite;
         }
     }
-
     public void GoBack()
     {
         _navigationManager.NavigateTo("/search");
@@ -169,7 +156,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public async void ContactSeller()
     {
-        if (CheckLoginStatus == null)
+        if (utilisateur == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
@@ -182,18 +169,19 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public async void MakeOffer()
     {
-        if ( CheckLoginStatus == null)
+        if (utilisateur == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
         }
+
         var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
         _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}&makeOffer=true");
     }
 
     public async void BuyProduct()
     {
-        if (CheckLoginStatus == null)
+        if (utilisateur == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
@@ -253,6 +241,11 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public void ToggleSignalerModal()
     {
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
         ShowSignalerModal = !ShowSignalerModal;
     }
     public async Task SubmitReport()

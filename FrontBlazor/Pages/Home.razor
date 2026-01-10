@@ -5,25 +5,119 @@
 @inject NavigationManager navigationManager
 <PageTitle>Clothes2U - Home</PageTitle>
 
+<div class="hero-banner">
+    <div class="hero-background"></div>
+    <div class="hero-content-wrapper">
+        <div class="hero-card">
+            <h1 class="hero-title">Donnez une seconde vie à vos vêtements</h1>
+            <p class="hero-description">
+                Achetez et vendez des vêtements d'occasion en toute confiance. 
+            </p>
+            <div class="hero-actions">
+                <button class="btn-hero-primary" @onclick='() => navigationManager.NavigateTo("/search")'>
+                    <i class="bi bi-search"></i>
+                    Commencer ma recherche
+                </button>
+                @if (VM_Home.utilisateur != null)
+                {
+                    <button class="btn-hero-secondary" @onclick='() => navigationManager.NavigateTo("/add-article")'>
+                        <i class="bi bi-plus-circle"></i>
+                        Vendre un vêtement
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-hero-secondary" @onclick='() => navigationManager.NavigateTo("login")'>
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Se connecter pour vendre
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (VM_Home.IsLoggedIn)
+{
+    <!-- Recommendations Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <h2 class="section-title">RECOMMENDATIONS</h2>
+            <div class="carousel-controls">
+                <button class="carousel-btn"
+                        @onclick="VM_Home.PreviousRecommandation"
+                        disabled="@VM_Home.IsLoadingPreviousRecommendation">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="carousel-btn"
+                        @onclick="VM_Home.NextRecommandation"
+                        disabled="@VM_Home.IsLoadingNextRecommendation">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="products-section">
+            @if (VM_Home.IsLoading)
+            {
+                <div class="loading-state">
+                    <div class="spinner-medium"></div>
+                    <p>Chargement des annonces...</p>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
+            {
+                <div class="error-state">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <p>@VM_Home.ErrorMessage</p>
+                    <button class="btn-retry" @onclick="async () => await VM_Home.LoadPopularAnnonces()">Réessayer</button>
+                </div>
+            }
+            else if (VM_Home.AnnoncesRecommended == null || !VM_Home.AnnoncesRecommended.Any())
+            {
+                <div class="loading-state">
+                    <div class="spinner-medium"></div>
+                    <p>Chargement des annonces...</p>
+                </div>
+            }
+            else
+            {
+                <div class="product-grid">
+                    @foreach (AnnonceDTO annonce in VM_Home.AnnoncesRecommended)
+                    {
+                        <AnnonceCard annonceComponent="annonce"
+                                     OnToggleFavorite="(a) => HandleToggleFavorite(annonce.AnnonceId)"
+                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
+                                     IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
 <!-- Recents Section -->
 <div id="recent" class="section-container">
     <div class="section-header">
         <h2 class="section-title">RECENTS</h2>
         <div class="carousel-controls">
-            <button class="carousel-btn">
+            <button class="carousel-btn"
+                    @onclick="VM_Home.PreviousRecents"
+                    disabled="@VM_Home.IsLoadingPreviousRecents">
                 <i class="bi bi-chevron-left"></i>
             </button>
-            <button class="carousel-btn">
+            <button class="carousel-btn"
+                    @onclick="VM_Home.NextRecents"
+                    disabled="@VM_Home.IsLoadingNextRecents">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
     </div>
-    <!-- Products Grid -->
     <div class="products-section">
         @if (VM_Home.IsLoading)
         {
             <div class="loading-state">
-                <p class="spinner-small"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -37,7 +131,8 @@
         else if (VM_Home.AnnoncesRecents == null || !VM_Home.AnnoncesRecents.Any())
         {
             <div class="loading-state">
-                <p class="spinner-small"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else
@@ -49,7 +144,6 @@
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
                                  OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
                                  IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
-
                 }
             </div>
         }
@@ -61,20 +155,24 @@
     <div class="section-header">
         <h2 class="section-title">POPULAIRES</h2>
         <div class="carousel-controls">
-            <button class="carousel-btn">
+            <button class="carousel-btn"
+                    @onclick="VM_Home.PreviousPopulaires"
+                    disabled="@VM_Home.IsLoadingPreviousPopulaires">
                 <i class="bi bi-chevron-left"></i>
             </button>
-            <button class="carousel-btn">
+            <button class="carousel-btn"
+                    @onclick="VM_Home.NextPopulaires"
+                    disabled="@VM_Home.IsLoadingNextPopulaires">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
     </div>
-    <!-- Products Grid -->
     <div class="products-section">
         @if (VM_Home.IsLoading)
         {
             <div class="loading-state">
-                <p class="spinner-small"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -88,7 +186,8 @@
         else if (VM_Home.AnnoncesPopulaires == null || !VM_Home.AnnoncesPopulaires.Any())
         {
             <div class="loading-state">
-                <p class="spinner-small"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else
@@ -100,67 +199,11 @@
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
                                  OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
                                  IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
-
                 }
             </div>
         }
     </div>
 </div>
-
-@if (VM_Home.IsLoggedIn)
-{
-    <!-- Recommendations Section -->
-    <div class="section-container">
-        <div class="section-header">
-            <h2 class="section-title">RECOMMENDATIONS</h2>
-            <div class="carousel-controls">
-                <button class="carousel-btn"
-                        @onclick="VM_Home.PreviousRecommandation">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="carousel-btn"
-                        @onclick="VM_Home.NextRecommandation">
-                    <i class="bi bi-chevron-right"></i>
-                </button>   
-            </div>
-        </div>
-        <div class="products-section">
-            @if (VM_Home.IsLoading)
-            {
-                <div class="loading-state">
-                    <p class="spinner-small"></p> Chargement des annonces...
-                </div>
-            }
-            else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
-            {
-                <div class="error-state">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <p>@VM_Home.ErrorMessage</p>
-                    <button class="btn-retry" @onclick="async () => await VM_Home.LoadPopularAnnonces()">Réessayer</button>
-                </div>
-            }
-            else if (VM_Home.AnnoncesPopulaires == null || !VM_Home.AnnoncesPopulaires.Any())
-            {
-                <div class="loading-state">
-                    <p class="spinner-small"></p> Chargement des annonces...
-                </div>
-            }
-            else
-            {
-                <div class="product-grid">
-                    @foreach(AnnonceDTO annonce in VM_Home.AnnoncesRecommended)
-                    {
-                        <AnnonceCard annonceComponent="annonce"
-                                     OnToggleFavorite="(a) => HandleToggleFavorite(annonce.AnnonceId)"
-                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
-                                     IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
-
-                    }
-                </div>
-            }
-        </div>
-    </div>
-}
 
 <!-- Categories Section -->
 <div class="categories-section">
@@ -192,7 +235,6 @@
     {
         await VM_Home.ToggleFavoriteWithAuth(
             annonceId,
-            VM_Connexion.CheckLoginStatus != null,
             () => navigationManager.NavigateTo("/login")
         );
         StateHasChanged();

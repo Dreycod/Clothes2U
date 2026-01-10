@@ -780,6 +780,52 @@ namespace API.Migrations
                     b.ToTable("t_e_genre_gen", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.HistoriqueUtilisateur", b =>
+                {
+                    b.Property<int>("HistoriqueUtilisateurId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("histuti_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("HistoriqueUtilisateurId"));
+
+                    b.Property<int?>("AdminId")
+                        .HasColumnType("integer")
+                        .HasColumnName("histuti_deleted_by_admin_id");
+
+                    b.Property<int?>("AnnonceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("histuti_annonce_id");
+
+                    b.Property<DateTime>("DateSuppressionCompte")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("histuti_deleted_at");
+
+                    b.Property<DateTime>("DateTransaction")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("histuti_date_transaction");
+
+                    b.Property<double>("Montant")
+                        .HasColumnType("double precision")
+                        .HasColumnName("histuti_montant");
+
+                    b.Property<string>("TypeTransaction")
+                        .HasColumnType("text")
+                        .HasColumnName("histuti_type_transaction");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("histuti_utilisateur_id");
+
+                    b.HasKey("HistoriqueUtilisateurId");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("t_h_utilisateur_transactions_histuti", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Illustre_Annonce", b =>
                 {
                     b.Property<int>("IllustId")
@@ -994,6 +1040,49 @@ namespace API.Migrations
                     b.ToTable("t_e_message_payee_mespay", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEstRecu", b =>
+                {
+                    b.Property<int>("MessageEstRecuId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("mesrecu_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageEstRecuId"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("mesrecu_description");
+
+                    b.Property<bool>("EstConforme")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mesrecu_est_conforme");
+
+                    b.Property<int>("MessageEstEnvoieId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mesrecu_est_envoie_id");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mesrecu_message_id");
+
+                    b.Property<int?>("PhotoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mesrecu_photo_id");
+
+                    b.HasKey("MessageEstRecuId");
+
+                    b.HasIndex("MessageEstEnvoieId")
+                        .IsUnique();
+
+                    b.HasIndex("MessageId")
+                        .IsUnique();
+
+                    b.HasIndex("PhotoId")
+                        .IsUnique();
+
+                    b.ToTable("t_e_message_recu_mesrecu", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>
                 {
                     b.Property<int>("MessageTexteId")
@@ -1145,6 +1234,33 @@ namespace API.Migrations
                     b.HasIndex("UtilisateurId");
 
                     b.ToTable("t_e_notification_not", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.NotificationAchatAnnonce", b =>
+                {
+                    b.Property<int>("NotificationAchatAnnonceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("notach_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationAchatAnnonceId"));
+
+                    b.Property<int>("AnnonceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notach_annonce_id");
+
+                    b.Property<int>("NotificationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notach_notification_id");
+
+                    b.HasKey("NotificationAchatAnnonceId");
+
+                    b.HasIndex("AnnonceId");
+
+                    b.HasIndex("NotificationId")
+                        .IsUnique();
+
+                    b.ToTable("t_e_notification_achat_notach", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.NotificationAdmin", b =>
@@ -2043,7 +2159,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurAcheteur")
                         .WithMany("Achats")
                         .HasForeignKey("UtilisateurAcheteurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -2105,7 +2221,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
                         .WithMany("Annonces")
                         .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Categorie");
@@ -2197,6 +2313,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Annonce", "LAnnonce")
                         .WithMany("LesConversations")
                         .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.StatutConversation", "StatutConversation")
@@ -2363,16 +2480,36 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
                         .WithMany("UtilisateursFavoris")
                         .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
                         .WithMany("AnnoncesFavorites")
                         .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Annonce");
 
                     b.Navigation("Utilisateur");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.HistoriqueUtilisateur", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Admin")
+                        .WithMany("HistoriquesAdmin")
+                        .HasForeignKey("AdminId");
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UserHist")
+                        .WithMany("HistUtilisateurs")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_t_h_utilisateur_transactions_histuti_t_e_utilisateur_uti_h~1");
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("UserHist");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Illustre_Annonce", b =>
@@ -2399,11 +2536,13 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Conversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
                         .WithMany("Messages")
                         .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -2486,6 +2625,32 @@ namespace API.Migrations
                     b.Navigation("Message");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEstRecu", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.MessageEnvoieColis", "MessageEstEnvoie")
+                        .WithOne("MessageEstRecu")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEstRecu", "MessageEstEnvoieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Message", "Message")
+                        .WithOne("MessageEstRecu")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEstRecu", "MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Photo", "Photo")
+                        .WithOne("MessageEstRecu")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEstRecu", "PhotoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Message");
+
+                    b.Navigation("MessageEstEnvoie");
+
+                    b.Navigation("Photo");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.MessageTexte", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
@@ -2550,6 +2715,25 @@ namespace API.Migrations
                     b.Navigation("NotificationType");
 
                     b.Navigation("Utilisateur");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.NotificationAchatAnnonce", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
+                        .WithMany("NotificationsAchatAnnonces")
+                        .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Notification", "LaNotification")
+                        .WithOne("NotificationAchats")
+                        .HasForeignKey("API.Models.EntityFramework.NotificationAchatAnnonce", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Annonce");
+
+                    b.Navigation("LaNotification");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.NotificationAdmin", b =>
@@ -2852,7 +3036,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurVendeur")
                         .WithMany("Ventes")
                         .HasForeignKey("UtilisateurVendeurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("LaConversation");
@@ -2906,6 +3090,8 @@ namespace API.Migrations
                     b.Navigation("LesConversations");
 
                     b.Navigation("LesVisualisations");
+
+                    b.Navigation("NotificationsAchatAnnonces");
 
                     b.Navigation("NotificationsModificationAnnonces");
 
@@ -2998,6 +3184,8 @@ namespace API.Migrations
 
                     b.Navigation("MessageEstPayee");
 
+                    b.Navigation("MessageEstRecu");
+
                     b.Navigation("MessageTexte");
 
                     b.Navigation("NotificationsMessage");
@@ -3010,6 +3198,11 @@ namespace API.Migrations
                     b.Navigation("ContreOffres");
 
                     b.Navigation("NotificationProposition");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.MessageEnvoieColis", b =>
+                {
+                    b.Navigation("MessageEstRecu");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
@@ -3031,6 +3224,8 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Notification", b =>
                 {
+                    b.Navigation("NotificationAchats");
+
                     b.Navigation("NotificationAdmins");
 
                     b.Navigation("NotificationAvertissements");
@@ -3055,6 +3250,8 @@ namespace API.Migrations
                     b.Navigation("Annonces");
 
                     b.Navigation("MessageEnvoieColis");
+
+                    b.Navigation("MessageEstRecu");
 
                     b.Navigation("Messages");
 
@@ -3141,6 +3338,10 @@ namespace API.Migrations
                     b.Navigation("DecisionsModerateur");
 
                     b.Navigation("DecisionsUtilisateurSanctionne");
+
+                    b.Navigation("HistUtilisateurs");
+
+                    b.Navigation("HistoriquesAdmin");
 
                     b.Navigation("Messages");
 

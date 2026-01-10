@@ -228,6 +228,7 @@ builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEstPayee, int>, MessageEstPayeeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEnvoieColis, int>, MessageEnvoieColisManager>();
 builder.Services.AddScoped<IDataRepository<MessageContientImage, int>, MessageContientImageManager>();
+builder.Services.AddScoped<IDataRepository<MessageEstRecu, int>, MessageEstRecuManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
@@ -253,6 +254,8 @@ builder.Services.AddScoped<IClusterRepository, ClusterManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
+
+
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
@@ -280,7 +283,7 @@ builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  Not
 builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
-
+builder.Services.AddScoped<IDataRepository<NotificationAchatAnnonce, int>, NotificationAchatManager>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();

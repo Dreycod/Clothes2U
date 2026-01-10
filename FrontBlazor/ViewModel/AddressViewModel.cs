@@ -166,7 +166,7 @@ public class AddressViewModel : ClientBaseViewModel, IDisposable
                     AdresseVille = Ville.Trim(),
                     AdresseCodePostal = CodePostal.Trim(),
                     AdressePays = Pays.Trim(),
-                    UtilisateurId = CurrentUser!.UtilisateurId
+                    UtilisateurId = utilisateur!.UtilisateurId
                 };
 
                 var newAddress = await _authService.AddAddressAsync(createDto);

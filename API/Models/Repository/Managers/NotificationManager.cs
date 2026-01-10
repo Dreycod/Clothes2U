@@ -46,6 +46,9 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
                 .ThenInclude(np => np.MessageDemande)
                     .ThenInclude(nm => nm.Message)
                         .ThenInclude(n => n.Utilisateur)
+            .Include(n => n.NotificationAchats)
+                .ThenInclude(nm => nm.Annonce)
+                    .ThenInclude(a => a.Utilisateur)
             .AsSplitQuery();
     }
     public async Task<IEnumerable<Notification>> GetByUserId(int userId)
@@ -93,6 +96,24 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
              && n.UtilisateurId == userId)
         ).Distinct().ToListAsync();
         _context.Notifications.RemoveRange(notifications);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteNotificationAnnonceForUser(int annonceId, int userId)
+    {
+        var notifNouvellesAnnonces = await _context.NotificationNouvelleAnnonces
+            .Where(nna => nna.AnnonceId == annonceId && nna.LaNotification.UtilisateurId == userId)
+            .Select(nna => nna.LaNotification)
+            .ToListAsync();
+    
+        var notifModifications = await _context.NotificationModificationAnnonces
+            .Where(nm => nm.AnnonceId == annonceId && nm.LaNotification.UtilisateurId == userId)
+            .Select(nm => nm.LaNotification)
+            .ToListAsync();
+    
+        var allNotifications = notifNouvellesAnnonces.Concat(notifModifications).Distinct();
+    
+        _context.Notifications.RemoveRange(allNotifications);
         await _context.SaveChangesAsync();
     }
 }
