@@ -1236,6 +1236,33 @@ namespace API.Migrations
                     b.ToTable("t_e_notification_not", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.NotificationAchatAnnonce", b =>
+                {
+                    b.Property<int>("NotificationAchatAnnonceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("notach_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationAchatAnnonceId"));
+
+                    b.Property<int>("AnnonceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notach_annonce_id");
+
+                    b.Property<int>("NotificationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notach_notification_id");
+
+                    b.HasKey("NotificationAchatAnnonceId");
+
+                    b.HasIndex("AnnonceId");
+
+                    b.HasIndex("NotificationId")
+                        .IsUnique();
+
+                    b.ToTable("t_e_notification_achat_notach", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.NotificationAdmin", b =>
                 {
                     b.Property<int>("NotificationAdminId")
@@ -2685,6 +2712,25 @@ namespace API.Migrations
                     b.Navigation("Utilisateur");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.NotificationAchatAnnonce", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
+                        .WithMany("NotificationsAchatAnnonces")
+                        .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Notification", "LaNotification")
+                        .WithOne("NotificationAchats")
+                        .HasForeignKey("API.Models.EntityFramework.NotificationAchatAnnonce", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Annonce");
+
+                    b.Navigation("LaNotification");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.NotificationAdmin", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Notification", "LaNotification")
@@ -3040,6 +3086,8 @@ namespace API.Migrations
 
                     b.Navigation("LesVisualisations");
 
+                    b.Navigation("NotificationsAchatAnnonces");
+
                     b.Navigation("NotificationsModificationAnnonces");
 
                     b.Navigation("NotificationsNouvelleAnnonces");
@@ -3171,6 +3219,8 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Notification", b =>
                 {
+                    b.Navigation("NotificationAchats");
+
                     b.Navigation("NotificationAdmins");
 
                     b.Navigation("NotificationAvertissements");

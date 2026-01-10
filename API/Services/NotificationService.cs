@@ -20,6 +20,7 @@ public class  NotificationService : INotificationService
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
     private readonly IAbonnementRepository<Abonnement, int> abonnementRepo;
+    private readonly ICurrentUserService _currentUserService;
     
 
     public NotificationService(
@@ -32,7 +33,8 @@ public class  NotificationService : INotificationService
         IDataRepository<NotificationModificationAnnonce, int> notificationModificationAnnonceManager,
         INotificationMailService mailService,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
-        IAbonnementRepository<Abonnement, int> abonnementRepo
+        IAbonnementRepository<Abonnement, int> abonnementRepo,
+        ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
@@ -45,6 +47,7 @@ public class  NotificationService : INotificationService
         _mailService = mailService;
         _annonceRepository = annonceRepository;
         _abonnementRepo = abonnementRepo;
+        _currentUserService = currentUserService;
     }
 
     public async Task CreateNotification(NotificationCreateDTO notificationDTO)
@@ -105,7 +108,6 @@ public class  NotificationService : INotificationService
         var followers = await _abonnementRepo.GetAllFollowersByUtilisateurSuivi(annonce.UtilisateurId);
         foreach (var user in followers)
         {
-            Console.WriteLine("NOTIFICATION------------------------------------------------------------------------------------------------------------------------------------");
             if (user.UtilisateurSuiveur.PreferenceNotifMail)
             {
                 await _mailService.NotifyNewAnnonceAsync(annonce, user.UtilisateurSuiveur.Email);
@@ -118,6 +120,15 @@ public class  NotificationService : INotificationService
                 TypeId = 4
             };
             await CreateNotification(notif);
+        }
+    }
+
+    public async Task DeleteAnnonceNotificationForUser(int annonceId)
+    {
+        int? userId = await _currentUserService.GetUserId();
+        if (userId != null)
+        {
+            await _notificationManager.DeleteNotificationAnnonceForUser(annonceId, (int)userId);
         }
     }
 }
