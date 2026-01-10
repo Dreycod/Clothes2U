@@ -5,6 +5,38 @@
 @inject NavigationManager navigationManager
 <PageTitle>Clothes2U - Home</PageTitle>
 
+<div class="hero-banner">
+    <div class="hero-background"></div>
+    <div class="hero-content-wrapper">
+        <div class="hero-card">
+            <h1 class="hero-title">Donnez une seconde vie à vos vêtements</h1>
+            <p class="hero-description">
+                Achetez et vendez des vêtements d'occasion en toute confiance. 
+            </p>
+            <div class="hero-actions">
+                <button class="btn-hero-primary" @onclick='() => navigationManager.NavigateTo("/search")'>
+                    <i class="bi bi-search"></i>
+                    Commencer ma recherche
+                </button>
+                @if (VM_Home.utilisateur != null)
+                {
+                    <button class="btn-hero-secondary" @onclick='() => navigationManager.NavigateTo("/add-article")'>
+                        <i class="bi bi-plus-circle"></i>
+                        Vendre un vêtement
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-hero-secondary" @onclick='() => navigationManager.NavigateTo("login")'>
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Se connecter pour vendre
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 @if (VM_Home.IsLoggedIn)
 {
     <!-- Recommendations Section -->
@@ -15,7 +47,6 @@
                 <button class="carousel-btn"
                         @onclick="VM_Home.PreviousRecommandation"
                         disabled="@VM_Home.IsLoadingPreviousRecommendation">
-
                     <i class="bi bi-chevron-left"></i>
                 </button>
                 <button class="carousel-btn"
@@ -29,7 +60,8 @@
             @if (VM_Home.IsLoading)
             {
                 <div class="loading-state">
-                    <p class="spinner-medium"></p> Chargement des annonces...
+                    <div class="spinner-medium"></div>
+                    <p>Chargement des annonces...</p>
                 </div>
             }
             else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -40,10 +72,11 @@
                     <button class="btn-retry" @onclick="async () => await VM_Home.LoadPopularAnnonces()">Réessayer</button>
                 </div>
             }
-            else if (VM_Home.AnnoncesPopulaires == null || !VM_Home.AnnoncesPopulaires.Any())
+            else if (VM_Home.AnnoncesRecommended == null || !VM_Home.AnnoncesRecommended.Any())
             {
                 <div class="loading-state">
-                    <p class="spinner-medium"></p> Chargement des annonces...
+                    <div class="spinner-medium"></div>
+                    <p>Chargement des annonces...</p>
                 </div>
             }
             else
@@ -55,7 +88,6 @@
                                      OnToggleFavorite="(a) => HandleToggleFavorite(annonce.AnnonceId)"
                                      OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
                                      IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
-
                     }
                 </div>
             }
@@ -80,12 +112,12 @@
             </button>
         </div>
     </div>
-    <!-- Products Grid -->
     <div class="products-section">
         @if (VM_Home.IsLoading)
         {
             <div class="loading-state">
-                <p class="spinner-medium"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -99,7 +131,8 @@
         else if (VM_Home.AnnoncesRecents == null || !VM_Home.AnnoncesRecents.Any())
         {
             <div class="loading-state">
-                <p class="spinner-medium"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else
@@ -111,7 +144,6 @@
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
                                  OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
                                  IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
-
                 }
             </div>
         }
@@ -135,12 +167,12 @@
             </button>
         </div>
     </div>
-    <!-- Products Grid -->
     <div class="products-section">
         @if (VM_Home.IsLoading)
         {
             <div class="loading-state">
-                <p class="spinner-medium"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else if (!string.IsNullOrEmpty(VM_Home.ErrorMessage))
@@ -154,7 +186,8 @@
         else if (VM_Home.AnnoncesPopulaires == null || !VM_Home.AnnoncesPopulaires.Any())
         {
             <div class="loading-state">
-                <p class="spinner-medium"></p> Chargement des annonces...
+                <div class="spinner-medium"></div>
+                <p>Chargement des annonces...</p>
             </div>
         }
         else
@@ -166,7 +199,6 @@
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
                                  OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
                                  IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
-
                 }
             </div>
         }
