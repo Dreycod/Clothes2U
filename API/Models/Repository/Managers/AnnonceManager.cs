@@ -82,7 +82,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             var lowerMotCle = filterDto.MotCle.ToLower();
             query = query.Where(p =>
                 p.Title.ToLower().Contains(lowerMotCle) ||
-                p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle))
+                p.Tags.Any(t => t.Tag.LibelleTag.ToLower().Contains(lowerMotCle)) ||
+                p.Categorie.LibelleCategorie.ToLower().Contains(lowerMotCle) || 
+                p.SousCategorie.LibelleSousCategorie.ToLower().Contains(lowerMotCle) || 
+                p.Couleurs.Any(c => c.Couleur.Nom.ToLower().Contains(lowerMotCle)) ||
+                p.Marque.NomMarque.ToLower().Contains(lowerMotCle)
             );
         }
 

@@ -16,7 +16,7 @@
                 <p>Chargement des paramètres...</p>
             </div>
         }
-        else
+        else if(VM_Settings.IsLoggedIn)
         {
             <div class="settings-header">
                 <h1>Paramètres</h1>
@@ -244,50 +244,68 @@
                             <div class="card-body">
                                 <div class="form-group">
                                     <label class="form-label">Mot de passe actuel</label>
-                                    <input type="password" 
-                                           class="form-input" 
-                                           placeholder="Entrez votre mot de passe actuel"
-                                           @bind="VM_Settings.CurrentPassword"
-                                           @bind:event="oninput" />
+                                    <div class="input-wrapper">
+                                        <input type="@(ShowCurrentPassword ? "text" : "password")" 
+                                               class="form-control" 
+                                               placeholder="Entrez votre mot de passe actuel"
+                                               @bind="CurrentPassword" 
+                                               @bind:event="oninput" 
+                                               @onkeydown="@HandleKeyDown" />
+                                        <button type="button" class="password-toggle" @onclick="ToggleCurrentPassword">
+                                            <i class="bi bi-eye@(ShowCurrentPassword ? "-slash" : "")"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Nouveau mot de passe</label>
-                                    <input type="password" 
-                                           class="form-input" 
-                                           placeholder="Entrez votre nouveau mot de passe"
-                                           @bind="VM_Settings.NewPassword"
-                                           @bind:event="oninput" />
+                                    <div class="input-wrapper">
+                                        <input type="@(ShowNewPassword ? "text" : "password")" 
+                                               class="form-control" 
+                                               placeholder="Entrez votre nouveau mot de passe"
+                                               @bind="NewPassword" 
+                                               @bind:event="oninput" 
+                                               @onkeydown="@HandleKeyDown" />
+                                        <button type="button" class="password-toggle" @onclick="ToggleNewPassword">
+                                            <i class="bi bi-eye@(ShowNewPassword ? "-slash" : "")"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Confirmer le nouveau mot de passe</label>
-                                    <input type="password" 
-                                           class="form-input" 
-                                           placeholder="Confirmez votre nouveau mot de passe"
-                                           @bind="VM_Settings.ConfirmPassword"
-                                           @bind:event="oninput" />
+                                    <div class="input-wrapper">
+                                        <input type="@(ShowNewConfirmPassword ? "text" : "password")" 
+                                               class="form-control" 
+                                               placeholder="Confirmez votre nouveau mot de passe"
+                                               @bind="NewConfirmPassword" 
+                                               @bind:event="oninput" 
+                                               @onkeydown="@HandleKeyDown" />
+                                        <button type="button" class="password-toggle" @onclick="ToggleNewConfirmPassword">
+                                            <i class="bi bi-eye@(ShowNewConfirmPassword ? "-slash" : "")"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                @if (!string.IsNullOrEmpty(VM_Settings.PasswordError))
+                                @if (!string.IsNullOrEmpty(PasswordError))
                                 {
                                     <div class="alert alert-error">
                                         <i class="bi bi-exclamation-circle"></i>
-                                        <span>@VM_Settings.PasswordError</span>
+                                        <span>@PasswordError</span>
                                     </div>
                                 }
-                                @if (VM_Settings.PasswordUpdateSuccess)
+                                @if (!string.IsNullOrEmpty(PasswordSuccess))
                                 {
                                     <div class="alert alert-success">
                                         <i class="bi bi-check-circle"></i>
-                                        <span>Mot de passe mis à jour avec succès</span>
+                                        <span>@PasswordSuccess</span>
                                     </div>
                                 }
 
                                 <button class="btn-primary" 
-                                        @onclick="VM_Settings.UpdatePassword"
-                                        disabled="@VM_Settings.IsUpdatingPassword">
-                                    @if (VM_Settings.IsUpdatingPassword)
+                                        @onclick="HandlePasswordUpdate"
+                                        disabled="@IsUpdatingPassword">
+                                    @if (IsUpdatingPassword)
                                     {
                                         <span class="spinner-small-inline"></span>
                                         <span>Mise à jour...</span>
@@ -297,6 +315,58 @@
                                         <span>Modifier le mot de passe</span>
                                     }
                                 </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3>Suppression de compte</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <span>Cette action est irréversible. Toutes vos données seront définitivement supprimées.</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Mot de passe</label>
+                                    <div class="input-wrapper">
+                                        <input type="@(ShowDeletePassword ? "text" : "password")" 
+                                               class="form-control" 
+                                               placeholder="Entrez votre mot de passe pour confirmer"
+                                               @bind="DeleteAccountPassword" 
+                                               @bind:event="oninput" 
+                                               @onkeydown="@HandleKeyDown" />
+                                        <button type="button" class="password-toggle" @onclick="ToggleDeletePassword">
+                                            <i class="bi bi-eye@(ShowDeletePassword ? "-slash" : "")"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(DeletionError))
+                                {
+                                    <div class="alert alert-error">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        <span>@DeletionError</span>
+                                    </div>
+                                }
+
+                                <div class="delete-account-actions">
+                                    @if (IsDeletingAccount)
+                                    {
+                                        <button class="btn-danger" disabled>
+                                            <span class="spinner-small-inline"></span>
+                                            Suppression du compte...
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn-danger" @onclick="HandleAccountDeletion">
+                                            <i class="bi bi-trash"></i>
+                                            Supprimer le compte
+                                        </button>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -356,8 +426,95 @@
 <Footer />
 
 @code {
+    public bool ShowCurrentPassword { get; set; } = false;
+    public bool ShowNewPassword { get; set; } = false;
+    public bool ShowNewConfirmPassword { get; set; } = false;
+
+    public string CurrentPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+    public string NewConfirmPassword { get; set; } = string.Empty;
+
+    public bool ShowDeletePassword { get; set; } = false;
+    public string DeleteAccountPassword { get; set; } = string.Empty;
+    public bool IsDeletingAccount { get; set; } = false;
+
+    public string PasswordError { get; set; } = string.Empty;
+    public string PasswordSuccess { get; set; } = string.Empty;
+    public string DeletionError { get; set; } = string.Empty;
+    public bool IsUpdatingPassword { get; set; } = false;
+
+    public void ToggleCurrentPassword() => ShowCurrentPassword = !ShowCurrentPassword;
+    public void ToggleNewPassword() => ShowNewPassword = !ShowNewPassword;
+    public void ToggleNewConfirmPassword() => ShowNewConfirmPassword = !ShowNewConfirmPassword;
+    public void ToggleDeletePassword() => ShowDeletePassword = !ShowDeletePassword;
+
     protected override async Task OnInitializedAsync()
     {
         await VM_Settings.LoadSettings();
+    }
+
+    private async Task HandlePasswordUpdate()
+    {
+        PasswordError = PasswordSuccess = string.Empty;
+        IsUpdatingPassword = true;
+
+        try
+        {
+            var result = await VM_Settings.UpdatePassword(CurrentPassword, NewPassword, NewConfirmPassword);
+            if (result == "Success")
+            {
+                PasswordSuccess = "Mot de passe mis à jour avec succès";
+                CurrentPassword = NewPassword = NewConfirmPassword = string.Empty;
+            }
+            else
+            {
+                PasswordError = result ?? "Erreur lors de la mise à jour du mot de passe.";
+            }
+        }
+        catch (Exception ex)
+        {
+            PasswordError = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsUpdatingPassword = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleAccountDeletion()
+    {
+        DeletionError = string.Empty;
+        IsDeletingAccount = true;
+
+        try
+        {
+            var result = await VM_Settings.AccountDeletion(DeleteAccountPassword);
+            if (result == "Success")
+            {
+                // Redirect to home or login page after successful deletion
+                NavigationManager.NavigateTo("/", true);
+            }
+            else
+            {
+                DeletionError = result ?? "Erreur lors de la suppression du compte.";
+            }
+        }
+        catch (Exception ex)
+        {
+            DeletionError = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            IsDeletingAccount = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task HandleKeyDown(KeyboardEventArgs e) {}
+
+    public void Dispose()
+    {
+        VM_Settings.OnStateChanged -= StateHasChanged;
     }
 }

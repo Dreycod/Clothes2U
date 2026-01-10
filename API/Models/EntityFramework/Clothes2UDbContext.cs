@@ -29,6 +29,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<EtatArticle> EtatArticles { get; set; }
     public DbSet<Favoris> Favorises { get; set; }
     public DbSet<Genre> Genres { get; set; }
+    public DbSet<HistoriqueUtilisateur> HistoriqueUtilisateurs { get; set; }
     public DbSet<Illustre_Annonce> Illustre_Annonces { get; set; }
     public DbSet<Marque> Marques { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -36,11 +37,13 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<MessageDemande> MessageDemandes { get; set; }
     public DbSet<MessageTexte> MessageTextes { get; set; }
     public DbSet<MessageEstPayee> MessageEstPayees { get; set; }
+    public DbSet<MessageEnvoieColis> MessageEnvoieColis { get; set; }
     public DbSet<Mesure> Mesures { get; set; }
     public DbSet<MotInterdit> MotsInterdits { get; set; }
     public DbSet<NoteUtilisateur>  NoteUtilisateurs { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<NotificationAdmin> NotificationAdmins { get; set; }
+    public DbSet<NotificationAchatAnnonce>  NotificationAchatAnnonces { get; set; }
     public DbSet<NotificationAvertissement> NotificationAvertissements { get; set; }
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
     public DbSet<NotificationModificationAnnonce> NotificationModificationAnnonces { get; set; }
@@ -132,7 +135,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(a => a.UtilisateurAcheteur)
                 .WithMany(u => u.Achats)
                 .HasForeignKey(a => a.UtilisateurAcheteurId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
     
             // Relation avec Conversation
             entity.HasOne(a => a.Conversation)
@@ -156,7 +159,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Utilisateurs)
                 .WithMany(u => u.Adresses)
                 .HasForeignKey(a => a.UtilisateurId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Adresse_Utilisateur");
             
             entity.HasMany(e => e.Commandes)
@@ -219,7 +222,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Utilisateur)
                 .WithMany(u => u.Annonces)
                 .HasForeignKey(e => e.UtilisateurId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.Etat)
                 .WithMany(ea => ea.Annonces)
@@ -328,7 +331,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.LAnnonce)
                 .WithMany(a => a.LesConversations)
                 .HasForeignKey(e => e.AnnonceId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         modelBuilder.Entity<Couleur>(entity =>
@@ -454,12 +457,12 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Annonce)
                 .WithMany(a => a.UtilisateursFavoris)
                 .HasForeignKey(e => e.AnnonceId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
             
             entity.HasOne(e => e.Utilisateur)
                 .WithMany(u => u.AnnoncesFavorites)
                 .HasForeignKey(e => e.UtilisateurId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Genre>(entity =>
@@ -478,8 +481,37 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.GenreId)
                 .IsUnique();
         });
-        
-        
+
+        modelBuilder.Entity<HistoriqueUtilisateur>(entity =>
+        {
+            entity.HasKey(e => e.HistoriqueUtilisateurId);
+
+            entity.Property(e => e.TypeTransaction)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(e => e.Montant)
+                .HasColumnType("decimal(10,2)");
+
+            entity.Property(e => e.DateTransaction)
+                .IsRequired();
+
+            entity.Property(e => e.DateSuppressionCompte)
+                .IsRequired();
+
+            entity.HasOne(e => e.UserHist)
+                .WithMany(u => u.HistUtilisateurs)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Admin)
+                .WithMany(u => u.HistoriquesAdmin)
+                .HasForeignKey(e => e.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+
+
         modelBuilder.Entity<Illustre_Annonce>(entity =>
         {
             entity.HasKey(e => e.IllustId);
@@ -515,12 +547,12 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Utilisateur)
                 .WithMany(u => u.Messages)
                 .HasForeignKey(e => e.UtilisateurId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
             
             entity.HasOne(e => e.Conversation)
                 .WithMany(c => c.Messages)
                 .HasForeignKey(e => e.ConversationId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.MessageTexte)
                 .WithOne(m => m.Message)
@@ -533,6 +565,14 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.MessageEstPayee)
                 .WithOne(m => m.Message)
                 .HasForeignKey<MessageEstPayee>(m => m.MessageId);
+            
+            entity.HasOne(e => e.MessageEstRecu)
+                .WithOne(m => m.Message)
+                .HasForeignKey<MessageEstRecu>(m => m.MessageId);
+            
+            entity.HasOne(e => e.MessageEnvoieColis)
+                .WithOne(e => e.Message)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageId);
             
             entity.HasMany(e => e.Decisions)
                 .WithOne(d => d.Message)
@@ -610,6 +650,58 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Message)
                 .WithOne(m => m.MessageEstPayee)
                 .HasForeignKey<MessageEstPayee>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.MessageEnvoieColis)
+                .WithOne(e => e.MessageEstPayee)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageEstPayeeId);
+        });
+
+        modelBuilder.Entity<MessageEnvoieColis>(entity =>
+        {
+            entity.ToTable("t_e_message_envoie_colis_mesenvcol");
+
+            entity.HasKey(e => e.MessageEnvoieColisId);
+
+            entity.HasOne(e => e.MessageEstPayee)
+                .WithOne(e => e.MessageEnvoieColis)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageEstPayeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.PhotoPreuve)
+                .WithOne(e => e.MessageEnvoieColis)
+                .HasForeignKey<MessageEnvoieColis>(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Message)
+                .WithOne(m => m.MessageEnvoieColis)
+                .HasForeignKey<MessageEnvoieColis>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.MessageEstRecu)
+                .WithOne(e => e.MessageEstEnvoie)
+                .HasForeignKey<MessageEstRecu>(e => e.MessageEstEnvoieId);
+        });
+
+        modelBuilder.Entity<MessageEstRecu>(entity =>
+        {
+            entity.ToTable("t_e_message_recu_mesrecu");
+
+            entity.HasKey(e => e.MessageEstRecuId);
+
+            entity.HasOne(e => e.Message)
+                .WithOne(m => m.MessageEstRecu)
+                .HasForeignKey<MessageEstRecu>(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Photo)
+                .WithOne(e => e.MessageEstRecu)
+                .HasForeignKey<MessageEstRecu>(e => e.PhotoId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.MessageEstEnvoie)
+                .WithOne(e => e.MessageEstRecu)
+                .HasForeignKey<MessageEstRecu>(e => e.MessageEstEnvoieId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -728,8 +820,18 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(nn => nn.LaNotification)
                 .HasForeignKey<NotificationNouvelleAnnonce>(nn => nn.NotificationId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(n => n.NotificationAchats)
+                .WithOne(nn => nn.LaNotification)
+                .HasForeignKey<NotificationAchatAnnonce>(nn => nn.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
-    
+        modelBuilder.Entity<NotificationAchatAnnonce>(entity =>
+        {
+            entity.HasKey(e => e.NotificationAchatAnnonceId);
+            // Index unique pour garantir qu'une notification n'a qu'une seule NotificationAdmin
+            entity.HasIndex(e => e.NotificationId)
+                .IsUnique();
+        });
     // Configuration de NotificationType
     modelBuilder.Entity<NotificationType>(entity =>
     {
@@ -1346,9 +1448,15 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(c => c.Vendeur)
                 .HasForeignKey(c => c.VendeurId)
                 .OnDelete(DeleteBehavior.Restrict);
-                
-                
-                
+
+            //historique
+            entity.HasOne(u => u.DeletedByAdminNav)
+                .WithMany(a => a.UtilisateursSupprimes)
+                .HasForeignKey(u => u.DeletedByAdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+
             entity.HasIndex(e => e.StatutId);
             entity.HasIndex(e => e.Dateinscription);
         });
@@ -1375,7 +1483,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(v => v.UtilisateurVendeur)
                 .WithMany(u => u.Ventes)
                 .HasForeignKey(v => v.UtilisateurVendeurId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
     
             // Relation avec Conversation
             entity.HasOne(v => v.LaConversation)

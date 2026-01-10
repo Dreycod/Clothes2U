@@ -486,3 +486,32 @@
         font-size: 16px;
     }
 }
+
+
+
+
+
+
+
+
+.icon-btn {
+    position: relative !important;
+}
+
+.notification-badge {
+    position: absolute !important;
+    top: -6px !important;
+    right: -6px !important;
+    background-color: #ff4444 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    line-height: 1 !important;
+}

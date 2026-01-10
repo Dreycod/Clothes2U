@@ -4,7 +4,6 @@ using Shared.DTO.Categorie;
 using Shared.DTO.Couleur;
 using Shared.DTO.Taille;
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using FrontBlazor.ViewModel.Commercial;

@@ -1,4 +1,4 @@
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.Interfaces.GenericIServices;
 using Stripe;
 
 namespace FrontBlazor.Services.Interfaces;

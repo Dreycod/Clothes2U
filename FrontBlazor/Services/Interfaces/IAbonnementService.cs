@@ -1,7 +1,11 @@
-﻿namespace FrontBlazor.Services.GenericIServices;
+﻿using FrontBlazor.Services.Interfaces.GenericIServices;
+using Shared.DTO.Utilisateur;
 
-public interface IAbonnementService<TEntity> : IReadableService<TEntity>, IWritableService<TEntity> where TEntity : class
+namespace FrontBlazor.Services.Interfaces;
+
+public interface IAbonnementService<TEntity>
 {
     Task AddAbonnement(int utilisateurId);
     Task DeleteAbonnement(int utilisateurId);
+    Task<List<UtilisateurCardDTO>> GetAbonnements();
 }

@@ -2,7 +2,7 @@
 using Shared.DTO;
 using Shared.DTO.Signalement;
 
-namespace FrontBlazor.Services.GenericIServices;
+namespace FrontBlazor.Services.Interfaces;
 public interface ISignalementService 
 {
     Task<List<SignalementDTO>> GetAllAsync();

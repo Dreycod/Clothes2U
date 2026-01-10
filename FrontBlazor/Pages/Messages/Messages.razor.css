@@ -1489,6 +1489,21 @@ input[type="file"] {
     margin-left: 0;
 }
 
+/* =============================
+
+MESSAGE COLIS ENVOYÉ
+=============================== */
+
+.payment-status-card .payment-content img {
+    display: block;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.payment-status-card .payment-content img:hover {
+    transform: scale(1.03);
+}
+
 /* ===============================
    MESSAGE PAIEMENT
    =============================== */
@@ -1541,4 +1556,50 @@ input[type="file"] {
     margin: 2px 0 0;
     font-size: 0.85rem;
     opacity: 0.85;
+}
+
+
+
+/* Card pour demander la réception */
+.colis-reception-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border: 2px solid #fb923c;
+    max-width: 400px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.colis-reception-card h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: #9a3412;
+}
+
+.reception-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Description du problème */
+.reception-description {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-left: 4px solid #dc3545;
+    border-radius: 8px;
+}
+
+.reception-description strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.reception-description p {
+    margin: 0;
+    color: #6c757d;
+    line-height: 1.5;
 }

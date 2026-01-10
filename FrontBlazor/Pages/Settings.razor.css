@@ -225,16 +225,6 @@
     color: #666;
 }
 
-/* ===== FORM STYLES ===== */
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
-
 .form-label {
     display: block;
     font-size: 0.95rem;
@@ -243,9 +233,18 @@
     margin-bottom: 0.5rem;
 }
 
-.form-input {
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.form-input,
+.form-control {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 0.875rem 3rem 0.875rem 1rem;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     font-size: 0.95rem;
@@ -254,15 +253,38 @@
     transition: all 0.2s;
 }
 
-    .form-input:focus {
-        outline: none;
-        border-color: #7a9d8e;
-        background: white;
-    }
+.form-group .input-wrapper .form-control:focus,
+.form-group .input-wrapper .form-input:focus {
+    outline: none;
+    border-color: #7a9d8e !important;
+    background: white;
+}
 
-    .form-input::placeholder {
-        color: #999;
-    }
+.form-input::placeholder,
+.form-control::placeholder {
+    color: #999;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #666;
+}
+
+.password-toggle i {
+    font-size: 1rem;
+}
 
 /* ===== ALERTS ===== */
 
@@ -297,8 +319,6 @@
     color: #856404;
     border: 1px solid #ffeaa7;
 }
-
-/* ===== BUTTONS ===== */
 
 .btn-primary {
     padding: 0.875rem 1.5rem;
@@ -344,7 +364,38 @@
         background: #f5f5f5;
     }
 
-/* ===== BLOCKED USERS LIST ===== */
+.delete-account-actions {
+    margin-top: 1.5rem;
+}
+
+.btn-danger {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+    .btn-danger:hover:not(:disabled) {
+        background: #c82333;
+    }
+
+    .btn-danger:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-danger i {
+        font-size: 1rem;
+    }
 
 .blocked-users-list {
     display: flex;
@@ -424,7 +475,6 @@
         font-size: 1rem;
     }
 
-/* ===== NOTIFICATION PREFERENCES ===== */
 
 .preference-description {
     font-size: 0.95rem;
@@ -515,8 +565,6 @@
     color: #666;
 }
 
-/* ===== EMPTY STATE ===== */
-
 .empty-state {
     padding: 4rem 2rem;
     text-align: center;
@@ -533,8 +581,6 @@
         color: #666;
         margin: 0;
     }
-
-/* ===== RESPONSIVE ===== */
 
 @media (max-width: 768px) {
     .settings-container {

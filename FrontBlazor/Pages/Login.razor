@@ -41,7 +41,7 @@
                         <div class="input-with-icon">
                             <i class="bi bi-envelope input-icon"></i>
                             <input type="email" class="form-control" placeholder="votremail@example.com"
-                                   @bind="LoginEmail" @onkeydown="@HandleKeyDown" />
+                                   @bind="LoginEmail" @bind:event="oninput" @onkeydown="@HandleKeyDown" />
                         </div>
                     </div>
 
@@ -53,7 +53,7 @@
                         <div class="input-with-icon">
                             <i class="bi bi-lock input-icon"></i>
                             <input type="@(ShowLoginPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••"
-                                   @bind="LoginPassword" @onkeydown="@HandleKeyDown" />
+                                   @bind="LoginPassword" @bind:event="oninput" @onkeydown="@HandleKeyDown" />
                             <button type="button" class="password-toggle" @onclick="ToggleLoginPassword">
                                 <i class="bi bi-eye@(ShowLoginPassword ? "-slash" : "")"></i>
                             </button>
@@ -71,7 +71,7 @@
 
                     <div class="divider"><span>OU</span></div>
 
-                    <button type="button" class="btn-google" @onclick="OnGoogleClicked">Connectez-vous avec Google</button>
+                    <button type="button" class="btn-google" @onclick="OnGoogleClicked"> <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>Connectez-vous avec Google</button>
 
                     <div class="auth-footer">
                         <span>Pas encore de compte?</span>
@@ -85,14 +85,14 @@
                 <div class="auth-form">
                     <div class="form-group">
                         <label class="form-label">Pseudo</label>
-                        <input type="text" class="form-control" placeholder="Un pseudo de votre choix" @bind="RegisterUsername" @onkeydown="@HandleKeyDown" />
+                        <input type="text" class="form-control" placeholder="Un pseudo de votre choix" @bind="RegisterUsername" @bind:event="oninput" @onkeydown="@HandleKeyDown" />
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Email</label>
                         <div class="input-with-icon">
                             <i class="bi bi-envelope input-icon"></i>
-                            <input type="email" class="form-control" placeholder="votremail@example.com" @bind="RegisterEmail" @onkeydown="@HandleKeyDown" />
+                            <input type="email" class="form-control" placeholder="votremail@example.com" @bind="RegisterEmail" @bind:event="oninput" @onkeydown="@HandleKeyDown" />
                         </div>
                     </div>
 
@@ -100,7 +100,7 @@
                         <label class="form-label">Mot de passe</label>
                         <div class="input-with-icon">
                             <i class="bi bi-lock input-icon"></i>
-                            <input type="@(ShowRegisterPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="RegisterPassword" @onkeydown="@HandleKeyDown" />
+                            <input type="@(ShowRegisterPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="RegisterPassword" @bind:event="oninput" @onkeydown="@HandleKeyDown" />
                             <button type="button" class="password-toggle" @onclick="ToggleRegisterPassword">
                                 <i class="bi bi-eye@(ShowRegisterPassword ? "-slash" : "")"></i>
                             </button>
@@ -111,7 +111,7 @@
                         <label class="form-label">Confirmer le mot de passe</label>
                         <div class="input-with-icon">
                             <i class="bi bi-lock input-icon"></i>
-                            <input type="@(ShowConfirmPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="RegisterConfirmPassword" @onkeydown="@HandleKeyDown" />
+                            <input type="@(ShowConfirmPassword ? "text" : "password")" class="form-control" placeholder="••••••••••••" @bind="RegisterConfirmPassword" @bind:event="oninput" @onkeydown="@HandleKeyDown" />
                             <button type="button" class="password-toggle" @onclick="ToggleConfirmPassword">
                                 <i class="bi bi-eye@(ShowConfirmPassword ? "-slash" : "")"></i>
                             </button>
@@ -121,7 +121,7 @@
                     <div class="form-check-group">
                         <input type="checkbox" class="form-check-input" id="terms" @bind="AcceptTerms" />
                         <label class="form-check-label" for="terms">
-                            J'accepte les <a href="#" class="terms-link">conditions d'utilisation</a> et la <a href="#" class="terms-link">politique de confidentialité</a>
+                            J'accepte les <a href="/terms" class="terms-link">conditions d'utilisation</a> et la <a href="/privacy" class="terms-link">politique de confidentialité</a>
                         </label>
                     </div>
 
@@ -178,7 +178,6 @@
 
         try
         {
-            // Appel de ton ViewModel (signature existante)
             var result = await VM_Connexion.HandleLogin(LoginEmail, LoginPassword);
             if (result == "Success")
             {

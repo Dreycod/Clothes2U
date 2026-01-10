@@ -6,6 +6,8 @@ using Shared.Interfaces;
 [JsonDerivedType(typeof(MessageTextDTO), "Texte")]
 [JsonDerivedType(typeof(MessageDemandeDTO), "Demande")]
 [JsonDerivedType(typeof(MessageEstPayeeDTO), "Payee")]
+[JsonDerivedType(typeof(MessageEnvoieColisDTO), "EnvoieColis")]
+[JsonDerivedType(typeof(MessageEstRecuDTO), "Recu")]
 public abstract class MessageDTO : IEntity
 {
     public int? MessageId { get; set; }
@@ -48,4 +50,23 @@ public class MessageEstPayeeDTO : MessageDTO
     public int MessageEstPayeeId { get; set; }
     public bool EstEnvoye { get; set; }
     public bool EstAnnule { get; set; }
+}
+
+public class MessageEnvoieColisDTO : MessageDTO
+{
+    public override string TypeMessage => "EnvoieColis";
+    public int MessageEnvoieColisId { get; set; }
+    public int PhotoId { get; set; }
+    public int MessageEstPayeeId { get; set; }
+    public int? MessageEstRecuId { get; set; }
+}
+
+public class MessageEstRecuDTO : MessageDTO
+{
+    public override string TypeMessage => "Recu";
+    public int MessageEstRecuId { get; set; }
+    public bool EstConforme { get; set; }
+    public string? Description { get; set; }
+    public int? PhotoId { get; set; }
+    public int MessageEstEnvoieId { get; set; }
 }

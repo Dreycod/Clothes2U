@@ -1,6 +1,5 @@
 using Shared.DTO.MotInterdit;
 using FrontBlazor.Pages.Moderation;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 

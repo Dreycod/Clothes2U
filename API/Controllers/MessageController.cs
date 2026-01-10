@@ -3,6 +3,7 @@ using Shared.DTO.Message;
 using API.Hubs;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
 using AutoMapper;
@@ -18,11 +19,13 @@ namespace API.Controllers;
 [ApiController]
 public class MessageController : ControllerBase
 {
-    private readonly IDataRepository<Message, int> _messageManager;
+    private readonly IMessageRepository _messageManager;
     private readonly IDataRepository<MessageTexte, int> _messageTexteManager;
     private readonly IMessageDemandeRepository _messageDemandeManager;
     private readonly IDataRepository<MessageEstPayee, int> _messageValidationManager;
+    private readonly IDataRepository<MessageEnvoieColis, int> _messageEnvoieColisManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
+    private readonly IDataRepository<MessageEstRecu, int> _messageEstRecuManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
     private readonly INotificationService _notificationService;
@@ -30,12 +33,14 @@ public class MessageController : ControllerBase
     private readonly IHubContext<ChatHub> _hubContext;
 
     public MessageController(
-        IDataRepository<Message, int> messageManager,
+        IMessageRepository messageManager,
         IDataRepository<MessageTexte, int> messageTexteManager,
         IConversationRepository<Conversation, int> conversationManager,
         IMessageDemandeRepository messageDemandeManager,
         IDataRepository<MessageEstPayee, int> messageValidationManager,
         IDataRepository<MessageContientImage, int> messageContientImageManager,
+        IDataRepository<MessageEnvoieColis, int> messageEnvoieColisManager,
+        IDataRepository<MessageEstRecu, int> messageEstRecuManager,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
@@ -46,6 +51,8 @@ public class MessageController : ControllerBase
         _conversationManager = conversationManager;
         _messageDemandeManager = messageDemandeManager;
         _messageValidationManager = messageValidationManager;
+        _messageEnvoieColisManager = messageEnvoieColisManager;
+        _messageEstRecuManager = messageEstRecuManager;
         _notificationService = notificationMessageManager;
         _messageContientImageManager = messageContientImageManager;
         _photoService = photoService;
@@ -253,6 +260,110 @@ public class MessageController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
+    
+    [HttpPost("envoieColis")]
+    [ProducesResponseType(typeof(MessageEstPayeePostDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessageEnvoieColis(MessageEnvoisColisPostDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var message = new Message
+        {
+            MessageDate = DateTime.UtcNow,
+            MessageLu = false,
+            UtilisateurId = dto.UtilisateurId,
+            ConversationId = dto.ConversationId
+        };
+        
+        await _messageManager.AddAsync(message);
+
+        var photo = await _photoService.AddPhotoAsync(dto.Photo);
+
+        var messageEnvoieColis = new MessageEnvoieColis
+        {
+            MessageId = message.MessageId,
+            PhotoId = photo.PhotoId,
+            MessageEstPayeeId = dto.MessageEstPayeeId
+        };
+        
+        await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
+        
+        var messagePayee = await _messageValidationManager.GetByIdAsync(dto.MessageEstPayeeId);
+        
+        messagePayee.EstEnvoye = true;
+        
+        await _messageValidationManager.UpdateAsync(messagePayee);
+
+        return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+    }
+
+    [HttpPost("recuColis")]
+    [ProducesResponseType(typeof(MessageEstRecuPostDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MessageEstRecuPostDTO>> PostMessageRecuColis(MessageEstRecuPostDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var message = new Message
+        {
+            MessageDate = DateTime.UtcNow,
+            MessageLu = false,
+            UtilisateurId = dto.UtilisateurId,
+            ConversationId = dto.ConversationId
+        };
+        
+        await _messageManager.AddAsync(message);
+
+        var messageRecu = new MessageEstRecu
+        {
+            MessageId = message.MessageId,
+            EstConforme = dto.EstConforme,
+            MessageEstEnvoieId = dto.MessageEstEnvoieId
+        };
+
+        if (!dto.EstConforme)
+        {
+            if (dto.Photo == null) return BadRequest("Photo manquante");
+            
+            var photo = await _photoService.AddPhotoAsync(dto.Photo);
+            
+            if (dto.Description == null) return BadRequest("Description manquante");
+            
+            messageRecu.Description = dto.Description;
+            messageRecu.PhotoId = photo.PhotoId;
+        }
+        await _messageEstRecuManager.AddAsync(messageRecu);
+        
+        var messageEnvoieColis = await _messageEnvoieColisManager.GetByIdAsync(dto.MessageEstEnvoieId);
+        
+        
+        return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
+        
+    }
+    
+
+    [HttpPut("annulePayement/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AnnulePayement(int id)
+    {
+        var messagePayee = await _messageValidationManager.GetByIdAsync(id);
+        
+        if (messagePayee == null) return NotFound();
+
+        if (messagePayee.EstEnvoye) return BadRequest();
+        
+        messagePayee.EstAnnule = true;
+        
+        await _messageValidationManager.UpdateAsync(messagePayee);
+        
+        return NoContent();
+    }
+    
     
     [HttpGet("{id}")]
     public async Task<ActionResult<Message>> GetById(int id)

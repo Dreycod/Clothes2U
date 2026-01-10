@@ -8,7 +8,7 @@ namespace Shared.DTO.Utilisateur
 {
     public class UtilisateurSettingsDTO
     {
-        public int? UtilisateurId { get; set; }
+        public int UtilisateurId { get; set; }
         public string? Login { get; set; }
         public string? Description { get; set; }
         public string? Email { get; set; }

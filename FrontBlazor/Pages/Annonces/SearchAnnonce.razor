@@ -271,7 +271,8 @@
                         {
                             <AnnonceCard annonceComponent="annonce"
                                          OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
+                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
+										 IsOwnerTask="VM_Profil.CheckIfOwnerAnnonce(annonce)"/>
                         }
                     </div>
 
@@ -329,10 +330,12 @@
                     <select class="sort-select" 
                             @bind="VM_Search.SelectedSortField"
                             @bind:after="VM_Search.OnFilterChanged">
-                        @foreach (var field in Enum.GetValues<SortField>())
-                        {
-                            <option value="@field">@field.ToString()</option>
-                        }
+                        
+                        <option value="@SortField.DateAnnonce">Date de publication</option>
+                        <option value="@SortField.Prix">Prix de publication</option>
+                        <option value="@SortField.Titre">Alphabétique</option>
+                        <option value="@SortField.NombreFavoris">Nombre de like</option>
+                        
                     </select>
                 </div>
                 
@@ -341,10 +344,10 @@
                     <select class="sort-select" 
                             @bind="VM_Search.SelectedSortOrder"
                             @bind:after="VM_Search.OnFilterChanged">
-                        @foreach (var order in Enum.GetValues<SortOrder>())
-                        {
-                            <option value="@order">@order.ToString()</option>
-                        }
+                       
+                        <option value="@SortOrder.Ascending">Croissant</option>
+                        <option value="@SortOrder.Descending">Décroissant</option>
+                        
                     </select>
                 </div>
             </aside>

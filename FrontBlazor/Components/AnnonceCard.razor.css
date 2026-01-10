@@ -39,7 +39,12 @@
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
 }
+
+    .wishlist-btn:hover {
+        transform: scale(1.1);
+    }
 
     .wishlist-btn i {
         font-size: 1.1rem;
@@ -58,13 +63,10 @@
     font-size: 1rem;
     font-weight: 500;
     color: #1a1a1a;
-    margin: 0 0 0.25rem 0;
-}
-
-.product-brand {
-    font-size: 0.85rem;
-    color: #666;
     margin: 0 0 0.5rem 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .product-meta {
@@ -87,15 +89,56 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .product-price {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #1a1a1a;
+    white-space: nowrap;
+}
+
+.product-seller-link {
+    text-decoration: none;
+    color: inherit;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .product-seller {
-    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.seller-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #d3d3d3;
+}
+
+.seller-name {
+    font-size: 0.85rem;
     color: #888;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-seller-link:hover .seller-name {
+    text-decoration: underline;
+    color: #7a9d8e;
+}
+
+a:link,
+a:visited,
+a:active {
+    text-decoration: none;
 }

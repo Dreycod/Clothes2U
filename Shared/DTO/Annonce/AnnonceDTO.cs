@@ -16,7 +16,8 @@ public class AnnonceDTO : IEntity
     public int NombreLikes { get; set; }
     public int NombreVues { get; set; }
     public string NomAuteur { get; set; } = null!;
-    public string? UriPhotoProfilAuteur { get; set; } = null!;
+    public int IdAuteur { get; set; }
+    public int IdPhotoProfilAuteur { get; set; }
     
     public int GetId() => AnnonceId;
 }

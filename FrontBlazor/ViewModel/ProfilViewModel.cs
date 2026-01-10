@@ -1,5 +1,5 @@
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Xml.Linq;
@@ -24,7 +24,6 @@ namespace FrontBlazor.ViewModel
 
         public int AvisCount { get; set; } = 0;
         public bool IsSameUser { get; set; } = false;
-        private int? currentUserId = null;
 
         public bool showDotsDropdown;
 
@@ -40,14 +39,14 @@ namespace FrontBlazor.ViewModel
         private readonly IBloqueService _bloqueService;
 
         public string ActiveTab { get; set; } = "articles";
-
-        public bool IsLoading { get; set; } = true;
+        
         public bool IsLoadingArticles { get; set; } = false;
         public bool IsLoadingFavoris { get; set; } = false;
         public bool IsLoadingAvis { get; set; } = false;
         public bool UserNotFound { get; set; } = false;
         public bool UserSuspended { get; set; } = false;
         public bool IsBlockedByUser { get; set; } = false;
+        public List<UtilisateurCardDTO> Abonnements { get; set; }
 
         public bool ShowAddReviewModal { get; set; } = false;
         public int SelectedRating { get; set; } = 0;
@@ -111,7 +110,6 @@ namespace FrontBlazor.ViewModel
             UserNotFound = false;
             UserSuspended = false;
             await base.LoadAsync();
-            await LoadCurrentUserId();
             try
             {
                 UtilisateurViewDTO user = await _utilisateurService.GetByLoginAsync(login);
@@ -154,8 +152,6 @@ namespace FrontBlazor.ViewModel
                          NotifyStateChanged();
                      })
                  };
-
-                UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
                 if (utilisateur != null && ViewingUser != null && utilisateur.UtilisateurId == ViewingUser.UtilisateurId)
                 {
                     IsSameUser = true;
@@ -191,7 +187,7 @@ namespace FrontBlazor.ViewModel
 
         public async Task ToggleFavorite(AnnonceDTO annonce)
         {
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -347,12 +343,6 @@ namespace FrontBlazor.ViewModel
                 NotifyStateChanged();
             }
         }
-        public async Task<bool> CheckLoginStatus()
-        {
-            if (await _authService.GetCurrentUserAsync() != null)
-                return true;
-            return false;
-        }
         public void NavigateToProductDetail(int? productId)
         {
             if (productId.HasValue)
@@ -438,8 +428,6 @@ namespace FrontBlazor.ViewModel
                 NotifyStateChanged();
             }
         }
-
-
         public async void SignalerUtilisateur()
         {
             showDotsDropdown = false;
@@ -456,7 +444,7 @@ namespace FrontBlazor.ViewModel
         {
             SignalementRaison = string.Empty;
             showDotsDropdown = false;
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -474,16 +462,17 @@ namespace FrontBlazor.ViewModel
         public void ToggleSignalerAvisModal()
         {
             showDotsDropdown = false;
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
+                return;
             }
 
             ShowSignalerAvisModal = !ShowSignalerAvisModal;
         }
         public async Task SubmitReport()
         {
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -513,7 +502,7 @@ namespace FrontBlazor.ViewModel
         }
         public async Task SubmitAvisReport()
         {
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -543,26 +532,62 @@ namespace FrontBlazor.ViewModel
                 SignalementRaison = string.Empty;
             }
         }
-        private async Task LoadCurrentUserId()
-        {
-            var user = await _authService.GetCurrentUserAsync();
-            if (user == null)
-                currentUserId = null;
-
-            currentUserId = user?.UtilisateurId;
-        }
 
         public bool IsSameUserAsReviewer(int noteurId)
         {
-            if (currentUserId == null)
+            if (utilisateur == null)
             {
                 return false;
             }
-            return currentUserId.Value == noteurId;
+            return utilisateur.UtilisateurId == noteurId;
         }
         public string GetPhoto(int id)
         {
             return _mediaService.GetPhotoUrl(id);
         }
+
+        public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
+        {
+            if (utilisateur == null)
+                return false;
+
+            return annonce.IdAuteur == utilisateur.UtilisateurId;
+        }
+        public bool IsLoadingAbonnements { get; set; } = false;
+        public bool ShowAbonnementsModal { get; set; } = false;
+        public async Task OpenAbonnementsModal()
+        {
+            if (!IsSameUser || ViewingUser == null) return;
+
+            ShowAbonnementsModal = true;
+            IsLoadingAbonnements = true;
+            NotifyStateChanged();
+
+            try
+            {
+                Abonnements = await _abonnementService.GetAbonnements();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des abonnements : {ex.Message}");
+                Abonnements = new List<UtilisateurCardDTO>();
+            }
+            finally
+            {
+                IsLoadingAbonnements = false;
+                NotifyStateChanged();
+            }
+        }
+        public void CloseAbonnementsModal()
+        {
+            ShowAbonnementsModal = false;
+            NotifyStateChanged();
+        }
+        public void NavigateToUserProfile(string login)
+        {
+            CloseAbonnementsModal();
+            _navigationManager.NavigateTo($"/profile/{login}", true);
+        }
     }
+    
 }

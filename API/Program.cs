@@ -16,7 +16,10 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using API.Models.Repository.Interfaces;
 using Shared.DTO.Photo;
+using Shared.DTO.Tag;
+using API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -220,11 +223,13 @@ builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
 builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
-builder.Services.AddScoped<IDataRepository<Message, int>, MessageManager>();
+builder.Services.AddScoped<IMessageRepository, MessageManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEstPayee, int>, MessageEstPayeeManager>();
+builder.Services.AddScoped<IDataRepository<MessageEnvoieColis, int>, MessageEnvoieColisManager>();
 builder.Services.AddScoped<IDataRepository<MessageContientImage, int>, MessageContientImageManager>();
+builder.Services.AddScoped<IDataRepository<MessageEstRecu, int>, MessageEstRecuManager>();
 builder.Services.AddScoped<IBloqueRepository<Bloque, int>, BloqueManager>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
@@ -249,6 +254,9 @@ builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>()
 builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
 builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
+builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
+
+
 //services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
@@ -266,7 +274,8 @@ builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardServi
 builder.Services.AddScoped<IAnnonceExtensionService, AnnonceExtensionService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
-
+builder.Services.AddScoped<PasswordResetService>();
+builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
 
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
@@ -275,7 +284,7 @@ builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  Not
 builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
-
+builder.Services.AddScoped<IDataRepository<NotificationAchatAnnonce, int>, NotificationAchatManager>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();

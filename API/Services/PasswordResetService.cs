@@ -60,12 +60,14 @@ namespace API.Services
 
             var utilisateur = resetToken.UtilisateurReset;
 
-            utilisateur.Password =
-                _loginService.HashPassword(newPassword);
+            string hashPassword = _loginService.HashPassword(newPassword);
+
+
+            await _utilisateurRepo.UpdatePassword(utilisateur.UtilisateurId, hashPassword);
 
             resetToken.Used = true;
 
-            await _utilisateurRepo.UpdateAsync(utilisateur);
+            await _resetRepo.UpdToken();
         }
     }
 }

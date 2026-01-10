@@ -1,7 +1,7 @@
-using Shared.DTO.Utilisateur;
 using API.Models.Entity;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Shared;
+using Shared.DTO;
+using Shared.DTO.ConnexionRequest;
+using Shared.DTO.Utilisateur;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -16,41 +20,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-
 namespace API.Controllers;
 
-public class LoginRequest
-{
-    [Required(ErrorMessage = "Email ou Login obligatoire")]
-    public string? Login { get; set; }
-    
-    [Required(ErrorMessage = "Mot de passe obligatoire.")]
-    [DataType(DataType.Password)]
-    public string? Password { get; set; }
-}
-
-public class RegisterRequest
-{
-    [Required(ErrorMessage = "Login obligatoire.")]
-    public string? Login { get; set; }
-    
-    [Required(ErrorMessage = "Email obligatoire.")]
-    [EmailAddress(ErrorMessage = "Email invalide.")]
-    public string? Email { get; set; }
-    
-    [Required(ErrorMessage = "Mot de passe obligatoire.")]
-    [DataType(DataType.Password)]
-    [RegularExpression(
-        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
-        ErrorMessage = "Mot de passe non conforme."
-    )]
-    public string? Password { get; set; }
-    
-    [Required(ErrorMessage = "Veuillez confirmer votre mot de passe.")]
-    [DataType(DataType.Password)]
-    [Compare(nameof(Password), ErrorMessage = "Les mots de passe ne correspondent pas.")]
-    public string? PasswordConfirm { get; set; }
-}
 
 [Route("api/[controller]")]
 [ApiController]
@@ -62,14 +33,25 @@ public class LoginController : ControllerBase
     private readonly ILoginService _loginService;
     private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IMessageRepository _messageRepository;
 
-    public LoginController(IConfiguration config, IMapper mapper, IUtilisateurRepository dataRepo, ILoginService loginService, ICurrentUserService currentUserService)
+    public LoginController(
+        IConfiguration config,
+        IMapper mapper,
+        IUtilisateurRepository dataRepo,
+        ILoginService loginService,
+        ICurrentUserService currentUserService,
+        INotificationRepository NotificationRepository,
+        IMessageRepository messageRepository)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _mapper = mapper;
         _currentUserService = currentUserService;
         _utilisateurManager = dataRepo;
         _loginService = loginService;
+        _notificationRepository = NotificationRepository;
+        _messageRepository = messageRepository;
     }
 
     [HttpPost]
@@ -160,56 +142,57 @@ public class LoginController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public async Task<IActionResult> GetCurrentUser()
+    public async Task<ActionResult<CurrentUtilisateurDTO>> GetCurrentUser()
     {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-        var utilisateur = await _utilisateurManager.GetByIdAsync((int)userId);
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        var utilisateur = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateur == null)
             return NotFound();
         
-        UtilisateurViewDTO utilisateurDTO = _mapper.Map<UtilisateurViewDTO>(utilisateur);
+        CurrentUtilisateurDTO utilisateurDTO = _mapper.Map<CurrentUtilisateurDTO>(utilisateur);
+        utilisateurDTO.MessagesCount = await _messageRepository.GetMessageCountByUserId(userId);
+        utilisateurDTO.NotificationsCount = await _notificationRepository.GetNotificationsUnreadCountByUserId(userId);
         return Ok(utilisateurDTO);
     }
 
-    [HttpPut("modificationMotDePasse")]
+    [HttpPatch("modificationMotDePasse")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ChangePassword(
-        [FromQuery] string currentPassword,
-        [FromQuery] string newPassword,
-        [FromQuery] string confirmNewPassword)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO passwordDTO)
     {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
+        if (!ModelState.IsValid)
         {
-            return Unauthorized();
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return BadRequest(APIResponse<object>.ErrorResponse(string.Join(" ", errors)));
         }
 
-        if (newPassword != confirmNewPassword)
-        {
-            return BadRequest("Les nouveaux mots de passe ne correspondent pas.");
-        }
-
+        int userId = await _currentUserService.GetUserIdOrThrow();
         Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
-    
+
         if (user == null)
         {
-            return NotFound();
+            return NotFound(APIResponse<object>.ErrorResponse("Utilisateur introuvable"));
         }
-        if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
+
+        if (passwordDTO.CurrentPassword == passwordDTO.NewPassword)
         {
-            return Unauthorized("Mot de passe actuel incorrect.");
+            return BadRequest(APIResponse<object>.ErrorResponse("Le nouveau mot de passe doit être différent de l'ancien"));
         }
-    
-        await _utilisateurManager.UpdatePassword(user, BCrypt.Net.BCrypt.HashPassword(newPassword));
-        return NoContent();
+
+        if (!BCrypt.Net.BCrypt.Verify(passwordDTO.CurrentPassword, user.Password))
+        {
+            return Unauthorized(APIResponse<object>.ErrorResponse("Mot de passe actuel incorrect."));
+        }
+
+        await _utilisateurManager.UpdatePassword(user, BCrypt.Net.BCrypt.HashPassword(passwordDTO.NewPassword));
+        return Ok(APIResponse<object>.SuccessResponse(null));
     }
 
     // private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
@@ -352,7 +335,7 @@ public class LoginController : ControllerBase
     {
         // Cherche si un utilisateur existe déjà avec cet email
         var existingUsers = await _utilisateurManager.GetAllAsync();
-        var utilisateur = await _utilisateurManager.GetUtilisateurByEmail(userInfo.Email);
+        Utilisateur utilisateur = await _utilisateurManager.GetUtilisateurByEmail(userInfo.Email);
 
         if (utilisateur != null)
         {
@@ -385,6 +368,7 @@ public class LoginController : ControllerBase
 
         await _utilisateurManager.AddAsync(utilisateur);
         Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
+        utilisateur = await _utilisateurManager.GetUtilisateurByLogin(login);
 
         return utilisateur;
     }

@@ -3,7 +3,6 @@
     min-height: 100vh;
 }
 
-/* Loading & Error Containers */
 .loading-container,
 .error-container {
     max-width: 1400px;
@@ -73,7 +72,6 @@
         font-size: 1rem;
     }
 
-/* Product Container */
 .product-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -83,7 +81,6 @@
     gap: 3rem;
 }
 
-/* Left Side - Image */
 .product-image-section {
     position: relative;
     background: white;
@@ -134,7 +131,6 @@
         background: rgba(0, 0, 0, 0.7);
     }
 
-/* Right Side - Info */
 .product-info-section {
     background: white;
     border-radius: 12px;
@@ -309,9 +305,18 @@
     color: #1a1a1a;
 }
 
-/* Description */
 .description-section {
     margin-bottom: 1.5rem;
+}
+
+.tags-section {
+    margin-bottom: 1.5rem;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .section-title {
@@ -328,7 +333,6 @@
     margin: 0;
 }
 
-/* Action Buttons */
 .action-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -369,17 +373,13 @@
         background: #6a8d7e;
     }
 
-/* ===== SIMILAR PRODUCTS SECTION ===== */
 
-
-/* Similar Products Grid - ALWAYS 4 columns regardless of item count */
 .similar-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
 }
 
-    /* Product Cards in Similar Section */
     .similar-grid .product-card {
         background: white;
         border-radius: 8px;
@@ -494,8 +494,6 @@
         padding: 2rem;
     }
 
-/* ===== RESPONSIVE DESIGN ===== */
-
 @media (max-width: 1024px) {
     .product-container {
         grid-template-columns: 1fr;
@@ -506,7 +504,6 @@
         position: static;
     }
 
-    /* 3 columns on medium screens */
     .similar-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 1.25rem;
@@ -515,7 +512,6 @@
 
 
 @media (max-width: 480px) {
-    /* 2 columns on mobile */
     .similar-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
@@ -534,8 +530,6 @@
         }
 }
 
-
-/* ===== MODAL STYLES ===== */
 
 .modal-overlay {
     position: fixed;
@@ -639,7 +633,6 @@
     justify-content: flex-end;
 }
 
-/* Form Styles */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -656,7 +649,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* Star Rating Input */
 .star-rating-input {
     display: flex;
     gap: 0.5rem;
@@ -692,19 +684,12 @@
         color: #999;
     }
 
-
-
-
-
-
-/* Section Container */
 .similar-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
 }
 
-/* Section Header */
 .similar-header {
     display: flex;
     justify-content: space-between;

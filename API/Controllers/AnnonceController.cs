@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Services.VerificationSrvceV2;
 using Shared.DTO.Couleur;
+using Shared.DTO.Notification;
 
 namespace API.Controllers;
 
@@ -23,17 +24,14 @@ public class AnnonceController : ControllerBase
     private readonly ISuggestionService _suggestionService;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
-    private readonly INotificationMailService _notificationMailService;
 
     public AnnonceController(
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
         ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,
         IAnnonceExtensionService annonceExtensionService,
-        IFavorisRepository favorisManager, 
         IMapper mapper,
-        INotificationService notificationService,
         ICurrentUserService currentUserService,
-        INotificationMailService notificationMailService,
+        INotificationService notificationService,
         ISuggestionService suggestionService
         )
     {
@@ -43,23 +41,8 @@ public class AnnonceController : ControllerBase
         _annonceExtensionService = annonceExtensionService;
         _notificationService = notificationService;
         _currentUserService = currentUserService;
-        _notificationMailService = notificationMailService;
         _suggestionService = suggestionService;
     }
-
-    
-    
-    
-    [AllowAnonymous]
-    [HttpGet("GetActiveAnnonces")]
-    public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetActiveAnnonces()
-    {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
-        var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
-        return Ok(annoncesDTO);
-    }
-
 
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -71,7 +54,7 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         return Ok(annoncesDTO);
     }
-    
+    [AllowAnonymous]
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(AnnonceDetailDTO),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -84,6 +67,7 @@ public class AnnonceController : ControllerBase
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
         annonceDTO = await _annonceExtensionService.LikeAnnonceDetail(annonceDTO);
+        await _notificationService.DeleteAnnonceNotificationForUser(id);
         return Ok(annonceDTO);
     }
     [Authorize]
@@ -125,11 +109,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest();
         }
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null || userId != annonceDTO.UtilisateurId)
-        {
-            return Unauthorized();
-        }
+        int userId = await _currentUserService.GetUserIdOrThrow();
         Annonce annonceToUpdate = await _annonceManager.GetByIdAsync(id);
         if (annonceToUpdate == null)
         {
@@ -137,8 +117,7 @@ public class AnnonceController : ControllerBase
         }
         Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
         await _annonceManager.UpdateAsync(annonce);
-        //ajouter la notification une fois le tout pret
-        await _notificationMailService.NotifyAnnonceUpdatedAsync(annonce);
+        await _notificationService.CreateModificationAnnonceNotification(annonce.AnnonceId);
         return NoContent();
     }
 
@@ -154,12 +133,7 @@ public class AnnonceController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null || userId != createAnnonceDto.UtilisateurId)
-        {
-            return Unauthorized();
-        }
-
+        int userId = await _currentUserService.GetUserIdOrThrow();
         var annonce = _mapper.Map<Annonce>(createAnnonceDto);
 
         await _annonceManager.AddAsync(annonce);
@@ -177,11 +151,12 @@ public class AnnonceController : ControllerBase
                 await _estDeCouleurRepository.AddAsync(estDeCouleur);
             }
         }
-        AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonce);
+        var annonceComplete = await _annonceManager.GetByIdAsync(annonce.AnnonceId);
+        AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonceComplete);
 
         // Notification
-        await _notificationMailService.NotifyNewAnnonceAsync(annonce);
-
+        await _notificationService.CreateNouvelleAnnonceNotification(annonce.AnnonceId);
+    
         return CreatedAtAction(nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
 

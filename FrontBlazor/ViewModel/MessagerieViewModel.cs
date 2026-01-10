@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
+using FrontBlazor.Services;
 using Shared.DTO;
 using Shared.DTO.Conversation;
 using Shared.DTO.Message;
 using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
@@ -22,12 +22,18 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private readonly IMessageService _messageService;
     public readonly ISignalRService _signalRService;
     private readonly ISignalementService _signalementService;
+    private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _nav;
 
     public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
     public ConversationDTO? SelectedConversation { get; private set; }
     public int? SelectedConversationId { get; private set; }
-    public UtilisateurDTO? CurrentUser { get; private set; }
+    //public UtilisateurDTO? CurrentUser { get; private set; }
+    public IBrowserFile? ColisPhoto { get; private set; }
+    public string? ColisPhotoPreviewBase64 { get; private set; }
+
+    public bool IsSendingColis { get; private set; }
+    public string? ColisError { get; private set; }
 
     public string NewMessage { get; set; } = "";
     public List<IBrowserFile> SelectedFile { get; set; }
@@ -38,7 +44,6 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public string TypingUserName { get; private set; } = "";
 
     public ElementReference MessagesContainer;
-    public event Action? OnChange;
     public event Action? OnMessageReceivedUI; 
 
     private System.Threading.Timer? _typingTimer;
@@ -51,9 +56,20 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private int? ReportingMessageId { get; set; }
     public string SignalementRaison { get; set; } = string.Empty;
     public string ReportingMessageContent { get; set; } = string.Empty;
+    
+    public bool ShowReceptionModal { get; set; }
+    public bool ColisEstConforme { get; set; }
+    public IBrowserFile? ReceptionPhoto { get; set; }
+    public string? ReceptionPhotoPreviewBase64 { get; set; }
+    public string ReceptionDescription { get; set; } = "";
+    public bool IsSendingReception { get; set; }
+    public string? ReceptionError { get; set; }
+    public int? CurrentMessageEnvoieColisId { get; set; }
+    public bool ColisDejaRecu { get; private set; }
 
     public MessagerieViewModel(
         IConversationService<ConversationDTO> conversationService,
+        IUtilisateurService utilisateurService,
         IAuthService authService,
         IMessageService messageService,
         IMediasService mediaService,
@@ -70,6 +86,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         _nav = nav;
         _messageService = messageService;
         _signalRService = signalRService;
+        _utilisateurService = utilisateurService;
         _mediaService = mediaService;
         _signalementService = signalementService;
         
@@ -82,33 +99,40 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public override async Task LoadAsync()
     {
-        CurrentUser = await _authService.GetCurrentUserAsync();
-        if (CurrentUser == null)
+        await base.LoadAsync();
+        if (utilisateur == null)
         {
             _nav.NavigateTo("/");
         }
     }
-    
-    
-    private void NotifyStateChanged() => OnChange?.Invoke();
 
     public async Task LoadConversationsAsync()
     {
         IsLoading = true;
         NotifyStateChanged();
 
-        CurrentUser = await _authService.GetCurrentUserAsync();
-        if (CurrentUser == null)
+        if (utilisateur == null)
         {
             IsLoading = false;
             NotifyStateChanged();
             return;
         }
 
-        var data = await _conversationService.GetConversationsByUserId(CurrentUser.UtilisateurId);
+        var data = await _conversationService.GetConversationsByUserId(utilisateur.UtilisateurId);
         
-        Conversations = data != null ? new ObservableCollection<ConversationDTO>(data) : new ObservableCollection<ConversationDTO>();
+        if (data != null)
+        {
+            var validConversations = data.Where(c => 
+                !string.IsNullOrEmpty(c.TitreAnnonce) && 
+                !string.IsNullOrEmpty(c.Interlocuteur)
+            ).ToList();
         
+            Conversations = new ObservableCollection<ConversationDTO>(validConversations);
+        }
+        else
+        {
+            Conversations = new ObservableCollection<ConversationDTO>();
+        }
         await _signalRService.StartAsync();
         
         foreach (var c in Conversations)
@@ -119,22 +143,31 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 c.HasNewMessages = true;
             }
         }
-        
 
+        
         IsLoading = false;
         NotifyStateChanged();
     }
 
     public async Task SelectConversationAsync(int conversationId)
     {
-        if (CurrentUser == null)
-            CurrentUser = await _authService.GetCurrentUserAsync();
+        if (utilisateur == null)
+            utilisateur = await _authService.GetCurrentUserAsync();
 
         SelectedConversationId = conversationId;
         var conv = await _conversationService.GetConversationDetailById(conversationId);
 
         if (conv != null)
         {
+            if (string.IsNullOrEmpty(conv.TitreAnnonce))
+            {
+                conv.TitreAnnonce = "Annonce supprimée";
+            }
+            
+            if (string.IsNullOrEmpty(conv.Interlocuteur))
+            {
+                conv.Interlocuteur = "Utilisateur supprimé";
+            }
             SelectedConversation = conv;
             if (conv.ListMessages == null)
                 conv.ListMessages = new ObservableCollection<MessageDTO>();
@@ -183,9 +216,13 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 }
             }
         }
-        
-        // ✅ Notifier SignalR que j'ai lu les messages
-        await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+        NewsDTO updateNotifs = await _utilisateurService.GetActivity();
+    
+        // ✅ Mettre à jour localement
+        NotificationCount = updateNotifs.NotificationsCount;
+        MessageCount = updateNotifs.MessagesCount;
+        await base.LoadAsync(); 
+        await _signalRService.MarkMessagesAsRead(conversationId, utilisateur!.UtilisateurId);
         NotifyStateChanged();
     }
 
@@ -227,7 +264,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             {
                 Content = content,
                 ConversationId = SelectedConversation.ConversationId,
-                UtilisateurId = CurrentUser!.UtilisateurId,
+                UtilisateurId = utilisateur!.UtilisateurId,
                 Photos = photoDto
             };
         
@@ -264,7 +301,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public async Task SendProposition(decimal proposedPrice)
     {
-        if (SelectedConversation == null || CurrentUser == null)
+        if (SelectedConversation == null || utilisateur == null)
             return;
         
         PriceProposalError = null;
@@ -290,7 +327,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             var demande = new MessageDemandePostDTO
             {
                 ConversationId = SelectedConversation.ConversationId,
-                UtilisateurId = CurrentUser.UtilisateurId,
+                UtilisateurId = utilisateur.UtilisateurId,
                 PrixPropose = proposedPrice,
             };
 
@@ -311,6 +348,38 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             Console.WriteLine($"[VM] ❌ Error sending price proposal: {ex.Message}");
             throw;
         }
+    }
+    
+    public async Task OnColisPhotoSelected(InputFileChangeEventArgs e)
+    {
+        ColisError = null;
+        ColisPhoto = null;
+        ColisPhotoPreviewBase64 = null;
+
+        var file = e.File;
+
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            ColisError = "Le fichier doit être une image";
+            NotifyStateChanged();
+            return;
+        }
+        
+        if (file.Size > 10 * 1024 * 1024)
+        {
+            ColisError = "La photo ne doit pas dépasser 10 Mo";
+            NotifyStateChanged();
+            return;
+        }
+
+        using var ms = new MemoryStream();
+        await file.OpenReadStream(10 * 1024 * 1024).CopyToAsync(ms);
+
+        ColisPhoto = file;
+        ColisPhotoPreviewBase64 =
+            $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+
+        NotifyStateChanged();
     }
 
     public async Task AnswerPriceProposal(int messageId, bool accepted)
@@ -368,7 +437,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                     Content = message,
                     SenderId = senderId,
                     Date = date,
-                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId,
+                    SentByCurrentUser = senderId == utilisateur?.UtilisateurId,
                     Photos = photoIds,
                     Lu = false // ✅ Nouveau message non lu
                 };
@@ -382,7 +451,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 }
                 
                 // Marquer automatiquement comme lu si on est dans la conversation
-                if (senderId != CurrentUser?.UtilisateurId)
+                if (senderId != utilisateur?.UtilisateurId)
                 {
                     try
                     {
@@ -393,7 +462,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                         newMessage.Lu = true;
                         
                         // Notifier SignalR
-                        await _signalRService.MarkMessagesAsRead(conversationId, CurrentUser!.UtilisateurId);
+                        await _signalRService.MarkMessagesAsRead(conversationId, utilisateur!.UtilisateurId);
                     }
                     catch (Exception ex)
                     {
@@ -432,7 +501,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private void HandleMessagesRead(int conversationId, int userId)
     {
         // L'autre utilisateur a lu nos messages
-        if (userId != CurrentUser?.UtilisateurId)
+        if (userId != utilisateur?.UtilisateurId)
         {
             ConversationDTO? targetConv = null;
         
@@ -449,7 +518,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             {
                 // Marquer MES messages envoyés comme lus
                 var mySentMessages = targetConv.ListMessages
-                    .Where(m => m.SenderId == CurrentUser!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
+                    .Where(m => m.SenderId == utilisateur!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
                     .ToList();
             
                 if (mySentMessages.Any())
@@ -467,7 +536,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private void HandleUserTyping(int conversationId, int userId, string userName)
     {
         // CORRECTION 4 : Ne pas afficher si c'est nous ou si ce n'est pas la conversation active
-        if (SelectedConversationId != conversationId || userId == CurrentUser?.UtilisateurId)
+        if (SelectedConversationId != conversationId || userId == utilisateur?.UtilisateurId)
         {
             return;
         }
@@ -489,7 +558,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public void HandleTyping(KeyboardEventArgs e)
     {
-        if (SelectedConversation == null || CurrentUser == null)
+        if (SelectedConversation == null || utilisateur == null)
             return;
 
         _typingTimer?.Dispose();
@@ -503,7 +572,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
         _typingNotified = true;
         
-        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, CurrentUser.UtilisateurId, CurrentUser.Login ?? "Utilisateur");
+        _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, utilisateur.UtilisateurId, utilisateur.Login ?? "Utilisateur");
     }
     
     private void HandleProposalResponse(int conversationId, int messageId, bool accepted)
@@ -541,7 +610,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                     PrixPropose = proposedPrice,
                     EstAcceptee = false,
                     EstRepondue = false,
-                    SentByCurrentUser = senderId == CurrentUser?.UtilisateurId
+                    SentByCurrentUser = senderId == utilisateur?.UtilisateurId
                 };
             
                 SelectedConversation.ListMessages?.Add(newDemande);
@@ -748,4 +817,200 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         ErrorMessages.Clear();
         NotifyStateChanged();
     }
+    
+    public async Task MarquerColisEnvoyeAsync(int messagePayeeId)
+    {
+        if (SelectedConversation == null || utilisateur == null)
+            return;
+
+        if (ColisPhoto == null)
+        {
+            ColisError = "Une photo est obligatoire pour prouver l’envoi du colis";
+            NotifyStateChanged();
+            return;
+        }
+
+        IsSendingColis = true;
+        ColisError = null;
+        NotifyStateChanged();
+
+        try
+        {
+            var bytes = await ConvertIBrowserFileToBytesAsync(ColisPhoto);
+
+            var photoDto = new PhotoUploadDTO
+            {
+                FileName = ColisPhoto.Name,
+                ContentType = ColisPhoto.ContentType,
+                FileSize = ColisPhoto.Size,
+                Base64Data = Convert.ToBase64String(bytes)
+            };
+
+            var dto = new MessageEnvoisColisPostDTO
+            {
+                ConversationId = SelectedConversation.ConversationId,
+                UtilisateurId = utilisateur.UtilisateurId,
+                Photo = photoDto,
+                MessageEstPayeeId = messagePayeeId
+            };
+
+            await _messageService.PostMessageEnvoieColis(dto);
+
+            // Reset UI
+            ColisPhoto = null;
+            ColisPhotoPreviewBase64 = null;
+        }
+        catch (Exception ex)
+        {
+            ColisError = "Erreur lors de l’envoi du colis";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            IsSendingColis = false;
+            NotifyStateChanged();
+        }
+    }
+
+    public async Task CancelMessagePayeeAsync(int id)
+    {
+        await _messageService.CancelMessagePayee(id);
+    }
+    
+    public void OuvrirModalReception(bool estConforme, int messageEnvoieId)
+{
+    ColisEstConforme = estConforme;
+    ShowReceptionModal = true;
+    ReceptionDescription = "";
+    ReceptionPhoto = null;
+    ReceptionPhotoPreviewBase64 = null;
+    ReceptionError = null;
+    
+    // Trouver le MessageEnvoieColisId
+    var colisMessage = SelectedConversation?.ListMessages?
+        .OfType<MessageEnvoieColisDTO>()
+        .LastOrDefault();
+    
+    if (colisMessage != null)
+    {
+        CurrentMessageEnvoieColisId = messageEnvoieId;
+    }
+    
+    NotifyStateChanged();
+}
+
+public void FermerModalReception()
+{
+    ShowReceptionModal = false;
+    ColisEstConforme = false;
+    ReceptionDescription = "";
+    ReceptionPhoto = null;
+    ReceptionPhotoPreviewBase64 = null;
+    ReceptionError = null;
+    CurrentMessageEnvoieColisId = null;
+    NotifyStateChanged();
+}
+
+public async Task OnReceptionPhotoSelected(InputFileChangeEventArgs e)
+{
+    ReceptionError = null;
+    ReceptionPhoto = null;
+    ReceptionPhotoPreviewBase64 = null;
+
+    var file = e.File;
+
+    if (!file.ContentType.StartsWith("image/"))
+    {
+        ReceptionError = "Le fichier doit être une image";
+        NotifyStateChanged();
+        return;
+    }
+    
+    if (file.Size > 10 * 1024 * 1024)
+    {
+        ReceptionError = "La photo ne doit pas dépasser 10 Mo";
+        NotifyStateChanged();
+        return;
+    }
+
+    using var ms = new MemoryStream();
+    await file.OpenReadStream(10 * 1024 * 1024).CopyToAsync(ms);
+
+    ReceptionPhoto = file;
+    ReceptionPhotoPreviewBase64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+
+    NotifyStateChanged();
+}
+
+public async Task ConfirmerReceptionColisAsync()
+{
+    if (SelectedConversation == null || utilisateur == null || CurrentMessageEnvoieColisId == null)
+        return;
+
+    // Validation : si non conforme, photo et description obligatoires
+    if (!ColisEstConforme)
+    {
+        if (ReceptionPhoto == null)
+        {
+            ReceptionError = "Une photo est obligatoire pour signaler un colis non conforme";
+            NotifyStateChanged();
+            return;
+        }
+        
+        if (string.IsNullOrWhiteSpace(ReceptionDescription))
+        {
+            ReceptionError = "Une description est obligatoire pour signaler un colis non conforme";
+            NotifyStateChanged();
+            return;
+        }
+    }
+
+    IsSendingReception = true;
+    ReceptionError = null;
+    NotifyStateChanged();
+
+    try
+    {
+        PhotoUploadDTO? photoDto = null;
+        
+        if (ReceptionPhoto != null)
+        {
+            var bytes = await ConvertIBrowserFileToBytesAsync(ReceptionPhoto);
+            photoDto = new PhotoUploadDTO
+            {
+                FileName = ReceptionPhoto.Name,
+                ContentType = ReceptionPhoto.ContentType,
+                FileSize = ReceptionPhoto.Size,
+                Base64Data = Convert.ToBase64String(bytes)
+            };
+        }
+
+        var dto = new MessageEstRecuPostDTO
+        {
+            ConversationId = SelectedConversation.ConversationId,
+            UtilisateurId = utilisateur.UtilisateurId,
+            EstConforme = ColisEstConforme,
+            Photo = photoDto,
+            Description = string.IsNullOrWhiteSpace(ReceptionDescription) ? null : ReceptionDescription,
+            MessageEstEnvoieId = CurrentMessageEnvoieColisId.Value
+        };
+
+        await _messageService.PostMessageEstRecu(dto);
+
+        // Marquer comme reçu
+        ColisDejaRecu = true;
+        
+        FermerModalReception();
+    }
+    catch (Exception ex)
+    {
+        ReceptionError = "Erreur lors de la confirmation de réception";
+        Console.WriteLine($"[VM] ❌ Error confirming reception: {ex.Message}");
+    }
+    finally
+    {
+        IsSendingReception = false;
+        NotifyStateChanged();
+    }
+}
 }

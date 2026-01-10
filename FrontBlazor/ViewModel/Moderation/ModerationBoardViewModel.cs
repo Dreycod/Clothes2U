@@ -1,6 +1,5 @@
 using Shared.DTO;
 using FrontBlazor.Pages.Moderation;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
@@ -27,7 +26,6 @@ public class ModerationBoardViewModel : ModerationViewModel
         await base.LoadAsync();
         if (IsModerator)
         {
-            IsLoading = true;
             Activity = await _moderationDashboardService.GetActivity();
             DashBoardStatistics = await _moderationDashboardService.GetStatistics();
             IsLoading = false;

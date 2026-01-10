@@ -112,6 +112,9 @@ public class Annonce : IEntity
     [InverseProperty(nameof(NotificationModificationAnnonce.Annonce))]
     public virtual ICollection<NotificationModificationAnnonce> NotificationsModificationAnnonces { get; set; } = new List<NotificationModificationAnnonce>();
     
+    [InverseProperty(nameof(NotificationAchatAnnonce.Annonce))]
+    public virtual ICollection<NotificationAchatAnnonce> NotificationsAchatAnnonces { get; set; } = new List<NotificationAchatAnnonce>();
+
     [InverseProperty(nameof(SignalementAnnonce.Annonce))]
     public virtual ICollection<SignalementAnnonce> Signalements { get; set; } = new List<SignalementAnnonce>();
     

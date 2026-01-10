@@ -110,6 +110,16 @@ public class NotificationMappingProfile : Profile
                         AnnonceTitle =  src.NotificationProposition.MessageDemande.Message.Conversation.LAnnonce.Title,
                         NomAuteur = src.NotificationProposition.MessageDemande.Message.Utilisateur.Login,
                     };
+                }else if (src.NotificationAchats != null)
+                {
+                    return new NotificationAchatDTO()
+                    {
+                        NotificationId = src.NotificationId,
+                        DateCreation = src.DateCreation,
+                        EstLu = src.EstLu,
+                        Titre = src.NotificationAchats.Annonce.Title,
+                        AnnonceId = src.NotificationAchats.AnnonceId
+                    };
                 }
 
                 return null;

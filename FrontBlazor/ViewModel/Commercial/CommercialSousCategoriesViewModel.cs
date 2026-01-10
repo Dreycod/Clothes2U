@@ -1,5 +1,5 @@
 ﻿using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
+using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Commercial;
 using Microsoft.AspNetCore.Components;

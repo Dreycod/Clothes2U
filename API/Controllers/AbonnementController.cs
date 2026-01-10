@@ -6,6 +6,7 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO.Utilisateur;
 
 namespace API.Controllers
 {
@@ -23,6 +24,20 @@ namespace API.Controllers
             _mapper = mapper;
             _currentUserService = currentUserService;
         }
+
+        /// <summary>
+        /// Retourne la liste des utilisateurs que l'utilisateur connecté suit (ses abonnements).
+        /// </summary>
+        [Authorize]
+        [HttpGet("abonnements")]
+        public async Task<ActionResult<IEnumerable<UtilisateurCardDTO>>> GetAbonnements()
+        {
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            var abonnements = await _abonnementRepo.GetAllUtilisateurSuiviByFollower(userId);
+            var utilisateursSuivis = abonnements.Select(a => a.UtilisateurSuivis);
+            return Ok(_mapper.Map<IEnumerable<UtilisateurCardDTO>>(utilisateursSuivis));
+        }
+        
 
         /// <summary>
         /// Retourne la liste des utilisateurs que le follower dont on rentre l'id suit.
@@ -54,18 +69,16 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<AbonnementDTO>> Create([FromBody] int idUtilisateur)
         {
-            int? connectedUserId = await _currentUserService.GetUserId();
-            if (connectedUserId == null)
-            {
-                return Unauthorized();
-            }
-            bool exists = await _abonnementRepo.Exists((int)connectedUserId, idUtilisateur);
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            bool exists = await _abonnementRepo.Exists(userId, idUtilisateur);
 
             if (exists)
                 return BadRequest("Cet utilisateur est déjà suivi.");
+            if (userId == idUtilisateur)
+                return BadRequest();
             Abonnement abonnement = new Abonnement
             {
-                UtilisateurSuiveurId = (int)connectedUserId,
+                UtilisateurSuiveurId = userId,
                 UtilisateurSuivisId = idUtilisateur
             };
             await _abonnementRepo.AddAsync(abonnement);
@@ -76,12 +89,8 @@ namespace API.Controllers
         [HttpDelete("{idUtilisateur}")]
         public async Task<IActionResult> Delete(int idUtilisateur)
         {
-            int? connectedUserId = await _currentUserService.GetUserId();
-            if (connectedUserId == null)
-            {
-                return Unauthorized();
-            }
-            Abonnement abonnement = await _abonnementRepo.FindAbonnement((int)connectedUserId, idUtilisateur);
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            Abonnement abonnement = await _abonnementRepo.FindAbonnement(userId, idUtilisateur);
             if (abonnement == null)
             {
                 return NotFound();

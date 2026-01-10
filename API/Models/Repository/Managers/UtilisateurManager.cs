@@ -45,42 +45,50 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
     }
     public override async Task UpdateAsync(Utilisateur entity)
     {
-        Utilisateur entityToUpdate = await GetByIdAsync(entity.UtilisateurId) 
+        var entityToUpdate = await _context.Utilisateurs
+            .FirstOrDefaultAsync(u => u.UtilisateurId == entity.UtilisateurId)
             ?? throw new ArgumentException($"Utilisateur with id {entity.UtilisateurId} not found");
-        var tracked = _context.Set<Utilisateur>().Local
-            .FirstOrDefault(e => e.UtilisateurId == entityToUpdate.UtilisateurId);
-
-        if (tracked == null)
-        {
-            _context.Set<Utilisateur>().Attach(entityToUpdate);
-            tracked = entityToUpdate;
-        }
-        var entry = _context.Entry(tracked);
-
+        var entry = _context.Entry(entityToUpdate);
         if (!string.IsNullOrEmpty(entity.Email) && entity.Email != entityToUpdate.Email)
         {
-            tracked.Email = entity.Email;
-            tracked.ValidEmail = false;
+            entityToUpdate.Email = entity.Email;
+            entityToUpdate.ValidEmail = false;
             entry.Property(u => u.Email).IsModified = true;
             entry.Property(u => u.ValidEmail).IsModified = true;
         }
-
-        if (entity.Telephone != null)
+        if (!string.IsNullOrEmpty(entity.Telephone) && entity.Telephone != entityToUpdate.Telephone)
+        {
+            entityToUpdate.Telephone = entity.Telephone;
             entry.Property(u => u.Telephone).IsModified = true;
-    
-        if (!string.IsNullOrEmpty(entity.Login))
+        }
+        if (!string.IsNullOrEmpty(entity.Login) && entity.Login != entityToUpdate.Login)
+        {
+            entityToUpdate.Login = entity.Login;
             entry.Property(u => u.Login).IsModified = true;
-    
-        if (!string.IsNullOrEmpty(entity.Description))
+        }
+        if (!string.IsNullOrEmpty(entity.Description) && entity.Description != entityToUpdate.Description)
+        {
+            entityToUpdate.Description = entity.Description;
             entry.Property(u => u.Description).IsModified = true;
-    
-        if (entity.Adresses != null)
-            entry.Property(u => u.Adresses).IsModified = true;
-    
-        if (entity.PhotoId.HasValue)
+        }
+        if (entity.PhotoId.HasValue && entity.PhotoId != entityToUpdate.PhotoId)
+        {
+            entityToUpdate.PhotoId = entity.PhotoId;
             entry.Property(u => u.PhotoId).IsModified = true;
-        tracked.StatutId = entity.StatutId;
-        entry.Property(u => u.StatutId).IsModified = true;
+        }
+        if (entity.StatutId != entityToUpdate.StatutId)
+        {
+            entityToUpdate.StatutId = entity.StatutId;
+            entry.Property(u => u.StatutId).IsModified = true;
+        }
+        entityToUpdate.PreferenceNotifMail = entity.PreferenceNotifMail;
+        entry.Property(u => u.PreferenceNotifMail).IsModified = true;
+
+        entityToUpdate.PreferenceTheme = entity.PreferenceTheme;
+        entry.Property(u => u.PreferenceTheme).IsModified = true;
+
+        entityToUpdate.PreferenceCookies = entity.PreferenceCookies;
+        entry.Property(u => u.PreferenceCookies).IsModified = true;
         entry.Property(u => u.RoleId).IsModified = false;
 
         await _context.SaveChangesAsync();
@@ -107,6 +115,19 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
     {
         Utilisateur user = _context.Utilisateurs.Where(u => u.UtilisateurId == userId).FirstOrDefault();
         user.StatutId = 2;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdatePassword(int utilisateurId, string hashedPassword)
+    {
+        var utilisateur = await _context.Utilisateurs
+            .FirstOrDefaultAsync(u => u.UtilisateurId == utilisateurId);
+
+        if (utilisateur == null)
+            throw new ArgumentException("Utilisateur introuvable");
+
+        utilisateur.Password = hashedPassword;
+
         await _context.SaveChangesAsync();
     }
 }

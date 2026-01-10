@@ -1,56 +1,70 @@
 ﻿@using Shared.DTO.Photo
 @inject IMediasService MediasService
 @inject IAuthService AuthService
+@inject NavigationManager _nav
 
 <div class="product-card" @onclick="OnClick">
     <div class="product-image-container">
         @if (!string.IsNullOrEmpty(PhotoUrl))
         {
-            <img class="product-image" src="@PhotoUrl"/>
+            <img class="product-image" src="@PhotoUrl" />
         }
         else
         {
-            <img src="images/placeholder_main.jpg"
-                 alt="Photo interlocuteur"/>
+            <img src="images/placeholder_main.jpg" alt="Photo interlocuteur" />
         }
-
         @if (!IsOwner)
         {
             <button class="wishlist-btn"
                     @onclick:stopPropagation="true"
                     @onclick="ToggleFavorite">
-                <i class="bi bi-heart@(IsFavorite ? "-fill" : "")"></i>
+                <i class="bi @(IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
             </button>
         }
     </div>
 
     <div class="product-info">
         <h3 class="product-title">@annonceComponent.Titre</h3>
-
         <div class="product-meta">
             <span class="product-size">Taille @annonceComponent.Taille</span>
             <span class="product-condition">@annonceComponent.EtatArticle</span>
         </div>
-
         <div class="product-footer">
             <span class="product-price">@annonceComponent.Prix€</span>
-            <span class="product-seller">par @(annonceComponent.NomAuteur ?? "Vendeur")</span>
+            <a class="product-seller-link"
+               href="/profile/@annonceComponent.NomAuteur"
+               @onclick='() => _nav.NavigateTo($"/profile/{annonceComponent.NomAuteur}", true)'
+               @onclick:preventDefault="true"
+               @onclick:stopPropagation="true">
+                <div class="product-seller">
+                    <img class="seller-avatar" src="@SellerPhotoUrl" alt="@annonceComponent.NomAuteur" />
+                    <span class="seller-name">@(annonceComponent.NomAuteur ?? "Vendeur")</span>
+                </div>
+            </a>
         </div>
     </div>
 </div>
 
 @code {
-
     [Parameter] public AnnonceDTO annonceComponent { get; set; }
     [Parameter] public EventCallback<AnnonceDTO> OnToggleFavorite { get; set; }
     [Parameter] public EventCallback<AnnonceDTO> OnClickAnnonce { get; set; }
+    [Parameter] public Task<bool> IsOwnerTask { get; set; }
+
+    private bool IsOwner;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        IsOwner = await IsOwnerTask;
+    }
 
     private string PhotoUrl => annonceComponent.Photos.Any() && annonceComponent.Photos.First() > 0
                                  ? MediasService.GetPhotoUrl(annonceComponent.Photos.First())
                                  : "";
-    private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
 
-    public bool IsOwner { get; set; } = false;
+    private string SellerPhotoUrl => MediasService.GetPhotoUrl(annonceComponent.IdPhotoProfilAuteur);
+
+    private bool IsFavorite => annonceComponent.IsLikedByCurrentUser;
 
     private async Task ToggleFavorite()
     {

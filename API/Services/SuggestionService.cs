@@ -52,6 +52,10 @@ public class SuggestionService : ISuggestionService
                 var clusterRepository = scope.ServiceProvider.GetRequiredService<IClusterRepository>();
                 var annonces = await annonceManager.GetByUtilisateurFavoris(userId);
                 var annonceSuggestionDTOs = _mapper.Map<List<AnnonceSuggestionDTO>>(annonces);
+                foreach (var annonce in annonceSuggestionDTOs)
+                {
+                    Console.WriteLine("---------------------------------------------------------------->" + annonce.Couleurs);
+                }
                 var payload = new
                 {
                     userId = userId,

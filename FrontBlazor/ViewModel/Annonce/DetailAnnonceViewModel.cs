@@ -6,7 +6,6 @@ using Shared.DTO.Photo;
 using Shared.DTO.Signalement;
 using Shared.DTO.Utilisateur;
 using FrontBlazor.Services;
-using FrontBlazor.Services.GenericIServices;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
@@ -33,7 +32,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public AnnonceDetailDTO? AnnonceDetail { get; set; }
     public UtilisateurViewDTO? utilisateurAnnonce { get; set; }
-    public List<RecenseDetailDTO> TagsAnnonce { get; set; } = new List<RecenseDetailDTO>();
     public List<AnnonceDTO>? similarAnnonces = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
@@ -78,6 +76,9 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public async Task LoadAnnonceDetailAsync(int id)
     {
+        if (AnnonceDetail != null && AnnonceDetail.AnnonceId == id)
+            return;
+
         IsLoading = true;
         ErrorMessage = null;
         IsLoadingSimilar = true;
@@ -86,10 +87,10 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         try
         {
             AnnonceDetail = await _annonceService.GetAnnonceDetailById(id);
-            TagsAnnonce = await _recenseWebService.GetTagsByAnnonce(id);
             if (AnnonceDetail == null)
             {
                 ErrorMessage = "Annonce introuvable";
+                return;
             }
             else
             {
@@ -99,17 +100,12 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             utilisateurAnnonce = await _utilisateurService.GetUserById(AnnonceDetail.UtilisateurId);
             IsBlockedByUser = utilisateurAnnonce.BlockedByCurrentUser;
             if (utilisateurAnnonce == null || utilisateurAnnonce.Statut == "Suspendu")
+            {
                 IsUserSuspended = true;
-            
-            
+                return;
+            }
 
-            UtilisateurDTO? utilisateur = await _authService.GetCurrentUserAsync();
-            if (utilisateur != null && utilisateurAnnonce != null &&
-                utilisateur.UtilisateurId == utilisateurAnnonce.UtilisateurId)
-                IsSameUser = true;
-
-            else
-                IsSameUser = false;
+            IsSameUser = await CheckIfOwnerAnnonce(id, "AnnonceDetail");
         }
         catch (Exception ex)
         {
@@ -124,26 +120,13 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         similarAnnonces = await _annonceService.GetSimilarAnnonces(id, PageNumber, 4);
         IsLoadingSimilar = false;
     }
-    public async Task<bool> CheckLoginStatus()
+    public async Task ToggleFavorite(dynamic annonce)
     {
-        if (await _authService.GetCurrentUserAsync() != null)
-            return true;
-        return false;
-    }
-    public async Task ToggleFavorite(int annonceId, string annonceToInteract) //"SimilarAnnonce" or "AnnonceDetail"
-    {
-        if (CheckLoginStatus == null)
+        if (utilisateur == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
         }
-
-        dynamic? annonce = null;
-
-        if (annonceToInteract == "SimilarAnnonce")
-            annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
-        else
-            annonce = AnnonceDetail;
 
         bool isFavorite = annonce.IsLikedByCurrentUser;
         annonce.IsLikedByCurrentUser = !annonce.IsLikedByCurrentUser;
@@ -166,7 +149,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             annonce.IsLikedByCurrentUser = isFavorite;
         }
     }
-
     public void GoBack()
     {
         _navigationManager.NavigateTo("/search");
@@ -174,7 +156,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public async void ContactSeller()
     {
-        if (CheckLoginStatus == null)
+        if (utilisateur == null)
         {
             _navigationManager.NavigateTo("/login");
             return;
@@ -185,17 +167,27 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}");
     }
 
-    public void MakeOffer()
+    public async void MakeOffer()
     {
-        // TODO: Open make offer dialog
-        // open something like review form thing for the avis
-        // but he inserts the price, then checks if conversation exists, if not creates and 
-        // creates a new message too of type Proposition.
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}&makeOffer=true");
     }
 
-    public void BuyProduct()
+    public async void BuyProduct()
     {
-        // TODO go to page payment and ye
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
+        _navigationManager.NavigateTo($"/acheter/{conv.ConversationId}");
     }
 
     public async void ShareProduct()
@@ -249,6 +241,11 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public void ToggleSignalerModal()
     {
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
         ShowSignalerModal = !ShowSignalerModal;
     }
     public async Task SubmitReport()
@@ -300,6 +297,26 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 similarAnnonces = newAnnonces;
                 NotifyStateChanged();
             }
+        }
+    }
+
+   public async Task<bool> CheckIfOwnerAnnonce(int annonceId, string typeAnnonce)
+    {
+        CurrentUtilisateurDTO utilisateur = await _authService.GetCurrentUserAsync();
+        if (utilisateur == null)
+            return false;
+
+        switch (typeAnnonce?.ToLower())
+        {
+            case "announcedetail":
+                return AnnonceDetail != null && AnnonceDetail.UtilisateurId == utilisateur.UtilisateurId;
+
+            case "similarannonce":
+                var annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
+                return annonce != null && annonce.IdAuteur == utilisateur.UtilisateurId;
+
+            default:
+                return false;
         }
     }
 }

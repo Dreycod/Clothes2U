@@ -1,10 +1,11 @@
 using API.Models.EntityFramework;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
 
-public class MessageManager :  GenericCRUDManager<Message>
+public class MessageManager :  GenericCRUDManager<Message>, IMessageRepository
 {
     public MessageManager(Clothes2UDbContext context) : base(context){}
 
@@ -22,7 +23,17 @@ public class MessageManager :  GenericCRUDManager<Message>
     {
         return BaseMessageQuery().Where(m => m.MessageId == id).FirstOrDefaultAsync();
     }
-    
+
+    public async Task<int> GetMessageCountByUserId(int id)
+    {
+        return await _context.Messages
+            .Where(m => m.MessageStatut == true && 
+                        m.MessageLu == false && 
+                        m.UtilisateurId != id && 
+                        (m.Conversation.Acheteur.UtilisateurAcheteurId == id || 
+                        m.Conversation.Vendeur.UtilisateurVendeurId == id))
+            .CountAsync();
+    }
 }
 
 public class MessageTexteManager : GenericCRUDManager<MessageTexte>
@@ -53,4 +64,14 @@ public class MessageContientImageManager : GenericCRUDManager<MessageContientIma
     public MessageContientImageManager(Clothes2UDbContext context) : base(context)
     {
     }
+}
+
+public class MessageEnvoieColisManager : GenericCRUDManager<MessageEnvoieColis>
+{
+    public MessageEnvoieColisManager(Clothes2UDbContext context) : base(context) {}
+}
+
+public class MessageEstRecuManager : GenericCRUDManager<MessageEstRecu>
+{
+    public MessageEstRecuManager(Clothes2UDbContext context) : base(context) {}
 }

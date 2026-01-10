@@ -360,7 +360,7 @@
         <div class="form-section size-section">
             <h2 class="section-title">Taille *</h2>
 
-            @if (VM_CreationAnnonce.NewAnnonce.CategorieId == 0)
+            @if (VM_CreationAnnonce.NewAnnonce.SousCategorieId == 0)
             {
                 <p class="info-message">
                     <i class="bi bi-info-circle"></i>
@@ -497,13 +497,13 @@
         <div class="action-buttons">
             <button class="btn-cancel"
                     @onclick="OnCancel"
-                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos)">
+                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos || VM_CreationAnnonce.IsUpdatingTags)">
                 Annuler
             </button>
 
             <button class="btn-submit"
                     @onclick="OnPublishClick"
-                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos)">
+                    disabled="@(VM_CreationAnnonce.IsLoading || VM_CreationAnnonce.IsUploadingPhotos || VM_CreationAnnonce.IsUpdatingTags)">
                 @if (VM_CreationAnnonce.IsLoading)
                 {
                     <span class="spinner-small-inline"></span>
@@ -514,10 +514,15 @@
                     <span class="spinner-small-inline"></span>
                     <span>Upload des photos...</span>
                 }
+                else if(VM_CreationAnnonce.IsUpdatingTags)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Mise à jour des tags...</span>
+                }
                 else if (VM_CreationAnnonce.SelectedFilePreviews.Any(p => p.IsDangerous))
                 {
-                    <i class="bi bi-check-lg"></i>
-                    <span>Publier l'article en analyse</span>
+                  <i class="bi bi-check-lg"></i>
+                  <span>Publier l'article en analyse</span>
                 }
                 else
                 {
@@ -632,13 +637,14 @@
     {
         VM_CreationAnnonce.NewAnnonce.CategorieId = categorieId;
         VM_CreationAnnonce.NewAnnonce.SousCategorieId = 0;
-        VM_CreationAnnonce.UpdateAvailableTailles(categorieId);
+        VM_CreationAnnonce.UpdateAvailableTailles(0);
         StateHasChanged();
     }
 
     private void OnSousCategorieSelected(int sousCategorieId)
     {
         VM_CreationAnnonce.NewAnnonce.SousCategorieId = sousCategorieId;
+        VM_CreationAnnonce.UpdateAvailableTailles(sousCategorieId);
         StateHasChanged();
     }
 
