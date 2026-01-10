@@ -19,6 +19,7 @@ using System.Text.Json.Serialization;
 using API.Models.Repository.Interfaces;
 using Shared.DTO.Photo;
 using Shared.DTO.Tag;
+using API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -274,7 +275,7 @@ builder.Services.AddScoped<IAnnonceExtensionService, AnnonceExtensionService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 builder.Services.AddScoped<PasswordResetService>();
-
+builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
 
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
