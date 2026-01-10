@@ -31,6 +31,7 @@ builder.Services.AddScoped(typeof(IReadableService<>), typeof(ReadableService<>)
 builder.Services.AddScoped(typeof(IWritableService<>), typeof(WritableService<>));
 
 // Services
+builder.Services.AddScoped<IDetectionService, DetectionWebService>();
 builder.Services.AddScoped<IAuthService, AuthWebService>();
 builder.Services.AddScoped<ITailleService, TailleWebService>();
 builder.Services.AddScoped<INotificationService, NotificationWebService>();

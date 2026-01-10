@@ -6,9 +6,14 @@ public class DetectionResponseDTO
 {
     [JsonPropertyName("filename")]
     public string FileName { get; set; }
-    [JsonPropertyName("accuracy")]
-    public float? Accuracy { get; set; }
+    [JsonPropertyName("danger_accuracy")]
+    public float? DangerAccuracy { get; set; }
 
     [JsonPropertyName("isDangerous")]
     public bool IsDangerous { get; set; }
+    [JsonPropertyName("textile_accuracy")]
+    public float? TextileAccuracy { get; set; }
+
+    [JsonPropertyName("isTextile")]
+    public bool IsTextile { get; set; }
 }
