@@ -46,8 +46,8 @@ public class Utilisateur : IEntity
     [Column("uti_preference_cookies")]
     public bool PreferenceCookies { get; set; }
 
-    //[Column("uti_deleted_at")]
-    //public DateTime? DeletedAt { get; set; }
+    [Column("uti_deleted_at")]
+    public DateTime? DeletedAt { get; set; }
 
 
     //id de relation
@@ -58,8 +58,8 @@ public class Utilisateur : IEntity
     
     [Column("uti_role_id")] public int RoleId { get; set; }
 
-    //[Column("uti_deleted_by_admin_id")]
-    //public int? DeletedByAdminId { get; set; }
+    [Column("uti_deleted_by_admin_id")]
+    public int? DeletedByAdminId { get; set; }
 
 
     //relation avec les autres tables : 
@@ -69,10 +69,17 @@ public class Utilisateur : IEntity
     
     
     [ForeignKey(nameof(PhotoId))]
-    public virtual Photo PhotoProfil { get; set; } 
-    
-    
-    
+    public virtual Photo PhotoProfil { get; set; }
+
+    [ForeignKey(nameof(DeletedByAdminId))]
+    [InverseProperty(nameof(Utilisateur.UtilisateursSupprimes))]
+    public virtual Utilisateur? DeletedByAdminNav { get; set; }
+
+
+    [InverseProperty(nameof(Utilisateur.DeletedByAdminNav))]
+    public virtual ICollection<Utilisateur> UtilisateursSupprimes { get; set; } = new List<Utilisateur>();
+
+
     [InverseProperty(nameof(Annonce.Utilisateur))]
     public virtual ICollection<Annonce> Annonces { get; set; } = new List<Annonce>();
     
