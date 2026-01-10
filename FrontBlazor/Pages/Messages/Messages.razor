@@ -27,7 +27,7 @@
                         <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "") @(conversation.HasNewMessages ? "has-new-messages" : "")"
                              @onclick="() => OnSelectConversation(conversation.ConversationId)">
                             <div class="conversation-avatar">
-                                @if (conversation.PhotoAnnonceId.Value != null && conversation.PhotoAnnonceId.Value != 0)
+                                @if (conversation.PhotoAnnonceId.HasValue && conversation.PhotoAnnonceId.Value != 0)
                                 {
                                     <img src="@VM_Messagerie._mediaService.GetPhotoUrl(conversation.PhotoAnnonceId.Value)" alt="Photo de l'annonce" />
                                 }
@@ -84,7 +84,7 @@
                 <div class="chat-header">
                     <div class="chat-product-info">
                         <div class="product-thumbnail">
-                            @if (VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value != null && VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value != 0)
+                            @if (VM_Messagerie.SelectedConversation.PhotoAnnonceId.HasValue && VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value != 0)
                             {
                                 <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)" alt="Photo de l'annonce" />
                             }
@@ -95,12 +95,22 @@
                             }
                         </div>
                         <div>
-                            <NavLink href="@($"/product/{VM_Messagerie.SelectedConversation.AnnonceId}")" class="product-link">
+                            @if (VM_Messagerie.SelectedConversation.AnnonceId.HasValue)
+                            {
+                                <NavLink href="@($"/product/{VM_Messagerie.SelectedConversation.AnnonceId.Value}")" class="product-link">
+                                    <h3 class="product-name">
+                                        @VM_Messagerie.SelectedConversation.TitreAnnonce
+                                        @VM_Messagerie.SelectedConversation.Interlocuteur
+                                    </h3>
+                                </NavLink>
+                            }
+                            else
+                            {
                                 <h3 class="product-name">
                                     @VM_Messagerie.SelectedConversation.TitreAnnonce
                                     @VM_Messagerie.SelectedConversation.Interlocuteur
                                 </h3>
-                            </NavLink> 
+                            }
                             <div class="chat-price-info">
                                 <span class="price-label">Prix</span>
 
@@ -122,7 +132,9 @@
                                 }
                             </div>
                             
-                            @if (VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                            @if (VM_Messagerie.utilisateur != null && 
+                                 VM_Messagerie.SelectedConversation.VendeurId != null &&
+                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                             {
                                 <NavLink class="buy-button"
                                          href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
@@ -181,7 +193,7 @@
                                 @if (!message.SentByCurrentUser)
                                 {
                                     <div class="message-avatar">
-                                        @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != null &&
+                                        @if (VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.HasValue &&
                                              VM_Messagerie.SelectedConversation.PhotoInterlocuteurId.Value != 0)
                                         {
                                             <img src="@VM_Messagerie._mediaService.GetPhotoUrl(VM_Messagerie.SelectedConversation.PhotoAnnonceId.Value)"
@@ -201,9 +213,9 @@
                                         <p class="message-text">
                                             @newmessage.Content
                                         </p>
-                                        @if (!newmessage.SentByCurrentUser)
+                                        @if (!newmessage.SentByCurrentUser && newmessage.MessageId.HasValue)
                                         {
-                                            <button class="btn-report-message" @onclick="() => VM_Messagerie.OpenReportModal((int)newmessage.MessageId)" title="Signaler ce message">
+                                            <button class="btn-report-message" @onclick="() => VM_Messagerie.OpenReportModal(newmessage.MessageId.Value)" title="Signaler ce message">
                                                 <i class="bi bi-flag"></i>
                                             </button>
                                         }
@@ -347,6 +359,8 @@
                                             @* Bouton visible uniquement pour le vendeur tant que le colis n'est pas envoyé *@
                                             @if (!payee.EstAnnule &&
                                                  !payee.EstEnvoye &&
+                                                 VM_Messagerie.utilisateur != null &&
+                                                 VM_Messagerie.SelectedConversation.VendeurId != null &&
                                                  VM_Messagerie.utilisateur.UtilisateurId == VM_Messagerie.SelectedConversation.VendeurId)
                                             {
                                                 <div class="mt-2">
@@ -381,7 +395,9 @@
                                             @* Bouton annuler visible pour l'acheteur tant que le colis n'est pas envoyé *@
                                             @if (!payee.EstAnnule &&
                                                  !payee.EstEnvoye &&
-                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                                 VM_Messagerie.utilisateur != null &&
+                                                 VM_Messagerie.SelectedConversation.VendeurId != null &&
+                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId != null)
                                             {
                                                 <button class="btn-secondary btn-danger"
                                                         @onclick="() => CancelPayement(payee.MessageEstPayeeId)">
@@ -405,14 +421,17 @@
                                             <h4>Colis envoyé</h4>
                                             <p>Le vendeur a expédié le colis.</p>
 
-                                            @if (colis.PhotoId != 0 && colis.PhotoId != null)
+                                            @if (colis.PhotoId != null && colis.PhotoId != 0)
                                             {
                                                 <img src="@VM_Messagerie._mediaService.GetPhotoUrl(colis.PhotoId)"
                                                      alt="Preuve d'envoi du colis"
                                                      style="margin-top:10px; max-width:220px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15);" />
                                             }
                                         </div>
-                                        @if (colis.MessageEstRecuId == 0 || colis.MessageEstRecuId == null && VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                        @if ((!colis.MessageEstRecuId.HasValue || colis.MessageEstRecuId.Value == 0) && 
+                                             VM_Messagerie.utilisateur != null &&
+                                             VM_Messagerie.SelectedConversation.VendeurId != null&&
+                                             VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                                         {
                                             <div class="colis-reception-card">
                                                 <h4>📦 Avez-vous reçu le colis ?</h4>
@@ -471,7 +490,7 @@
                                                     </div>
                                                 }
                                                 
-                                                @if (recu.PhotoId != null && recu.PhotoId != 0)
+                                                @if (recu.PhotoId.HasValue && recu.PhotoId.Value != 0)
                                                 {
                                                     <img src="@VM_Messagerie._mediaService.GetPhotoUrl(recu.PhotoId.Value)"
                                                          alt="Photo du problème"

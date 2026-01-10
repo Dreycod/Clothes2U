@@ -2159,7 +2159,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurAcheteur")
                         .WithMany("Achats")
                         .HasForeignKey("UtilisateurAcheteurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -2221,7 +2221,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
                         .WithMany("Annonces")
                         .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Categorie");
@@ -2313,6 +2313,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Annonce", "LAnnonce")
                         .WithMany("LesConversations")
                         .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.StatutConversation", "StatutConversation")
@@ -2479,11 +2480,13 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
                         .WithMany("UtilisateursFavoris")
                         .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
                         .WithMany("AnnoncesFavorites")
                         .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Annonce");
@@ -2533,11 +2536,13 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Conversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
                         .WithMany("Messages")
                         .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -3031,7 +3036,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurVendeur")
                         .WithMany("Ventes")
                         .HasForeignKey("UtilisateurVendeurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("LaConversation");
