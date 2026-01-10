@@ -102,6 +102,8 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.ValidTelephone, opt => opt.MapFrom(src => src.ValidTelephone))
             .ForMember(dest => dest.StatutId, opt => opt.MapFrom(src => src.StatutId))
             .ForMember(dest => dest.PreferenceNotifMail, opt => opt.MapFrom(src => src.PreferenceNotifMail))
+            .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+            .ForMember(dest => dest.DeletedByAdminId, opt => opt.MapFrom(src => src.DeletedByAdminId))
             .ReverseMap();
             
     }
