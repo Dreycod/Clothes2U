@@ -6,6 +6,7 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO.Utilisateur;
 
 namespace API.Controllers
 {
@@ -23,6 +24,20 @@ namespace API.Controllers
             _mapper = mapper;
             _currentUserService = currentUserService;
         }
+
+        /// <summary>
+        /// Retourne la liste des utilisateurs que l'utilisateur connecté suit (ses abonnements).
+        /// </summary>
+        [Authorize]
+        [HttpGet("abonnements")]
+        public async Task<ActionResult<IEnumerable<UtilisateurCardDTO>>> GetAbonnements()
+        {
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            var abonnements = await _abonnementRepo.GetAllUtilisateurSuiviByFollower(userId);
+            var utilisateursSuivis = abonnements.Select(a => a.UtilisateurSuivis);
+            return Ok(_mapper.Map<IEnumerable<UtilisateurCardDTO>>(utilisateursSuivis));
+        }
+        
 
         /// <summary>
         /// Retourne la liste des utilisateurs que le follower dont on rentre l'id suit.
