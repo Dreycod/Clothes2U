@@ -7,6 +7,7 @@ public interface INotificationService
 {
     Task CreateNotification(NotificationCreateDTO notification);
     Task CreateModificationAnnonceNotification(int annonceId);
+    Task CreateNotificationAchat(int annonceId);
     Task CreateNouvelleAnnonceNotification(int annonceId);
     Task DeleteAnnonceNotificationForUser(int annonceId);
 }

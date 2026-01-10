@@ -29,6 +29,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<EtatArticle> EtatArticles { get; set; }
     public DbSet<Favoris> Favorises { get; set; }
     public DbSet<Genre> Genres { get; set; }
+    public DbSet<HistoriqueUtilisateur> HistoriqueUtilisateurs { get; set; }
     public DbSet<Illustre_Annonce> Illustre_Annonces { get; set; }
     public DbSet<Marque> Marques { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -480,8 +481,37 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.GenreId)
                 .IsUnique();
         });
-        
-        
+
+        modelBuilder.Entity<HistoriqueUtilisateur>(entity =>
+        {
+            entity.HasKey(e => e.HistoriqueUtilisateurId);
+
+            entity.Property(e => e.TypeTransaction)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(e => e.Montant)
+                .HasColumnType("decimal(10,2)");
+
+            entity.Property(e => e.DateTransaction)
+                .IsRequired();
+
+            entity.Property(e => e.DateSuppressionCompte)
+                .IsRequired();
+
+            entity.HasOne(e => e.UserHist)
+                .WithMany(u => u.HistUtilisateurs)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Admin)
+                .WithMany(u => u.HistoriquesAdmin)
+                .HasForeignKey(e => e.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+
+
         modelBuilder.Entity<Illustre_Annonce>(entity =>
         {
             entity.HasKey(e => e.IllustId);
@@ -1418,9 +1448,15 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(c => c.Vendeur)
                 .HasForeignKey(c => c.VendeurId)
                 .OnDelete(DeleteBehavior.Restrict);
-                
-                
-                
+
+            //historique
+            entity.HasOne(u => u.DeletedByAdminNav)
+                .WithMany(a => a.UtilisateursSupprimes)
+                .HasForeignKey(u => u.DeletedByAdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+
             entity.HasIndex(e => e.StatutId);
             entity.HasIndex(e => e.Dateinscription);
         });

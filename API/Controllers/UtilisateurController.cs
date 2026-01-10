@@ -10,6 +10,7 @@ using Shared;
 using Shared.DTO;
 using Shared.DTO.Utilisateur;
 
+
 namespace API.Controllers;
 
 
@@ -24,9 +25,10 @@ public class UtilisateurController :  ControllerBase
     private readonly INotificationMailService _mailService;
     private readonly INotificationRepository _notificationRepository;
     private readonly IMessageRepository _messageRepository;
+    private readonly IUserDeletionService _userDeletionService;
 
     public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper, INotificationMailService mailService, INotificationRepository notificationRepository,
-    IMessageRepository messageRepository)
+    IMessageRepository messageRepository, IUserDeletionService userDeletionService)
     {
         _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
@@ -35,6 +37,7 @@ public class UtilisateurController :  ControllerBase
         _mailService = mailService;
         _notificationRepository = notificationRepository;
         _messageRepository = messageRepository;
+        _userDeletionService = userDeletionService;
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
@@ -112,15 +115,12 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {
-        Utilisateur utilisateur = await _utilisateurManager.GetByIdAsync(id);
-        if (utilisateur == null)
-        {
-            return NotFound();
-        }
-        await _utilisateurManager.DeleteAsync(utilisateur);
+        int adminId = await _currentUserService.GetUserIdOrThrow();
+        await _userDeletionService.DeleteUtilisateurByAdminAsync(id, adminId);
         return NoContent();
     }
 

@@ -46,6 +46,9 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
                 .ThenInclude(np => np.MessageDemande)
                     .ThenInclude(nm => nm.Message)
                         .ThenInclude(n => n.Utilisateur)
+            .Include(n => n.NotificationAchats)
+                .ThenInclude(nm => nm.Annonce)
+                    .ThenInclude(a => a.Utilisateur)
             .AsSplitQuery();
     }
     public async Task<IEnumerable<Notification>> GetByUserId(int userId)

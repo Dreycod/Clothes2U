@@ -12,4 +12,7 @@ public class UtilisateurDTO
     public bool ValidTelephone { get; set; }
     public int? StatutId { get; set; }
     public bool PreferenceNotifMail { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public int? DeletedByAdminId { get; set; }
+
 }

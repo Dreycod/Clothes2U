@@ -19,7 +19,7 @@ namespace API.Models.EntityFramework
         public int? AnnonceId { get; set; }
 
         [Column("histuti_montant")]
-        public double Montant { get; set; }
+        public decimal Montant { get; set; }
 
         [Column("histuti_date_transaction")]
         public DateTime DateTransaction { get; set; }
