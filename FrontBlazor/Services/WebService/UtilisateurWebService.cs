@@ -1,9 +1,10 @@
-﻿using Shared.DTO;
-using Shared.DTO.Utilisateur;
-using FrontBlazor.Pages;
+﻿using FrontBlazor.Pages;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using Shared;
+using Shared.DTO;
+using Shared.DTO.Utilisateur;
 using System.Net.Http.Json;
 
 namespace FrontBlazor.Services;
@@ -128,4 +129,25 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
         return result;
     }
 
+    public async Task<APIResponse<object>> SuppressionCompte(AccountDeletionDTO accountDeletionDTO)
+    {
+        var request = new HttpRequestMessage(
+        HttpMethod.Put,
+        "Login/modificationMotDePasse")
+        {
+            Content = JsonContent.Create(accountDeletionDTO)
+        };
+
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+        var response = await _httpClient.SendAsync(request);
+        var apiResponse = await response.Content.ReadFromJsonAsync<APIResponse<object>>();
+
+        if (apiResponse == null)
+        {
+            return APIResponse<object>.ErrorResponse("Réponse serveur invalide");
+        }
+
+        return apiResponse;
+    }
 }
