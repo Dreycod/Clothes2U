@@ -46,8 +46,8 @@ public class Utilisateur : IEntity
     [Column("uti_preference_cookies")]
     public bool PreferenceCookies { get; set; }
 
-    [Column("uti_deleted_at")]
-    public DateTime? DeletedAt { get; set; }
+    //[Column("uti_deleted_at")]
+    //public DateTime? DeletedAt { get; set; }
 
 
     //id de relation
@@ -58,8 +58,8 @@ public class Utilisateur : IEntity
     
     [Column("uti_role_id")] public int RoleId { get; set; }
 
-    [Column("uti_deleted_by_admin_id")]
-    public int? DeletedByAdminId { get; set; }
+    //[Column("uti_deleted_by_admin_id")]
+    //public int? DeletedByAdminId { get; set; }
 
 
     //relation avec les autres tables : 

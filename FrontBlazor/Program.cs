@@ -61,6 +61,7 @@ builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<StripeWebService>();
 builder.Services.AddScoped<IRecenseService<RecenseDetailDTO>, RecenseWebService>();
 builder.Services.AddScoped<ITagService<TagDTO>, TagWebService>();
+builder.Services.AddScoped<PasswordResetWebService>();
 
 
 //caracteristiques
@@ -101,6 +102,8 @@ builder.Services.AddScoped<CreationAnnonceViewModel>();
 builder.Services.AddScoped<AcheterViewModel>();
 builder.Services.AddScoped<ClientBaseViewModel>();
 builder.Services.AddScoped<AddressViewModel>();
+builder.Services.AddScoped<ForgotPasswordViewModel>();
+builder.Services.AddScoped<ResetPasswordViewModel>();
 
 // AuthService doit déjà être enregistré
 // (il contient les méthodes pour les adresses)
