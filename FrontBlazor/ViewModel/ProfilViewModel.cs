@@ -189,7 +189,7 @@ namespace FrontBlazor.ViewModel
 
         public async Task ToggleFavorite(AnnonceDTO annonce)
         {
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -345,12 +345,6 @@ namespace FrontBlazor.ViewModel
                 NotifyStateChanged();
             }
         }
-        public async Task<bool> CheckLoginStatus()
-        {
-            if (await _authService.GetCurrentUserAsync() != null)
-                return true;
-            return false;
-        }
         public void NavigateToProductDetail(int? productId)
         {
             if (productId.HasValue)
@@ -436,8 +430,6 @@ namespace FrontBlazor.ViewModel
                 NotifyStateChanged();
             }
         }
-
-
         public async void SignalerUtilisateur()
         {
             showDotsDropdown = false;
@@ -454,7 +446,7 @@ namespace FrontBlazor.ViewModel
         {
             SignalementRaison = string.Empty;
             showDotsDropdown = false;
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -472,16 +464,17 @@ namespace FrontBlazor.ViewModel
         public void ToggleSignalerAvisModal()
         {
             showDotsDropdown = false;
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
+                return;
             }
 
             ShowSignalerAvisModal = !ShowSignalerAvisModal;
         }
         public async Task SubmitReport()
         {
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;
@@ -511,7 +504,7 @@ namespace FrontBlazor.ViewModel
         }
         public async Task SubmitAvisReport()
         {
-            if (CheckLoginStatus == null)
+            if (utilisateur == null)
             {
                 _navigationManager.NavigateTo("/login");
                 return;

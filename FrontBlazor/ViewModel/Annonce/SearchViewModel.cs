@@ -267,9 +267,9 @@ namespace FrontBlazor.ViewModel
 
         public async Task ToggleFavorite(int annonceId)
         {
-            if (VM_Login.CheckLoginStatus == null)
+            if (utilisateur != null)
             {
-                NavigationManager.NavigateTo("/login");
+                _nav.NavigateTo("/login");
                 return;
             }
 

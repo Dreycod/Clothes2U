@@ -13,11 +13,14 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
     public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
 
-    public async Task<AnnonceDetailDTO> GetAnnonceDetailById(int Id)
+    public async Task<AnnonceDetailDTO?> GetAnnonceDetailById(int Id)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<AnnonceDetailDTO>($"Annonce/id/{Id}");
+            var response = await GetWithCredentialsAsync($"Annonce/id/{Id}");
+            response.EnsureSuccessStatusCode();
+            var annonce = await response.Content.ReadFromJsonAsync<AnnonceDetailDTO>();
+            return annonce ?? null;
         }
         catch (HttpRequestException ex)
         {
