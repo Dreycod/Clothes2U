@@ -97,6 +97,7 @@ builder.Services.AddScoped<SignalementViewModel>();
 builder.Services.AddScoped<TraitementSignalementViewModel>();
 builder.Services.AddScoped<SanctionsViewModel>();
 builder.Services.AddScoped<SanctionedUserViewModel>();
+builder.Services.AddScoped<ImagesValidationViewModel>();
 builder.Services.AddScoped<DemandesRestaurationViewModel>();
 builder.Services.AddScoped<DemandeRestaurationDetailViewModel>();
 builder.Services.AddScoped<HistoriqueTransactionViewModel>();

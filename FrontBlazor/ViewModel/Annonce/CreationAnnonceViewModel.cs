@@ -464,8 +464,18 @@ namespace FrontBlazor.ViewModel
                             Console.WriteLine($"✅ Annonce retrouvée avec ID: {createdAnnonce.AnnonceId}");
 
                             var photosDataUrls = SelectedFilePreviews
-                                .Select(p => p.PreviewBase64)
+                                .Select(p => new PhotoDataDTO
+                                {
+                                    PreviewBase64 = p.PreviewBase64,
+                                    IsDangerous = p.IsDangerous
+                                })
                                 .ToList();
+
+                            foreach (var photo in photosDataUrls)
+                            {
+                                Console.WriteLine($"Photo IsDangerous: {photo.IsDangerous}");
+                            }
+
                             try
                             {
                                 var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(

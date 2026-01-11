@@ -2,9 +2,11 @@
 using FrontBlazor.Services.Interfaces;
 using Shared.DTO;
 using Shared.DTO.Detection;
+using Shared.DTO.Moderation;
 using Shared.DTO.Photo;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace FrontBlazor.Services;
 
@@ -27,15 +29,20 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
         return $"{baseUrl}Medias/Photos/{photoId}" ?? "";
     }
 
-    public async Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, string fileName)
+    public async Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, bool IsDangerous, string fileName)
     {
         try
         {
             using var content = new MultipartFormDataContent();
-            using var fileContent = new ByteArrayContent(imageBytes);
 
+            var isDangerousValue = IsDangerous ? "true" : "false";
+            content.Add(new StringContent(isDangerousValue, Encoding.UTF8, "text/plain"), "IsDangerous");
+
+            using var fileContent = new ByteArrayContent(imageBytes);
             fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
             content.Add(fileContent, "File", fileName);
+
+            Console.WriteLine($"Envoi IsDangerous = {isDangerousValue}, fileName = {fileName}, bytes = {imageBytes.Length}");
 
             var response = await PostWithCredentialsAsync($"Medias/uploadPhotoAnnonce/{annonceId}", content);
 
@@ -69,20 +76,20 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
         }
     }
 
-    public async Task<bool> UploadMultiplePhotosAnnonceAsync(int annonceId, List<string> photosDataUrls)
+    public async Task<bool> UploadMultiplePhotosAnnonceAsync(int annonceId, List<PhotoDataDTO> photoDataDTOs)
     {
-        if (photosDataUrls == null || !photosDataUrls.Any())
+        if (photoDataDTOs == null || !photoDataDTOs.Any())
             return true;
 
         bool allSuccess = true;
         int successCount = 0;
 
-        foreach (var photoDataUrl in photosDataUrls)
+        foreach (var photo in photoDataDTOs)
         {
             try
             {
                 // Extraire le type MIME et les données base64
-                var parts = photoDataUrl.Split(',');
+                var parts = photo.PreviewBase64.Split(',');
                 if (parts.Length != 2)
                 {
                     Console.WriteLine("❌ Format de dataUrl invalide");
@@ -96,18 +103,19 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
                 var success = await UploadPhotoAnnonceAsync(
                     annonceId,
                     imageBytes,
+                    photo.IsDangerous,
                     $"photo_{Guid.NewGuid()}.jpg"
                 );
 
                 if (success)
                 {
                     successCount++;
-                    Console.WriteLine($"✅ Photo {successCount}/{photosDataUrls.Count} uploadée avec succès");
+                    Console.WriteLine($"✅ Photo {successCount}/{photoDataDTOs.Count} uploadée avec succès");
                 }
                 else
                 {
                     allSuccess = false;
-                    Console.WriteLine($"❌ Échec upload photo {successCount + 1}/{photosDataUrls.Count}");
+                    Console.WriteLine($"❌ Échec upload photo {successCount + 1}/{photoDataDTOs.Count}");
                 }
             }
             catch (Exception ex)
@@ -117,7 +125,7 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
             }
         }
 
-        Console.WriteLine($"📊 Résultat: {successCount}/{photosDataUrls.Count} photos uploadées");
+        Console.WriteLine($"📊 Résultat: {successCount}/{photoDataDTOs.Count} photos uploadées");
         return allSuccess;
     
     }
@@ -165,4 +173,11 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
         return detectionResult!;
     }
 
+    public async Task<ValidationResponseDTO> ValidationImageAsync(bool Reponse, int Photoid)
+    {
+        var response = await PostWithCredentialsAsync($"Medias/validationImage?reponse={Reponse}&photoId={Photoid}", null);
+        response.EnsureSuccessStatusCode();
+        var validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponseDTO>();
+        return validationResponse!;
+    }
 }

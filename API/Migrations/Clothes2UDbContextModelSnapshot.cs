@@ -1494,6 +1494,10 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PhotoId"));
 
+                    b.Property<bool?>("EnAttenteValidation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pho_validation");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("bytea")

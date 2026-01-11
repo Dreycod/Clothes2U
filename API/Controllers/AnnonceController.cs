@@ -54,6 +54,7 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         return Ok(annoncesDTO);
     }
+
     [AllowAnonymous]
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(AnnonceDetailDTO),StatusCodes.Status200OK)]

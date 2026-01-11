@@ -5,6 +5,7 @@ using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Shared.DTO.Detection;
+using API.Models.EntityFramework;
 
 namespace API.Controllers;
 
@@ -25,7 +26,7 @@ public class MediasController : ControllerBase
         _detectionService = detectionService;
     }
 
-    [HttpGet("Photos/{id}")]
+    [HttpGet("Photos/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPhotos(int id)
@@ -33,6 +34,7 @@ public class MediasController : ControllerBase
         try
         {
             var photo = await _photoService.GetPhotoAsync(id);
+
             if (photo == null)
             {
                 return NotFound($"Photo {id} introuvable");
@@ -46,6 +48,29 @@ public class MediasController : ControllerBase
         }
     }
 
+    [HttpGet("Photos/GetAllPhotosValidation")]
+    [ProducesResponseType(typeof(List<PhotoResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAllPhotosValidation()
+    {
+        try
+        {
+            var photo = await _photoService.GetAllPhotosValidation();
+
+            if (photo == null)
+            {
+                return NotFound($"Photos en attente de validation introuvables");
+            }
+
+            return Ok(photo);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la récupération des photos en attente de validation");
+            return StatusCode(500, new { message = "Erreur lors de la récupération de la photo", error = ex.Message });
+        }
+    }
+
     /// <summary>
     /// Upload d'une photo pour une annonce (multipart/form-data)
     /// </summary>
@@ -55,7 +80,7 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(PhotoResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadPhotoAnnonce(int annonceId, IFormFile file)
+    public async Task<IActionResult> UploadPhotoAnnonce(int annonceId, [FromForm] bool IsDangerous, [FromForm] IFormFile file)
     {
         _logger.LogInformation("Upload photo pour annonce {AnnonceId}", annonceId);
 
@@ -78,7 +103,7 @@ public class MediasController : ControllerBase
         {
             // Convertir IFormFile en PhotoUploadDTO
             var photoDto = await ConvertFormFileToDTO(file);
-
+            photoDto.EnAttenteValidation = IsDangerous;
             // Sauvegarder via le service
             var savedPhoto = await _photoService.SavePhotoAsync(annonceId, photoDto);
 
@@ -97,7 +122,7 @@ public class MediasController : ControllerBase
     }
 
     /// <summary>
-    /// Upload d'une photo pour une annonce (multipart/form-data)
+    /// Upload d'une photo pour la detection IA (multipart/form-data)
     /// </summary>
     [HttpPost("detectPhotoDanger")]
     [RequestSizeLimit(5_242_880)] // 5 MB
@@ -143,8 +168,43 @@ public class MediasController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Validation des images par les moderateurs (multipart/form-data)
+    /// </summary>
+    [HttpPost("Validation")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ValidationImage(bool Reponse, int PhotoID)
+    {
 
+        try
+        {
+            Photo? photo = await _photoService.GetPhotoAsync(PhotoID);
 
+            if (photo == null)
+            {
+                return BadRequest($"Photo avec l'ID: {PhotoID} n'existe pas");
+            }
+
+            var result = await _photoService.ValidationImageAsync(Reponse, PhotoID);
+
+            if (result == null)
+            {
+                return BadRequest($"Erreur lors de la validation de l'image ID:{PhotoID}");
+            }
+
+            return Ok(photo);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de la validation d'image", error = ex.Message });
+        }
+    }
 
     /// <summary>
     /// Upload d'une photo de profil pour un compte

@@ -120,7 +120,8 @@ namespace API.Migrations
                 {
                     pho_photo_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    pho_image = table.Column<byte[]>(type: "bytea", nullable: false)
+                    pho_image = table.Column<byte[]>(type: "bytea", nullable: false),
+                    pho_validation = table.Column<bool>(type: "boolean", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(Clothes2UDbContext))]
-    [Migration("20260110194413_UpdBDDAjoutTableChgmtModele")]
+    [Migration("20260111140500_UpdBDDAjoutTableChgmtModele")]
     partial class UpdBDDAjoutTableChgmtModele
     {
         /// <inheritdoc />
@@ -1496,6 +1496,10 @@ namespace API.Migrations
                         .HasColumnName("pho_photo_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PhotoId"));
+
+                    b.Property<bool?>("EnAttenteValidation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pho_validation");
 
                     b.Property<byte[]>("Image")
                         .IsRequired()

@@ -1,5 +1,5 @@
 ﻿@page "/moderation/images"
-
+@inject ImagesValidationViewModel VM_ImagesValidation
 
 <PageTitle>Validation d'images - Modération</PageTitle>
 
@@ -58,47 +58,41 @@
             <h1 class="mod-page-title">Validation d'images</h1>
 
             <!-- Images Grid -->
-            <div class="images-grid">
-                @for (int i = 0; i < 6; i++)
-                {
-                    <div class="image-card">
-                        <div class="image-preview"></div>
+            @for (int i = 0; i < VM_ImagesValidation.SelectedFilePreviews.Count; i++)
+            {
+                <div class="image-card">
+                    <div class="image-preview">
+                        <img src="@VM_ImagesValidation.SelectedFilePreviews[i].PreviewBase64"
+                                alt="Photo" />
+                    </div>
 
-                        <div class="image-info">
-                            <div class="image-user">
-                                <div class="user-avatar-small"></div>
-                                <div>
-                                    <h4>User @(i + 1)</h4>
-                                    <p>Il y a @(i + 1) heures</p>
-                                </div>
-                            </div>
-
-                            <div class="image-actions">
-                                <button class="btn-approve" @onclick="() => ApproveImage(i)">
-                                    <i class="bi bi-check-lg"></i>
-                                    Approuver
-                                </button>
-                                <button class="btn-reject" @onclick="() => RejectImage(i)">
-                                    <i class="bi bi-x-lg"></i>
-                                    Refuser
-                                </button>
+                    <div class="image-info">
+                        <div class="image-user">
+                            <div class="user-avatar-small"></div>
+                            <div>
+                                <h4>User @(i + 1)</h4>
+                                <p>Il y a @(i + 1) heures</p>
                             </div>
                         </div>
+
+                        <div class="image-actions">
+                            <button class="btn-approve" @onclick="() => VM_ImagesValidation.ApproveImage(i)">
+                                <i class="bi bi-check-lg"></i>
+                                Approuver
+                            </button>
+                            <button class="btn-reject" @onclick="() => VM_ImagesValidation.RejectImage(i)">
+                                <i class="bi bi-x-lg"></i>
+                                Refuser
+                            </button>
+                        </div>
                     </div>
-                }
-            </div>
+                </div>
+            }
+
         </main>
     </div>
 </div>
 
 @code {
-    private void ApproveImage(int imageId)
-    {
-        // TODO: Approve image
-    }
-
-    private void RejectImage(int imageId)
-    {
-        // TODO: Reject image
-    }
+    
 }

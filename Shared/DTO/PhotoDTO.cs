@@ -1,5 +1,5 @@
 using Shared.Interfaces;
-
+using System.ComponentModel.DataAnnotations.Schema;
 namespace Shared.DTO.Photo
 {
     // DTO pour l'upload de photos (indépendant de ASP.NET Core)
@@ -16,6 +16,8 @@ namespace Shared.DTO.Photo
 
        // Données de la photo encodées en Base64
         public string Base64Data { get; set; } = string.Empty;
+        // bool pour validation moderateur
+        public bool? EnAttenteValidation { get; set; }
 
         // Taille du fichier en octets
         public long FileSize { get; set; }
@@ -31,13 +33,26 @@ namespace Shared.DTO.Photo
         public int AnnonceId { get; set; }
         public List<PhotoUploadDTO> Photos { get; set; } = new();
     }
+    // DTO pour validation Photo
+    public class PhotoDTO
+    {
+        public int PhotoId { get; set; }
+        public byte[] Image { get; set; }
+        public bool? EnAttenteValidation { get; set; }
+    }
+    public class PhotoDataDTO
+    {
+        public string PreviewBase64 { get; set; }
+        public bool IsDangerous { get; set; }
+    }
 
-    // DTO de réponse après upload
+    // DTO de réponse après upload + validation
     public class PhotoResponseDTO : IEntity
     {
         public int PhotoId { get; set; }
         public string Url { get; set; } = string.Empty;
         public string FileName { get; set; } = string.Empty;
+        public bool? EnAttenteValidation { get; set; }
         public DateTime DateUpload { get; set; }
         public int GetId()
         {
