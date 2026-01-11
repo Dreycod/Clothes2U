@@ -1,9 +1,18 @@
+using API.Models.Repository;
+using API.Services;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
 namespace API.Hubs;
 
 public class ChatHub : Hub
 {
+    private readonly INotificationService _notificationService;
+    public ChatHub(
+        INotificationService notificationService)
+    {
+        _notificationService = notificationService;
+    }
     // Cette méthode n'est plus utilisée directement - c'est le controller qui broadcast
     public async Task SendMessage(int conversationId, int senderId, string message, List<int> photoIds)
     {
@@ -45,10 +54,9 @@ public class ChatHub : Hub
     {
         var groupName = $"conversation_{conversationId}";
         Console.WriteLine($"[Hub] 📖 User {userId} marked messages as read in conversation {conversationId}");
-        
         // Notifier tous les membres du groupe
         await Clients.Group(groupName).SendAsync("MessagesRead", conversationId, userId);
-        
+        await _notificationService.DeleteMessagesNotificationByConversationId(conversationId,  userId);
         Console.WriteLine($"[Hub] ✅ Broadcasted MessagesRead to group {groupName}");
     }
     
@@ -58,7 +66,7 @@ public class ChatHub : Hub
         Console.WriteLine($"[Hub] ⌨️ User {userId} ({userName}) typing in conv {conversationId}");
     
         await Clients.Group(groupName).SendAsync("UserTyping", conversationId, userId, userName);
-    
+        await _notificationService.DeleteMessagesNotificationByConversationId(conversationId, userId);
         Console.WriteLine($"[Hub] ✅ Broadcasted typing to group {groupName}");
     }
     public async Task NotifyPaymentReceived(

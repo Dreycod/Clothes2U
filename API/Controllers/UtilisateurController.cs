@@ -20,22 +20,24 @@ namespace API.Controllers;
 public class UtilisateurController :  ControllerBase
 {
     private readonly IUtilisateurRepository _utilisateurManager;
-    private readonly IAbonnementRepository<Abonnement, int>  _abonnementManager; 
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
-    private readonly INotificationMailService _mailService;
     private readonly INotificationRepository _notificationRepository;
     private readonly IMessageRepository _messageRepository;
     private readonly IUserDeletionService _userDeletionService;
 
-    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper, INotificationMailService mailService, INotificationRepository notificationRepository,
-    IMessageRepository messageRepository, IUserDeletionService userDeletionService)
+    public UtilisateurController(
+        IUtilisateurRepository utilisateurManager, 
+        ICurrentUserService currentUserService,
+        IMapper mapper,
+        INotificationRepository notificationRepository,
+        IMessageRepository messageRepository,
+        IUserDeletionService userDeletionService
+        )
     {
-        _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
         _currentUserService = currentUserService;
-        _mailService = mailService;
         _notificationRepository = notificationRepository;
         _messageRepository = messageRepository;
         _userDeletionService = userDeletionService;
@@ -66,11 +68,8 @@ public class UtilisateurController :  ControllerBase
         Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateurToUpdate == null)
             return NotFound();
-        int oldStatut = utilisateurToUpdate.StatutId;
-    
         _mapper.Map(utilisateurDTO, utilisateurToUpdate);
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
-        await _mailService.NotifyUserStatusChangedAsync(utilisateurToUpdate, oldStatut);
     
         return NoContent();
     }
@@ -120,6 +119,10 @@ public class UtilisateurController :  ControllerBase
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {
         int adminId = await _currentUserService.GetUserIdOrThrow();
+        if (await _utilisateurManager.GetByIdAsync(id) == null)
+        {
+            return NotFound();
+        }
         await _userDeletionService.DeleteUtilisateurByAdminAsync(id, adminId);
         return NoContent();
     }

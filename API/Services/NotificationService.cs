@@ -145,8 +145,6 @@ public class  NotificationService : INotificationService
             int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId.Value);
             await _hubService.UpdateNotificationCount(userId.Value, newCount);
         }
-        
-
     }
 
     public async Task CreateNotificationAchat(int annonceId)

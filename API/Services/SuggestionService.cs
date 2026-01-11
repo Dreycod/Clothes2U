@@ -18,6 +18,7 @@ public class SuggestionService : ISuggestionService
     private readonly ICurrentUserService _currentUserService;
     private readonly string _fastApiBaseUrl;
     private readonly IClusterRepository _annoncePreferenceManager;
+    private readonly IBloqueRepository<Bloque, int>  _bloqueManager;
     public SuggestionService(
         IHttpClientFactory httpClientFactory, 
         IClusterRepository  annoncePreferenceManager,
@@ -25,6 +26,7 @@ public class SuggestionService : ISuggestionService
         IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         ICurrentUserService currentUserService,
         ILogger<SuggestionService> logger,
+        IBloqueRepository<Bloque, int> bloqueManager,
         IConfiguration configuration,
         IServiceScopeFactory serviceScopeFactory, 
         
@@ -32,6 +34,7 @@ public class SuggestionService : ISuggestionService
     {
         _httpClientFactory = httpClientFactory;
         _annonceExtensionService =  annonceExtensionService;
+        _bloqueManager = bloqueManager;
         _annonceManager = annonceRepository;
         _currentUserService = currentUserService;
         _logger = logger;
@@ -128,8 +131,14 @@ public class SuggestionService : ISuggestionService
     public async Task<IEnumerable<AnnonceDTO>> GetRecommandations(int page, int pageSize)
     {
         int userId = await _currentUserService.GetUserIdOrThrow();
+        List<int> blockedUserIds = await _bloqueManager.GetUserBlockedIds(userId);
+
         IEnumerable<Annonce> annonces = await _annonceManager.GetActiveAnnonces();
         IEnumerable<AnnoncePreferenceUtilisateur> clusters = await _annoncePreferenceManager.GetByUserId(userId);
+        if (blockedUserIds.Any())
+        {
+            annonces = annonces.Where(a => !blockedUserIds.Contains(a.UtilisateurId));
+        }
         if (!clusters.Any())
         {
             return _mapper.Map<IEnumerable<AnnonceDTO>>(
