@@ -287,6 +287,7 @@ builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
 builder.Services.AddScoped<IDataRepository<NotificationAchatAnnonce, int>, NotificationAchatManager>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationHubService, NotificationHubService>();

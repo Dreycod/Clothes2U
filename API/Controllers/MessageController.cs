@@ -6,6 +6,7 @@ using API.Models.Repository;
 using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
+using API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,7 @@ public class MessageController : ControllerBase
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub> _hubContext;
+    private readonly IMessageService _messageService;
 
     public MessageController(
         IMessageRepository messageManager,
@@ -44,6 +46,7 @@ public class MessageController : ControllerBase
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
+        IMessageService messageService,
         IHubContext<ChatHub> hubContext)
     {
         _messageManager = messageManager;
@@ -58,6 +61,7 @@ public class MessageController : ControllerBase
         _photoService = photoService;
         _mapper = mapper;
         _hubContext = hubContext;
+        _messageService = messageService;
     }
     [Authorize]
     [HttpPost("texte")]
@@ -131,7 +135,7 @@ public class MessageController : ControllerBase
                         : dto.Content[..Math.Min(50, dto.Content.Length)]
                  };
                  await _notificationService.CreateNotification(notification);
-                 
+                 await _messageService.SendMessageCount((int)targetUserId);
                  // 🔥 BROADCASTER VIA SIGNALR
                  //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
                  
