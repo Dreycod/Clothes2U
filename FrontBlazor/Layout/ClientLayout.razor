@@ -175,7 +175,6 @@
 </div>
 
 
-
 @code {
     private ElementReference notificationRef;
     private ElementReference profileRef;
@@ -211,6 +210,12 @@
         {
             await JS.InvokeVoidAsync("removeClickOutside");
             objRef.Dispose();
+        }
+
+        // ✅ Nettoyer le ViewModel (qui va nettoyer SignalR)
+        if (Vm_NavBar is IAsyncDisposable disposable)
+        {
+            await disposable.DisposeAsync();
         }
     }
 }

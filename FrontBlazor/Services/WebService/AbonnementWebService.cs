@@ -7,7 +7,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.Services
 {
-    public class AbonnementWebService : BaseGenericService, IAbonnementService<AbonnementDTO>
+    public class AbonnementWebService : BaseGenericService, IAbonnementService
     {
         public AbonnementWebService(HttpClient httpClient) : base(httpClient) { }
         public async Task AddAbonnement(int utilisateurId)

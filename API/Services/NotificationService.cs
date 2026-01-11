@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Services.Interfaces;
 using API.Services.VerificationSrvceV2;
 using AutoMapper;
 using Shared.DTO;
@@ -22,6 +23,7 @@ public class  NotificationService : INotificationService
     private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
     private readonly IAbonnementRepository<Abonnement, int> abonnementRepo;
     private readonly ICurrentUserService _currentUserService;
+    private readonly INotificationHubService _hubService;
     
 
     public NotificationService(
@@ -36,7 +38,8 @@ public class  NotificationService : INotificationService
         INotificationMailService mailService,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         IAbonnementRepository<Abonnement, int> abonnementRepo,
-        ICurrentUserService currentUserService
+        ICurrentUserService currentUserService,
+        INotificationHubService hubService
     )
     {
         _mapper = mapper;
@@ -48,6 +51,7 @@ public class  NotificationService : INotificationService
         _notificationModificationAnnonceManager = notificationModificationAnnonceManager;
         _notificationAchatAnnonceManager = notificationAchatAnnonceManager;
         _mailService = mailService;
+        _hubService = hubService;
         _annonceRepository = annonceRepository;
         _abonnementRepo = abonnementRepo;
         _currentUserService = currentUserService;
@@ -86,6 +90,8 @@ public class  NotificationService : INotificationService
                 await _notificationModificationAnnonceManager.AddAsync(notificationModificationAnnonce);
                 break;
         }
+        int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(notificationDTO.UtilisateurId);
+        await _hubService.UpdateNotificationCount(notificationDTO.UtilisateurId, newCount);
     }
 
     public async Task CreateModificationAnnonceNotification(int annonceId)
@@ -137,6 +143,9 @@ public class  NotificationService : INotificationService
         {
             await _notificationManager.DeleteNotificationAnnonceForUser(annonceId, (int)userId);
         }
+        int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId.Value);
+        await _hubService.UpdateNotificationCount(userId.Value, newCount);
+
     }
 
     public async Task CreateNotificationAchat(int annonceId)
@@ -159,5 +168,12 @@ public class  NotificationService : INotificationService
                 await CreateNotification(notif);
             }
         }
+    }
+
+    public async Task DeleteMessagesNotificationByConversationId(int conversationId, int userId)
+    {
+        await _notificationManager.DeleteMessageNotificationByConversationId(conversationId, userId);
+        int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId);
+        await _hubService.UpdateNotificationCount(userId, newCount);
     }
 }

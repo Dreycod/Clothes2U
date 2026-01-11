@@ -74,11 +74,11 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         IMessageService messageService,
         IMediasService mediaService,
         NavigationManager nav,
-        ISignalRService signalRService,
         ISignalementService signalementService,
         NavigationManager navigationManager,
+        ISignalRService signalRService,
     INotificationService notificationService)
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService,signalRService, notificationService)
     
     {
         _conversationService = conversationService;

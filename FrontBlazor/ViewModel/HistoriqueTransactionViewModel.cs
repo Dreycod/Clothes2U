@@ -13,9 +13,10 @@ namespace FrontBlazor.ViewModel
         public HistoriqueTransactionViewModel(
             TransactionService service,
             IAuthService authService,
+            ISignalRService notificationHubService,
             NavigationManager navigationManager,
             INotificationService notificationService)
-            : base(navigationManager, authService, notificationService)
+            : base(navigationManager, authService,notificationHubService, notificationService)
         {
             _service = service;
         }

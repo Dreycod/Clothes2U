@@ -32,7 +32,7 @@ namespace FrontBlazor.ViewModel
         private readonly IFavorisService<FavorisDTO> _favorisService;
         private readonly INoteUtilisateurService _noteUtilisateurService;
         private readonly IAuthService _authService;
-        private readonly IAbonnementService<AbonnementDTO> _abonnementService;
+        private readonly IAbonnementService _abonnementService;
         private readonly NavigationManager _navigationManager;
         private readonly IMediasService _mediaService;
         private readonly ISignalementService _signalementService;
@@ -81,14 +81,15 @@ namespace FrontBlazor.ViewModel
             IFavorisService<FavorisDTO> favorisService,
             INoteUtilisateurService noteUtilisateurService,
             IAuthService authService,
-            IAbonnementService<AbonnementDTO> abonnementService,
+            IAbonnementService abonnementService,
             NavigationManager navigationManager,
             LoginViewModel connexionViewModel,
             IMediasService mediasService,
             ISignalementService signalementService,
             IBloqueService bloqueService,
+            ISignalRService notificationHubService,
             INotificationService notificationService)
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService,notificationHubService, notificationService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;

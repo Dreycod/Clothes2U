@@ -95,7 +95,8 @@ namespace FrontBlazor.ViewModel
             NavigationManager navigationManager,
             INotificationService notificationService,
             ITagService<TagDTO> tagService,
-            NavigationManager nav): base(navigationManager, authService, notificationService)
+            ISignalRService notificationHubService,
+            NavigationManager nav): base(navigationManager, authService,notificationHubService, notificationService)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
             _mediaService = mediaService ?? throw new ArgumentNullException(nameof(mediaService));

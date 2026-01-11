@@ -3,7 +3,7 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.Services.Interfaces;
 
-public interface IAbonnementService<TEntity>
+public interface IAbonnementService
 {
     Task AddAbonnement(int utilisateurId);
     Task DeleteAbonnement(int utilisateurId);
