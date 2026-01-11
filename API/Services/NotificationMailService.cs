@@ -51,7 +51,7 @@ namespace API.Services
 
                 await _emailService.SendAsync(
                     utilisateur.Email,
-                    "Changement de statut de votre compte",
+                    "Compte suspendu",
                     "Votre compte a été suspendu. Si vous pensez qu'il s'agit d'une erreur, contactez le support."
                 );
             }
@@ -59,11 +59,10 @@ namespace API.Services
             {
                 await _emailService.SendAsync(
                     utilisateur.Email,
-                    "Changement de statut de votre compte",
+                    "Compte banni",
                     "Votre compte a été banni. Si vous pensez qu'il s'agit d'une erreur, contactez le support."
                 );
             }
-
         }
 
         //// Oublie de mot de passe par mail

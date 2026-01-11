@@ -5,7 +5,7 @@ namespace FrontBlazor.Services.Interfaces;
 public interface ISignalRService
 {
     // ✅ Événements SIMPLES pour le chat (pas d'objets complexes)
-    event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
+    event Action<int, int, string, List<int>, DateTime, int>? OnMessageReceived;
     event Action<int, int, string>? OnUserTyping;
     event Action<int, int>? OnMessagesRead;
     event Action<int, int, bool>? OnProposalResponse;
@@ -13,6 +13,7 @@ public interface ISignalRService
     event Action<int, int, int, DateTime>? OnPaymentReceived;
     event Action<int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
     event Action<int, int, int, bool, int?, string?, DateTime, int>? OnColisRecuReceived;
+    event Action<int, int, int>? OnPaymentCancelled;
     
     // Événement pour les notifications
     event Action<int>? OnNotificationCountUpdated;

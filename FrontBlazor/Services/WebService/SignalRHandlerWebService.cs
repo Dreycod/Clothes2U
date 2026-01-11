@@ -39,8 +39,11 @@ public class SignalRHandlerWebService : IDisposable
         _signalRService.OnPaymentReceived += OnPaymentReceivedFromSignalR;
         _signalRService.OnColisEnvoyeReceived += OnColisEnvoyeReceivedFromSignalR;
         _signalRService.OnColisRecuReceived += OnColisRecuReceivedFromSignalR;
+        _signalRService.OnPaymentCancelled += OnPaymentCancelledFromSignalR;
     }
+
     
+
     /// <summary>
     /// ✅ IMPORTANT : Mettre à jour le contexte depuis le ViewModel
     /// </summary>
@@ -63,14 +66,16 @@ public class SignalRHandlerWebService : IDisposable
         int senderId,
         string message,
         List<int> photoIds,
-        DateTime date)
+        DateTime date,
+        int messageId)
     {
         await HandleMessageReceived(
             conversationId,
             senderId,
             message,
             photoIds,
-            date);
+            date,
+            messageId);
     }
     
     private void OnUserTypingFromSignalR(
@@ -111,16 +116,46 @@ public class SignalRHandlerWebService : IDisposable
             date);
     }
     
+    private void OnCancelPaymentRecievedFromSignalR(int conversationId, int messageId, int senderId, DateTime date, bool accepted)
+    {
+        HandleCancelPaymentReceived(conversationId, messageId, senderId, date, accepted);
+    }
+    
     #endregion
     
     #region Handlers (utilisant le contexte local)
+
+    private async void HandleCancelPaymentReceived(int conversationId, int messageId, int senderId, DateTime date,
+        bool accepted)
+    {
+        if (_selectedConversation?.ConversationId == conversationId)
+        {
+            var exists = _selectedConversation.ListMessages?.Any(m =>
+                m.SenderId == senderId &&
+                m.MessageId == messageId
+            ) ?? false;
+
+            if (!exists)
+            {
+                
+            }
+            else
+            {
+                
+            }
+        }
+    }
     
+    
+    // Dans SignalRHandlerWebService.cs
+
     private async Task HandleMessageReceived(
         int conversationId,
         int senderId,
         string message,
         List<int> photoIds,
-        DateTime date)
+        DateTime date,
+        int? messageId)
     {
         if (_selectedConversation != null && _selectedConversation.ConversationId == conversationId)
         {
@@ -134,6 +169,7 @@ public class SignalRHandlerWebService : IDisposable
             {
                 var newMessage = new MessageTextDTO()
                 {
+                    MessageId = messageId,
                     Content = message,
                     SenderId = senderId,
                     Date = date,
@@ -154,7 +190,7 @@ public class SignalRHandlerWebService : IDisposable
                 {
                     try
                     {
-                        await _messageService.MaskAsRead(newMessage.MessageId.Value);
+                        await _messageService.MaskAsRead(messageId.Value);
                         newMessage.Lu = true;
                         await _signalRService.MarkMessagesAsRead(conversationId, _currentUserId);
                     }
@@ -353,6 +389,61 @@ private void OnPaymentReceivedFromSignalR(
     }
 
     #endregion
+    
+    private void OnPaymentCancelledFromSignalR(
+        int conversationId,
+        int messagePayeeId,
+        int userId)
+    {
+        HandlePaymentCancelled(conversationId, messagePayeeId, userId);
+    }
+    
+    private void HandlePaymentCancelled(
+        int conversationId,
+        int messagePayeeId,
+        int userId)
+    {
+        if (_selectedConversation?.ConversationId == conversationId)
+        {
+            // Trouver le message de paiement et le marquer comme annulé
+            var messagePayee = _selectedConversation.ListMessages?
+                .OfType<MessageEstPayeeDTO>()
+                .FirstOrDefault(m => m.MessageId == messagePayeeId);
+
+            if (messagePayee != null)
+            {
+                messagePayee.EstAnnule = true;
+                Console.WriteLine($"[SignalRHandler] ✅ Payment {messagePayeeId} marked as cancelled");
+                NotifyStateChanged();
+            }
+            else
+            {
+                Console.WriteLine($"[SignalRHandler] ⚠️ Payment message {messagePayeeId} not found in conversation");
+            }
+        }
+        else
+        {
+            // Si on n'est pas dans la conversation, mettre à jour le dernier message
+            var conv = _conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = "Paiement annulé";
+                conv.HasNewMessages = true;
+
+                try
+                {
+                    _conversations.Remove(conv);
+                    _conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SignalRHandler] Error moving conversation to top: {ex.Message}");
+                }
+            }
+
+            NotifyStateChanged();
+        }
+    }
 
     #region Handlers internes
 
@@ -543,6 +634,7 @@ private void OnPaymentReceivedFromSignalR(
         _signalRService.OnPaymentReceived -= OnPaymentReceivedFromSignalR;
         _signalRService.OnColisEnvoyeReceived -= OnColisEnvoyeReceivedFromSignalR;
         _signalRService.OnColisRecuReceived -= OnColisRecuReceivedFromSignalR;
+        _signalRService.OnPaymentCancelled -= OnPaymentCancelledFromSignalR;
         _typingDisplayTimer?.Dispose();
     }
 }

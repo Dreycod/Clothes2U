@@ -8,5 +8,6 @@ namespace API.Models.Repository
         Task<IEnumerable<TEntity>> GetByUtilisateurBloqueId(TIdentifier id);
         Task<bool> Exists(int bloqueurId, int bloqueId);
         Task<TEntity?> GetIfExists(int bloqueurId, int bloqueId);
+        Task<List<int>> GetUserBlockedIds(int userId);
     }
 }

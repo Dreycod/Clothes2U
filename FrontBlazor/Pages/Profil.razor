@@ -495,10 +495,13 @@
                     <div class="users-list">
                         @foreach (var user in VM_Profil.Abonnements)
                         {
-                            <div class="user-card" @onclick="() => VM_Profil.NavigateToUserProfile(user.NomUtilisateur)">
-                                <img src="@VM_Profil.GetPhoto(user.PhotoId)" alt="@user.NomUtilisateur" class="user-avatar" />
-                                <div class="user-info">
-                                    <span class="user-login">@("@" + user.NomUtilisateur)</span>
+                            <div class="blocked-user-item">
+                                <div class="blocked-user-info" @onclick="() => VM_Profil.NavigateToUserProfile(user.NomUtilisateur)">
+                                    <img class="blocked-user-avatar" 
+                                         src="@VM_Profil.GetPhoto(user.PhotoId)"/>
+                                    <div class="blocked-user-details">
+                                        <h4>@user.NomUtilisateur</h4>
+                                    </div>
                                 </div>
                             </div>
                         }

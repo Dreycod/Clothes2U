@@ -15,13 +15,14 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     // Événements existants pour le chat
     public event Action<int, int, bool>? OnProposalResponse;
     //public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
-    public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
+    public event Action<int, int, string, List<int>, DateTime, int>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
     public event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
     public event Action<int, int, int, DateTime>? OnPaymentReceived;
     public event Action<int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
     public event Action<int, int, int, bool, int?, string?, DateTime, int>? OnColisRecuReceived;
+    public event Action<int, int, int>? OnPaymentCancelled;
 
 
     // ✅ NOUVEAU : Événement pour les notifications
@@ -89,12 +90,12 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
             // Écoute des messages
             // Dans SignalRWebService.cs, remplacer les On<...> par les versions simples
 
-            _chatHubConnection.On<int, int, string, List<int>, DateTime>(
+            _chatHubConnection.On<int, int, string, List<int>, DateTime, int>(
                 "ReceiveMessage",
-                (conversationId, senderId, message, photos, date) =>
+                (conversationId, senderId, message, photos, date, messageId) =>
                 {
                     Console.WriteLine($"[SignalR] 📨 ReceiveMessage event received:");
-                    OnMessageReceived?.Invoke(conversationId, senderId, message, photos, date);
+                    OnMessageReceived?.Invoke(conversationId, senderId, message, photos, date, messageId);
                 });
 
             _chatHubConnection.On<int, int, string>("UserTyping", 
@@ -158,6 +159,18 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
                     Console.WriteLine($"  - EstConforme: {estConforme}");
                 
                     OnColisRecuReceived?.Invoke(conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId);
+                });
+
+            _chatHubConnection.On<int, int, int>(
+                "ReceivePaymentCancelled",
+                (conversationId, messagePayeeId, userId) =>
+                {
+                    Console.WriteLine($"[SignalR] ❌ ReceivePaymentCancelled event received:");
+                    Console.WriteLine($"  - ConversationId: {conversationId}");
+                    Console.WriteLine($"  - MessagePayeeId: {messagePayeeId}");
+                    Console.WriteLine($"  - UserId: {userId}");
+                
+                    OnPaymentCancelled?.Invoke(conversationId, messagePayeeId, userId);
                 });
             // Démarrage de la connexion chat
             Console.WriteLine("[SignalR] Starting chat connection...");
