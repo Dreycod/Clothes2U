@@ -36,6 +36,9 @@ public class SignalRHandlerWebService : IDisposable
         _signalRService.OnMessagesRead += OnMessagesReadFromSignalR;
         _signalRService.OnProposalResponse += OnProposalResponseFromSignalR;
         _signalRService.OnPriceProposalReceived += OnPriceProposalReceivedFromSignalR;
+        _signalRService.OnPaymentReceived += OnPaymentReceivedFromSignalR;
+        _signalRService.OnColisEnvoyeReceived += OnColisEnvoyeReceivedFromSignalR;
+        _signalRService.OnColisRecuReceived += OnColisRecuReceivedFromSignalR;
     }
     
     /// <summary>
@@ -311,8 +314,222 @@ public class SignalRHandlerWebService : IDisposable
             NotifyStateChanged();
         }
     }
+
     
     #endregion
+    
+    #region Nouveaux handlers SignalR
+private void OnPaymentReceivedFromSignalR(
+        int conversationId,
+        int messageId,
+        int senderId,
+        DateTime date)
+    {
+        HandlePaymentReceived(conversationId, messageId, senderId, date);
+    }
+
+    private void OnColisEnvoyeReceivedFromSignalR(
+        int conversationId,
+        int messageId,
+        int senderId,
+        int photoId,
+        DateTime date,
+        int messagePayeeId)
+    {
+        HandleColisEnvoyeReceived(conversationId, messageId, senderId, photoId, date, messagePayeeId);
+    }
+
+    private void OnColisRecuReceivedFromSignalR(
+        int conversationId,
+        int messageId,
+        int senderId,
+        bool estConforme,
+        int? photoId,
+        string? description,
+        DateTime date,
+        int messageEnvoieId)
+    {
+        HandleColisRecuReceived(conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId);
+    }
+
+    #endregion
+
+    #region Handlers internes
+
+    private void HandlePaymentReceived(
+        int conversationId,
+        int messageId,
+        int senderId,
+        DateTime date)
+    {
+        if (_selectedConversation?.ConversationId == conversationId)
+        {
+            var exists = _selectedConversation.ListMessages?.Any(m => m.MessageId == messageId) ?? false;
+
+            if (!exists)
+            {
+                var newPayment = new MessageEstPayeeDTO
+                {
+                    MessageId = messageId,
+                    ConversationId = conversationId,
+                    SenderId = senderId,
+                    Date = date,
+                    SentByCurrentUser = senderId == _currentUserId,
+                    EstEnvoye = false
+                };
+            
+                _selectedConversation.ListMessages?.Add(newPayment);
+                NotifyStateChanged();
+                OnMessageReceivedUI?.Invoke();
+            }
+        }
+        else
+        {
+            var conv = _conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = "Paiement effectué";
+                conv.HasNewMessages = true;
+
+                try
+                {
+                    _conversations.Remove(conv);
+                    _conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SignalRHandler] Error moving conversation to top: {ex.Message}");
+                }
+            }
+
+            NotifyStateChanged();
+        }
+    }
+
+    private void HandleColisEnvoyeReceived(
+        int conversationId,
+        int messageId,
+        int senderId,
+        int photoId,
+        DateTime date,
+        int messagePayeeId)
+    {
+        if (_selectedConversation?.ConversationId == conversationId)
+        {
+            var exists = _selectedConversation.ListMessages?.Any(m => m.MessageId == messageId) ?? false;
+
+            if (!exists)
+            {
+                var newColis = new MessageEnvoieColisDTO
+                {
+                    MessageId = messageId,
+                    ConversationId = conversationId,
+                    SenderId = senderId,
+                    Date = date,
+                    SentByCurrentUser = senderId == _currentUserId,
+                    PhotoId = photoId,
+                    MessageEstPayeeId = messagePayeeId
+                };
+            
+                _selectedConversation.ListMessages?.Add(newColis);
+                
+                // Mettre à jour le message payee correspondant
+                var messagePayee = _selectedConversation.ListMessages?
+                    .OfType<MessageEstPayeeDTO>()
+                    .FirstOrDefault(m => m.MessageId == messagePayeeId);
+                
+                if (messagePayee != null)
+                {
+                    messagePayee.EstEnvoye = true;
+                }
+                
+                NotifyStateChanged();
+                OnMessageReceivedUI?.Invoke();
+            }
+        }
+        else
+        {
+            var conv = _conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = "Colis envoyé";
+                conv.HasNewMessages = true;
+
+                try
+                {
+                    _conversations.Remove(conv);
+                    _conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SignalRHandler] Error moving conversation to top: {ex.Message}");
+                }
+            }
+
+            NotifyStateChanged();
+        }
+    }
+
+    private void HandleColisRecuReceived(
+        int conversationId,
+        int messageId,
+        int senderId,
+        bool estConforme,
+        int? photoId,
+        string? description,
+        DateTime date,
+        int messageEnvoieId)
+    {
+        if (_selectedConversation?.ConversationId == conversationId)
+        {
+            var exists = _selectedConversation.ListMessages?.Any(m => m.MessageId == messageId) ?? false;
+
+            if (!exists)
+            {
+                var newRecu = new MessageEstRecuDTO
+                {
+                    MessageId = messageId,
+                    ConversationId = conversationId,
+                    SenderId = senderId,
+                    Date = date,
+                    SentByCurrentUser = senderId == _currentUserId,
+                    EstConforme = estConforme,
+                    PhotoId = photoId,
+                    Description = description,
+                    //essageEnvoieColisId = messageEnvoieId
+                };
+            
+                _selectedConversation.ListMessages?.Add(newRecu);
+                NotifyStateChanged();
+                OnMessageReceivedUI?.Invoke();
+            }
+        }
+        else
+        {
+            var conv = _conversations.FirstOrDefault(c => c.ConversationId == conversationId);
+            if (conv != null)
+            {
+                conv.LastMessage = estConforme ? "Colis reçu conforme" : "Colis non conforme";
+                conv.HasNewMessages = true;
+
+                try
+                {
+                    _conversations.Remove(conv);
+                    _conversations.Insert(0, conv);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SignalRHandler] Error moving conversation to top: {ex.Message}");
+                }
+            }
+
+            NotifyStateChanged();
+        }
+    }
+
+    #endregion
+    
+
     
     private void NotifyStateChanged() => OnStateChanged?.Invoke();
     
@@ -323,6 +540,9 @@ public class SignalRHandlerWebService : IDisposable
         _signalRService.OnMessagesRead -= OnMessagesReadFromSignalR;
         _signalRService.OnProposalResponse -= OnProposalResponseFromSignalR;
         _signalRService.OnPriceProposalReceived -= OnPriceProposalReceivedFromSignalR;
+        _signalRService.OnPaymentReceived -= OnPaymentReceivedFromSignalR;
+        _signalRService.OnColisEnvoyeReceived -= OnColisEnvoyeReceivedFromSignalR;
+        _signalRService.OnColisRecuReceived -= OnColisRecuReceivedFromSignalR;
         _typingDisplayTimer?.Dispose();
     }
 }

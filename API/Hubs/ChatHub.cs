@@ -61,4 +61,39 @@ public class ChatHub : Hub
     
         Console.WriteLine($"[Hub] ✅ Broadcasted typing to group {groupName}");
     }
+    public async Task NotifyPaymentReceived(
+        int conversationId, 
+        int messageId, 
+        int senderId, 
+        DateTime date)
+    {
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceivePayment", conversationId, messageId, senderId, date);
+    }
+
+    public async Task NotifyColisEnvoye(
+        int conversationId, 
+        int messageId, 
+        int senderId, 
+        int photoId,
+        int messageEstPayeeId,
+        DateTime date)
+    {
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceiveColisEnvoye", conversationId, messageId, senderId, photoId, messageEstPayeeId, date);
+    }
+
+    public async Task NotifyColisRecu(
+        int conversationId, 
+        int messageId, 
+        int senderId,
+        bool estConforme,
+        string? description,
+        int? photoId,
+        int messageEstEnvoieId,
+        DateTime date)
+    {
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceiveColisRecu", conversationId, messageId, senderId, estConforme, description, photoId, messageEstEnvoieId, date);
+    }
 }

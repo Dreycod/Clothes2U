@@ -397,7 +397,7 @@
                                                  !payee.EstEnvoye &&
                                                  VM_Messagerie.utilisateur != null &&
                                                  VM_Messagerie.SelectedConversation.VendeurId != null &&
-                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId != null)
+                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                                             {
                                                 <button class="btn-secondary btn-danger"
                                                         @onclick="() => CancelPayement(payee.MessageEstPayeeId)">

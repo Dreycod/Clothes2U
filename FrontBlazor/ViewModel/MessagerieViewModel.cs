@@ -41,9 +41,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public List<IBrowserFile> SelectedFile { get; set; }
     public List<(IBrowserFile File, string PreviewBase64)> SelectedFilePreviews { get; set; } = new();
     public bool IsLoading { get; private set; } = false;
-    //public bool IsTyping { get; private set; } = false;
     public string? PriceProposalError { get; set; }
-    //public string TypingUserName { get; private set; } = "";
 
     public ElementReference MessagesContainer;
     public event Action? OnMessageReceivedUI; 
@@ -347,7 +345,6 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         
         PriceProposalError = null;
 
-        // ❌ Prix supérieur au prix actuel
         if (proposedPrice > SelectedConversation.PrixAnnonce)
         {
             PriceProposalError = "Le prix proposé ne peut pas être supérieur au prix.";

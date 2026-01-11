@@ -30,6 +30,7 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEnvoieColis)
             .Include(c => c.Messages)
+            .ThenInclude(m => m.MessageEstRecu)
             .AsSplitQuery();
     }
 

@@ -19,6 +19,10 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
     public event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
+    public event Action<int, int, int, DateTime>? OnPaymentReceived;
+    public event Action<int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
+    public event Action<int, int, int, bool, int?, string?, DateTime, int>? OnColisRecuReceived;
+
 
     // ✅ NOUVEAU : Événement pour les notifications
     public event Action<int>? OnNotificationCountUpdated;
@@ -120,7 +124,41 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
                     OnProposalResponse?.Invoke(conversationId, messageId, accepted);
                 });
 
-
+            _chatHubConnection.On<int, int, int, DateTime>(
+                "ReceivePayment",
+                (conversationId, messageId, senderId, date) =>
+                {
+                    Console.WriteLine($"[SignalR] 💰 ReceivePayment event received:");
+                    Console.WriteLine($"  - ConversationId: {conversationId}");
+                    Console.WriteLine($"  - MessageId: {messageId}");
+                    Console.WriteLine($"  - SenderId: {senderId}");
+                
+                    OnPaymentReceived?.Invoke(conversationId, messageId, senderId, date);
+                });
+        
+            _chatHubConnection.On<int, int, int, int, DateTime, int>(
+                "ReceiveColisEnvoye",
+                (conversationId, messageId, senderId, photoId, date, messagePayeeId) =>
+                {
+                    Console.WriteLine($"[SignalR] 📦 ReceiveColisEnvoye event received:");
+                    Console.WriteLine($"  - ConversationId: {conversationId}");
+                    Console.WriteLine($"  - MessageId: {messageId}");
+                    Console.WriteLine($"  - PhotoId: {photoId}");
+                
+                    OnColisEnvoyeReceived?.Invoke(conversationId, messageId, senderId, photoId, date, messagePayeeId);
+                });
+        
+            _chatHubConnection.On<int, int, int, bool, int?, string?, DateTime, int>(
+                "ReceiveColisRecu",
+                (conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId) =>
+                {
+                    Console.WriteLine($"[SignalR] 📬 ReceiveColisRecu event received:");
+                    Console.WriteLine($"  - ConversationId: {conversationId}");
+                    Console.WriteLine($"  - MessageId: {messageId}");
+                    Console.WriteLine($"  - EstConforme: {estConforme}");
+                
+                    OnColisRecuReceived?.Invoke(conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId);
+                });
             // Démarrage de la connexion chat
             Console.WriteLine("[SignalR] Starting chat connection...");
             await _chatHubConnection.StartAsync();

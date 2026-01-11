@@ -10,6 +10,9 @@ public interface ISignalRService
     event Action<int, int>? OnMessagesRead;
     event Action<int, int, bool>? OnProposalResponse;
     event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
+    event Action<int, int, int, DateTime>? OnPaymentReceived;
+    event Action<int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
+    event Action<int, int, int, bool, int?, string?, DateTime, int>? OnColisRecuReceived;
     
     // Événement pour les notifications
     event Action<int>? OnNotificationCountUpdated;
