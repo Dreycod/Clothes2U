@@ -80,7 +80,7 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(PhotoResponseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadPhotoAnnonce(int annonceId, [FromForm] bool IsDangerous, [FromForm] IFormFile file)
+    public async Task<IActionResult> UploadPhotoAnnonce(int annonceId, [FromForm] bool IsDangerous, IFormFile file)
     {
         _logger.LogInformation("Upload photo pour annonce {AnnonceId}", annonceId);
 
