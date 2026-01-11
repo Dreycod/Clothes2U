@@ -235,7 +235,7 @@ public class MessageController : ControllerBase
     [HttpPost("payee")]
     [ProducesResponseType(typeof(MessageEstPayeePostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessageValidation(MessageEstPayeePostDTO dto)
+    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessagePayee(MessageEstPayeePostDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -257,6 +257,44 @@ public class MessageController : ControllerBase
         };
         
         await _messageValidationManager.AddAsync(messageValidation);
+        
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                // NotificationPropositionCreateDTO notification = new NotificationPropositionCreateDTO()
+                // {
+                //     UtilisateurId = (int)targetUserId,
+                //     TypeId = 6,
+                //     PropositionId = messageDemande.MessageDemandeId
+                // };
+                // await _notificationService.CreateNotification(notification);
+
+                // 🔥 BROADCASTER VIA SIGNALR
+                //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
+
+                await _hubContext.Clients
+                    .Group($"conversation_{message.ConversationId}")
+                    .SendAsync("PaymentReceived",
+                        message.ConversationId,
+                        message.MessageId,
+                        message.UtilisateurId,
+                         message.MessageDate);
+            }
+            else
+            {
+                Console.WriteLine($"[MessageController] ❌ Target user not found");
+                return BadRequest("Utilisateur non autorisé pour cette conversation");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"[MessageController] ❌ Conversation {dto.ConversationId} not found");
+            return BadRequest("Conversation introuvable");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }

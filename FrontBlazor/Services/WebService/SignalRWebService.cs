@@ -1,5 +1,7 @@
+using System.Collections.ObjectModel;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
+using Shared.DTO.Conversation;
 
 namespace FrontBlazor.Services;
 
@@ -12,6 +14,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 
     // Événements existants pour le chat
     public event Action<int, int, bool>? OnProposalResponse;
+    //public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
@@ -80,64 +83,43 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
             };
 
             // Écoute des messages
+            // Dans SignalRWebService.cs, remplacer les On<...> par les versions simples
+
             _chatHubConnection.On<int, int, string, List<int>, DateTime>(
                 "ReceiveMessage",
                 (conversationId, senderId, message, photos, date) =>
                 {
                     Console.WriteLine($"[SignalR] 📨 ReceiveMessage event received:");
-                    Console.WriteLine($"  - ConversationId: {conversationId}");
-                    Console.WriteLine($"  - SenderId: {senderId}");
-                    Console.WriteLine($"  - Message: {message}");
-                    Console.WriteLine($"  - Photos: {string.Join(", ", photos)}");
-                    Console.WriteLine($"  - Date: {date}");
-
                     OnMessageReceived?.Invoke(conversationId, senderId, message, photos, date);
                 });
 
-            _chatHubConnection.On<int, int, string>("UserTyping", (conversationId, userId, userName) =>
-            {
-                OnUserTyping?.Invoke(conversationId, userId, userName);
-            });
+            _chatHubConnection.On<int, int, string>("UserTyping", 
+                (conversationId, userId, userName) =>
+                {
+                    OnUserTyping?.Invoke(conversationId, userId, userName);
+                });
 
             _chatHubConnection.On<int, int>("MessagesRead", 
                 (conversationId, userId) =>
-            {
-                Console.WriteLine($"[SignalR] ✔️ MessagesRead: conv={conversationId}, user={userId}");
-                OnMessagesRead?.Invoke(conversationId, userId);
-            });
-            
+                {
+                    Console.WriteLine($"[SignalR] ✔️ MessagesRead: conv={conversationId}, user={userId}");
+                    OnMessagesRead?.Invoke(conversationId, userId);
+                });
+
             _chatHubConnection.On<int, int, int, decimal, DateTime>(
                 "ReceivePriceProposal",
                 (conversationId, messageId, senderId, prixPropose, date) =>
                 {
-                    if (OnPriceProposalReceived != null)
-                    {
-                        OnPriceProposalReceived.Invoke(conversationId, messageId, senderId, prixPropose, date);
-                        Console.WriteLine($"[SignalR]   ✅ Event invoked successfully");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[SignalR]   ⚠️ No subscribers for OnPriceProposalReceived!");
-                    }
-                    Console.WriteLine("========================================");
+                    OnPriceProposalReceived?.Invoke(conversationId, messageId, senderId, prixPropose, date);
                 });
 
             _chatHubConnection.On<int, int, bool>(
                 "ProposalResponseReceived", 
                 (conversationId, messageId, accepted) =>
                 {
-                    if (OnProposalResponse != null)
-                    {
-                        Console.WriteLine($"[SignalR]   Invoking OnProposalResponse event...");
-                        OnProposalResponse.Invoke(conversationId, messageId, accepted);
-                        Console.WriteLine($"[SignalR]   ✅ Event invoked successfully");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[SignalR]   ⚠️ No subscribers for OnProposalResponse!");
-                    }
-                    Console.WriteLine("========================================");
+                    OnProposalResponse?.Invoke(conversationId, messageId, accepted);
                 });
+
 
             // Démarrage de la connexion chat
             Console.WriteLine("[SignalR] Starting chat connection...");
@@ -156,6 +138,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     }
 
     // ✅ NOUVEAU : Démarrer le hub de notifications
+
     public async Task StartNotificationHubAsync()
 {
     if (_notificationHubConnection != null && IsNotificationConnected)
@@ -284,7 +267,6 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     {
         if (_chatHubConnection == null || !IsConnected)
         {
-            Console.WriteLine($"[SignalR] ⚠️ Cannot leave conversation {conversationId}: not connected");
             return;
         }
 

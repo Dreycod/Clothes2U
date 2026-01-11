@@ -4,21 +4,21 @@ namespace FrontBlazor.Services.Interfaces;
 
 public interface ISignalRService
 {
-    // Événements existants pour le chat
+    // ✅ Événements SIMPLES pour le chat (pas d'objets complexes)
     event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
     event Action<int, int, string>? OnUserTyping;
     event Action<int, int>? OnMessagesRead;
     event Action<int, int, bool>? OnProposalResponse;
     event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
     
-    // ✅ NOUVEAU : Événement pour les notifications
+    // Événement pour les notifications
     event Action<int>? OnNotificationCountUpdated;
     
     // Propriétés de connexion
     bool IsConnected { get; }
-    bool IsNotificationConnected { get; }  // ✅ NOUVEAU
+    bool IsNotificationConnected { get; }
     
-    // Méthodes existantes pour le chat
+    // Méthodes pour le chat
     Task StartAsync();
     Task StopAsync();
     Task JoinConversation(int conversationId);
@@ -28,7 +28,7 @@ public interface ISignalRService
     Task MarkMessagesAsRead(int conversationId, int userId);
     Task NotifyProposalResponse(int conversationId, int messageId, bool accepted);
     
-    // ✅ NOUVEAU : Méthodes pour le hub de notifications
+    // Méthodes pour le hub de notifications
     Task StartNotificationHubAsync();
     Task StopNotificationHubAsync();
 }
