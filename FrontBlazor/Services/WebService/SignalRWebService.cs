@@ -15,7 +15,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     // Événements existants pour le chat
     public event Action<int, int, bool>? OnProposalResponse;
     //public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
-    public event Action<int, int, string, List<int>, DateTime>? OnMessageReceived;
+    public event Action<int, int, string, List<int>, DateTime, int>? OnMessageReceived;
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
     public event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
@@ -90,12 +90,12 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
             // Écoute des messages
             // Dans SignalRWebService.cs, remplacer les On<...> par les versions simples
 
-            _chatHubConnection.On<int, int, string, List<int>, DateTime>(
+            _chatHubConnection.On<int, int, string, List<int>, DateTime, int>(
                 "ReceiveMessage",
-                (conversationId, senderId, message, photos, date) =>
+                (conversationId, senderId, message, photos, date, messageId) =>
                 {
                     Console.WriteLine($"[SignalR] 📨 ReceiveMessage event received:");
-                    OnMessageReceived?.Invoke(conversationId, senderId, message, photos, date);
+                    OnMessageReceived?.Invoke(conversationId, senderId, message, photos, date, messageId);
                 });
 
             _chatHubConnection.On<int, int, string>("UserTyping", 

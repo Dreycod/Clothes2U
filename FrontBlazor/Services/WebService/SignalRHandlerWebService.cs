@@ -66,14 +66,16 @@ public class SignalRHandlerWebService : IDisposable
         int senderId,
         string message,
         List<int> photoIds,
-        DateTime date)
+        DateTime date,
+        int messageId)
     {
         await HandleMessageReceived(
             conversationId,
             senderId,
             message,
             photoIds,
-            date);
+            date,
+            messageId);
     }
     
     private void OnUserTypingFromSignalR(
@@ -145,12 +147,15 @@ public class SignalRHandlerWebService : IDisposable
     }
     
     
+    // Dans SignalRHandlerWebService.cs
+
     private async Task HandleMessageReceived(
         int conversationId,
         int senderId,
         string message,
         List<int> photoIds,
-        DateTime date)
+        DateTime date,
+        int? messageId)
     {
         if (_selectedConversation != null && _selectedConversation.ConversationId == conversationId)
         {
@@ -164,6 +169,7 @@ public class SignalRHandlerWebService : IDisposable
             {
                 var newMessage = new MessageTextDTO()
                 {
+                    MessageId = messageId,
                     Content = message,
                     SenderId = senderId,
                     Date = date,
@@ -184,7 +190,7 @@ public class SignalRHandlerWebService : IDisposable
                 {
                     try
                     {
-                        await _messageService.MaskAsRead(newMessage.MessageId.Value);
+                        await _messageService.MaskAsRead(messageId.Value);
                         newMessage.Lu = true;
                         await _signalRService.MarkMessagesAsRead(conversationId, _currentUserId);
                     }
