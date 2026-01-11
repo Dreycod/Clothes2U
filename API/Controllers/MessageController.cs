@@ -413,6 +413,21 @@ public class MessageController : ControllerBase
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
+                .SendAsync("ReceivePaymentCancelled", 
+                    messagePayee.Message.ConversationId, 
+                    messagePayee.MessageId,
+                    messagePayee.Message.UtilisateurId);
+        
+            Console.WriteLine($"[MessageController] ✅ Payment cancelled notification sent for conversation {messagePayee.Message.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
+        }
+       
         return NoContent();
     }
     
@@ -465,7 +480,7 @@ public class MessageController : ControllerBase
         // Notifier SignalR
         // Dans MessageController après avoir sauvegardé le message
         await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
-            .SendAsync("ReceiveMessage", message.ConversationId, message.UtilisateurId, message.MessageTexte.Content, message.MessageDate);
+            .SendAsync("MessageRead", message.ConversationId, message.UtilisateurId);
 
         return NoContent();
     }

@@ -96,4 +96,22 @@ public class ChatHub : Hub
         await Clients.Group($"conversation_{conversationId}")
             .SendAsync("ReceiveColisRecu", conversationId, messageId, senderId, estConforme, description, photoId, messageEstEnvoieId, date);
     }
+    
+    // Dans ChatHub.cs
+
+    /// <summary>
+    /// Notifie qu'un paiement a été annulé
+    /// </summary>
+    public async Task NotifyPaymentCancelled(int conversationId, int messagePayeeId, int userId)
+    {
+        Console.WriteLine($"[ChatHub] ❌ NotifyPaymentCancelled called:");
+        Console.WriteLine($"  - ConversationId: {conversationId}");
+        Console.WriteLine($"  - MessagePayeeId: {messagePayeeId}");
+        Console.WriteLine($"  - UserId: {userId}");
+    
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceivePaymentCancelled", conversationId, messagePayeeId, userId);
+    
+        Console.WriteLine($"[ChatHub] ✅ Payment cancelled notification sent to conversation {conversationId}");
+    }
 }

@@ -22,6 +22,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     public event Action<int, int, int, DateTime>? OnPaymentReceived;
     public event Action<int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
     public event Action<int, int, int, bool, int?, string?, DateTime, int>? OnColisRecuReceived;
+    public event Action<int, int, int>? OnPaymentCancelled;
 
 
     // ✅ NOUVEAU : Événement pour les notifications
@@ -158,6 +159,18 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
                     Console.WriteLine($"  - EstConforme: {estConforme}");
                 
                     OnColisRecuReceived?.Invoke(conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId);
+                });
+
+            _chatHubConnection.On<int, int, int>(
+                "ReceivePaymentCancelled",
+                (conversationId, messagePayeeId, userId) =>
+                {
+                    Console.WriteLine($"[SignalR] ❌ ReceivePaymentCancelled event received:");
+                    Console.WriteLine($"  - ConversationId: {conversationId}");
+                    Console.WriteLine($"  - MessagePayeeId: {messagePayeeId}");
+                    Console.WriteLine($"  - UserId: {userId}");
+                
+                    OnPaymentCancelled?.Invoke(conversationId, messagePayeeId, userId);
                 });
             // Démarrage de la connexion chat
             Console.WriteLine("[SignalR] Starting chat connection...");
