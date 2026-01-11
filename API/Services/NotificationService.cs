@@ -142,9 +142,10 @@ public class  NotificationService : INotificationService
         if (userId != null)
         {
             await _notificationManager.DeleteNotificationAnnonceForUser(annonceId, (int)userId);
+            int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId.Value);
+            await _hubService.UpdateNotificationCount(userId.Value, newCount);
         }
-        int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId.Value);
-        await _hubService.UpdateNotificationCount(userId.Value, newCount);
+        
 
     }
 
