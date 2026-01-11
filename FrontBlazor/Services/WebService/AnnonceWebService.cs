@@ -154,4 +154,11 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         var response = await PutWithCredentialsAsync($"Annonce/Vendu/{AnnonceId}", null);
         response.EnsureSuccessStatusCode();
     }
+
+    public async Task UpdateAnnonce(int id, PutAnnonceDTO annonce)
+    {
+        var body = JsonContent.Create(annonce);
+        var response = await PutWithCredentialsAsync($"Annonce/id/{id}", body);
+        response.EnsureSuccessStatusCode();
+    }
 }

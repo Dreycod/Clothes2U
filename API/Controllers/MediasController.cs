@@ -125,13 +125,12 @@ public class MediasController : ControllerBase
 
         try
         {
-            // Convertir IFormFile en PhotoUploadDTO
             PhotoUploadDTO photoDto = await ConvertFormFileToDTO(file);
-
             DetectionResultDTO result = await _detectionService.DetectImageDanger(photoDto);
-            Console.WriteLine("Précision de la détection : " + result.Accuracy);
-            Console.WriteLine("Résultat de la détection : " + result.IsDangerous);
-
+            if (result == null)
+             {
+                return StatusCode(500, new { message = "Erreur lors de la détection d'image" });
+            }
             return Ok(result);
         }
         catch (NotFoundException ex)

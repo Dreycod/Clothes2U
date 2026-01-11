@@ -20,6 +20,7 @@ public class ConversationController : ControllerBase
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly ICurrentUserService _currentUserService;
     private readonly IConversationService _conversationService;
+    private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     
     public ConversationController(
@@ -28,6 +29,7 @@ public class ConversationController : ControllerBase
         INotificationRepository notificationManager,
         ICurrentUserService currentUserService,
         IConversationService conversationService, 
+        INotificationService notificationService,
         IMapper mapper)
     {
         _notificationManager =  notificationManager;
@@ -36,6 +38,7 @@ public class ConversationController : ControllerBase
         _messageManager = messageManager;
         _conversationService = conversationService;
         _mapper = mapper;
+        _notificationService =  notificationService;
     }
     
     
@@ -45,15 +48,12 @@ public class ConversationController : ControllerBase
     {
         var conversation = await _conversationManager.GetByIdAsync(id);
         if (conversation == null) return NotFound();
-
-        var currentUserId = await _currentUserService.GetUserId();
-
+        int userId = await _currentUserService.GetUserIdOrThrow();
         var conversationDTO = _mapper.Map<ConversationDTO>(conversation, opts =>
         {
-            opts.Items["CurrentUserId"] = currentUserId;
+            opts.Items["CurrentUserId"] = userId;
         });
-        
-        await _notificationManager.DeleteMessageNotificationByConversationId(id, (int)currentUserId);
+        await _notificationService.DeleteMessagesNotificationByConversationId(id, userId);
         return Ok(conversationDTO);
     }
     

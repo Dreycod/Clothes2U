@@ -61,4 +61,57 @@ public class ChatHub : Hub
     
         Console.WriteLine($"[Hub] ✅ Broadcasted typing to group {groupName}");
     }
+    public async Task NotifyPaymentReceived(
+        int conversationId, 
+        int messageId, 
+        int senderId, 
+        DateTime date)
+    {
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceivePayment", conversationId, messageId, senderId, date);
+    }
+
+    public async Task NotifyColisEnvoye(
+        int conversationId, 
+        int messageId, 
+        int senderId, 
+        int photoId,
+        int messageEstPayeeId,
+        DateTime date)
+    {
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceiveColisEnvoye", conversationId, messageId, senderId, photoId, messageEstPayeeId, date);
+    }
+
+    public async Task NotifyColisRecu(
+        int conversationId, 
+        int messageId, 
+        int senderId,
+        bool estConforme,
+        string? description,
+        int? photoId,
+        int messageEstEnvoieId,
+        DateTime date)
+    {
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceiveColisRecu", conversationId, messageId, senderId, estConforme, description, photoId, messageEstEnvoieId, date);
+    }
+    
+    // Dans ChatHub.cs
+
+    /// <summary>
+    /// Notifie qu'un paiement a été annulé
+    /// </summary>
+    public async Task NotifyPaymentCancelled(int conversationId, int messagePayeeId, int userId)
+    {
+        Console.WriteLine($"[ChatHub] ❌ NotifyPaymentCancelled called:");
+        Console.WriteLine($"  - ConversationId: {conversationId}");
+        Console.WriteLine($"  - MessagePayeeId: {messagePayeeId}");
+        Console.WriteLine($"  - UserId: {userId}");
+    
+        await Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceivePaymentCancelled", conversationId, messagePayeeId, userId);
+    
+        Console.WriteLine($"[ChatHub] ✅ Payment cancelled notification sent to conversation {conversationId}");
+    }
 }

@@ -11,8 +11,8 @@ public interface IAnnonceService
     Task<List<AnnonceDTO>?> GetByFavorisUtilisateur();
     Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page = 1, int pageSize = 30);
     Task CreateAnnonce(CreateAnnonceDTO annonce);
+    Task UpdateAnnonce(int id, PutAnnonceDTO annonce);
     Task ModificationAnnonce(AnnonceDetailDTO annonce);
     Task VendreAnnonce(int annonceId);
     Task<List<AnnonceDTO>> GetRecommendedAnnonces(int page = 1, int pageSize = 30);
-
 }

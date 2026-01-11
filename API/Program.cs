@@ -16,6 +16,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using API.Controllers;
 using API.Models.Repository.Interfaces;
 using Shared.DTO.Photo;
 using Shared.DTO.Tag;
@@ -288,6 +289,7 @@ builder.Services.AddScoped<IDataRepository<NotificationAchatAnnonce, int>, Notif
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationHubService, NotificationHubService>();
 
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
@@ -364,5 +366,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();

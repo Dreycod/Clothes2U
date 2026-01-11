@@ -20,6 +20,7 @@ using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Photo;
 using Shared.DTO.Recense;
 using FrontBlazor.Services.Interfaces.GenericIServices;
+using FrontBlazor.Services.WebService;
 using Shared.DTO.Tag;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -44,7 +45,7 @@ builder.Services.AddScoped<ICouleurService<CouleurDTO>, CouleurWebService>();
 builder.Services.AddScoped<IFavorisService<FavorisDTO>, FavorisWebService>();
 builder.Services.AddScoped<IAnnonceService, AnnonceWebService>();
 builder.Services.AddScoped<IUtilisateurService, UtilisateurWebService>();
-builder.Services.AddScoped<IAbonnementService<AbonnementDTO>, AbonnementWebService>();
+builder.Services.AddScoped<IAbonnementService, AbonnementWebService>();
 builder.Services.AddScoped<IMotsInterditsService, MotsInterditWebService>();
 builder.Services.AddScoped<IMediasService, MediaWebService>();
 builder.Services.AddScoped<IStateService<AnnonceDTO>, AnnonceStateService>();
@@ -62,6 +63,8 @@ builder.Services.AddScoped<StripeWebService>();
 builder.Services.AddScoped<IRecenseService<RecenseDetailDTO>, RecenseWebService>();
 builder.Services.AddScoped<ITagService<TagDTO>, TagWebService>();
 builder.Services.AddScoped<PasswordResetWebService>();
+builder.Services.AddScoped<SignalRHandlerWebService>();
+
 
 
 //caracteristiques

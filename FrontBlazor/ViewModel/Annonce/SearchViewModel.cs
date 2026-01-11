@@ -82,8 +82,9 @@ namespace FrontBlazor.ViewModel
             INotificationService notificationPopUpService,
             NavigationManager navigationManager,
             INotificationService notificationService,
+            ISignalRService notificationHubService,
             LoginViewModel vM_Login)
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService, notificationHubService,notificationService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;

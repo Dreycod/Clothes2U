@@ -30,7 +30,8 @@ public abstract class BaseGenericService
         => SendWithCredentialsAsync(HttpMethod.Get, url);
     protected Task<HttpResponseMessage> PostWithCredentialsAsync(string url, HttpContent content)
         => SendWithCredentialsAsync(HttpMethod.Post, url, content);
-
+    protected Task<HttpResponseMessage> PatchWithCredentialsAsync(string url, HttpContent content)
+    => SendWithCredentialsAsync(HttpMethod.Patch, url, content);
     protected Task<HttpResponseMessage> PutWithCredentialsAsync(string url, HttpContent content)
         => SendWithCredentialsAsync(HttpMethod.Put, url, content);
     protected Task<HttpResponseMessage> PutWithCredentialsAsync(string url)
@@ -38,4 +39,6 @@ public abstract class BaseGenericService
 
     protected Task<HttpResponseMessage> DeleteWithCredentialsAsync(string url)
         => SendWithCredentialsAsync(HttpMethod.Delete, url);
+    protected Task<HttpResponseMessage> DeleteWithCredentialsAsync(string url, HttpContent content)
+        => SendWithCredentialsAsync(HttpMethod.Delete, url, content);
 }

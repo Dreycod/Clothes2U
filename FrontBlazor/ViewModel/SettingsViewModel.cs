@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Components.Forms;
 using Shared.DTO;
 using Shared.DTO.Annonce;
 using Shared.DTO.Bloque;
+using Shared.DTO.ConnexionRequest;
 using Shared.DTO.Utilisateur;
+using System.ComponentModel.DataAnnotations;
 
 namespace FrontBlazor.ViewModel
 {
@@ -59,8 +61,9 @@ namespace FrontBlazor.ViewModel
             IAuthService authService,
             IMediasService mediaService,
             INotificationService notificationService,
+            ISignalRService notificationHubService,
             IBloqueService bloqueService)
-            : base(navigationManager, authService, notificationService)
+            : base(navigationManager, authService,notificationHubService, notificationService)
         {
             _navigationManager = navigationManager;
             _utilisateurService = utilisateurService;
@@ -233,7 +236,7 @@ namespace FrontBlazor.ViewModel
                     Login = Username
                 };
 
-                bool success = await _utilisateurService.PostUpdateUser(CurrentUser.UtilisateurId, utilisateurSettingsDTO);
+                bool success = await _utilisateurService.PatchUpdateUser( utilisateurSettingsDTO);
 
                 if (success)
                 {
@@ -292,7 +295,7 @@ namespace FrontBlazor.ViewModel
                     Email = Email
                 };
 
-                bool success = await _utilisateurService.PostUpdateUser(CurrentUser.UtilisateurId, utilisateurSettingsDTO);
+                bool success = await _utilisateurService.PatchUpdateUser(utilisateurSettingsDTO);
 
                 if (success)
                 {
@@ -346,9 +349,19 @@ namespace FrontBlazor.ViewModel
             try
             {
                 ChangePasswordDTO password = new ChangePasswordDTO();
-                password.Password = CurrentPassword;
+                password.CurrentPassword = CurrentPassword;
                 password.NewPassword = NewPassword;
                 password.ConfirmNewPassword = NewConfirmPassword;
+
+                var validationResults = new List<ValidationResult>();
+                var validationContext = new ValidationContext(password, null, null);
+                bool isValid = Validator.TryValidateObject(password, validationContext, validationResults, true);
+
+                if (!isValid)
+                {
+                    return validationResults.Select(vr => vr.ErrorMessage).First() ?? "Vérifiez votre saisie";
+                }
+
                 var response = await _authService.ModificationMotDePasse(password);
 
                 if (!response.Success)

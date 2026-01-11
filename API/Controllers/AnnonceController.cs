@@ -103,7 +103,7 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PutAnnonce(int id, [FromBody] AnnonceDetailDTO annonceDTO)
+    public async Task<IActionResult> PutAnnonce(int id, [FromBody] PutAnnonceDTO annonceDTO)
     {
         if (id != annonceDTO.AnnonceId)
         {

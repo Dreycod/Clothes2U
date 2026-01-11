@@ -397,7 +397,7 @@
                                                  !payee.EstEnvoye &&
                                                  VM_Messagerie.utilisateur != null &&
                                                  VM_Messagerie.SelectedConversation.VendeurId != null &&
-                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId != null)
+                                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
                                             {
                                                 <button class="btn-secondary btn-danger"
                                                         @onclick="() => CancelPayement(payee.MessageEstPayeeId)">
@@ -533,7 +533,7 @@
                 <div class="message-input-area">
                     <!-- Bouton upload photo avec meilleure visibilité -->
                     <div class="photo-upload-wrapper">
-                        <InputFile class="hidden-file-input"
+                        <InputFile class="hidden-file-input" style="display: none"
                                    id="@($"photo-input-{VM_Messagerie.SelectedConversation.ConversationId}")"
                                    OnChange="OnImageSelected"
                                    accept="image/*"

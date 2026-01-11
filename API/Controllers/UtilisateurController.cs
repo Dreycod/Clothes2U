@@ -2,6 +2,7 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Interfaces;
 using API.Services;
+using API.Services.Interfaces;
 using API.Services.VerificationSrvceV2;
 using API.Services.Interfaces;
 using AutoMapper;
@@ -75,16 +76,14 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
     [Authorize]
-    [HttpPatch("{id}/PatchSettings")]
-    public async Task<IActionResult> PatchUtilisateurSettings(int id, [FromBody] UtilisateurSettingsDTO settingsDTO)
+    [HttpPatch("PatchSettings")]
+    public async Task<IActionResult> PatchUtilisateurSettings([FromBody] UtilisateurSettingsDTO settingsDTO)
     {
-        if ((await _currentUserService.GetUserId()) != id)
-            return Forbid();
-
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(id);
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateurToUpdate == null)
             return NotFound();
     
@@ -93,10 +92,11 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
 
-    [HttpGet("{id}/GetSettings")]
-    public async Task<ActionResult<UtilisateurSettingsDTO>> GetUtilisateurSettings(int id)
+    [HttpGet("GetSettings")]
+    public async Task<ActionResult<UtilisateurSettingsDTO>> GetUtilisateurSettings()
     {
-        Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(id);
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        Utilisateur? utilisateur = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateur == null)
             return NotFound();
         UtilisateurSettingsDTO settingsDTO = _mapper.Map<UtilisateurSettingsDTO>(utilisateur);

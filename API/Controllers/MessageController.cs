@@ -135,14 +135,23 @@ public class MessageController : ControllerBase
                  // 🔥 BROADCASTER VIA SIGNALR
                  //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
                  
-                 await _hubContext.Clients
-                     .Group($"conversation_{message.ConversationId}")
-                     .SendAsync("ReceiveMessage", 
-                         message.ConversationId, 
-                         message.UtilisateurId, 
-                         dto.Content, 
-                         photoIds,
-                         message.MessageDate);
+                 try
+                 {
+                     await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                         .SendAsync("ReceiveMessage", 
+                             dto.ConversationId, 
+                             dto.UtilisateurId, 
+                             dto.Content,
+                             photoIds,
+                             message.MessageDate,
+                             message.MessageId);
+        
+                     Console.WriteLine($"[MessageController] ✅ Message notification sent");
+                 }
+                 catch (Exception ex)
+                 {
+                     Console.WriteLine($"[MessageController] ❌ Error sending message notification: {ex.Message}");
+                 }
                  
                  Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
              }
@@ -235,7 +244,7 @@ public class MessageController : ControllerBase
     [HttpPost("payee")]
     [ProducesResponseType(typeof(MessageEstPayeePostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessageValidation(MessageEstPayeePostDTO dto)
+    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessagePayee(MessageEstPayeePostDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -257,6 +266,22 @@ public class MessageController : ControllerBase
         };
         
         await _messageValidationManager.AddAsync(messageValidation);
+        
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                .SendAsync("ReceivePayment", 
+                    dto.ConversationId, 
+                    message.MessageId, 
+                    dto.UtilisateurId, 
+                    message.MessageDate);
+        
+            Console.WriteLine($"[MessageController] ✅ Payment notification sent for conversation {dto.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending payment notification: {ex.Message}");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
@@ -295,6 +320,24 @@ public class MessageController : ControllerBase
         messagePayee.EstEnvoye = true;
         
         await _messageValidationManager.UpdateAsync(messagePayee);
+        
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                .SendAsync("ReceiveColisEnvoye", 
+                    dto.ConversationId, 
+                    message.MessageId, 
+                    dto.UtilisateurId, 
+                    photo.PhotoId,
+                    message.MessageDate,
+                    dto.MessageEstPayeeId);
+        
+            Console.WriteLine($"[MessageController] ✅ Colis envoyé notification sent for conversation {dto.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending colis envoyé notification: {ex.Message}");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
@@ -337,7 +380,25 @@ public class MessageController : ControllerBase
         }
         await _messageEstRecuManager.AddAsync(messageRecu);
         
-        var messageEnvoieColis = await _messageEnvoieColisManager.GetByIdAsync(dto.MessageEstEnvoieId);
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                .SendAsync("ReceiveColisRecu", 
+                    dto.ConversationId, 
+                    message.MessageId, 
+                    dto.UtilisateurId, 
+                    dto.EstConforme,
+                    messageRecu.PhotoId != null ? messageRecu.PhotoId : 0,
+                    dto.Description,
+                    message.MessageDate,
+                    dto.MessageEstEnvoieId);
+        
+            Console.WriteLine($"[MessageController] ✅ Colis reçu notification sent for conversation {dto.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending colis reçu notification: {ex.Message}");
+        }
         
         
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
@@ -361,6 +422,21 @@ public class MessageController : ControllerBase
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
+                .SendAsync("ReceivePaymentCancelled", 
+                    messagePayee.Message.ConversationId, 
+                    messagePayee.MessageId,
+                    messagePayee.Message.UtilisateurId);
+        
+            Console.WriteLine($"[MessageController] ✅ Payment cancelled notification sent for conversation {messagePayee.Message.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
+        }
+       
         return NoContent();
     }
     
@@ -405,16 +481,23 @@ public class MessageController : ControllerBase
         var message = await _messageManager.GetByIdAsync(messageId);
         if (message == null) return NotFound();
         
-        var newMessage = _mapper.Map<Message>(message);
-        newMessage.MessageLu = true; 
+        message.MessageLu = true; 
         
-        await _messageManager.UpdateAsync(newMessage);
+        await _messageManager.UpdateAsync(message);
         
         // Notifier SignalR
         // Dans MessageController après avoir sauvegardé le message
-        await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
-            .SendAsync("ReceiveMessage", message.ConversationId, message.UtilisateurId, message.MessageTexte.Content, message.MessageDate);
-
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
+                .SendAsync("MessagesRead", message.ConversationId, message.UtilisateurId);
+        
+            Console.WriteLine($"[MessageController] ✅ MessagesRead notification sent");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending MessagesRead notification: {ex.Message}");
+        }
         return NoContent();
     }
 

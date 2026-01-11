@@ -41,8 +41,9 @@ public class AddressViewModel : ClientBaseViewModel, IDisposable
         IAuthService authService,
         NavigationManager nav,
         NavigationManager navigationManager,
+        ISignalRService notificationHubService,
         INotificationService notificationService)
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService,notificationHubService, notificationService)
     {
         _authService = authService;
         _nav = nav;

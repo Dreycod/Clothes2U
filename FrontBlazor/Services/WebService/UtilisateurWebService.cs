@@ -4,6 +4,7 @@ using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Shared;
 using Shared.DTO;
+using Shared.DTO.Annonce;
 using Shared.DTO.Utilisateur;
 using System.Net.Http.Json;
 
@@ -63,7 +64,7 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
     }
     public async Task<UtilisateurSettingsDTO> GetUserSettingsById(int id)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"Utilisateur/{id}/GetSettings");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"Utilisateur/GetSettings");
         request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
 
         var response = await _httpClient.SendAsync(request);
@@ -78,20 +79,15 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
         Console.WriteLine($"✅ User found: {result?.Login}");
         return result;
     }
-    public async Task<bool> PostUpdateUser(int? id, UtilisateurSettingsDTO utilisateurSettingsDTO)
+    public async Task<bool> PatchUpdateUser(UtilisateurSettingsDTO utilisateurSettingsDTO)
     {
-        var request = new HttpRequestMessage(
-            HttpMethod.Patch,
-            $"Utilisateur/{id}/PatchSettings")
-        {
-            Content = JsonContent.Create(utilisateurSettingsDTO)
-        };
-        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
-        var response = await _httpClient.SendAsync(request);
+        var body = JsonContent.Create(utilisateurSettingsDTO);
+        var response = await PatchWithCredentialsAsync("Utilisateur/PatchSettings", body);
+
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"❌ PostUpdateUser failed: {error}");
+            Console.WriteLine($"❌ PatchUpdateUser failed: {error}");
             return false;
         }
         return true;
@@ -131,16 +127,10 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
 
     public async Task<APIResponse<object>> SuppressionCompte(AccountDeletionDTO accountDeletionDTO)
     {
-        var request = new HttpRequestMessage(
-        HttpMethod.Put,
-        "Login/modificationMotDePasse")
-        {
-            Content = JsonContent.Create(accountDeletionDTO)
-        };
+        var body = JsonContent.Create(accountDeletionDTO);
 
-        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+        var response = await DeleteWithCredentialsAsync("Utilisateur/suppressionCompte", body);
 
-        var response = await _httpClient.SendAsync(request);
         var apiResponse = await response.Content.ReadFromJsonAsync<APIResponse<object>>();
 
         if (apiResponse == null)

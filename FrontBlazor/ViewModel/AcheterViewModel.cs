@@ -57,7 +57,8 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
         NavigationManager nav,
         NavigationManager navigationManager,
         INotificationService notificationService,
-        IJSRuntime jsRuntime): base(navigationManager, authService, notificationService)
+        ISignalRService notificationHubService,
+        IJSRuntime jsRuntime): base(navigationManager, authService,notificationHubService, notificationService)
     {
         _authService = authService;
         _paymentService = paymentService;

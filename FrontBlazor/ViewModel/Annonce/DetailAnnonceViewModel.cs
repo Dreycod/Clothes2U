@@ -55,9 +55,10 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         IVisualisationService visualisationService, 
         ISignalementService signalementService,
         INotificationService notificationService,
-        IRecenseService<RecenseDetailDTO> recenseWebService
+        IRecenseService<RecenseDetailDTO> recenseWebService,
+        ISignalRService notificationHubService
         )
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService, notificationHubService, notificationService)
     
     {
         _annonceService = annonceService;

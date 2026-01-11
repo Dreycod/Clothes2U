@@ -1,13 +1,14 @@
-﻿using System.Collections.ObjectModel;
-using System.Net;
-using System.Net.Http.Json;
-using Shared.DTO;
-using Shared.DTO.Utilisateur;
-using FrontBlazor.Services.GenericService;
+﻿using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
-using Shared.DTO.LoginRegister;
 using Shared;
+using Shared.DTO;
+using Shared.DTO.LoginRegister;
+using Shared.DTO.Utilisateur;
+using Stripe;
+using System.Collections.ObjectModel;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace FrontBlazor.Services;
 
@@ -120,16 +121,10 @@ public class AuthWebService : BaseGenericService, IAuthService
 
     public async Task<APIResponse<object>> ModificationMotDePasse(ChangePasswordDTO passwordDTO)
     {
-        var request = new HttpRequestMessage(
-        HttpMethod.Put,
-        "Login/modificationMotDePasse")
-        {
-            Content = JsonContent.Create(passwordDTO)
-        };
+        var body = JsonContent.Create(passwordDTO);
 
-        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+        var response = await PatchWithCredentialsAsync("Login/modificationMotDePasse", body);
 
-        var response = await _httpClient.SendAsync(request);
         var apiResponse = await response.Content.ReadFromJsonAsync<APIResponse<object>>();
 
         if (apiResponse == null)

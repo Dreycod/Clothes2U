@@ -19,6 +19,10 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
             .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
 
+        CreateMap<Utilisateur, UtilisateurCardDTO>()
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
+            .ForMember(dest => dest.NomUtilisateur, opt => opt.MapFrom(src => src.Login))
+            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoId));
         CreateMap<Utilisateur, UtilisateurViewDTO>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
