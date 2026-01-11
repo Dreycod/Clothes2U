@@ -498,6 +498,13 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
 
     public void Dispose()
     {
+        _signalRHandler.SetContext(
+            selectedConversation: null,
+            conversations: Conversations,
+            selectedConversationId: null,
+            currentUserId: utilisateur?.UtilisateurId ?? 0
+        );
+        
         _signalRHandler.OnStateChanged -= NotifyStateChanged;
         _signalRHandler.Dispose();
         _typingTimer?.Dispose();
