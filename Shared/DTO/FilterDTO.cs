@@ -20,9 +20,9 @@ public class FilterDTO
     
     // Listes au lieu de valeurs uniques
     public List<string>? Marques { get; set; }
-    public List<string>? Categories { get; set; }
-    public List<string>? SousCategories { get; set; }
-    public List<string>? Tailles { get; set; }
+    public string? Categories { get; set; }
+    public string? SousCategories { get; set; }
+    public string? Tailles { get; set; }
     public List<string>? Etats { get; set; }
     public List<string>? Genre { get; set; }
     

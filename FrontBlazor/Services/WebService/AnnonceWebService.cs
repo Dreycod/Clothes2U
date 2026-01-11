@@ -55,12 +55,20 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 
         if (!string.IsNullOrWhiteSpace(filterDto.MotCle))
             queryParams.Add(new("MotCle", filterDto.MotCle));
+
         AddListToQuery(queryParams, "Marques", filterDto.Marques);
-        AddListToQuery(queryParams, "Categories", filterDto.Categories);
-        AddListToQuery(queryParams, "SousCategories", filterDto.SousCategories);
+
+        if (!string.IsNullOrWhiteSpace(filterDto.Categories))
+            queryParams.Add(new("Categories", filterDto.Categories));
+
+        if (!string.IsNullOrWhiteSpace(filterDto.SousCategories))
+            queryParams.Add(new("SousCategories", filterDto.SousCategories));
+
         AddListToQuery(queryParams, "Genre", filterDto.Genre);
         AddListToQuery(queryParams, "Etats", filterDto.Etats);
-        AddListToQuery(queryParams, "Tailles", filterDto.Tailles);
+
+        if (!string.IsNullOrWhiteSpace(filterDto.Tailles))
+            queryParams.Add(new("Tailles", filterDto.Tailles));
 
         if (filterDto.PrixMin.HasValue)
             queryParams.Add(new("PrixMin", filterDto.PrixMin.Value.ToString(CultureInfo.InvariantCulture)));
