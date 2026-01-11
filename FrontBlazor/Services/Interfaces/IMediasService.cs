@@ -1,3 +1,4 @@
+using Shared.DTO.Detection;
 using Shared.DTO.Photo;
 
 namespace FrontBlazor.Services.Interfaces
@@ -9,6 +10,7 @@ namespace FrontBlazor.Services.Interfaces
         Task<bool> UploadPhotoCompteAsync(int compteId, byte[] imageBytes, string fileName); // idem
         Task<bool> UploadMultiplePhotosAnnonceAsync(int annonceId, List<string> photosDataUrls);
         Task<bool> UploadPhotoMessageAsync(int messageId, byte[] imageBytes, string fileName);
+        Task<DetectionResultDTO> DetectImageDanger(PhotoUploadDTO listPhotoAnnonce);
         string GetPhotoUrl(int id);
     }
 }

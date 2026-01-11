@@ -50,7 +50,6 @@ namespace FrontBlazor.ViewModel
         private readonly IListableService<EtatArticleDTO> _etatService;
         private readonly IListableService<GenreDTO> _genreService;
         private readonly IListableService<TailleDTO> _tailleService;
-        private readonly IDetectionService _detectionService;
         // État de l'annonce en cours de création
         public CreateAnnonceDTO NewAnnonce { get; private set; } = new();
 
@@ -90,8 +89,7 @@ namespace FrontBlazor.ViewModel
             IListableService<MarqueDTO> marqueService,
             IListableService<EtatArticleDTO> etatService,
             IListableService<GenreDTO> genreService,
-            IListableService<TailleDTO> tailleService, 
-            IDetectionService detectionService,
+            IListableService<TailleDTO> tailleService,
             NavigationManager navigationManager,
             INotificationService notificationService,
             ITagService<TagDTO> tagService,
@@ -110,7 +108,6 @@ namespace FrontBlazor.ViewModel
             _genreService = genreService;
             _tailleService = tailleService;
             _tagService = tagService;
-            _detectionService = detectionService;
             _tagService = tagService;
         }
 
@@ -246,7 +243,7 @@ namespace FrontBlazor.ViewModel
 
                     bool Danger = false;
 
-                    Task<DetectionResultDTO> detectionResult = _detectionService.DetectImageDanger(_photoUpload);
+                    Task<DetectionResultDTO> detectionResult = _mediaService.DetectImageDanger(_photoUpload);
                     var detection = await detectionResult;
                     if (detection.Success)
                     { 
