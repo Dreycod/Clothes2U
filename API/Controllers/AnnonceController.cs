@@ -24,6 +24,7 @@ public class AnnonceController : ControllerBase
     private readonly ISuggestionService _suggestionService;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IMotInterditService _motInterditService;
 
     public AnnonceController(
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
@@ -32,7 +33,8 @@ public class AnnonceController : ControllerBase
         IMapper mapper,
         ICurrentUserService currentUserService,
         INotificationService notificationService,
-        ISuggestionService suggestionService
+        ISuggestionService suggestionService,
+        IMotInterditService motInterditService
         )
     {
         _annonceManager = manager;
@@ -42,6 +44,7 @@ public class AnnonceController : ControllerBase
         _notificationService = notificationService;
         _currentUserService = currentUserService;
         _suggestionService = suggestionService;
+        _motInterditService = motInterditService;
     }
 
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
@@ -135,25 +138,17 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
+        var isForbidden = await _motInterditService.ContientMotInterdit(createAnnonceDto.Titre) ||
+                                 await _motInterditService.ContientMotInterdit(createAnnonceDto.Description);
+        if (isForbidden)
+        {
+            return BadRequest("Mot Interdit");
+        }
         int userId = await _currentUserService.GetUserIdOrThrow();
         var annonce = _mapper.Map<Annonce>(createAnnonceDto);
 
         await _annonceManager.AddAsync(annonce);
 
-        if (createAnnonceDto.Couleurs?.Any() == true)
-        {
-            foreach (var couleurId in createAnnonceDto.Couleurs)
-            {
-                var estDeCouleur = new Est_De_Couleur
-                {
-                    AnnonceId = annonce.AnnonceId,
-                    CouleurId = couleurId
-                };
-
-                await _estDeCouleurRepository.AddAsync(estDeCouleur);
-            }
-        }
         var annonceComplete = await _annonceManager.GetByIdAsync(annonce.AnnonceId);
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonceComplete);
 

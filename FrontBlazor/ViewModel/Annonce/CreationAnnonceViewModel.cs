@@ -1,28 +1,29 @@
-﻿using FrontBlazor.Services.GenericService;
+﻿using FrontBlazor.Exceptions;
+using FrontBlazor.Services;
+using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Services.Interfaces.GenericIServices;
+using FrontBlazor.Services.Interfaces.GenericIServices;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Shared.DTO.Annonce;
-using Shared.DTO.Couleur;
-using Shared.DTO.Mesures;
-using Shared.DTO.Detection;
-using System.Collections.ObjectModel;
-using FrontBlazor.Services.Interfaces;
-using FrontBlazor.ViewModel.Generic;
 using Shared.DTO;
+using Shared.DTO.Annonce;
 using Shared.DTO.Categorie;
+using Shared.DTO.Couleur;
+using Shared.DTO.Detection;
 using Shared.DTO.EtatArticle;
 using Shared.DTO.Marque;
-using Shared.DTO.Taille;
-using Shared.DTO.Tag;
-using Shared.DTO.Recense;
-using FrontBlazor.Services.Interfaces.GenericIServices;
-using System.Diagnostics;
+using Shared.DTO.Mesures;
 using Shared.DTO.Photo;
-using Shared.DTO.Tag;
+using Shared.DTO.Recense;
 using Shared.DTO.Recense; 
-using FrontBlazor.Services.Interfaces.GenericIServices;
+using Shared.DTO.Tag;
+using Shared.DTO.Tag;
+using Shared.DTO.Taille;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using FrontBlazor.Services;
+using System.Diagnostics;
 
 namespace FrontBlazor.ViewModel
 {
@@ -395,6 +396,8 @@ namespace FrontBlazor.ViewModel
 
         #region Publishing
 
+        // Dans la région #region Publishing
+
         public async Task PublishAnnonceAsync()
         {
             ErrorMessages.Clear();
@@ -414,6 +417,8 @@ namespace FrontBlazor.ViewModel
             IsLoading = true;
             NotifyStateChanged();
 
+            AnnonceDTO? createdAnnonce = null;
+
             try
             {
                 var currentUser = await _authService.GetCurrentUserAsync();
@@ -421,11 +426,14 @@ namespace FrontBlazor.ViewModel
                 {
                     AddError("Vous devez être connecté pour créer une annonce");
                     HasCreated = false;
+                    IsLoading = false;
+                    NotifyStateChanged();
                     return;
                 }
 
                 NewAnnonce.UtilisateurId = currentUser.UtilisateurId;
                 NewAnnonce.DateAnnonce = DateTime.UtcNow;
+
                 if (SelectedFilePreviews.Any(p => p.IsDangerous))
                 {
                     NewAnnonce.StatutAnnonceId = 3; // Mise en analyse
@@ -434,23 +442,49 @@ namespace FrontBlazor.ViewModel
                 {
                     NewAnnonce.StatutAnnonceId = 1;
                 }
+
                 NewAnnonce.Couleurs = SelectedCouleurIds;
                 NewAnnonce.Tags = Tags;
-
 
                 Console.WriteLine($"📤 Envoi de l'annonce: {NewAnnonce.Titre}");
                 Console.WriteLine($"   - Prix: {NewAnnonce.Prix}€");
                 Console.WriteLine($"   - Photos: {SelectedFilePreviews.Count}");
                 Console.WriteLine($"   - Tags: {string.Join(", ", Tags)}");
 
-                await _annonceService.CreateAnnonce(NewAnnonce);
-                Console.WriteLine($"✅ Annonce créée avec succès");
+                // ✅ TENTATIVE DE CRÉATION - PEUT LEVER UNE EXCEPTION
+                try
+                {
+                    createdAnnonce = await _annonceService.CreateAnnonce(NewAnnonce);
 
-                var userAnnonces = await _annonceService.GetAnnoncesByUserIdAsync(currentUser.UtilisateurId);
-                var createdAnnonce = userAnnonces?
-                    .OrderByDescending(a => a.AnnonceId)
-                    .FirstOrDefault(a => a.Titre == NewAnnonce.Titre);
+                    if (createdAnnonce == null)
+                    {
+                        AddError("Erreur: L'annonce n'a pas pu être créée");
+                        HasCreated = false;
+                        return;
+                    }
 
+                    Console.WriteLine($"✅ Annonce créée avec succès: ID={createdAnnonce.AnnonceId}");
+                }
+                catch (MotInterditException ex)
+                {
+                    // ✅ MOT INTERDIT DÉTECTÉ
+                    Console.WriteLine($"❌ Mot interdit détecté: {ex.Message}");
+                    AddError(ex.Message);
+                    HasCreated = false;
+                    return; // ✅ STOP ICI - PAS DE REDIRECTION
+                }
+                catch (BadRequestException ex)
+                {
+                    // ✅ AUTRE ERREUR BADREQUEST
+                    Console.WriteLine($"❌ BadRequest: {ex.Message}");
+                    AddError($"Erreur de validation: {ex.Message}");
+                    HasCreated = false;
+                    return; // ✅ STOP ICI - PAS DE REDIRECTION
+                }
+
+                // ✅ À partir d'ici, l'annonce est créée avec succès
+
+                // Association des couleurs
                 if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
                 {
                     foreach (var couleurId in SelectedCouleurIds)
@@ -479,7 +513,8 @@ namespace FrontBlazor.ViewModel
                     }
                 }
 
-                if (SelectedFilePreviews.Count != 0)
+                // Upload des photos
+                if (SelectedFilePreviews.Count != 0 && createdAnnonce != null)
                 {
                     IsUploadingPhotos = true;
                     NotifyStateChanged();
@@ -488,43 +523,26 @@ namespace FrontBlazor.ViewModel
 
                     try
                     {
-                        if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
+                        var photosDataUrls = SelectedFilePreviews
+                            .Select(p => new PhotoDataDTO
+                            {
+                                PreviewBase64 = p.PreviewBase64,
+                                IsDangerous = p.IsDangerous
+                            })
+                            .ToList();
+
+                        var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(
+                            createdAnnonce.AnnonceId,
+                            photosDataUrls
+                        );
+
+                        if (!uploadSuccess)
                         {
-                            Console.WriteLine($"✅ Annonce retrouvée avec ID: {createdAnnonce.AnnonceId}");
-
-                            var photosDataUrls = SelectedFilePreviews
-                                .Select(p => new PhotoDataDTO
-                                {
-                                    PreviewBase64 = p.PreviewBase64,
-                                    IsDangerous = p.IsDangerous
-                                })
-                                .ToList();
-
-                            foreach (var photo in photosDataUrls)
-                            {
-                                Console.WriteLine($"Photo IsDangerous: {photo.IsDangerous}");
-                            }
-
-                            try
-                            {
-                                var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(
-                                createdAnnonce.AnnonceId,
-                                photosDataUrls
-                            );
-
-                                if (!uploadSuccess)
-                                {
-                                    AddError("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"✅ Toutes les photos uploadées avec succès");
-                                }
-                            }catch(Exception ex)
-                            {
-                                Console.WriteLine($"❌ Erreur upload photos: {ex.Message}");
-                                AddError("⚠️ L'annonce a été créée mais erreur lors de l'upload des photos.");
-                            }
+                            AddError("⚠️ L'annonce a été créée mais certaines photos n'ont pas pu être uploadées.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"✅ Toutes les photos uploadées avec succès");
                         }
                     }
                     catch (Exception photoEx)
@@ -537,7 +555,9 @@ namespace FrontBlazor.ViewModel
                         IsUploadingPhotos = false;
                     }
                 }
-                if (Tags.Count > 0)
+
+                // Association des tags
+                if (Tags.Count > 0 && createdAnnonce != null)
                 {
                     IsUpdatingTags = true;
                     NotifyStateChanged();
@@ -546,11 +566,11 @@ namespace FrontBlazor.ViewModel
                     try
                     {
                         var tagDTOs = new List<TagDTO>();
+                        var rejectedTags = new List<string>();
 
-                        // ✅ Crée d'abord TOUS les tags
                         foreach (var tag in Tags)
                         {
-                            var searchTag = _allTags.FirstOrDefault(t =>
+                            var searchTag = _allTags?.FirstOrDefault(t =>
                                 t.LibelleTag.Equals(tag, StringComparison.OrdinalIgnoreCase));
 
                             if (searchTag != null)
@@ -575,48 +595,56 @@ namespace FrontBlazor.ViewModel
                                     else
                                     {
                                         Console.WriteLine($"⚠️ AddAsync a retourné null pour: {tag}");
+                                        rejectedTags.Add(tag);
                                     }
+                                }
+                                catch (HttpRequestException httpEx) when (httpEx.Message.Contains("400") || httpEx.Message.Contains("BadRequest"))
+                                {
+                                    Console.WriteLine($"❌ Tag '{tag}' refusé: mot interdit");
+                                    AddError($"⚠️ Le tag '{tag}' contient un mot interdit et a été rejeté.");
+                                    rejectedTags.Add(tag);
                                 }
                                 catch (Exception addTagEx)
                                 {
                                     Console.WriteLine($"❌ Erreur création tag '{tag}': {addTagEx.Message}");
                                     AddError($"Le tag '{tag}' n'a pas pu être créé");
+                                    rejectedTags.Add(tag);
                                 }
                             }
                         }
 
-                        if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
+                        // Retirer les tags rejetés
+                        foreach (var rejectedTag in rejectedTags)
                         {
-                            Console.WriteLine($"📎 Création de {tagDTOs.Count} associations Recense...");
+                            Tags.Remove(rejectedTag);
+                        }
 
-                            foreach (var tagDTO in tagDTOs)
+                        // Associer les tags valides
+                        Console.WriteLine($"📎 Création de {tagDTOs.Count} associations Recense...");
+
+                        foreach (var tagDTO in tagDTOs)
+                        {
+                            if (tagDTO == null) continue;
+
+                            try
                             {
-                                if (tagDTO == null)
-                                {
-                                    Console.WriteLine("⚠️ TagDTO null détecté, skip");
-                                    continue;
-                                }
+                                Console.WriteLine($"🔄 Association Tag {tagDTO.IdTag} avec Annonce {createdAnnonce.AnnonceId}");
 
-                                try
-                                {
-                                    Console.WriteLine($"🔄 Association Tag {tagDTO.IdTag} avec Annonce {createdAnnonce.AnnonceId}");
+                                var recense = await _tagService.TagToRecense(tagDTO, createdAnnonce);
 
-                                    var recense = await _tagService.TagToRecense(tagDTO, createdAnnonce);
-
-                                    if (recense != null)
-                                    {
-                                        Console.WriteLine($"✅ Recense créé: ID={recense.RecenseId}");
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"⚠️ TagToRecense a retourné null");
-                                    }
-                                }
-                                catch (Exception tagEx)
+                                if (recense != null)
                                 {
-                                    Console.WriteLine($"❌ Erreur association tag '{tagDTO.LibelleTag}': {tagEx.Message}");
-                                    AddError($"Le tag '{tagDTO.LibelleTag}' n'a pas pu être associé");
+                                    Console.WriteLine($"✅ Recense créé: ID={recense.RecenseId}");
                                 }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ TagToRecense a retourné null");
+                                }
+                            }
+                            catch (Exception tagEx)
+                            {
+                                Console.WriteLine($"❌ Erreur association tag '{tagDTO.LibelleTag}': {tagEx.Message}");
+                                AddError($"Le tag '{tagDTO.LibelleTag}' n'a pas pu être associé");
                             }
                         }
                     }
@@ -627,6 +655,7 @@ namespace FrontBlazor.ViewModel
                     }
                 }
 
+                // ✅ SUCCÈS COMPLET
                 HasCreated = true;
                 NotifyStateChanged();
 
@@ -636,12 +665,14 @@ namespace FrontBlazor.ViewModel
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Erreur lors de la publication: {ex.Message}");
-                AddError($"Erreur: {ex.Message}");
+                AddError($"Erreur inattendue: {ex.Message}");
                 HasCreated = false;
             }
             finally
             {
                 IsLoading = false;
+                IsUploadingPhotos = false;
+                IsUpdatingTags = false;
                 NotifyStateChanged();
             }
         }
