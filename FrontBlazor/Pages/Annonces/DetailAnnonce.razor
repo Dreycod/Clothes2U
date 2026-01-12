@@ -68,13 +68,13 @@
                 @if (annonce.Photos != null && annonce.Photos.Count() > 1)
                 {
                     <div class="image-thumbnails">
-                        @foreach (var photo in annonce.Photos)
+                        @foreach (var photo in annonce.Photos.Skip(1))
                         {
-                            @* <button @onclick="() => VM_DetailAnnonce.ToggleImagePreview">
+                            <button class="preview-btn" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(photo)">
                                 <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
                                     <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
                                 </div>
-                            </button> *@
+                            </button>
                         }
                     </div>
                 }
@@ -325,6 +325,21 @@
             </div>
         </div>
     </div>
+}
+
+@if (VM_DetailAnnonce.ShowImagePreview)
+{
+    <div class="image-preview-overlay" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
+        <div class="image-preview-container" @onclick:stopPropagation>
+            <button class="modal-close" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
+                <i class="bi bi-x"></i>
+            </button>
+            <div class="image-preview-container">
+                <img src="@VM_DetailAnnonce.ImagePreview" alt="Image Preview" />
+            </div>
+        </div>
+    </div>
+
 }
 
 @code {

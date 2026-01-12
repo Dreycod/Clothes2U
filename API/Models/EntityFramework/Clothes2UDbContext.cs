@@ -1044,7 +1044,7 @@ public partial class Clothes2UDbContext : DbContext
         entity.HasOne(e => e.Annonce)
             .WithMany(a => a.Tags)
             .HasForeignKey(e => e.AnnonceId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+            .OnDelete(DeleteBehavior.Cascade);
         
         entity.HasOne(e => e.Tag)
             .WithMany(t => t.Annonces)
