@@ -32,6 +32,7 @@ public abstract class ModerationViewModel
         else
         {
             _nav.NavigateTo("/");
+            return;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using API.Models.Repository;
 using API.Models.EntityFramework;
 using API.Services.VerificationSrvceV2;
+using Shared.DTO.Mail;
 
 namespace API.Services
 {
@@ -75,6 +76,14 @@ namespace API.Services
                 "Réinitialisation de votre mot de passe",
                 $"Pour réinitialiser votre mot de passe, cliquez sur le lien suivant : {resetLink}"
             );
+        }
+
+        public async Task SendSupportMailAsync(string userMail, MailDTO mail)
+        {
+            await _emailService.SendAsync(
+                userMail,
+                mail.MailObject,
+                mail.MailContent);
         }
     }
 }

@@ -1872,6 +1872,59 @@ namespace API.Migrations
                     b.ToTable("t_e_statut_stauti", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.SupportTicket", b =>
+                {
+                    b.Property<int>("SupportTicketId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("sup_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SupportTicketId"));
+
+                    b.Property<int?>("AdminId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sup_admin_id");
+
+                    b.Property<DateTime?>("AnsweredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sup_answered_at");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sup_created_at");
+
+                    b.Property<string>("MessageAdmin")
+                        .HasColumnType("text")
+                        .HasColumnName("sup_message_admin");
+
+                    b.Property<string>("MessageUtilisateur")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sup_message_user");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("sup_status");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("sup_subject");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sup_utilisateur_id");
+
+                    b.HasKey("SupportTicketId");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("t_e_support_ticket_sup", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Tag", b =>
                 {
                     b.Property<int>("TagId")
@@ -2923,6 +2976,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
                         .WithMany("Tags")
                         .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Tag", "Tag")
@@ -3061,6 +3115,24 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("Categorie");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.SupportTicket", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Admin")
+                        .WithMany("SupportTicketsAdmins")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurTicket")
+                        .WithMany("SupportTicketsUtilisateurs")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("UtilisateurTicket");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
@@ -3450,6 +3522,10 @@ namespace API.Migrations
                     b.Navigation("Signalements");
 
                     b.Navigation("SignalementsUtilisateurs");
+
+                    b.Navigation("SupportTicketsAdmins");
+
+                    b.Navigation("SupportTicketsUtilisateurs");
 
                     b.Navigation("UtilisateursBloques");
 

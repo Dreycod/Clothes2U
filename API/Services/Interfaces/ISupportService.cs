@@ -8,5 +8,6 @@ namespace API.Services.Interfaces
         Task CreateTicketAsync(int userId, SupportTicketCreateDTO dto);
         Task<List<SupportTicket>> GetOpenTicketsAsync();
         Task ReplyAsync(int adminId, SupportTicketReplyDTO dto);
+        Task<int> GetTicketsCountAsync();
     }
 }

@@ -1,9 +1,11 @@
-﻿using FrontBlazor.Services.WebService;
+﻿using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Services.WebService;
+using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontBlazor.ViewModel.Moderation.Support
 {
-    public class CreateSupportTicketViewModel
+    public class CreateSupportTicketViewModel : ClientBaseViewModel
     {
         private readonly SupportWebService _service;
         private readonly NavigationManager _nav;
@@ -17,33 +19,35 @@ namespace FrontBlazor.ViewModel.Moderation.Support
 
         public CreateSupportTicketViewModel(
             SupportWebService service,
-            NavigationManager nav)
+            NavigationManager navigationManager,
+            IAuthService authService,
+            ISignalRService notificationHubService,
+            INotificationService notificationService
+            )
+            : base(navigationManager, authService, notificationHubService, notificationService)
         {
             _service = service;
-            _nav = nav;
+            _nav = navigationManager;
         }
 
         public async Task SubmitAsync()
         {
             IsLoading = true;
             ErrorMessage = null;
-
-            try
+            var response = await _service.CreateTicketAsync(new()
             {
-                await _service.CreateTicketAsync(new()
-                {
-                    Subject = Subject,
-                    Message = Message
-                });
-
+                Subject = Subject,
+                Message = Message
+            });
+            if (response.Success)
+            {
                 IsSuccess = true;
                 _nav.NavigateTo("/");
             }
-            catch
+            else
             {
-                ErrorMessage = "Impossible d'envoyer la demande de support.";
+                ErrorMessage = response.ErrorMessage;
             }
-
             IsLoading = false;
         }
     }

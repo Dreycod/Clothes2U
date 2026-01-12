@@ -1,4 +1,5 @@
 ﻿using API.Models.EntityFramework;
+using Shared.DTO.Mail;
 
 namespace API.Services.VerificationSrvceV2
 {
@@ -8,5 +9,6 @@ namespace API.Services.VerificationSrvceV2
         Task NotifyAnnonceUpdatedAsync(Annonce annonce, string userMail);
         Task NotifyUserStatusChangedAsync(Utilisateur utilisateur, int oldStatutId);
         Task SendPasswordResetEmailAsync(Utilisateur utilisateur, string resetLink);
+        Task SendSupportMailAsync(string userMail, MailDTO mail);
     }
 }

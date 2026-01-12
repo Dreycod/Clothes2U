@@ -18,7 +18,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 {
     private readonly IAnnonceService _annonceService;
     private readonly IFavorisService<FavorisDTO> _favorisService;
-    private readonly IAuthService _authService;
     private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _navigationManager;
@@ -26,7 +25,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     private readonly IMediasService _mediaService;
     private readonly IVisualisationService _visualisationService;
     private readonly ISignalementService _signalementService;
-    private readonly IRecenseService<RecenseDetailDTO> _recenseWebService;
 
     private CancellationTokenSource? _viewTimerCts;
 
@@ -50,16 +48,18 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     public bool ShowImagePreview { get; set; } = false;
     public string ImagePreview { get; set; } = string.Empty;
     
-    public DetailAnnonceViewModel(IAnnonceService annonceService,
-        IFavorisService<FavorisDTO> favorisService, IAuthService authService,
+    public DetailAnnonceViewModel(
+        IAnnonceService annonceService,
+        IFavorisService<FavorisDTO> favorisService, 
+        IAuthService authService,
         IUtilisateurService utilisateurService,
         IConversationService<ConversationDTO> conversationService,
-        ClipboardService clipboardService, NavigationManager navigationManager, 
+        ClipboardService clipboardService,
+        NavigationManager navigationManager, 
         IMediasService mediasService,
         IVisualisationService visualisationService, 
         ISignalementService signalementService,
         INotificationService notificationService,
-        IRecenseService<RecenseDetailDTO> recenseWebService,
         ISignalRService notificationHubService
         )
         : base(navigationManager, authService, notificationHubService, notificationService)
@@ -67,7 +67,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
-        _authService = authService;
         _utilisateurService = utilisateurService;
         _conversationService = conversationService;
         _mediaService = mediasService;
@@ -75,8 +74,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         _clipboardService = clipboardService;
         _visualisationService = visualisationService;
         _signalementService = signalementService;
-        _recenseWebService = recenseWebService;
-
     }
 
     public async Task LoadAnnonceDetailAsync(int id)

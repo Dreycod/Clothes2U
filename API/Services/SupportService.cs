@@ -68,5 +68,10 @@ namespace API.Services
                 );
             }
         }
+
+        public async Task<int> GetTicketsCountAsync()
+        {
+            return _db.SupportTickets.Where(t => t.Status == StatutTicketEnum.OPEN).Count();
+        }
     }
 }
