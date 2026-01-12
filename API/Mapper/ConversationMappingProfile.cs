@@ -24,8 +24,10 @@ public class ConversationMappingProfile : Profile
                     src.Messages.OrderByDescending(m => m.MessageDate)
                         .FirstOrDefault().MessageTexte.Content ?? string.Empty))
             .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
-                    src.Messages.OrderByDescending(m => m.MessageDate)
-                        .FirstOrDefault().MessageDate.Date))
+                src.Messages != null && src.Messages.Any()
+                    ? src.Messages.OrderByDescending(m => m.MessageDate)
+                        .First().MessageDate
+                    : src.CreationDate))
             .ForMember(dest => dest.Interlocuteur,
                 opt => opt.MapFrom((src, dest, _, context) =>
                     (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
