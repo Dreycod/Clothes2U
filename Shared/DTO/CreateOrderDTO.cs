@@ -10,5 +10,6 @@ public class CreateOrderDTO
     public decimal FraisService { get; set; }
     public decimal FraisLivraison { get; set; }
     public string StripePaymentIntentId { get; set; } = "";
-    public string StatutCommande { get; set; } = "EnAttente";
+    public int ConversationId { get; set; }
+    public int StatutCommandeId { get; set; } = 1;
 }
