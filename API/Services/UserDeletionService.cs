@@ -14,7 +14,7 @@ namespace API.Services
             _context = context;
         }
 
-        public async Task DeleteUtilisateurByAdminAsync(int utilisateurId, int adminId)
+        public async Task DeleteUtilisateurAsync(int utilisateurId)
         {
             var utilisateur = await _context.Utilisateurs
                 .Include(u => u.CommandesAchetees)
@@ -40,7 +40,6 @@ namespace API.Services
                     Montant = commande.MontantTotal,
                     DateTransaction = commande.DateCommande,
                     DateSuppressionCompte = now,
-                    AdminId = adminId
                 });
             }
 
@@ -55,22 +54,20 @@ namespace API.Services
                     Montant = commande.MontantTotal,
                     DateTransaction = commande.DateCommande,
                     DateSuppressionCompte = now,
-                    AdminId = adminId
                 });
             }
 
             // 3️ Anonymisation
             utilisateur.Email = $"deleted_{utilisateur.UtilisateurId}@deleted.local";
             utilisateur.Login = $"deleted_{utilisateur.UtilisateurId}";
-            utilisateur.Password = null!;
-            utilisateur.Telephone = null;
-            utilisateur.Description = null;
+            utilisateur.Password = "deleted";
+            utilisateur.Telephone = "";
+            utilisateur.Description = "";
             utilisateur.ValidEmail = false;
             utilisateur.ValidTelephone = false;
 
             // 4️ Soft delete
             utilisateur.DeletedAt = now;
-            utilisateur.DeletedByAdminId = adminId;
 
             // 5️ Statut "Supprimé"
             utilisateur.StatutId = 4; 

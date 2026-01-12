@@ -15,11 +15,17 @@ namespace API.Controllers
         private readonly IBloqueRepository<Bloque, int> _bloqueRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
+        private readonly IAbonnementRepository<Abonnement, int>  _abonnementManager;
 
-        public BloqueController(IBloqueRepository<Bloque, int> repo,ICurrentUserService currentUserService, IMapper mapper)
+        public BloqueController(
+            IBloqueRepository<Bloque, int> repo,
+            ICurrentUserService currentUserService,
+            IAbonnementRepository<Abonnement, int>  abonnementManager,
+            IMapper mapper)
         {
             _bloqueRepo = repo;
             _currentUserService = currentUserService;
+            _abonnementManager = abonnementManager;
             _mapper = mapper;
         }
         [HttpGet("bloqueur/{id}")]
@@ -39,16 +45,20 @@ namespace API.Controllers
         public async Task<ActionResult<BloqueDTO>> Create([FromBody] int utilisateurBloqueID)
         {
             int userId = await _currentUserService.GetUserIdOrThrow();
-            bool exists = await _bloqueRepo.Exists((int)userId, utilisateurBloqueID);
+            bool exists = await _bloqueRepo.Exists(userId, utilisateurBloqueID);
             if (exists)
                 return BadRequest("Cet utilisateur est déjà bloqué.");
+            Abonnement abonnement = await _abonnementManager.FindAbonnement(userId, utilisateurBloqueID);
+            if (abonnement != null)
+            {
+                await _abonnementManager.DeleteAsync(abonnement);
+            }
             Bloque bloque = new Bloque()
             {
-                UtilisateurBloqueurId = (int)userId,
+                UtilisateurBloqueurId = userId,
                 UtilisateurBloqueId = utilisateurBloqueID
             };
             await _bloqueRepo.AddAsync(bloque);
-
             return Ok(_mapper.Map<BloqueDTO>(bloque));
         }
         [HttpDelete("{utilisateurBloqueId}")]

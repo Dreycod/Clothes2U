@@ -20,8 +20,8 @@ namespace FrontBlazor.ViewModel
         #region recommandation 
         public bool IsLoadingNextRecommendation { get; set; } = false;
         public bool IsLoadingPreviousRecommendation { get; set; } = false;
-        private int PageRecommandation { get; set; } = 1;
-        private int PageSizeRecommandation { get; set; } = 15;
+        public int PageRecommandation { get; set; } = 1;
+        public int PageSizeRecommandation { get; set; } = 15;
         public List<AnnonceDTO> AnnoncesRecommended { get; set; }
         #endregion
 
@@ -29,16 +29,16 @@ namespace FrontBlazor.ViewModel
         #region recents
         public bool IsLoadingNextRecents { get; set; } = false;
         public bool IsLoadingPreviousRecents { get; set; } = false;
-        private int PageRecents { get; set; } = 1;
-        private int PageSizeRecents { get; set; } = 10;
+        public int PageRecents { get; set; } = 1;
+        public int PageSizeRecents { get; set; } = 10;
         public List<AnnonceDTO> AnnoncesRecents { get; set; }
         #endregion
 
         #region populaires
         public bool IsLoadingNextPopulaires { get; set; } = false;
         public bool IsLoadingPreviousPopulaires { get; set; } = false;
-        private int PagePopulaires { get; set; } = 1;
-        private int PageSizePopulaires { get; set; } = 10;
+        public int PagePopulaires { get; set; } = 1;
+        public int PageSizePopulaires { get; set; } = 10;
         public List<AnnonceDTO> AnnoncesPopulaires { get; set; }
         #endregion
         public string? ErrorMessage { get; set; }

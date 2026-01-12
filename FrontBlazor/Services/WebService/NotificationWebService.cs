@@ -38,25 +38,5 @@ public class NotificationWebService : BaseGenericService, INotificationService
     {
         await DeleteWithCredentialsAsync($"Notification/{id}");
     }
-
-    public async Task CreateNotificationAvertissement(CreateAvertissementRequestDTO request)
-    {
-        
-
-        var jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase  
-        };
-
-        var content = new StringContent(
-            JsonSerializer.Serialize(request, jsonOptions),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        var response = await PostWithCredentialsAsync($"Notification/avertissement", content);
-        response.EnsureSuccessStatusCode();  
-    }
 }
 

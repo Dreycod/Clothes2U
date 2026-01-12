@@ -5,6 +5,7 @@ using API.Services.VerificationSrvceV2;
 using AutoMapper;
 using Shared.DTO;
 using Shared.DTO.Notification;
+using Shared.Enums;
 
 namespace API.Services;
 
@@ -110,7 +111,7 @@ public class  NotificationService : INotificationService
             {
                 UtilisateurId = user.UtilisateurId,
                 AnnonceId = annonceId,
-                TypeId = 4
+                TypeId = (int)TypeNotification.ModificationAnnonce
             };
             await CreateNotification(notif);
         }
@@ -130,7 +131,7 @@ public class  NotificationService : INotificationService
             {
                 UtilisateurId = user.UtilisateurSuiveur.UtilisateurId,
                 AnnonceId = annonceId,
-                TypeId = 4
+                TypeId = (int)TypeNotification.NouvelleAnnonce
             };
             await CreateNotification(notif);
         }
@@ -145,8 +146,6 @@ public class  NotificationService : INotificationService
             int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId.Value);
             await _hubService.UpdateNotificationCount(userId.Value, newCount);
         }
-        
-
     }
 
     public async Task CreateNotificationAchat(int annonceId)
@@ -163,7 +162,7 @@ public class  NotificationService : INotificationService
                 {
                     UtilisateurId = user.UtilisateurId,
                     AnnonceId = annonceId,
-                    TypeId = 6
+                    TypeId = (int)TypeNotification.Achat
                 };
                 
                 await CreateNotification(notif);
@@ -176,5 +175,16 @@ public class  NotificationService : INotificationService
         await _notificationManager.DeleteMessageNotificationByConversationId(conversationId, userId);
         int newCount = await _notificationManager.GetNotificationsUnreadCountByUserId(userId);
         await _hubService.UpdateNotificationCount(userId, newCount);
+    }
+
+    public async Task CreateNotificationAvertissement(int userId, string messageAvertissement)
+    {
+        NotificationAvertissementCreateDTO notification = new NotificationAvertissementCreateDTO
+        {
+            UtilisateurId = userId,
+            MessageModerateur = messageAvertissement,
+            TypeId = (int)TypeNotification.Avertissement
+        };
+        await CreateNotification(notification);
     }
 }

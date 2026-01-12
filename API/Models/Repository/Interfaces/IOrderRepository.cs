@@ -8,5 +8,5 @@ public interface IOrderRepository : IDataRepository<Commande, int>
     Task<List<Commande>> GetOrdersBySellerIdAsync(int sellerId);
     Task<Commande?> GetOrderWithDetailsAsync(int orderId);
     Task<Commande?> GetOrderByPaymentIntentIdAsync(string paymentIntentId);
-    Task<bool> UpdateOrderStatusAsync(int orderId, string status, string? trackingNumber = null);
+    Task<bool> UpdateOrderStatusAsync(int orderId, int statusCommandeId, string? trackingNumber = null);
 }

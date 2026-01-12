@@ -72,36 +72,12 @@
                             @foreach (var categorie in VM_Search.Categories)
                             {
                                 <div class="category-filter-item">
-                                    <div class="category-header" @onclick="() => VM_Search.ToggleCategory(categorie.IdCategorie)">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox"
-                                                   checked="@VM_Search.SelectedCategories.Contains(categorie.LibelleCategorie)"
-                                                   @onclick:stopPropagation
-                                                   @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedCategories, categorie.LibelleCategorie)" />
-                                            <span>@categorie.LibelleCategorie</span>
-                                        </label>
-                                        @if (categorie.SousCategories != null && categorie.SousCategories.Any())
-                                        {
-                                            <i class="bi bi-chevron-@(VM_Search.ExpandedCategories.Contains(categorie.IdCategorie) ? "up" : "down") expand-icon"></i>
-                                        }
-                                    </div>
-
-                                    @if (VM_Search.ExpandedCategories.Contains(categorie.IdCategorie) &&
-                                         categorie.SousCategories != null &&
-                                         categorie.SousCategories.Any())
-                                    {
-                                        <div class="subcategory-list">
-                                            @foreach (var sousCategorie in categorie.SousCategories)
-                                            {
-                                                <label class="checkbox-label subcategory-item">
-                                                    <input type="checkbox"
-                                                           checked="@VM_Search.SelectedSousCategories.Contains(sousCategorie.LibelleSousCategorie!)"
-                                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedSousCategories, sousCategorie.LibelleSousCategorie!)" />
-                                                    <span>@sousCategorie.LibelleSousCategorie</span>
-                                                </label>
-                                            }
-                                        </div>
-                                    }
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"
+                                               checked="@(VM_Search.SelectedCategory?.IdCategorie == categorie.IdCategorie)"
+                                               @onchange="async () => await VM_Search.ToggleCategory(categorie)" />
+                                        <span>@categorie.LibelleCategorie</span>
+                                    </label>
                                 </div>
                             }
                         }
@@ -111,7 +87,80 @@
                         }
                     </div>
                 </div>
-
+                @if (VM_Search.SelectedCategory != null)
+                {
+                    <div class="filter-section">
+                        <h4 class="filter-title">Sous catégorie</h4>
+                        <div class="filter-options">
+                            @if (VM_Search.SelectedCategory != null)
+                            {
+                                <div class="filter-section">
+                                    <div class="filter-options">
+                                        @if (VM_Search.SelectedCategory.SousCategories != null && VM_Search.SelectedCategory.SousCategories.Any())
+                                        {
+                                            @foreach (var sousCategorie in VM_Search.SelectedCategory.SousCategories)
+                                            {
+                                                <div class="category-filter-item">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox"
+                                                               checked="@(VM_Search.SelectedSousCategory?.SousCategorieId == sousCategorie.SousCategorieId)"
+                                                               @onchange="async () => await VM_Search.ToggleSousCategory(sousCategorie)" />
+                                                        <span>@sousCategorie.LibelleSousCategorie</span>
+                                                    </label>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="filter-empty">Aucune sous-catégorie disponible</p>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="filter-empty">Aucune sous-catégorie disponible</p>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (VM_Search.SelectedSousCategory != null)
+                {
+                    <div class="filter-section">
+                        <h4 class="filter-title">Taille</h4>
+                        <div class="filter-options">
+                            @if (VM_Search.SelectedCategory != null)
+                            {
+                                <div class="filter-section">
+                                    <div class="filter-options">
+                                        @if (VM_Search.TaillesDisponibles != null && VM_Search.TaillesDisponibles.Any())
+                                        {
+                                            @foreach (var taille  in VM_Search.TaillesDisponibles)
+                                            {
+                                                <div class="category-filter-item">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox"
+                                                               checked="@(VM_Search.SelectedTaille?.TailleId == taille.TailleId)"
+                                                               @onchange="async () => await VM_Search.ToggleSelectedTaille(taille)" />
+                                                        <span>@taille.Libelletaille</span>
+                                                    </label>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="filter-empty">Aucune taille disponible</p>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="filter-empty">Aucune taille disponible</p>
+                            }
+                        </div>
+                    </div>
+                }
                 <!-- Marque -->
                 <div class="filter-section">
                     <h4 class="filter-title">Marque</h4>
@@ -150,35 +199,6 @@
                             <p class="filter-empty">Aucune marque disponible</p>
                         }
                     </div>
-                </div>
-
-                <!-- Taille -->
-                <div class="filter-section">
-                    <h4 class="filter-title">Taille</h4>
-                    @if (VM_Search.IsLoading)
-                    {
-                        <div class="filter-loading">
-                            <div class="spinner-small"></div>
-                            <span>Chargement...</span>
-                        </div>
-                    }
-                    else if (VM_Search.Tailles != null && VM_Search.Tailles.Any())
-                    {
-                        <div class="size-buttons">
-                            @foreach (var taille in VM_Search.Tailles)
-                            {
-                                <button type="button"
-                                        class="size-btn @(VM_Search.SelectedTailles.Contains(taille.Libelletaille) ? "active" : "")"
-                                        @onclick="() => VM_Search.ToggleFilter(VM_Search.SelectedTailles, taille.Libelletaille)">
-                                    @taille.Libelletaille
-                                </button>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="filter-empty">Aucune taille disponible</p>
-                    }
                 </div>
 
                 <!-- Prix -->
@@ -271,8 +291,7 @@
                         {
                             <AnnonceCard annonceComponent="annonce"
                                          OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
-										 IsOwnerTask="VM_Profil.CheckIfOwnerAnnonce(annonce)"/>
+                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"/>
                         }
                     </div>
 

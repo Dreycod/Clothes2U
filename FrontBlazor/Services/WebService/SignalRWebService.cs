@@ -27,6 +27,7 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 
     // ✅ NOUVEAU : Événement pour les notifications
     public event Action<int>? OnNotificationCountUpdated;
+    public event Action<int>? OnMessageCountUpdated;
 
     public bool IsConnected => _chatHubConnection?.State == HubConnectionState.Connected;
     public bool IsNotificationConnected => _notificationHubConnection?.State == HubConnectionState.Connected;
@@ -237,6 +238,10 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
         {
             Console.WriteLine($"[SignalR Notification] 🔔 Received notification count: {count}");
             OnNotificationCountUpdated?.Invoke(count);
+        });
+        _notificationHubConnection.On<int>("UpdateMessageCount", (count) =>
+        {
+            OnMessageCountUpdated?.Invoke(count);
         });
 
         await _notificationHubConnection.StartAsync();

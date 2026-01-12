@@ -22,9 +22,8 @@ public class Commande : IEntity
     [Column("cmd_frais_livraison")]
     public decimal FraisLivraison { get; set; }
     
-    [Column("cmd_statut")]
-    [MaxLength(50)]
-    public string Statut { get; set; } = "EnAttente";
+    [Column("cmd_statut_commande_id")]
+    public int StatutCommandeId { get; set; }
     
     [Column("cmd_stripe_payment_intent_id")]
     [MaxLength(255)]
@@ -41,6 +40,9 @@ public class Commande : IEntity
     public DateTime? DateLivraison { get; set; }
     
     // Foreign Keys
+    [Column("cmd_conversation_id")]
+    public int ConversationId { get; set; }
+    
     [Column("cmd_annonce_id")]
     public int AnnonceId { get; set; }
     
@@ -58,6 +60,10 @@ public class Commande : IEntity
     [InverseProperty(nameof(Annonce.Commandes))]
     public virtual Annonce Annonce { get; set; } = null!;
     
+    [ForeignKey(nameof(ConversationId))]
+    [InverseProperty(nameof(Conversation.Commandes))]
+    public virtual Conversation Conversation { get; set; }
+    
     [ForeignKey(nameof(AcheteurId))]
     [InverseProperty(nameof(Utilisateur.CommandesAchetees))]
     public virtual Utilisateur Acheteur { get; set; } = null!;
@@ -69,6 +75,10 @@ public class Commande : IEntity
     [ForeignKey(nameof(AdresseLivraisonId))]
     [InverseProperty(nameof(Adresse.Commandes))]
     public virtual Adresse AdresseLivraison { get; set; } = null!;
+    
+    [ForeignKey(nameof(StatutCommandeId))]
+    [InverseProperty(nameof(StatutCommande.Commandes))]
+    public virtual StatutCommande StatutCommande { get; set; }
     
     public int GetId() => CommandeId;
 }

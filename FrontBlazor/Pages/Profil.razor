@@ -1,17 +1,15 @@
 ﻿@page "/profile/{userLogin}"
 @inject NavigationManager NavigationManager
 @layout ClientLayout
+@using System.Globalization
+@inject IJSRuntime JS
 
 <PageTitle>Clothes2U</PageTitle>
-
-<!-- Navigation Bar -->
-<NavBar />
 
 <div class="profile-page">
     <div class="profile-container">
         @if (VM_Profil.IsLoading)
         {
-            <!-- Page Loading State -->
             <div class="page-loading-state">
                 <div class="spinner-large"></div>
                 <p>Chargement du profil...</p>
@@ -20,7 +18,6 @@
 
         else if (VM_Profil.UserNotFound)
         {
-            <!-- User Not Found State -->
             <div class="error-state-card">
                 <i class="bi bi-person-x"></i>
                 <h2>Utilisateur introuvable</h2>
@@ -32,7 +29,6 @@
         }
         else if (VM_Profil.UserSuspended)
         {
-            <!-- User Suspended State -->
             <div class="error-state-card">
                 <i class="bi bi-ban"></i>
                 <h2>Compte suspendu</h2>
@@ -62,7 +58,6 @@
             }
             else
             {
-                <!-- Profile Header -->
                 <div class="profile-header">
                     <img class="profile-avatar" src="@(VM_Profil.GetPhoto(VM_Profil.ViewingUser.PhotoProfilId))" />
                     <div class="profile-info">
@@ -71,14 +66,12 @@
                         <div class="profile-actions">
                             @if (VM_Profil.IsSameUser)
                             {
-                                <!-- 🆕 Bouton "Ajouter un article" visible uniquement pour l'utilisateur connecté -->
                                 <button class="btn-add-article-header" @onclick="VM_Profil.NavigateToAddArticle">
                                     <i class="bi bi-plus-circle"></i>
                                     <span>Ajouter un article</span>
                                 </button>
 
-                                <!-- Menu trois points (optionnel pour le propriétaire) -->
-                                <div class="profile-dropdown-container">
+@*                                 <div class="profile-dropdown-container">
                                     <button class="btn-icon"
                                             title="Paramètres"
                                             @onclick="VM_Profil.ToggleDotsDropdown">
@@ -92,15 +85,13 @@
                                                 <i class="bi bi-shield-check"></i>
                                                 <span>Vérification</span>
                                             </button>
-                                            <!-- Ajoutez d'autres options ici si nécessaire -->
                                         </div>
                                     }
-                                </div>
+                                </div> *@
                             }
                             else
                             {
-                                <!-- Options pour les visiteurs -->
-                                <div class="profile-dropdown-container">
+                                <div class="profile-actions-dropdown-container" @ref="profileActionsRef">
                                     <button class="btn-icon"
                                             title="Actions"
                                             @onclick="VM_Profil.ToggleDotsDropdown">
@@ -152,7 +143,7 @@
                             }
                         </div>
                         <div class="profile-member-info">
-                            <span>Membre depuis @(VM_Profil.ViewingUser.DateInscription.ToString("MMMM yyyy"))</span>
+                            <span>Membre depuis @(VM_Profil.ViewingUser.DateInscription.ToString("MMMM yyyy", new CultureInfo("fr-FR")))</span>
                             <div class="profile-rating">
                                 <i class="bi bi-star-fill"></i>
                                 <span>@(VM_Profil.ViewingUser.MoyenneAvis) (@(VM_Profil.AvisCount) avis)</span>
@@ -230,77 +221,168 @@
 
                 </div>
 
-                <!-- Tab Content -->
                 <div class="tab-content">
                     @if (VM_Profil.ActiveTab == "articles")
                     {
-                        @if (VM_Profil.IsLoadingArticles)
-                        {
-                            <div class="tab-loading-state">
-                                <div class="spinner-medium"></div>
-                                <p>Chargement des articles...</p>
-                            </div>
-                        }
-                        else if (VM_Profil.Annonces != null && VM_Profil.Annonces.Any())
-                        {
-                            <div class="products-grid">
-                                @foreach (var annonce in VM_Profil.Annonces)
-                                {
-                                    <AnnonceCard annonceComponent="annonce"
-                                                 OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
-                                                 IsOwnerTask="VM_Profil.CheckIfOwnerAnnonce(annonce)" />
-
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="empty-state">
-                                @if (VM_Profil.IsSameUser)
-                                {
-                                    <p>Vous n'avez pas encore mis en vente des articles</p>
-                                    <button class="btn-add-article" @onclick="VM_Profil.NavigateToAddArticle">
-                                        Ajouter un article
+                        <div class="section-container">
+                            <div class="section-header">
+                                <div class="carousel-controls">
+                                    <button class="carousel-btn" 
+                                            @onclick="VM_Profil.PreviousArticles"
+                                            disabled="@(VM_Profil.PageArticles <= 1 || VM_Profil.IsLoadingPreviousArticles)">
+                                        @if (VM_Profil.IsLoadingPreviousArticles)
+                                        {
+                                            <div class="spinner-small"></div>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-chevron-left"></i>
+                                        }
                                     </button>
-                                }
-                                else
-                                {
-                                    <p>L'utilisateur n'a pas posté d'annonces</p>
-                                }
+                    
+                                    <button class="carousel-btn" 
+                                            @onclick="VM_Profil.NextArticles"
+                                            disabled="@(VM_Profil.Annonces?.Count < VM_Profil.PageSizeArticles || VM_Profil.IsLoadingNextArticles)">
+                                        @if (VM_Profil.IsLoadingNextArticles)
+                                        {
+                                            <div class="spinner-small"></div>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-chevron-right"></i>
+                                        }
+                                    </button>
+                                </div>
                             </div>
-                        }
+
+                            @if (VM_Profil.IsLoadingArticles)
+                            {
+                                <div class="tab-loading-state">
+                                    <div class="spinner-medium"></div>
+                                    <p>Chargement des articles...</p>
+                                </div>
+                            }
+                            else if (VM_Profil.Annonces != null && VM_Profil.Annonces.Any())
+                            {
+                                <div class="products-grid">
+                                    @foreach (var annonce in VM_Profil.Annonces)
+                                    {
+                                        <AnnonceCard annonceComponent="annonce"
+                                                        OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                                        OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"/>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">
+                                    @if (VM_Profil.IsSameUser)
+                                    {
+                                        <p>Vous n'avez pas encore mis en vente des articles</p>
+                                        <button class="btn-add-article" @onclick="VM_Profil.NavigateToAddArticle">
+                                            Ajouter un article
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <p>L'utilisateur n'a pas posté d'annonces</p>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
                     else if (VM_Profil.ActiveTab == "favoris")
                     {
-                        @if (VM_Profil.IsLoadingFavoris)
-                        {
-                            <div class="tab-loading-state">
-                                <div class="spinner-medium"></div>
-                                <p>Chargement des favoris...</p>
+                        <div class="section-container">
+                            <div class="section-header">
+                                <div class="carousel-controls">
+                                    <button class="carousel-btn" 
+                                            @onclick="VM_Profil.PreviousFavoris"
+                                            disabled="@(VM_Profil.PageFavoris <= 1 || VM_Profil.IsLoadingPreviousFavoris)">
+                                        @if (VM_Profil.IsLoadingPreviousFavoris)
+                                        {
+                                            <div class="spinner-small"></div>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-chevron-left"></i>
+                                        }
+                                    </button>
+                    
+                                    <button class="carousel-btn" 
+                                            @onclick="VM_Profil.NextFavoris"
+                                            disabled="@(VM_Profil.FavorisAnnonce?.Count < VM_Profil.PageSizeFavoris || VM_Profil.IsLoadingNextFavoris)">
+                                        @if (VM_Profil.IsLoadingNextFavoris)
+                                        {
+                                            <div class="spinner-small"></div>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-chevron-right"></i>
+                                        }
+                                    </button>
+                                </div>
                             </div>
-                        }
-                        else if (VM_Profil.FavorisAnnonce != null && VM_Profil.FavorisAnnonce.Any())
-                        {
-                            <div class="products-grid">
-                                @foreach (AnnonceDTO annonce in VM_Profil.FavorisAnnonce)
-                                {
-                                    <AnnonceCard annonceComponent="annonce"
-                                                 OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                                 OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
-                                                 IsOwnerTask="VM_Profil.CheckIfOwnerAnnonce(annonce)" />
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="empty-state">
-                                <p>Aucun article en favoris</p>
-                            </div>
-                        }
+
+                            @if (VM_Profil.IsLoadingFavoris)
+                            {
+                                <div class="tab-loading-state">
+                                    <div class="spinner-medium"></div>
+                                    <p>Chargement des favoris...</p>
+                                </div>
+                            }
+                            else if (VM_Profil.FavorisAnnonce != null && VM_Profil.FavorisAnnonce.Any())
+                            {
+                                <div class="products-grid">
+                                    @foreach (AnnonceDTO annonce in VM_Profil.FavorisAnnonce)
+                                    {
+                                        <AnnonceCard annonceComponent="annonce"
+                                                        OnToggleFavorite="VM_Profil.ToggleFavorite"
+                                                        OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"/>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">
+                                    <p>Aucun article en favoris</p>
+                                </div>
+                            }
+                        </div>
                     }
                     else if (VM_Profil.ActiveTab == "avis")
                     {
+                    <div class="section-container">
+                        <div class="section-header">
+                            <div class="carousel-controls">
+                                <button class="carousel-btn" 
+                                        @onclick="VM_Profil.PreviousAvis"
+                                        disabled="@(VM_Profil.PageAvis <= 1 || VM_Profil.IsLoadingPreviousAvis)">
+                                    @if (VM_Profil.IsLoadingPreviousAvis)
+                                    {
+                                        <div class="spinner-small"></div>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-chevron-left"></i>
+                                    }
+                                </button>
+                    
+                                <button class="carousel-btn" 
+                                        @onclick="VM_Profil.NextAvis"
+                                        disabled="@(VM_Profil.Avis?.Count < VM_Profil.PageSizeAvis || VM_Profil.IsLoadingNextAvis)">
+                                    @if (VM_Profil.IsLoadingNextAvis)
+                                    {
+                                        <div class="spinner-small"></div>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-chevron-right"></i>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="reviews-header">
                             @if (!VM_Profil.IsSameUser)
                             {
@@ -311,58 +393,59 @@
                             }
                         </div>
 
-                        @if (VM_Profil.IsLoadingAvis)
-                        {
-                            <div class="tab-loading-state">
-                                <div class="spinner-medium"></div>
-                                <p>Chargement des avis...</p>
-                            </div>
-                        }
-                        else if (VM_Profil.Avis != null && VM_Profil.Avis.Any())
-                        {
-                            <div class="reviews-list">
-                                @foreach (Shared.DTO.NoteUtilisateur.NoteUtilisateurDetailDTO avis in VM_Profil.Avis)
-                                {
-                                    <div class="review-item">
-                                        <div class="review-header">
-                                            <div class="review-user">
-                                                <img class="review-avatar" src="@VM_Profil.GetPhoto(avis.PhotoProfilAuteurId)"/>
-                                                <h3 class="review-name">@avis.LoginAuteur</h3>
-                                            </div>
-                                            <div class="review-header-right">
-                                                <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
-                        
-                                                @if (!VM_Profil.IsSameUserAsReviewer(avis.NoteurId))
-                                                {
-                                                    <button class="btn-action" @onclick:stopPropagation @onclick="() => VM_Profil.OpenSignalerAvis(avis.NoteId)">
-                                                        <i class="bi bi-flag"></i>
-                                                    </button>
-                                                }
-                                            </div>
+                    @if (VM_Profil.IsLoadingAvis)
+                    {
+                        <div class="tab-loading-state">
+                            <div class="spinner-medium"></div>
+                            <p>Chargement des avis...</p>
+                        </div>
+                    }
+                    else if (VM_Profil.Avis != null && VM_Profil.Avis.Any())
+                    {
+                        <div class="reviews-list">
+                            @foreach (Shared.DTO.NoteUtilisateur.NoteUtilisateurDetailDTO avis in VM_Profil.Avis)
+                            {
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="review-user">
+                                            <img class="review-avatar" src="@VM_Profil.GetPhoto(avis.PhotoProfilAuteurId)"/>
+                                            <h3 class="review-name">@avis.NomAuteur</h3>
                                         </div>
-                                        <div class="review-rating">
-                                            @for (int j = 0; j < avis.Note; j++)
+                                        <div class="review-header-right">
+                                            <span class="review-date">@avis.DatePublication.ToString("dd/MM/yyyy")</span>
+            
+                                            @if (!VM_Profil.IsSameUserAsReviewer(avis.NoteurId))
                                             {
-                                                <i class="bi bi-star-fill"></i>
-                                            }
-                                            @for (int j = avis.Note; j < 5; j++)
-                                            {
-                                                <i class="bi bi-star"></i>
+                                                <button class="btn-action" @onclick:stopPropagation @onclick="() => VM_Profil.OpenSignalerAvis(avis.NoteId)">
+                                                    <i class="bi bi-flag"></i>
+                                                </button>
                                             }
                                         </div>
-                                        <p class="review-text">@avis.Commentaire</p>
                                     </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="empty-state">
-                                <p>Aucun avis pour le moment</p>
-                            </div>
-                        }
+                                    <div class="review-rating">
+                                        @for (int j = 0; j < avis.Note; j++)
+                                        {
+                                            <i class="bi bi-star-fill"></i>
+                                        }
+                                        @for (int j = avis.Note; j < 5; j++)
+                                        {
+                                            <i class="bi bi-star"></i>
+                                        }
+                                    </div>
+                                    <p class="review-text">@avis.Commentaire</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <p>Aucun avis pour le moment</p>
+                        </div>
                     }
                 </div>
+            }
+        </div>
             }
         }
             
@@ -495,10 +578,13 @@
                     <div class="users-list">
                         @foreach (var user in VM_Profil.Abonnements)
                         {
-                            <div class="user-card" @onclick="() => VM_Profil.NavigateToUserProfile(user.NomUtilisateur)">
-                                <img src="@VM_Profil.GetPhoto(user.PhotoId)" alt="@user.NomUtilisateur" class="user-avatar" />
-                                <div class="user-info">
-                                    <span class="user-login">@("@" + user.NomUtilisateur)</span>
+                            <div class="blocked-user-item">
+                                <div class="blocked-user-info" @onclick="() => VM_Profil.NavigateToUserProfile(user.NomUtilisateur)">
+                                    <img class="blocked-user-avatar" 
+                                         src="@VM_Profil.GetPhoto(user.PhotoId)"/>
+                                    <div class="blocked-user-details">
+                                        <h4>@user.NomUtilisateur</h4>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -557,8 +643,6 @@
     </div>
 }
 
-<Footer/>
-
 @if (VM_Profil.ShowSignalerAvisModal)
 {
     <div class="modal-overlay" @onclick="VM_Profil.ToggleSignalerAvisModal">
@@ -604,9 +688,45 @@
     [Parameter]
     public string userLogin { get; set; }
 
+    private ElementReference profileActionsRef;
+    private DotNetObjectReference<Profil>? objRef;
+
     protected override async Task OnInitializedAsync()
     {
+        VM_Profil.OnStateChanged += StateHasChanged;
         await VM_Profil.LoadUserProfile(userLogin);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, null, null, profileActionsRef);
+        }
+    }
+
+    [JSInvokable]
+    public void CloseDropdowns()
+    {
+        VM_Profil.CloseAllDropdowns();
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        VM_Profil.OnStateChanged -= StateHasChanged;
+
+        if (objRef != null)
+        {
+            await JS.InvokeVoidAsync("removeClickOutside");
+            objRef.Dispose();
+        }
+
+        if (VM_Profil is IAsyncDisposable disposable)
+        {
+            await disposable.DisposeAsync();
+        }
     }
 
     public void Dispose()

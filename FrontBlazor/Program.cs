@@ -97,6 +97,7 @@ builder.Services.AddScoped<SignalementViewModel>();
 builder.Services.AddScoped<TraitementSignalementViewModel>();
 builder.Services.AddScoped<SanctionsViewModel>();
 builder.Services.AddScoped<SanctionedUserViewModel>();
+builder.Services.AddScoped<ImagesValidationViewModel>();
 builder.Services.AddScoped<DemandesRestaurationViewModel>();
 builder.Services.AddScoped<DemandeRestaurationDetailViewModel>();
 builder.Services.AddScoped<HistoriqueTransactionViewModel>();
@@ -107,6 +108,7 @@ builder.Services.AddScoped<ClientBaseViewModel>();
 builder.Services.AddScoped<AddressViewModel>();
 builder.Services.AddScoped<ForgotPasswordViewModel>();
 builder.Services.AddScoped<ResetPasswordViewModel>();
+builder.Services.AddScoped<OrderViewModel>();
 
 // AuthService doit déjà être enregistré
 // (il contient les méthodes pour les adresses)

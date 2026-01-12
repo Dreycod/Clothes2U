@@ -2,6 +2,7 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Managers;
 using API.Services;
+using API.Services.VerificationSrvceV2;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,8 @@ public class DecisionController : ControllerBase
     private readonly IConversationRepository<Conversation, int> _conversationManager;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly INotificationMailService  _mailService;
+    private readonly INotificationService _notificationService;
 
     public DecisionController(
         IDecisionRepository decisionManager,
@@ -34,6 +37,8 @@ public class DecisionController : ControllerBase
         IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
         INoteUtilisateurRepository noteUtilisateurManager,
         IConversationRepository<Conversation, int> conversationManager,
+        INotificationMailService mailService,
+        INotificationService notificationService,
         IMapper mapper)
     {
         _currentUserService =  currentUserService;
@@ -44,17 +49,15 @@ public class DecisionController : ControllerBase
         _noteUtilisateurManager = noteUtilisateurManager;
         _conversationManager = conversationManager;
         _mapper = mapper;
+        _mailService = mailService;
+        _notificationService = notificationService;
     }
 
     [HttpGet]
     [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult<ActionResult<DecisionDTO>>> GetAllDecisionsByModerateurId()
     {
-        int? userId = await _currentUserService.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        int userId = await _currentUserService.GetUserIdOrThrow();
         IEnumerable<Decision> decisions = await _decisionManager.GetAllDecisionsByModerateurId((int)userId);
         IEnumerable<DecisionDTO> decisionsDTO = _mapper.Map<IEnumerable<DecisionDTO>>(decisions);
         return Ok(decisionsDTO);
@@ -86,25 +89,33 @@ public class DecisionController : ControllerBase
     {
         try
         {
-            int? userId = await _currentUserService.GetUserId();
-            if (userId == null)
-            {
-                return Unauthorized("Utilisateur non authentifié");
-            }
+            Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
+            int userId = await _currentUserService.GetUserIdOrThrow();
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            if (decisionDTO is DecisionIgnorPostDTO)
+            {
+                await _signalementManager.DeleteAsync(signalement);
+                return decisionDTO;
+            }
+
+            Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
             var decision = new Decision
             {
                 ElementDecision = await CreateElementDecision(decisionDTO.ElementDecision),
-                ModerateurId = userId.Value,
+                ModerateurId = userId,
                 UtilisateurId = decisionDTO.UtilisateurId,
                 DecisionDate = DateTime.UtcNow
             };
             switch (decisionDTO)
             {
                 case DecisionAvertissementPostDTO avertissement:
+                    await _notificationService.CreateNotificationAvertissement(avertissement.UtilisateurId,
+                        avertissement.MessageModerateur);
+                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateAvertissement(decision); 
                     break;
 
@@ -112,22 +123,24 @@ public class DecisionController : ControllerBase
                     await _utilisateurRepository.SuspendUser(decisionDTO.UtilisateurId);
                     await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateSanctionSuspension(decision, suspension);
+                    await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
                     break;
 
                 case SanctionBannissementPostDTO bannissement:
                     await _utilisateurRepository.BanUser(decisionDTO.UtilisateurId);
                     await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateSanctionBannissement(decision, bannissement);
+                    await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
                     break;
-
                 default:
                     return BadRequest("Type de décision non reconnu");
             }
+            await _signalementManager.DeleteAsync(signalement);
             var createdDecision = await _decisionManager.AddAsync(decision);
             var resultDTO = _mapper.Map<DecisionPostDTO>(createdDecision);
-
             return CreatedAtAction(nameof(GetAllDecisionsByModerateurId), 
-                new { id = userId.Value }, resultDTO);
+                new { id = userId }, resultDTO);
+        
         }
         catch (Exception e)
         {

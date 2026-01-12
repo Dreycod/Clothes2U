@@ -1,5 +1,5 @@
 ﻿@page "/moderation/images"
-
+@inject ImagesValidationViewModel VM_ImagesValidation
 
 <PageTitle>Validation d'images - Modération</PageTitle>
 
@@ -57,48 +57,64 @@
         <main class="mod-content">
             <h1 class="mod-page-title">Validation d'images</h1>
 
+            @if (VM_ImagesValidation?._ValidationMessage?.Any() == true)
+            {
+                <div class="validation-messages">
+                    @foreach (var msg in VM_ImagesValidation._ValidationMessage)
+                    {
+                        <div class="validation-message @(VM_ImagesValidation._IsSuccess ? "success" : "error")">
+                            @msg
+                        </div>
+                    }
+                </div>
+            }
             <!-- Images Grid -->
             <div class="images-grid">
-                @for (int i = 0; i < 6; i++)
+                @for (int i = 0; i < VM_ImagesValidation.SelectedFilePreviews.Count; i++)
                 {
-                    <div class="image-card">
-                        <div class="image-preview"></div>
+                    var preview = VM_ImagesValidation.SelectedFilePreviews[i];
+                    var photoId = preview.PhotoID;
+
+                    <div class="uploaded-photo" @key="photoId">
+                        <img src="@preview.PreviewBase64" alt="Photo" />
 
                         <div class="image-info">
                             <div class="image-user">
                                 <div class="user-avatar-small"></div>
-                                <div>
+                                <div class="user-meta">
                                     <h4>User @(i + 1)</h4>
                                     <p>Il y a @(i + 1) heures</p>
                                 </div>
                             </div>
 
                             <div class="image-actions">
-                                <button class="btn-approve" @onclick="() => ApproveImage(i)">
+                                <button class="btn-approve"
+                                        @onclick="async () => await VM_ImagesValidation.ApproveImage(photoId)">
                                     <i class="bi bi-check-lg"></i>
                                     Approuver
                                 </button>
-                                <button class="btn-reject" @onclick="() => RejectImage(i)">
+
+                                <button class="btn-reject"
+                                        @onclick="async () => await VM_ImagesValidation.RejectImage(photoId)">
                                     <i class="bi bi-x-lg"></i>
                                     Refuser
                                 </button>
+
                             </div>
                         </div>
                     </div>
                 }
             </div>
+
+
         </main>
     </div>
 </div>
 
 @code {
-    private void ApproveImage(int imageId)
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Approve image
+        await VM_ImagesValidation.LoadAsync();
     }
 
-    private void RejectImage(int imageId)
-    {
-        // TODO: Reject image
-    }
 }

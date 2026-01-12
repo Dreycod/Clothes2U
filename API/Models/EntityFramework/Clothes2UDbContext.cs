@@ -196,6 +196,30 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.AdresseLivraisonId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Commande_AdresseLivraison");
+            
+            entity.HasOne(e => e.StatutCommande)
+                .WithMany(e => e.Commandes)
+                .HasForeignKey(e => e.StatutCommandeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_StatutCommande");
+            
+            entity.HasOne(e => e.Conversation)
+                .WithMany(e => e.Commandes)
+                .HasForeignKey(e => e.ConversationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_Conversation");
+        });
+
+        modelBuilder.Entity<StatutCommande>(entity =>
+        {
+            entity.ToTable("t_e_statut_commande_stacom");
+            
+            entity.HasKey(e => e.StatutCommandeId);
+
+            entity.HasMany(e => e.Commandes)
+                .WithOne(e => e.StatutCommande)
+                .HasForeignKey(e => e.StatutCommandeId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
         
         
@@ -333,6 +357,12 @@ public partial class Clothes2UDbContext : DbContext
                 .WithMany(a => a.LesConversations)
                 .HasForeignKey(e => e.AnnonceId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasMany(e => e.Commandes)
+                .WithOne(e => e.Conversation)
+                .HasForeignKey(e => e.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
         });
         
         modelBuilder.Entity<Couleur>(entity =>

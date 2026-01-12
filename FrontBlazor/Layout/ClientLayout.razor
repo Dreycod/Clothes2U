@@ -12,7 +12,7 @@
     <nav class="main-navbar">
         <div class="navbar-container">
             <div class="navbar-left">
-                <a href="/" class="navbar-logo">
+                <a  class="navbar-logo" href="/">
                     Clothes<span class="logo-accent">2</span>U
                 </a>
                 <button class="menu-toggle">
@@ -130,25 +130,16 @@
 
                         @if (Vm_NavBar.RoleUtilisateur == "Admin" || Vm_NavBar.RoleUtilisateur == "Modérateur")
                         {
-                            <button class="btn btn-login btn-moderation">
-                                <a href="/moderation" class="tab-btn">
-                                    <i class="bi bi-shield-lock"></i>
-                                </a>
-                            </button>
-                           
-
-
+                            <a href="/moderation" class="btn btn-login btn-moderation tab-btn">
+                                <i class="bi bi-shield-lock"></i>
+                            </a>
                         }
+
                         @if (Vm_NavBar.RoleUtilisateur == "Admin" || Vm_NavBar.RoleUtilisateur == "Commercial")
                         {
-                            @*  <a href="/commercial" class="tab-btn">
+                            <a href="/commercial" class="btn btn-login btn-commercial tab-btn">
                                 <i class="bi bi-graph-up"></i>
-                            </a> *@
-                            <button class="btn btn-login btn-commercial">
-                                <a href="/commercial" class="tab-btn">
-                                    <i class="bi bi-graph-up"></i>
-                                </a>
-                            </button>
+                            </a>
                         }
                     }
                     else
@@ -172,10 +163,14 @@
         <a href="/privacy">Politique de confidalité</a>
         <a href="/return">Politique de retour</a>
     </footer>
+    <CookieConsent />
 </div>
 
 
 @code {
+
+
+
     private ElementReference notificationRef;
     private ElementReference profileRef;
     private DotNetObjectReference<ClientLayout>? objRef;
@@ -191,7 +186,7 @@
         if (firstRender)
         {
             objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef, null);
         }
     }
 

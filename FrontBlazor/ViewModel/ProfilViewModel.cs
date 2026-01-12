@@ -39,7 +39,7 @@ namespace FrontBlazor.ViewModel
         private readonly IBloqueService _bloqueService;
 
         public string ActiveTab { get; set; } = "articles";
-        
+
         public bool IsLoadingArticles { get; set; } = false;
         public bool IsLoadingFavoris { get; set; } = false;
         public bool IsLoadingAvis { get; set; } = false;
@@ -75,6 +75,23 @@ namespace FrontBlazor.ViewModel
         public string? NotifMailErrorMessage { get; set; }
         #endregion
 
+        #region Pagination
+        public int PageArticles { get; set; } = 1;
+        public int PageSizeArticles { get; set; } = 8;
+        public bool IsLoadingNextArticles = false;
+        public bool IsLoadingPreviousArticles = false;
+
+        public int PageFavoris { get; set; } = 1;
+        public int PageSizeFavoris { get; set; } = 8;
+        public bool IsLoadingNextFavoris { get; set; } = false;
+        public bool IsLoadingPreviousFavoris { get; set; } = false;
+
+        public int PageAvis { get; set; } = 1;
+        public int PageSizeAvis { get; set; } = 5;
+        public bool IsLoadingNextAvis { get; set; } = false;
+        public bool IsLoadingPreviousAvis { get; set; } = false;
+        #endregion
+
         public ProfilViewModel(
             IUtilisateurService utilisateurService,
             IAnnonceService annonceService,
@@ -89,7 +106,7 @@ namespace FrontBlazor.ViewModel
             IBloqueService bloqueService,
             ISignalRService notificationHubService,
             INotificationService notificationService)
-        : base(navigationManager, authService,notificationHubService, notificationService)
+        : base(navigationManager, authService, notificationHubService, notificationService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -137,17 +154,17 @@ namespace FrontBlazor.ViewModel
                 IsBlockedByUser = user.BlockedByCurrentUser;
                 IsFollowing = user.FolloweddByCurrentUser;
 
-                 ViewingUser = user;
+                ViewingUser = user;
 
                 var tasks = new List<Task>
                  {
                      Task.Run(async () => {
-                         Annonces = await _annonceService.GetAnnoncesByUserIdAsync(ViewingUser.UtilisateurId);
+                         Annonces = await _annonceService.GetAnnoncesPaginationByUserIdAsync(ViewingUser.UtilisateurId);
                          IsLoadingArticles = false;
                          NotifyStateChanged();
                      }),
                      Task.Run(async () => {
-                         Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(ViewingUser.UtilisateurId);
+                         Avis = await _noteUtilisateurService.GetNotesByUtilisateurId(ViewingUser.UtilisateurId);
                          AvisCount = Avis?.Count ?? 0;
                          IsLoadingAvis = false;
                          NotifyStateChanged();
@@ -225,7 +242,7 @@ namespace FrontBlazor.ViewModel
                 return;
             }
 
-            if (ViewingUser == null) 
+            if (ViewingUser == null)
                 return;
 
             bool wasFollowing = ViewingUser.FolloweddByCurrentUser;
@@ -288,7 +305,6 @@ namespace FrontBlazor.ViewModel
 
         public async Task SubmitReview()
         {
-            // check if message transaction exists
             if (ViewingUser == null) return;
 
             ReviewErrorMessage = string.Empty;
@@ -329,7 +345,7 @@ namespace FrontBlazor.ViewModel
                 var result = await _noteUtilisateurService.AddNoteUtilisateur(newReview);
                 if (result != null)
                 {
-                    Avis = await _noteUtilisateurService.GetAllNotesByUtilisateurId(ViewingUser.UtilisateurId);
+                    Avis = await _noteUtilisateurService.GetNotesByUtilisateurId(ViewingUser.UtilisateurId);
                     AvisCount = Avis?.Count ?? 0;
                 }
                 CloseAddReview();
@@ -439,7 +455,7 @@ namespace FrontBlazor.ViewModel
             };
 
             await _signalementService.CreateSignalement(signalement);
-            
+
         }
         public void ToggleSignalerModal()
         {
@@ -589,6 +605,136 @@ namespace FrontBlazor.ViewModel
             CloseAbonnementsModal();
             _navigationManager.NavigateTo($"/profile/{login}", true);
         }
+
+
+        public async Task NextArticles()
+        {
+            if (Annonces?.Count == PageSizeArticles)
+            {
+                IsLoadingNextArticles = true;
+                NotifyStateChanged();
+
+                var newAnnonces = await _annonceService.GetAnnoncesPaginationByUserIdAsync(
+                    ViewingUser.UtilisateurId,
+                    PageArticles + 1,
+                    PageSizeArticles
+                );
+
+                if (newAnnonces != null && newAnnonces.Count > 0)
+                {
+                    PageArticles++;
+                    Annonces = newAnnonces;
+                }
+
+                IsLoadingNextArticles = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task PreviousArticles()
+        {
+            if (PageArticles > 1)
+            {
+                IsLoadingPreviousArticles = true;
+                NotifyStateChanged();
+
+                PageArticles--;
+                Annonces = await _annonceService.GetAnnoncesPaginationByUserIdAsync(
+                    ViewingUser.UtilisateurId,
+                    PageArticles,
+                    PageSizeArticles
+                );
+
+                IsLoadingPreviousArticles = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task NextFavoris()
+        {
+            if (FavorisAnnonce?.Count == PageSizeFavoris)
+            {
+                IsLoadingNextFavoris = true;
+                NotifyStateChanged();
+
+                var newFavoris = await _annonceService.GetByFavorisUtilisateur(PageFavoris + 1, PageSizeFavoris);
+
+                if (newFavoris != null && newFavoris.Count > 0)
+                {
+                    PageFavoris++;
+                    FavorisAnnonce = newFavoris;
+                }
+
+                IsLoadingNextFavoris = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task PreviousFavoris()
+        {
+            if (PageFavoris > 1)
+            {
+                IsLoadingPreviousFavoris = true;
+                NotifyStateChanged();
+
+                PageFavoris--;
+                var newFavoris = await _annonceService.GetByFavorisUtilisateur(PageFavoris, PageSizeFavoris);
+                FavorisAnnonce = newFavoris;
+
+                IsLoadingPreviousFavoris = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task NextAvis()
+        {
+            if (Avis?.Count == PageSizeAvis)
+            {
+                IsLoadingNextAvis = true;
+                NotifyStateChanged();
+
+                var newAvis = await _noteUtilisateurService.GetNotesByUtilisateurId(
+                    ViewingUser.UtilisateurId,
+                    PageAvis + 1,
+                    PageSizeAvis
+                );
+
+                if (newAvis != null && newAvis.Count > 0)
+                {
+                    PageAvis++;
+                    Avis = newAvis;
+                    AvisCount = Avis?.Count ?? 0;
+                }
+
+                IsLoadingNextAvis = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task PreviousAvis()
+        {
+            if (PageAvis > 1)
+            {
+                IsLoadingPreviousAvis = true;
+                NotifyStateChanged();
+
+                PageAvis--;
+                Avis = await _noteUtilisateurService.GetNotesByUtilisateurId(
+                    ViewingUser.UtilisateurId,
+                    PageAvis,
+                    PageSizeAvis
+                );
+                AvisCount = Avis?.Count ?? 0;
+
+                IsLoadingPreviousAvis = false;
+                NotifyStateChanged();
+            }
+        }
+
+        public new void CloseAllDropdowns()
+        {
+            showDotsDropdown = false;
+            NotifyStateChanged();
+        }
     }
-    
 }

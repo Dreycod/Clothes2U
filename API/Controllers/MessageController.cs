@@ -6,10 +6,12 @@ using API.Models.Repository;
 using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
+using API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Shared.DTO;
 using Shared.DTO.Notification;
 
 namespace API.Controllers;
@@ -28,9 +30,12 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageEstRecu, int> _messageEstRecuManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceService;
+    private readonly IOrderRepository _orderService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub> _hubContext;
+    private readonly IMessageService _messageService;
 
     public MessageController(
         IMessageRepository messageManager,
@@ -41,9 +46,12 @@ public class MessageController : ControllerBase
         IDataRepository<MessageContientImage, int> messageContientImageManager,
         IDataRepository<MessageEnvoieColis, int> messageEnvoieColisManager,
         IDataRepository<MessageEstRecu, int> messageEstRecuManager,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceService,
+        IOrderRepository orderService,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
+        IMessageService messageService,
         IHubContext<ChatHub> hubContext)
     {
         _messageManager = messageManager;
@@ -55,9 +63,12 @@ public class MessageController : ControllerBase
         _messageEstRecuManager = messageEstRecuManager;
         _notificationService = notificationMessageManager;
         _messageContientImageManager = messageContientImageManager;
+        _annonceService = annonceService;
+        _orderService = orderService;
         _photoService = photoService;
         _mapper = mapper;
         _hubContext = hubContext;
+        _messageService = messageService;
     }
     [Authorize]
     [HttpPost("texte")]
@@ -131,7 +142,7 @@ public class MessageController : ControllerBase
                         : dto.Content[..Math.Min(50, dto.Content.Length)]
                  };
                  await _notificationService.CreateNotification(notification);
-                 
+                 await _messageService.SendMessageCount((int)targetUserId);
                  // 🔥 BROADCASTER VIA SIGNALR
                  //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
                  
@@ -315,11 +326,15 @@ public class MessageController : ControllerBase
         
         await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
         
-        var messagePayee = await _messageValidationManager.GetByIdAsync(dto.MessageEstPayeeId);
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+        if (conversation == null)
+            return BadRequest("Conversation introuvable");
+
+        var commande = conversation.Commandes?.LastOrDefault();
+        if (commande == null)
+            return BadRequest("Commande introuvable");
         
-        messagePayee.EstEnvoye = true;
-        
-        await _messageValidationManager.UpdateAsync(messagePayee);
+        await _orderService.UpdateOrderStatusAsync(commande.CommandeId, 2);
         
         try
         {
@@ -366,7 +381,9 @@ public class MessageController : ControllerBase
             EstConforme = dto.EstConforme,
             MessageEstEnvoieId = dto.MessageEstEnvoieId
         };
-
+        
+        
+        
         if (!dto.EstConforme)
         {
             if (dto.Photo == null) return BadRequest("Photo manquante");
@@ -379,6 +396,17 @@ public class MessageController : ControllerBase
             messageRecu.PhotoId = photo.PhotoId;
         }
         await _messageEstRecuManager.AddAsync(messageRecu);
+        
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+        if (conversation == null)
+            return BadRequest("Conversation introuvable");
+
+        var commande = conversation.Commandes?.LastOrDefault();
+        if (commande == null)
+            return BadRequest("Commande introuvable");
+        //commande.StatutCommandeId = 3;
+        
+        await _orderService.UpdateOrderStatusAsync(commande.CommandeId, 3);
         
         try
         {
@@ -418,9 +446,28 @@ public class MessageController : ControllerBase
 
         if (messagePayee.EstEnvoye) return BadRequest();
         
+        if (messagePayee.EstAnnule) return BadRequest();
+        
         messagePayee.EstAnnule = true;
         
         await _messageValidationManager.UpdateAsync(messagePayee);
+        
+        if (messagePayee.Message?.Conversation == null)
+            return BadRequest("Conversation introuvable");
+        
+        var annonce = messagePayee.Message.Conversation.LAnnonce;
+        
+        if (annonce == null) return BadRequest("Annonce introuvable");
+        
+        annonce.StatutAnnonceId = 1;
+        await _annonceService.UpdateAsync(annonce);
+        
+        var commande = messagePayee.Message.Conversation.Commandes?.LastOrDefault();
+        if (commande == null)
+            return BadRequest("Commande introuvable");
+        commande.StatutCommandeId = 4;
+        
+        await _orderService.UpdateAsync(commande);
         
         try
         {

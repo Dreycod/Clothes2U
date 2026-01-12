@@ -24,8 +24,10 @@ public class ConversationMappingProfile : Profile
                     src.Messages.OrderByDescending(m => m.MessageDate)
                         .FirstOrDefault().MessageTexte.Content ?? string.Empty))
             .ForMember(dest => dest.LastMessageDate, opt => opt.MapFrom(src =>
-                    src.Messages.OrderByDescending(m => m.MessageDate)
-                        .FirstOrDefault().MessageDate.Date))
+                src.Messages != null && src.Messages.Any()
+                    ? src.Messages.OrderByDescending(m => m.MessageDate)
+                        .First().MessageDate
+                    : src.CreationDate))
             .ForMember(dest => dest.Interlocuteur,
                 opt => opt.MapFrom((src, dest, _, context) =>
                     (int)context.Items["CurrentUserId"] == src.Acheteur.UtilisateurAcheteurId
@@ -44,6 +46,8 @@ public class ConversationMappingProfile : Profile
             .ForMember(dest => dest.Negociable, opt => opt.MapFrom(src => src.LAnnonce.Negociable))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
             .ForMember(dest => dest.VendeurId, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeurId))
+            .ForMember(dest => dest.StatusConversationId, opt => opt.MapFrom(src => src.StatutConversationId))
+            .ForMember(dets => dets.StatusConversation, opt => opt.MapFrom(src => src.StatutConversation.StatutConversationLibelle))
             .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
                 src.LAnnonce.Photos.FirstOrDefault() != null
                     ? src.LAnnonce.Photos.First().Photo.PhotoId

@@ -2,6 +2,6 @@
 {
     public interface IUserDeletionService
     {
-        Task DeleteUtilisateurByAdminAsync(int utilisateurId, int adminId);
+        Task DeleteUtilisateurAsync(int utilisateurId);
     }
 }

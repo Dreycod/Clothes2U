@@ -16,18 +16,25 @@ public class NotificationHubService : INotificationHubService
 
     public async Task UpdateNotificationCount(int userId, int count)
     {
-        Console.WriteLine($"📤 [NotificationHubService] Sending notification count update");
-        Console.WriteLine($"   UserId: {userId}");
-        Console.WriteLine($"   New count: {count}");
-        Console.WriteLine($"   Group: User_{userId}");
-        
         try
         {
             await _hubContext.Clients
                 .Group($"User_{userId}")
                 .SendAsync("UpdateNotificationCount", count);
-                
-            Console.WriteLine($"✅ [NotificationHubService] Message sent successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ [NotificationHubService] Error: {ex.Message}");
+        }
+    }
+
+    public async Task UpdateUnreadMesssageCount(int userId, int count)
+    {
+        try
+        {
+            await _hubContext.Clients
+                .Group($"User_{userId}")
+                .SendAsync("UpdateMessageCount", count);
         }
         catch (Exception ex)
         {

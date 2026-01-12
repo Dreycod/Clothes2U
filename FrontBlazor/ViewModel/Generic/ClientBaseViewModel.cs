@@ -46,7 +46,7 @@ public class ClientBaseViewModel : IAsyncDisposable
         _signalRService = signalRService;
         _authService = authService;
         _signalRService.OnNotificationCountUpdated += HandleNotificationCountUpdate;
-
+        _signalRService.OnMessageCountUpdated += HandleUnReadMesssageCountUpdate;
     }
     
     protected void NotifyStateChanged()
@@ -168,7 +168,12 @@ public class ClientBaseViewModel : IAsyncDisposable
         private void HandleNotificationCountUpdate(int count)
         {
             NotificationCount = count;
-            Console.WriteLine($"🔔 Notification count updated: {count}");
+            NotifyStateChanged();
+        }
+
+        private void HandleUnReadMesssageCountUpdate(int count)
+        {
+            MessageCount = count;
             NotifyStateChanged();
         }
         public async ValueTask DisposeAsync()
@@ -234,4 +239,8 @@ public class ClientBaseViewModel : IAsyncDisposable
             showDropDownNotification = false;
             NotifyStateChanged();
         }
+        
+        
+
+      
 }

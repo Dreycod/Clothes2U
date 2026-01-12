@@ -1,6 +1,44 @@
+/* Fix double scroll - ensure only page scrolls, not content */
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
+
+.page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    overflow-y: visible !important;
+    overflow-x: hidden;
+}
+
+footer {
+    margin-top: auto;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: #f8f8f8;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+    footer a {
+        margin: 0 1rem;
+        color: #666;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+        footer a:hover {
+            color: #1a1a1a;
+        }
+
 
 h1:focus {
     outline: none;

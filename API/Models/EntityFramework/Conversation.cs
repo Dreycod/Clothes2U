@@ -20,9 +20,8 @@ public class Conversation : IEntity
     
     [Column("con_annonce_id")]
     public int AnnonceId { get; set; }
-    
-    [Column("con_statut_conversation_id")]
-    public int StatutConversationId { get; set; }
+
+    [Column("con_statut_conversation_id")] public int StatutConversationId { get; set; } = 1;
 
     [Column("con_prix")]
     public decimal Prix { get; set; } 
@@ -39,11 +38,16 @@ public class Conversation : IEntity
     [InverseProperty(nameof(Transaction.Conversation))]
     public virtual Transaction? Transaction { get; set; }
     
+    
+    
     [InverseProperty(nameof(Achete.Conversation))]
     public virtual Achete? Acheteur { get; set; }
     
     [InverseProperty(nameof(Vend.LaConversation))]
     public virtual Vend? Vendeur { get; set; }
+    
+    [InverseProperty(nameof(Commande.Conversation))]
+    public virtual List<Commande>? Commandes { get; set; } = new List<Commande>();
     
     [ForeignKey(nameof(AnnonceId))]
     [InverseProperty(nameof(Annonce.LesConversations))]

@@ -9,5 +9,4 @@ public interface ISignalementService
     Task<List<SignalementDTO>> GetAllByType(int typeId);
     Task<SignalementDetailsDTO> GetSignalementByIdAsync(int id);
     Task<SignalementDetailsDTO?> CreateSignalement(SignalementCreateDTO signalement);
-    Task DeleteAsync(int id);
 }

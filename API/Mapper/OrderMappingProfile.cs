@@ -27,7 +27,10 @@ public class OrderMappingProfile : Profile
             .ForMember(dest => dest.EmailVendeur, 
                 opt => opt.MapFrom(src => src.Vendeur.Email))
             .ForMember(dest => dest.AdresseLivraison, 
-                opt => opt.MapFrom(src => src.AdresseLivraison));
+                opt => opt.MapFrom(src => src.AdresseLivraison))
+            .ForMember(dest => dest.StatutCommandeId, opt => opt.MapFrom(src => src.StatutCommandeId))
+            .ForMember(dest => dest.DateCommande, opt => opt.MapFrom(src => src.DateCommande))
+            .ForMember(dest => dest.StatutCommandeLibelle, opt => opt.MapFrom(src => src.StatutCommande.Libelle));
 
         // Adresse -> AdresseLivraisonDTO
         CreateMap<Adresse, AdresseLivraisonDTO>();

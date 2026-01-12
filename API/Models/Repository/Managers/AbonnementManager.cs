@@ -55,11 +55,5 @@ namespace API.Models.Repository.Managers
         {
             return _context.Abonnements.FirstOrDefault( a => a.UtilisateurSuiveurId == suiveurId && a.UtilisateurSuivisId == suiviId );
         }
-
-        public async Task<bool> CheckIfFollowerByUser(int currentUserId, int userFollowed)
-        {
-            Abonnement? currentFollowUser = await _context.Abonnements.FirstOrDefaultAsync(a => a.UtilisateurSuiveurId == currentUserId && a.UtilisateurSuivisId == userFollowed);
-            return currentFollowUser != null;
-        }
     }
 }

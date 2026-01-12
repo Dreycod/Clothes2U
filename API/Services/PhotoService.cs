@@ -1,11 +1,13 @@
 using API.Exceptions;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using Microsoft.EntityFrameworkCore;
+using Shared.DTO.Moderation;
 using Shared.DTO.Photo;
 using System.Numerics;
-using API.Models.Repository.Interfaces;
+using Twilio.Http;
 
 namespace API.Services;
 
@@ -74,8 +76,80 @@ public class PhotoService : IPhotoService
             PhotoId = photo.PhotoId,
             Url = $"/api/Medias/Photos/{photo.PhotoId}",
             FileName = photoDto.FileName,
-            DateUpload = DateTime.UtcNow
+            DateUpload = DateTime.UtcNow,
+            EnAttenteValidation = photo.EnAttenteValidation
         };
+    }
+    public async Task<List<PhotoDTO>> GetAllPhotosValidation()
+    {
+        try
+        {
+            List<PhotoDTO> validationResponse = new List<PhotoDTO>();
+
+            var photos = await _photoRepository.GetAllAsync();
+            // filter those with AttenteValidation == true
+            photos = photos.Where(p => p.EnAttenteValidation == true).ToList();
+
+            foreach (var photo in photos)
+            {
+                PhotoDTO photoDto = new PhotoDTO
+                {
+                    PhotoId = photo.PhotoId,
+                    EnAttenteValidation = photo.EnAttenteValidation,
+                    Image = photo.Image
+                };
+                validationResponse.Add(photoDto);
+            }
+
+            return validationResponse;
+        }
+        catch (Exception exception)
+        {
+            //await transaction.RollbackAsync();
+            throw exception;
+        }
+    }
+
+    public async Task<ValidationResponseDTO> ValidationImageAsync(bool Reponse, int Photoid)
+    {
+        try
+        {
+            ValidationResponseDTO validationResponse = new ValidationResponseDTO();
+
+            var photo = await _photoRepository.GetByIdAsync(Photoid);
+
+            validationResponse.PhotoId = Photoid;
+            validationResponse.IsValid = Reponse;
+            validationResponse.Success = false;
+
+
+            if (photo == null)
+            {
+                _logger.LogInformation("Photo {PhotoId} n'existe pas", Photoid);
+                return validationResponse;
+            }
+
+            if (Reponse)
+            {
+                _logger.LogInformation("Photo {PhotoId} est validé", Photoid);
+                photo.EnAttenteValidation = false;
+                await _photoRepository.UpdateAsync(photo);
+            }
+            else
+            {
+                _logger.LogInformation("Photo {PhotoId} n'est pas validé", Photoid);
+                photo.EnAttenteValidation = null;
+                await _photoRepository.DeleteAsync(photo);
+            }
+
+            validationResponse.Success = true;
+            return validationResponse;
+        }
+        catch (Exception exception)
+        {
+            //await transaction.RollbackAsync();
+            throw exception;
+        }
     }
 
     public async Task<PhotoResponseDTO> SaveComptePhotoAsync(int utilisateurId, PhotoUploadDTO photoDto)

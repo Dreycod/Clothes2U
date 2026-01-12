@@ -1,0 +1,168 @@
+﻿.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+/* Card container (NOT square anymore) */
+.uploaded-photo {
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .uploaded-photo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+    }
+
+/* Uniform image area */
+.image-preview {
+    width: 100%;
+    aspect-ratio: 4 / 3; /* choose: 1/1 square or 16/9 */
+    background: #f4f4f4;
+    overflow: hidden;
+}
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+/* Info section */
+.image-info {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 12px 14px;
+    gap: 12px;
+    flex: 1; /* makes all cards same “feel” */
+}
+
+/* User row */
+.image-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+}
+
+.user-avatar-small {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e9e9e9;
+    flex: 0 0 auto;
+}
+
+.user-meta h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.1;
+}
+
+.user-meta p {
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: #6b6b6b;
+}
+
+/* Actions pinned */
+.image-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto; /* pins buttons to bottom */
+}
+
+    .image-actions button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        font-weight: 600;
+        cursor: pointer;
+        transition: filter .12s ease, transform .08s ease;
+    }
+
+        .image-actions button:active {
+            transform: scale(0.99);
+        }
+
+.btn-approve {
+    background: #e9f7ef;
+    border-color: #bfe8cf;
+}
+
+.btn-reject {
+    background: #fdecec;
+    border-color: #f6bcbc;
+}
+
+    .btn-approve:hover,
+    .btn-reject:hover {
+        filter: brightness(0.98);
+    }
+
+/* Info section */
+.image-info {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 12px 14px;
+    gap: 12px;
+    flex: 1;
+}
+
+/* User row */
+.image-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px; /* keeps layout stable */
+}
+
+.user-avatar-small {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e9e9e9;
+    flex: 0 0 auto;
+}
+
+.user-meta h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.1;
+}
+
+.user-meta p {
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: #6b6b6b;
+}
+
+.validation-message {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+    .validation-message.success {
+        background-color: #e6fffa;
+        color: #065f46;
+    }
+
+    .validation-message.error {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }

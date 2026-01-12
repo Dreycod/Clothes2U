@@ -1,6 +1,7 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Interfaces;
+using API.Models.Repository.Managers;
 using API.Services;
 using API.Services.Interfaces;
 using API.Services.VerificationSrvceV2;
@@ -21,25 +22,30 @@ namespace API.Controllers;
 public class UtilisateurController :  ControllerBase
 {
     private readonly IUtilisateurRepository _utilisateurManager;
-    private readonly IAbonnementRepository<Abonnement, int>  _abonnementManager; 
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
-    private readonly INotificationMailService _mailService;
     private readonly INotificationRepository _notificationRepository;
     private readonly IMessageRepository _messageRepository;
     private readonly IUserDeletionService _userDeletionService;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
 
-    public UtilisateurController(IUtilisateurRepository utilisateurManager, IAbonnementRepository<Abonnement, int> abonnementManager,ICurrentUserService currentUserService, IMapper mapper, INotificationMailService mailService, INotificationRepository notificationRepository,
-    IMessageRepository messageRepository, IUserDeletionService userDeletionService)
+    public UtilisateurController(
+        IUtilisateurRepository utilisateurManager,
+        ICurrentUserService currentUserService,
+        IMapper mapper,
+        INotificationRepository notificationRepository,
+        IMessageRepository messageRepository,
+        IUserDeletionService userDeletionService,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceManager
+        )
     {
-        _abonnementManager =  abonnementManager;
         _utilisateurManager = utilisateurManager;
         _mapper = mapper;
         _currentUserService = currentUserService;
-        _mailService = mailService;
         _notificationRepository = notificationRepository;
         _messageRepository = messageRepository;
         _userDeletionService = userDeletionService;
+        _annonceManager = annonceManager;
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
@@ -67,11 +73,8 @@ public class UtilisateurController :  ControllerBase
         Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateurToUpdate == null)
             return NotFound();
-        int oldStatut = utilisateurToUpdate.StatutId;
-    
         _mapper.Map(utilisateurDTO, utilisateurToUpdate);
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
-        await _mailService.NotifyUserStatusChangedAsync(utilisateurToUpdate, oldStatut);
     
         return NoContent();
     }
@@ -116,16 +119,23 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {
-        int adminId = await _currentUserService.GetUserIdOrThrow();
-        await _userDeletionService.DeleteUtilisateurByAdminAsync(id, adminId);
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        if (await _utilisateurManager.GetByIdAsync(id) == null)
+        {
+            return NotFound();
+        }
+        if (userId != id)
+        {
+            return Forbid();
+        }
+
+        await _userDeletionService.DeleteUtilisateurAsync(id);
         return NoContent();
     }
 
-    [Authorize]
     [HttpDelete("suppressionCompte")]
     public async Task<IActionResult> SuppressionCompte([FromBody] AccountDeletionDTO accountDeletionDTO)
     {
@@ -142,7 +152,20 @@ public class UtilisateurController :  ControllerBase
             return Unauthorized(APIResponse<object>.ErrorResponse("Votre mot de passe est incorrecte!"));
         }
 
-        await _utilisateurManager.DeleteAsync(utilisateur);
+        // get annonces
+        var annonces = await _annonceManager.GetByUtilisateurId(userId); // only active annonces
+        foreach (var annonce in annonces)
+        {
+            if (annonce.StatutAnnonceId == 1) // only active annonces
+            {
+                await _annonceManager.DeleteAsync(annonce);
+            }
+        }
+
+        await _userDeletionService.DeleteUtilisateurAsync(userId);
+        Response.Cookies.Delete("authToken");
+        // deconnexion, bye bye user
+
         return Ok(APIResponse<object>.SuccessResponse(null));
     }
 

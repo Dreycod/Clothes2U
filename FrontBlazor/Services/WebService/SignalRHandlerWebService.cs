@@ -139,10 +139,6 @@ public class SignalRHandlerWebService : IDisposable
             {
                 
             }
-            else
-            {
-                
-            }
         }
     }
     
