@@ -94,8 +94,6 @@
         margin: 0;
     }
 
-/* ===== TABS ===== */
-
 .settings-tabs {
     display: flex;
     gap: 0.5rem;
@@ -135,8 +133,6 @@
         font-size: 1.1rem;
     }
 
-/* ===== TAB CONTENT ===== */
-
 .tab-content {
     position: relative;
 }
@@ -153,8 +149,6 @@
     color: #1a1a1a;
     margin: 0;
 }
-
-/* ===== CARDS ===== */
 
 .settings-card {
     background: white;
@@ -178,8 +172,6 @@
 .card-body {
     padding: 1.5rem;
 }
-
-/* ===== PHOTO UPLOAD ===== */
 
 .photo-upload-container {
     display: flex;
@@ -285,8 +277,6 @@
 .password-toggle i {
     font-size: 1rem;
 }
-
-/* ===== ALERTS ===== */
 
 .alert {
     padding: 1rem;
@@ -615,6 +605,37 @@
         height: 40px;
     }
 }
+
+.verif-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    border: none;
+    background: #3571ff;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    transition: border 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+    .verif-btn:hover:not(:disabled) {
+        background: #5084ff;
+        border: 2px #caf9ff;
+    }
+
+    .verif-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+
 
 @media (max-width: 480px) {
     .settings-tabs {

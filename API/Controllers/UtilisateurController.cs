@@ -114,20 +114,23 @@ public class UtilisateurController :  ControllerBase
         return NoContent();
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUtilisateur(int id)
     {
-        int adminId = await _currentUserService.GetUserIdOrThrow();
+        int userId = await _currentUserService.GetUserIdOrThrow();
         if (await _utilisateurManager.GetByIdAsync(id) == null)
         {
             return NotFound();
         }
-        await _userDeletionService.DeleteUtilisateurByAdminAsync(id, adminId);
+        if (userId != id)
+        {
+            return Forbid();
+        }
+
+        await _userDeletionService.DeleteUtilisateurAsync(id);
         return NoContent();
     }
 
-    [Authorize]
     [HttpDelete("suppressionCompte")]
     public async Task<IActionResult> SuppressionCompte([FromBody] AccountDeletionDTO accountDeletionDTO)
     {
@@ -144,7 +147,10 @@ public class UtilisateurController :  ControllerBase
             return Unauthorized(APIResponse<object>.ErrorResponse("Votre mot de passe est incorrecte!"));
         }
 
-        await _utilisateurManager.DeleteAsync(utilisateur);
+        await _userDeletionService.DeleteUtilisateurAsync(userId);
+        Response.Cookies.Delete("authToken");
+        // deconnexion, bye bye user
+
         return Ok(APIResponse<object>.SuccessResponse(null));
     }
 
