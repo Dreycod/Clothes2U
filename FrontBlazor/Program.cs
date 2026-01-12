@@ -1,15 +1,18 @@
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using FrontBlazor;
-using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using FrontBlazor.Services;
-using FrontBlazor.Services.Interfaces;
 using FrontBlazor.Services.GenericService;
+using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Services.Interfaces.GenericIServices;
+using FrontBlazor.Services.WebService;
 using FrontBlazor.ViewModel;
 using FrontBlazor.ViewModel.Generic;
 using FrontBlazor.ViewModel.Moderation;
 using FrontBlazor.ViewModel.Moderation.Signalements;
+using FrontBlazor.ViewModel.Moderation.Support;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Shared.DTO.Abonnement;
 using Shared.DTO.Annonce;
 using Shared.DTO.Categorie;
@@ -19,8 +22,6 @@ using Shared.DTO.Favoris;
 using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Photo;
 using Shared.DTO.Recense;
-using FrontBlazor.Services.Interfaces.GenericIServices;
-using FrontBlazor.Services.WebService;
 using Shared.DTO.Tag;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -64,6 +65,7 @@ builder.Services.AddScoped<IRecenseService<RecenseDetailDTO>, RecenseWebService>
 builder.Services.AddScoped<ITagService<TagDTO>, TagWebService>();
 builder.Services.AddScoped<PasswordResetWebService>();
 builder.Services.AddScoped<SignalRHandlerWebService>();
+builder.Services.AddScoped<SupportWebService>();
 
 
 
@@ -109,6 +111,8 @@ builder.Services.AddScoped<AddressViewModel>();
 builder.Services.AddScoped<ForgotPasswordViewModel>();
 builder.Services.AddScoped<ResetPasswordViewModel>();
 builder.Services.AddScoped<OrderViewModel>();
+builder.Services.AddScoped<CreateSupportTicketViewModel>();
+builder.Services.AddScoped<SupportTicketsViewModel>();
 
 // AuthService doit déjà être enregistré
 // (il contient les méthodes pour les adresses)

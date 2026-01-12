@@ -277,6 +277,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 builder.Services.AddScoped<PasswordResetService>();
 builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
+builder.Services.AddScoped<ISupportService, SupportService>();
 
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
