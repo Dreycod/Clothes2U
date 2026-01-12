@@ -1,6 +1,7 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Interfaces;
+using API.Models.Repository.Managers;
 using API.Services;
 using API.Services.Interfaces;
 using API.Services.VerificationSrvceV2;
@@ -25,14 +26,16 @@ public class UtilisateurController :  ControllerBase
     private readonly INotificationRepository _notificationRepository;
     private readonly IMessageRepository _messageRepository;
     private readonly IUserDeletionService _userDeletionService;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
 
     public UtilisateurController(
-        IUtilisateurRepository utilisateurManager, 
+        IUtilisateurRepository utilisateurManager,
         ICurrentUserService currentUserService,
         IMapper mapper,
         INotificationRepository notificationRepository,
         IMessageRepository messageRepository,
-        IUserDeletionService userDeletionService
+        IUserDeletionService userDeletionService,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceManager
         )
     {
         _utilisateurManager = utilisateurManager;
@@ -41,6 +44,7 @@ public class UtilisateurController :  ControllerBase
         _notificationRepository = notificationRepository;
         _messageRepository = messageRepository;
         _userDeletionService = userDeletionService;
+        _annonceManager = annonceManager;
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
@@ -145,6 +149,16 @@ public class UtilisateurController :  ControllerBase
         if (!BCrypt.Net.BCrypt.Verify(accountDeletionDTO.Password, utilisateur.Password))
         {
             return Unauthorized(APIResponse<object>.ErrorResponse("Votre mot de passe est incorrecte!"));
+        }
+
+        // get annonces
+        var annonces = await _annonceManager.GetByUtilisateurId(userId); // only active annonces
+        foreach (var annonce in annonces)
+        {
+            if (annonce.StatutAnnonceId == 1) // only active annonces
+            {
+                await _annonceManager.DeleteAsync(annonce);
+            }
         }
 
         await _userDeletionService.DeleteUtilisateurAsync(userId);
