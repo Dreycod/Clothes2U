@@ -253,9 +253,9 @@ builder.Services.AddScoped<ITransactionRepository<Transaction, int>, Transaction
 builder.Services.AddScoped<IPasswordResetRepository<PasswordResetToken, int>, PasswordResetManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>();
 builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
-builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
+builder.Services.AddScoped<IEstDeCouleurRepository<Est_De_Couleur, int>, EstDeCouleurManager>();
 
 
 //services

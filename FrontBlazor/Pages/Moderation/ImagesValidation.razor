@@ -57,42 +57,64 @@
         <main class="mod-content">
             <h1 class="mod-page-title">Validation d'images</h1>
 
-            <!-- Images Grid -->
-            @for (int i = 0; i < VM_ImagesValidation.SelectedFilePreviews.Count; i++)
+            @if (VM_ImagesValidation?._ValidationMessage?.Any() == true)
             {
-                <div class="image-card">
-                    <div class="image-preview">
-                        <img src="@VM_ImagesValidation.SelectedFilePreviews[i].PreviewBase64"
-                                alt="Photo" />
-                    </div>
-
-                    <div class="image-info">
-                        <div class="image-user">
-                            <div class="user-avatar-small"></div>
-                            <div>
-                                <h4>User @(i + 1)</h4>
-                                <p>Il y a @(i + 1) heures</p>
-                            </div>
+                <div class="validation-messages">
+                    @foreach (var msg in VM_ImagesValidation._ValidationMessage)
+                    {
+                        <div class="validation-message @(VM_ImagesValidation._IsSuccess ? "success" : "error")">
+                            @msg
                         </div>
-
-                        <div class="image-actions">
-                            <button class="btn-approve" @onclick="() => VM_ImagesValidation.ApproveImage(i)">
-                                <i class="bi bi-check-lg"></i>
-                                Approuver
-                            </button>
-                            <button class="btn-reject" @onclick="() => VM_ImagesValidation.RejectImage(i)">
-                                <i class="bi bi-x-lg"></i>
-                                Refuser
-                            </button>
-                        </div>
-                    </div>
+                    }
                 </div>
             }
+            <!-- Images Grid -->
+            <div class="images-grid">
+                @for (int i = 0; i < VM_ImagesValidation.SelectedFilePreviews.Count; i++)
+                {
+                    var preview = VM_ImagesValidation.SelectedFilePreviews[i];
+                    var photoId = preview.PhotoID;
+
+                    <div class="uploaded-photo" @key="photoId">
+                        <img src="@preview.PreviewBase64" alt="Photo" />
+
+                        <div class="image-info">
+                            <div class="image-user">
+                                <div class="user-avatar-small"></div>
+                                <div class="user-meta">
+                                    <h4>User @(i + 1)</h4>
+                                    <p>Il y a @(i + 1) heures</p>
+                                </div>
+                            </div>
+
+                            <div class="image-actions">
+                                <button class="btn-approve"
+                                        @onclick="async () => await VM_ImagesValidation.ApproveImage(photoId)">
+                                    <i class="bi bi-check-lg"></i>
+                                    Approuver
+                                </button>
+
+                                <button class="btn-reject"
+                                        @onclick="async () => await VM_ImagesValidation.RejectImage(photoId)">
+                                    <i class="bi bi-x-lg"></i>
+                                    Refuser
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
 
         </main>
     </div>
 </div>
 
 @code {
-    
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_ImagesValidation.LoadAsync();
+    }
+
 }

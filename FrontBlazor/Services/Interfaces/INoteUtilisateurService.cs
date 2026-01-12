@@ -6,6 +6,6 @@ namespace FrontBlazor.Services.Interfaces;
 
 public interface INoteUtilisateurService : IReadableService<NoteUtilisateurDetailDTO>, IWritableService<NoteUtilisateurDTO>
 {
-    Task<List<NoteUtilisateurDetailDTO>?> GetAllNotesByUtilisateurId(int utilisateurId);
+    Task<List<NoteUtilisateurDetailDTO>?> GetNotesByUtilisateurId(int utilisateurId, int page = 1, int pageSize = 5);
     Task<HttpResponseMessage> AddNoteUtilisateur(NoteUtilisateurCreateDTO noteUtilisateurCreate);
 }

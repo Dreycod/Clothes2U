@@ -41,6 +41,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
             .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque ?? "Inconnue"))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.EtatArticle, opt => opt.MapFrom(src => src.Etat.NomEtat ?? "Inconnu"))
             .ForMember(dest => dest.Taille, opt => opt.MapFrom(src => src.Taille.Libelletaille ?? "Inconnue"))
             .ForMember(dest => dest.Categorie, opt => opt.MapFrom(src => src.Categorie.LibelleCategorie ?? "Inconnue"))
@@ -118,6 +119,13 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.LesVisualisations, opt => opt.Ignore())
             .ReverseMap();
 
+        CreateMap<CreateRecenseDTO, Recense>()
+            .ForMember(dest => dest.RecenseId, opt => opt.Ignore())
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ForMember(dest => dest.Annonce, opt => opt.Ignore())
+            .ForMember(dest => dest.Tag, opt => opt.Ignore())
+            .ReverseMap();
         CreateMap<Recense, RecenseDTO>()
             .ForMember(dest => dest.RecenseId, opt => opt.MapFrom(src => src.RecenseId))
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
@@ -178,6 +186,13 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.NombreProduits, opt => opt.MapFrom(src => src.Annonces.Count))
              .ReverseMap()
             .ForMember(dest => dest.Annonces, opt => opt.Ignore());
+
+        CreateMap<CreateEstDeCouleurDTO, Est_De_Couleur>()
+            .ForMember(dest => dest.CouleurId, opt => opt.MapFrom(src => src.CouleurId))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.Couleur, opt => opt.Ignore())
+            .ForMember(dest => dest.Annonce, opt => opt.Ignore())
+            .ReverseMap();
 
         CreateMap<Est_De_Couleur, EstDeCouleurDTO>().ReverseMap();
 

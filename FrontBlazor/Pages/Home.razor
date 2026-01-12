@@ -39,20 +39,33 @@
 
 @if (VM_Home.IsLoggedIn)
 {
-    <!-- Recommendations Section -->
     <div class="section-container">
         <div class="section-header">
             <h2 class="section-title">RECOMMENDATIONS</h2>
             <div class="carousel-controls">
                 <button class="carousel-btn"
                         @onclick="VM_Home.PreviousRecommandation"
-                        disabled="@VM_Home.IsLoadingPreviousRecommendation">
-                    <i class="bi bi-chevron-left"></i>
+                        disabled="@(VM_Home.PageRecommandation <= 1 || VM_Home.IsLoadingPreviousRecommendation)">
+                    @if (VM_Home.IsLoadingPreviousRecommendation)
+                    {
+                        <div class="spinner-small"></div>
+                    }
+                    else
+                    {
+                        <i class="bi bi-chevron-left"></i>
+                    }
                 </button>
                 <button class="carousel-btn"
                         @onclick="VM_Home.NextRecommandation"
-                        disabled="@VM_Home.IsLoadingNextRecommendation">
-                    <i class="bi bi-chevron-right"></i>
+                        disabled="@(VM_Home.AnnoncesRecommended?.Count < VM_Home.PageSizeRecommandation || VM_Home.IsLoadingNextRecommendation)">
+                    @if (VM_Home.IsLoadingNextRecommendation)
+                    {
+                        <div class="spinner-small"></div>
+                    }
+                    else
+                    {
+                        <i class="bi bi-chevron-right"></i>
+                    }
                 </button>
             </div>
         </div>
@@ -86,8 +99,7 @@
                     {
                         <AnnonceCard annonceComponent="annonce"
                                      OnToggleFavorite="(a) => HandleToggleFavorite(annonce.AnnonceId)"
-                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
-                                     IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+                                     OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"/>
                     }
                 </div>
             }
@@ -95,20 +107,33 @@
     </div>
 }
 
-<!-- Recents Section -->
 <div id="recent" class="section-container">
     <div class="section-header">
         <h2 class="section-title">RECENTS</h2>
         <div class="carousel-controls">
             <button class="carousel-btn"
                     @onclick="VM_Home.PreviousRecents"
-                    disabled="@VM_Home.IsLoadingPreviousRecents">
-                <i class="bi bi-chevron-left"></i>
+                    disabled="@(VM_Home.PageRecents <= 1 || VM_Home.IsLoadingPreviousRecents)">
+                @if (VM_Home.IsLoadingPreviousRecents)
+                {
+                    <div class="spinner-small"></div>
+                }
+                else
+                {
+                    <i class="bi bi-chevron-left"></i>
+                }
             </button>
             <button class="carousel-btn"
                     @onclick="VM_Home.NextRecents"
-                    disabled="@VM_Home.IsLoadingNextRecents">
-                <i class="bi bi-chevron-right"></i>
+                    disabled="@(VM_Home.AnnoncesRecents?.Count < VM_Home.PageSizeRecents || VM_Home.IsLoadingNextRecents)">
+                @if (VM_Home.IsLoadingNextRecents)
+                {
+                    <div class="spinner-small"></div>
+                }
+                else
+                {
+                    <i class="bi bi-chevron-right"></i>
+                }
             </button>
         </div>
     </div>
@@ -142,28 +167,40 @@
                 {
                     <AnnonceCard annonceComponent="annonce"
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
-                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
-                                 IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"/>
                 }
             </div>
         }
     </div>
 </div>
 
-<!-- Populaires Section -->
 <div id="tendance" class="section-container">
     <div class="section-header">
         <h2 class="section-title">POPULAIRES</h2>
         <div class="carousel-controls">
             <button class="carousel-btn"
                     @onclick="VM_Home.PreviousPopulaires"
-                    disabled="@VM_Home.IsLoadingPreviousPopulaires">
-                <i class="bi bi-chevron-left"></i>
+                    disabled="@(VM_Home.PagePopulaires <= 1 || VM_Home.IsLoadingPreviousPopulaires)">
+                @if (VM_Home.IsLoadingPreviousPopulaires)
+                {
+                    <div class="spinner-small"></div>
+                }
+                else
+                {
+                    <i class="bi bi-chevron-left"></i>
+                }
             </button>
             <button class="carousel-btn"
                     @onclick="VM_Home.NextPopulaires"
-                    disabled="@VM_Home.IsLoadingNextPopulaires">
-                <i class="bi bi-chevron-right"></i>
+                    disabled="@(VM_Home.AnnoncesPopulaires?.Count < VM_Home.PageSizePopulaires || VM_Home.IsLoadingNextPopulaires)">
+                @if (VM_Home.IsLoadingNextPopulaires)
+                {
+                    <div class="spinner-small"></div>
+                }
+                else
+                {
+                    <i class="bi bi-chevron-right"></i>
+                }
             </button>
         </div>
     </div>
@@ -197,8 +234,7 @@
                 {
                     <AnnonceCard annonceComponent="annonce"
                                  OnToggleFavorite="(a) => HandleToggleFavorite(a.AnnonceId)"
-                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"
-                                 IsOwnerTask="VM_Home.CheckIfOwnerAnnonce(annonce)" />
+                                 OnClickAnnonce="(a) => VM_Home.NavigateToProductDetail(a.AnnonceId)"/>
                 }
             </div>
         }

@@ -3,6 +3,7 @@ using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using API.Services;
 
 namespace API.Controllers
 {
@@ -12,11 +13,13 @@ namespace API.Controllers
     {
         private readonly ITagRepository<Tag, int> _tagManager;
         private readonly IMapper _mapper;
+        private readonly IMotInterditService _motInterditService;
 
-        public TagController(ITagRepository<Tag, int> tagManager, IMapper mapper)
+        public TagController(ITagRepository<Tag, int> tagManager, IMapper mapper, IMotInterditService motInterditService)
         {
             _tagManager = tagManager;
             _mapper = mapper;
+            _motInterditService = motInterditService;
         }
 
         // -------------------------
@@ -60,6 +63,11 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<TagDTO>> Add([FromBody] CreateTagDTO dto)
         {
+            var isForbidden = await _motInterditService.ContientMotInterdit(dto.Libelle);
+            if (isForbidden)
+            {
+                return BadRequest("Mot Interdit");
+            }
             var entity = _mapper.Map<Tag>(dto);
 
             await _tagManager.AddAsync(entity);

@@ -1,17 +1,24 @@
-using Shared.DTO;
+﻿using FrontBlazor.Exceptions;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
+using Shared.DTO;
+using Shared.DTO.Annonce;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Runtime.Serialization;
-using Microsoft.AspNetCore.WebUtilities;
-using Shared.DTO.Annonce;
 
 namespace FrontBlazor.Services;
 
 public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
-    public AnnonceWebService(HttpClient httpClient) : base(httpClient) { }
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<AnnonceWebService> _logger;
+    public AnnonceWebService(HttpClient httpClient, ILogger<AnnonceWebService> logger) : base(httpClient) 
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
 
     public async Task<AnnonceDetailDTO?> GetAnnonceDetailById(int Id)
     {
@@ -93,13 +100,11 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         return annonces ?? new List<AnnonceDTO>();
     }
 
-    public async Task<List<AnnonceDTO>> GetByFavorisUtilisateur()
+    public async Task<List<AnnonceDTO>> GetByFavorisUtilisateur(int page = 1, int pageSize = 8)
     {
-        var response = await GetWithCredentialsAsync("Annonce/ByFavorisUtilisateur");
+        var response = await GetWithCredentialsAsync($"Annonce/ByFavorisUtilisateur?page={page}&pageSize={pageSize}");
         response.EnsureSuccessStatusCode();
-
         var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
-
         return annonces ?? new List<AnnonceDTO>();
     }
 
@@ -111,11 +116,64 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
             qp.Add(new(key, v));
     }
 
-    public async Task CreateAnnonce(CreateAnnonceDTO annonce)
+    public async Task<AnnonceDTO?> CreateAnnonce(CreateAnnonceDTO createAnnonceDto)
     {
-        var body = JsonContent.Create(annonce);
-        
-        var response = await PostWithCredentialsAsync("Annonce", body);
+        try
+        {
+            _logger.LogInformation("Tentative de création d'annonce: {Titre}", createAnnonceDto.Titre);
+            var body = JsonContent.Create(createAnnonceDto);
+            var response = await PostWithCredentialsAsync("Annonce", body);
+
+            // ✅ GÉRER SPÉCIFIQUEMENT LE BADREQUEST (400)
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Création annonce refusée (BadRequest): {Error}", errorContent);
+
+                // ✅ Vérifier si c'est un mot interdit
+                if (errorContent.Contains("Mot Interdit", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new MotInterditException("Votre annonce contient un mot interdit. Veuillez modifier le titre ou la description.");
+                }
+
+                // Autre type de BadRequest
+                throw new BadRequestException(errorContent, 400);
+            }
+
+            // ✅ Vérifier le succès
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Erreur création annonce: {StatusCode} - {Error}", response.StatusCode, error);
+                throw new HttpRequestException($"Erreur serveur ({response.StatusCode}): {error}");
+            }
+
+            // ✅ Succès - Retourner l'annonce créée
+            var createdAnnonce = await response.Content.ReadFromJsonAsync<AnnonceDTO>();
+            _logger.LogInformation("Annonce créée avec succès: ID={AnnonceId}", createdAnnonce?.AnnonceId);
+
+            return createdAnnonce;
+        }
+        catch (MotInterditException)
+        {
+            // ✅ Relancer l'exception pour qu'elle soit capturée par le ViewModel
+            throw;
+        }
+        catch (BadRequestException)
+        {
+            // ✅ Relancer l'exception pour qu'elle soit capturée par le ViewModel
+            throw;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Erreur réseau lors de la création d'annonce");
+            throw new Exception("Erreur de connexion au serveur", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur inattendue lors de la création d'annonce");
+            throw;
+        }
     }
 
     public async Task ModificationAnnonce(AnnonceDetailDTO annonceDTO)
@@ -161,6 +219,20 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
     {
         var response = await PutWithCredentialsAsync($"Annonce/Vendu/{AnnonceId}", null);
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeleteAnnonce(int annonceId)
+    {
+        var response = await DeleteWithCredentialsAsync($"Annonce/id/{annonceId}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<List<AnnonceDTO>?> GetAnnoncesPaginationByUserIdAsync(int id, int page = 1, int pageSize = 8)
+    {
+        var response = await GetWithCredentialsAsync($"Annonce/ByUtilisateurIdPagination/{id}?page={page}&pageSize={pageSize}");
+        response.EnsureSuccessStatusCode();
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? new List<AnnonceDTO>();
     }
 
     public async Task UpdateAnnonce(int id, PutAnnonceDTO annonce)
