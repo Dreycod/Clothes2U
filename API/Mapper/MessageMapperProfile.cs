@@ -72,7 +72,8 @@ public class MessageMapperProfile : Profile
                 src.UtilisateurId == (int)context.Items["CurrentUserId"]))
             .ForMember(dest => dest.MessageEstPayeeId, opt =>opt.MapFrom(src => src.MessageEstPayee.MessageEstPayeeId))
             .ForMember(dest => dest.EstAnnule, opt => opt.MapFrom(src => src.MessageEstPayee.EstAnnule))
-            .ForMember(dest => dest.EstEnvoye, opt => opt.MapFrom(src => src.MessageEstPayee.EstEnvoye));
+            .ForMember(dest => dest.EstEnvoye, opt => opt.MapFrom(src => src.MessageEstPayee.EstEnvoye))
+            .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.MessageEstPayee.CommandeId != null ? src.MessageEstPayee.CommandeId : 0));
         
         CreateMap<Message, MessageEnvoieColisDTO>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))

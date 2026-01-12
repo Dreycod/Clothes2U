@@ -34,6 +34,8 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.IdAuteur, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.IdPhotoProfilAuteur,
                 opt => opt.MapFrom(src => src.Utilisateur.PhotoProfil.PhotoId))
+            .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
+            .ForMember(dest => dest.StatutAnnonce, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
             .ReverseMap();
 
         CreateMap<Photo, PhotoResponseDTO>()

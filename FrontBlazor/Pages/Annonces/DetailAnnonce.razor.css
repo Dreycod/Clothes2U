@@ -541,6 +541,41 @@
     animation: fadeIn 0.2s ease-in-out;
 }
 
+.image-preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+
+.preview-btn {
+    border: none;
+    outline: none;
+}
+.image-preview-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.image-preview-container {
+    width: 60vw;
+    height: 60vh;
+    background: #000;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -4,7 +4,6 @@
 @using Shared.DTO.Utilisateur
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
-<NavBar />
 
 <div class="product-detail-page">
     @if (VM_DetailAnnonce.IsLoading)
@@ -60,19 +59,18 @@
                             <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
                         }
                     </div>
-                    <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
-                        <i class="bi bi-x"></i>
-                    </button>
                 </div>
         
                 @if (annonce.Photos != null && annonce.Photos.Count() > 1)
                 {
                     <div class="image-thumbnails">
-                        @foreach (var photo in annonce.Photos)
+                        @foreach (var photo in annonce.Photos.Skip(1))
                         {
-                            <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
-                                <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
-                            </div>
+                            <button class="preview-btn" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(photo)">
+                                <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
+                                    <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
+                                </div>
+                            </button>
                         }
                     </div>
                 }
@@ -323,6 +321,21 @@
             </div>
         </div>
     </div>
+}
+
+@if (VM_DetailAnnonce.ShowImagePreview)
+{
+    <div class="image-preview-overlay" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
+        <div class="image-preview-container" @onclick:stopPropagation>
+            <button class="modal-close" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
+                <i class="bi bi-x"></i>
+            </button>
+            <div class="image-preview-container">
+                <img src="@VM_DetailAnnonce.ImagePreview" alt="Image Preview" />
+            </div>
+        </div>
+    </div>
+
 }
 
 @code {

@@ -103,7 +103,8 @@ public class ConversationMappingProfile : Profile
                             SentByCurrentUser = message.UtilisateurId == currentUserId,
                             EstAnnule = message.MessageEstPayee.EstAnnule,
                             EstEnvoye = message.MessageEstPayee.EstEnvoye,
-                            MessageEstPayeeId = message.MessageEstPayee.MessageEstPayeeId
+                            MessageEstPayeeId = message.MessageEstPayee.MessageEstPayeeId,
+                            OrderId = message.MessageEstPayee.CommandeId
                             //PrixValide = message.MessageValidation.PropositionValidee?.PrixPropose ?? 0
                         };
                     }

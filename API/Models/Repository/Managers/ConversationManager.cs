@@ -29,6 +29,7 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .ThenInclude(md => md.Offre) 
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEstPayee)
+            .ThenInclude(c => c.Commande)
             .Include(c => c.Messages)
             .ThenInclude(m => m.MessageEnvoieColis)
             .Include(c => c.Messages)

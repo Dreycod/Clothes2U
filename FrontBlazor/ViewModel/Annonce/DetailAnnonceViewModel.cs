@@ -47,7 +47,9 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     public bool ShowDeleteProductModal { get; set; } = false;
     public bool IsSubmittingDelete { get; set; } = false;
 
-
+    public bool ShowImagePreview { get; set; } = false;
+    public string ImagePreview { get; set; } = string.Empty;
+    
     public DetailAnnonceViewModel(IAnnonceService annonceService,
         IFavorisService<FavorisDTO> favorisService, IAuthService authService,
         IUtilisateurService utilisateurService,
@@ -207,7 +209,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         try
         {
             await _annonceService.DeleteAnnonce(AnnonceDetail.AnnonceId);
-            _navigationManager.NavigateTo("/");
+            _navigationManager.Refresh();
         }
         catch (Exception ex)
         {
@@ -319,6 +321,19 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 similarAnnonces = newAnnonces;
                 NotifyStateChanged();
             }
+        }
+    }
+
+    public async Task ToggleImagePreview(int? photoId = 0)
+    {
+        if (photoId == 0)
+        {
+            ShowImagePreview = false;
+        }
+        else
+        {
+            ImagePreview = _mediaService.GetPhotoUrl((int)photoId);
+            ShowImagePreview = true;
         }
     }
 }

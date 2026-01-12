@@ -70,24 +70,6 @@
                                     <i class="bi bi-plus-circle"></i>
                                     <span>Ajouter un article</span>
                                 </button>
-
-@*                                 <div class="profile-dropdown-container">
-                                    <button class="btn-icon"
-                                            title="Paramètres"
-                                            @onclick="VM_Profil.ToggleDotsDropdown">
-                                        <i class="bi bi-three-dots"></i>
-                                    </button>
-
-                                    @if (VM_Profil.showDotsDropdown)
-                                    {
-                                        <div class="profile-dropdown">
-                                            <button class="dropdown-item" @onclick='() => NavigationManager.NavigateTo("/verification")'>
-                                                <i class="bi bi-shield-check"></i>
-                                                <span>Vérification</span>
-                                            </button>
-                                        </div>
-                                    }
-                                </div> *@
                             }
                             else
                             {
@@ -709,7 +691,7 @@
     [JSInvokable]
     public void CloseDropdowns()
     {
-        VM_Profil.CloseAllDropdowns();
+        VM_Profil.CloseProfileActionsDropdown();
         StateHasChanged();
     }
 

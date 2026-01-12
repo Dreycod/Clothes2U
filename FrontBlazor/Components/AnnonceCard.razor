@@ -13,6 +13,12 @@
         {
             <img src="images/placeholder_main.jpg" alt="Photo interlocuteur" />
         }
+        <div class="status-badge status-@annonceComponent.StatutAnnonceId">
+            <span class="status-icon">
+                <i class="bi @GetStatusIcon()"></i>
+            </span>
+            <span class="status-text">@annonceComponent.StatutAnnonce</span>
+        </div>
         @if (!annonceComponent.IsOwnerAnnonce)
         {
             <button class="wishlist-btn"
@@ -67,4 +73,12 @@
     {
         await OnClickAnnonce.InvokeAsync(annonceComponent);
     }
+
+    private string GetStatusIcon() => annonceComponent.StatutAnnonceId switch
+    {
+        1 => "bi-check-circle-fill",
+        2 => "bi-pause-circle-fill",
+        3 => "bi-bag-check-fill",
+        _ => "bi-question-circle"
+    };
 }
