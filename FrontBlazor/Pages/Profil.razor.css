@@ -347,11 +347,6 @@
     position: relative;
 }
 
-.reviews-header {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
-}
 .btn-action {
     width: 32px;
     height: 32px;
@@ -969,5 +964,116 @@
 
         .modal-actions button {
             width: 100%;
+        }
+}
+.section-container {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.5rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #333;
+    margin: 0;
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.carousel-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .carousel-btn:hover:not(:disabled) {
+        background-color: #e0e0e0;
+    }
+
+    .carousel-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .carousel-btn i {
+        font-size: 1rem;
+        color: #333;
+    }
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e0e0e0;
+    border-top-color: #7a9d8e;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .carousel-controls {
+        align-self: flex-end;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header {
+        padding: 1rem;
+    }
+
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+        .carousel-btn i {
+            font-size: 0.9rem;
         }
 }

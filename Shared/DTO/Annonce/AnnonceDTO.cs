@@ -18,6 +18,7 @@ public class AnnonceDTO : IEntity
     public string NomAuteur { get; set; } = null!;
     public int IdAuteur { get; set; }
     public int IdPhotoProfilAuteur { get; set; }
+    public bool IsOwnerAnnonce { get; set; } = false;
     
     public int GetId() => AnnonceId;
 }

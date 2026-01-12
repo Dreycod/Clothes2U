@@ -85,13 +85,11 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         return annonces ?? new List<AnnonceDTO>();
     }
 
-    public async Task<List<AnnonceDTO>> GetByFavorisUtilisateur()
+    public async Task<List<AnnonceDTO>> GetByFavorisUtilisateur(int page = 1, int pageSize = 8)
     {
-        var response = await GetWithCredentialsAsync("Annonce/ByFavorisUtilisateur");
+        var response = await GetWithCredentialsAsync($"Annonce/ByFavorisUtilisateur?page={page}&pageSize={pageSize}");
         response.EnsureSuccessStatusCode();
-
         var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
-
         return annonces ?? new List<AnnonceDTO>();
     }
 
@@ -153,5 +151,19 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
     {
         var response = await PutWithCredentialsAsync($"Annonce/Vendu/{AnnonceId}", null);
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeleteAnnonce(int annonceId)
+    {
+        var response = await DeleteWithCredentialsAsync($"Annonce/id/{annonceId}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<List<AnnonceDTO>?> GetAnnoncesPaginationByUserIdAsync(int id, int page = 1, int pageSize = 8)
+    {
+        var response = await GetWithCredentialsAsync($"Annonce/ByUtilisateurIdPagination/{id}?page={page}&pageSize={pageSize}");
+        response.EnsureSuccessStatusCode();
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? new List<AnnonceDTO>();
     }
 }

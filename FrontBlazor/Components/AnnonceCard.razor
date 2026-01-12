@@ -13,7 +13,7 @@
         {
             <img src="images/placeholder_main.jpg" alt="Photo interlocuteur" />
         }
-        @if (!IsOwner)
+        @if (!annonceComponent.IsOwnerAnnonce)
         {
             <button class="wishlist-btn"
                     @onclick:stopPropagation="true"
@@ -49,14 +49,6 @@
     [Parameter] public AnnonceDTO annonceComponent { get; set; }
     [Parameter] public EventCallback<AnnonceDTO> OnToggleFavorite { get; set; }
     [Parameter] public EventCallback<AnnonceDTO> OnClickAnnonce { get; set; }
-    [Parameter] public Task<bool> IsOwnerTask { get; set; }
-
-    private bool IsOwner;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        IsOwner = await IsOwnerTask;
-    }
 
     private string PhotoUrl => annonceComponent.Photos.Any() && annonceComponent.Photos.First() > 0
                                  ? MediasService.GetPhotoUrl(annonceComponent.Photos.First())

@@ -35,9 +35,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     public List<AnnonceDTO>? similarAnnonces = null;
     public bool IsLoading { get; set; }
     public string? ErrorMessage { get; set; }
-    public bool clickedShareButton { get; set; } = false;
-
-    public bool IsSameUser { get; set; } = true;
+    public bool IsSameUser { get; set; } = false;
 
     public bool IsUserSuspended { get; set; } = false;
     public bool IsBlockedByUser { get; set; } = false;
@@ -45,6 +43,10 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     public string SignalementRaison { get; set; } = string.Empty;
     public bool IsSubmittingReport { get; set; } = false;
     public bool IsLoadingSimilar { get; set; }
+
+    public bool ShowDeleteProductModal { get; set; } = false;
+    public bool IsSubmittingDelete { get; set; } = false;
+
 
     public DetailAnnonceViewModel(IAnnonceService annonceService,
         IFavorisService<FavorisDTO> favorisService, IAuthService authService,
@@ -104,8 +106,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 IsUserSuspended = true;
                 return;
             }
-
-            IsSameUser = await CheckIfOwnerAnnonce(id, "AnnonceDetail");
         }
         catch (Exception ex)
         {
@@ -162,7 +162,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             return;
         }
 
-        // check if conversation already exists, if not then create and send to page
         var conv = await _conversationService.GetOrCreateConversation(AnnonceDetail.AnnonceId);
         _navigationManager.NavigateTo($"/messages?conversationId={conv.ConversationId}");
     }
@@ -190,12 +189,34 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         _navigationManager.NavigateTo($"/acheter/{conv.ConversationId}");
     }
 
-    public async void ShareProduct()
+    public async void ToggleDeleteProductModal()
     {
-        clickedShareButton = false;
-        string url = _navigationManager.Uri.ToString();
-        _clipboardService.Copy(url);
-        clickedShareButton = true;
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+
+        ShowDeleteProductModal = !ShowDeleteProductModal;
+    }
+
+    public async Task DeleteProduct()
+    {
+        IsSubmittingDelete = true;
+        try
+        {
+            await _annonceService.DeleteAnnonce(AnnonceDetail.AnnonceId);
+            _navigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la suppression de l'annonce : {ex.Message}");
+        }
+        finally
+        {
+            IsSubmittingDelete = false;
+            ShowDeleteProductModal = false;
+        }
     }
 
     public void NavigateToProduct(int productId)
@@ -297,26 +318,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 similarAnnonces = newAnnonces;
                 NotifyStateChanged();
             }
-        }
-    }
-
-   public async Task<bool> CheckIfOwnerAnnonce(int annonceId, string typeAnnonce)
-    {
-        CurrentUtilisateurDTO utilisateur = await _authService.GetCurrentUserAsync();
-        if (utilisateur == null)
-            return false;
-
-        switch (typeAnnonce?.ToLower())
-        {
-            case "announcedetail":
-                return AnnonceDetail != null && AnnonceDetail.UtilisateurId == utilisateur.UtilisateurId;
-
-            case "similarannonce":
-                var annonce = similarAnnonces?.FirstOrDefault(a => a.AnnonceId == annonceId);
-                return annonce != null && annonce.IdAuteur == utilisateur.UtilisateurId;
-
-            default:
-                return false;
         }
     }
 }
