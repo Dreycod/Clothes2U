@@ -44,6 +44,14 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .FirstOrDefaultAsync(a => a.AnnonceId == id);
     }
 
+    public async Task<IEnumerable<Annonce>> GetByIdsAsync(IEnumerable<int> ids)
+    {
+        return await BaseAnnonceQuery()
+            .Where(a => ids.Contains(a.AnnonceId)) 
+            .ToListAsync();                      
+    }
+
+
     public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int id)
     {
         return await BaseAnnonceQuery()

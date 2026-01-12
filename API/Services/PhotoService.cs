@@ -15,6 +15,7 @@ public class PhotoService : IPhotoService
 {
     private readonly IPhotoRepository _photoRepository;
     private readonly IDataRepository<Annonce, int> _annonceRepository;
+    private readonly IllustreAnnonceRepository<Illustre_Annonce, int> _illustreAnnonceManager;
     private readonly IDataRepository<Utilisateur, int> _utilisateurRepository;
     private readonly IMessageRepository _messageRepository;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageRepository;
@@ -25,6 +26,7 @@ public class PhotoService : IPhotoService
         IDataRepository<Annonce, int> annonceRepository,
         IDataRepository<Utilisateur, int> utilisateurRepository,
         IMessageRepository messageRepository,
+        IllustreAnnonceRepository<Illustre_Annonce, int> illustreAnnonceManger,
         IDataRepository<MessageContientImage, int> messageContientImageRepository,
         ILogger<PhotoService> logger)
     {
@@ -32,6 +34,7 @@ public class PhotoService : IPhotoService
         _annonceRepository = annonceRepository;
         _utilisateurRepository = utilisateurRepository;
         _messageRepository = messageRepository;
+        _illustreAnnonceManager = illustreAnnonceManger;    
         _messageContientImageRepository = messageContientImageRepository;
         _logger = logger;
     }
@@ -114,18 +117,30 @@ public class PhotoService : IPhotoService
     {
         try
         {
+
             ValidationResponseDTO validationResponse = new ValidationResponseDTO();
-
-            var photo = await _photoRepository.GetByIdAsync(Photoid);
-
             validationResponse.PhotoId = Photoid;
             validationResponse.IsValid = Reponse;
             validationResponse.Success = false;
 
-
+            var photo = await _photoRepository.GetByIdAsync(Photoid);
             if (photo == null)
             {
                 _logger.LogInformation("Photo {PhotoId} n'existe pas", Photoid);
+                return validationResponse;
+            }
+
+            Illustre_Annonce? illustreAnnonce = await _illustreAnnonceManager.GetByPhotoId(Photoid);
+            if (illustreAnnonce == null)
+            {
+                _logger.LogInformation("Illustre Annonce pour PhotoID: {PhotoId} n'existe pas", Photoid);
+                return validationResponse;
+            }
+
+            Annonce? _Annonce = await _annonceRepository.GetByIdAsync(illustreAnnonce.AnnonceId);
+            if (_Annonce == null)
+            {
+                _logger.LogInformation("Annonce pour PhotoID: {PhotoId} n'existe pas", Photoid);
                 return validationResponse;
             }
 
@@ -134,12 +149,37 @@ public class PhotoService : IPhotoService
                 _logger.LogInformation("Photo {PhotoId} est validé", Photoid);
                 photo.EnAttenteValidation = false;
                 await _photoRepository.UpdateAsync(photo);
+                
+
             }
             else
             {
                 _logger.LogInformation("Photo {PhotoId} n'est pas validé", Photoid);
                 photo.EnAttenteValidation = null;
                 await _photoRepository.DeleteAsync(photo);
+
+
+            }
+
+            // Vérifier si toutes les photos de l'annonce sont validées
+            var photosAnnonce = _Annonce.Photos;
+            bool allValidated = true;
+
+            foreach (var illustre in photosAnnonce)
+            {
+                var p = await _photoRepository.GetByIdAsync(illustre.PhotoId);
+                if (p != null && p.EnAttenteValidation == true)
+                {
+                    allValidated = false;
+                    break;
+                }
+            }
+
+            if (allValidated)
+            {
+                _Annonce.StatutAnnonceId = 1;
+                await _annonceRepository.UpdateAsync(_Annonce);
+                _logger.LogInformation("Annonce {AnnonceId} est validée car toutes les photos sont validées", _Annonce.AnnonceId);
             }
 
             validationResponse.Success = true;

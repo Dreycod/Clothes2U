@@ -221,7 +221,7 @@ builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceMan
 builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurManager>();
 builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
-builder.Services.AddScoped<IDataRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
+builder.Services.AddScoped<IllustreAnnonceRepository<Illustre_Annonce, int>, IllustreAnnonceManager>();
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
 builder.Services.AddScoped<IMessageRepository, MessageManager>();
@@ -277,6 +277,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 builder.Services.AddScoped<PasswordResetService>();
 builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
+builder.Services.AddScoped<ISupportService, SupportService>();
 
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();

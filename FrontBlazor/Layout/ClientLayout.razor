@@ -193,7 +193,7 @@
         if (firstRender)
         {
             objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef, null);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef);
         }
     }
 

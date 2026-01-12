@@ -66,6 +66,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<StatutAnnonce> StatutAnnonces { get; set; }
     public DbSet<StatutConversation> StatutConversations { get; set; }
     public DbSet<StatutUtilisateur> StatutUtilisateurs { get; set; }
+    public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Taille> Tailles { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
@@ -1315,7 +1316,31 @@ public partial class Clothes2UDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-       
+        modelBuilder.Entity<SupportTicket>(entity =>
+        {
+            entity.HasKey(e => e.SupportTicketId);
+
+            entity.Property(e => e.Subject)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(e => e.MessageUtilisateur)
+                .IsRequired();
+
+            entity.Property(e => e.Status)
+                .IsRequired();
+
+            entity.HasOne(e => e.UtilisateurTicket)
+                .WithMany(u => u.SupportTicketsUtilisateurs)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Admin)
+                .WithMany(u => u.SupportTicketsAdmins)
+                .HasForeignKey(e => e.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
 
         modelBuilder.Entity<Tag>(entity =>
         {

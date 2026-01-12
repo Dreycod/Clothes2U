@@ -70,9 +70,11 @@
                     <div class="image-thumbnails">
                         @foreach (var photo in annonce.Photos)
                         {
-                            <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
-                                <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
-                            </div>
+                            @* <button @onclick="() => VM_DetailAnnonce.ToggleImagePreview">
+                                <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
+                                    <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
+                                </div>
+                            </button> *@
                         }
                     </div>
                 }

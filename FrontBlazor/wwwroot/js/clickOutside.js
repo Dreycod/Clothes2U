@@ -1,13 +1,16 @@
-window.setupClickOutside = (dotnetHelper, notificationElement, profileElement) => {
+window.setupClickOutside = (dotnetHelper, notificationElement, profileElement, profileActionsContainer) => {
     const clickHandler = (event) => {
         const notificationContainer = document.querySelector('.notification-dropdown-container');
         const profileContainer = document.querySelector('.profile-dropdown-container');
         const profileActionsContainer = document.querySelector('.profile-actions-dropdown-container');
 
         if (notificationContainer && !notificationContainer.contains(event.target) &&
-            profileContainer && !profileContainer.contains(event.target)
-            && profileActionsContainer && !profileActionsContainer.contains(event.target)) {
+            profileContainer && !profileContainer.contains(event.target)) {
             dotnetHelper.invokeMethodAsync('CloseDropdowns');
+        }
+
+        if (profileActionsContainer && !profileActionsContainer.contains(event.target)) {
+            dotnetHelper.invokeMethodAsync('ClopseDropdowns');
         }
     };
 

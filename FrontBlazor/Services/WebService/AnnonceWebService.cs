@@ -1,4 +1,4 @@
-ï»¿using FrontBlazor.Exceptions;
+using FrontBlazor.Exceptions;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
@@ -14,7 +14,7 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AnnonceWebService> _logger;
-    public AnnonceWebService(HttpClient httpClient, ILogger<AnnonceWebService> logger) : base(httpClient) 
+    public AnnonceWebService(HttpClient httpClient, ILogger<AnnonceWebService> logger) : base(httpClient)
     {
         _httpClient = httpClient;
         _logger = logger;
@@ -120,17 +120,17 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
     {
         try
         {
-            _logger.LogInformation("Tentative de crÃ©ation d'annonce: {Titre}", createAnnonceDto.Titre);
+            _logger.LogInformation("Tentative de création d'annonce: {Titre}", createAnnonceDto.Titre);
             var body = JsonContent.Create(createAnnonceDto);
             var response = await PostWithCredentialsAsync("Annonce", body);
 
-            // âœ… GÃ‰RER SPÃ‰CIFIQUEMENT LE BADREQUEST (400)
+            // ? GÉRER SPÉCIFIQUEMENT LE BADREQUEST (400)
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("CrÃ©ation annonce refusÃ©e (BadRequest): {Error}", errorContent);
+                _logger.LogWarning("Création annonce refusée (BadRequest): {Error}", errorContent);
 
-                // âœ… VÃ©rifier si c'est un mot interdit
+                // ? Vérifier si c'est un mot interdit
                 if (errorContent.Contains("Mot Interdit", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new MotInterditException("Votre annonce contient un mot interdit. Veuillez modifier le titre ou la description.");
@@ -140,38 +140,38 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
                 throw new BadRequestException(errorContent, 400);
             }
 
-            // âœ… VÃ©rifier le succÃ¨s
+            // ? Vérifier le succès
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Erreur crÃ©ation annonce: {StatusCode} - {Error}", response.StatusCode, error);
+                _logger.LogError("Erreur création annonce: {StatusCode} - {Error}", response.StatusCode, error);
                 throw new HttpRequestException($"Erreur serveur ({response.StatusCode}): {error}");
             }
 
-            // âœ… SuccÃ¨s - Retourner l'annonce crÃ©Ã©e
+            // ? Succès - Retourner l'annonce créée
             var createdAnnonce = await response.Content.ReadFromJsonAsync<AnnonceDTO>();
-            _logger.LogInformation("Annonce crÃ©Ã©e avec succÃ¨s: ID={AnnonceId}", createdAnnonce?.AnnonceId);
+            _logger.LogInformation("Annonce créée avec succès: ID={AnnonceId}", createdAnnonce?.AnnonceId);
 
             return createdAnnonce;
         }
         catch (MotInterditException)
         {
-            // âœ… Relancer l'exception pour qu'elle soit capturÃ©e par le ViewModel
+            // ? Relancer l'exception pour qu'elle soit capturée par le ViewModel
             throw;
         }
         catch (BadRequestException)
         {
-            // âœ… Relancer l'exception pour qu'elle soit capturÃ©e par le ViewModel
+            // ? Relancer l'exception pour qu'elle soit capturée par le ViewModel
             throw;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Erreur rÃ©seau lors de la crÃ©ation d'annonce");
+            _logger.LogError(ex, "Erreur réseau lors de la création d'annonce");
             throw new Exception("Erreur de connexion au serveur", ex);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erreur inattendue lors de la crÃ©ation d'annonce");
+            _logger.LogError(ex, "Erreur inattendue lors de la création d'annonce");
             throw;
         }
     }
@@ -203,7 +203,7 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         return annonces ?? new List<AnnonceDTO>();
     }
 
-    public async Task<List<AnnonceDTO>> GetRecommendedAnnonces(int page, int pageSize )
+    public async Task<List<AnnonceDTO>> GetRecommendedAnnonces(int page, int pageSize)
     {
         var queryParams = new List<KeyValuePair<string, string?>>();
         queryParams.Add(new("page", page.ToString()));
@@ -213,6 +213,18 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         response.EnsureSuccessStatusCode();
         var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
         return annonces ?? new List<AnnonceDTO>();
+    }
+    public async Task<IEnumerable<AnnonceDTO>> GetAnnoncesByPhotoIDs(IEnumerable<int> photoIDs)
+    {
+        if (photoIDs == null || !photoIDs.Any())
+            return Enumerable.Empty<AnnonceDTO>();
+
+        var query = string.Join("&", photoIDs.Select(id => $"PhotoIDs={id}"));
+        var response = await GetWithCredentialsAsync($"Annonce/GetAnnoncesByPhotoIDs?{query}");
+        response.EnsureSuccessStatusCode();
+
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? Enumerable.Empty<AnnonceDTO>();
     }
 
     public async Task VendreAnnonce(int AnnonceId)

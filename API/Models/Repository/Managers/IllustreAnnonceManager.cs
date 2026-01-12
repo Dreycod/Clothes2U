@@ -11,4 +11,10 @@ public class IllustreAnnonceManager : GenericCRUDManager<Illustre_Annonce>, Illu
     {
         return await _context.Illustre_Annonces.FirstOrDefaultAsync(i => i.PhotoId == photoId);
     }
+    public async Task<IEnumerable<Illustre_Annonce>?> GetByPhotoIds(IEnumerable<int> photoIds)
+    {
+        return await _context.Illustre_Annonces
+                             .Where(i => photoIds.Contains(i.PhotoId))
+                             .ToListAsync();
+    }
 }
