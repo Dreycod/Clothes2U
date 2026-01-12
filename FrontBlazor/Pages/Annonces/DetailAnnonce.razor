@@ -4,7 +4,6 @@
 @using Shared.DTO.Utilisateur
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
-<NavBar />
 
 <div class="product-detail-page">
     @if (VM_DetailAnnonce.IsLoading)
@@ -60,9 +59,6 @@
                             <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
                         }
                     </div>
-                    <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
-                        <i class="bi bi-x"></i>
-                    </button>
                 </div>
         
                 @if (annonce.Photos != null && annonce.Photos.Count() > 1)

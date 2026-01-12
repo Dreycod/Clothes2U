@@ -25,6 +25,69 @@
     height: 100%;
 }
 
+.status-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    height: 28px;
+    min-width: 28px;
+    padding: 0;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    color: white;
+    font-size: 0.7rem;
+    overflow: hidden;
+    max-width: 28px;
+    transition: max-width 0.25s ease, padding 0.25s ease;
+}
+
+.status-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .status-icon i {
+        font-size: 0.85rem;
+        line-height: 1;
+    }
+
+.status-text {
+    white-space: nowrap;
+    opacity: 0;
+    font-weight: 500;
+    font-size: 0.8rem;
+    padding-right: 16px;
+    transition: opacity 0.15s ease;
+}
+
+.status-badge:hover .status-text {
+    opacity: 1;
+}
+
+.status-badge:hover {
+    max-width: 100px;
+}
+
+.status-1 { /* annonce active */
+    background: #888;
+}
+
+.status-2 { /* suspendu */
+    background: #F44336;
+}
+
+.status-4 { /* vendu */
+    background: #9E9E9E;
+}
+
+
 .wishlist-btn {
     position: absolute;
     top: 12px;
@@ -141,4 +204,34 @@ a:link,
 a:visited,
 a:active {
     text-decoration: none;
+}
+
+@media (max-width: 480px) {
+    .status-badge {
+        height: 26px;
+        min-width: 26px;
+        border-radius: 13px;
+    }
+
+    .status-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+        .status-icon i {
+            font-size: 0.75rem;
+        }
+
+    .status-badge:hover {
+        max-width: 120px;
+    }
+
+    .wishlist-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+        .wishlist-btn i {
+            font-size: 1rem;
+        }
 }

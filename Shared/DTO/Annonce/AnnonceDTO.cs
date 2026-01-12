@@ -19,6 +19,8 @@ public class AnnonceDTO : IEntity
     public int IdAuteur { get; set; }
     public int IdPhotoProfilAuteur { get; set; }
     public bool IsOwnerAnnonce { get; set; } = false;
-    
+    public int StatutAnnonceId { get; set; }
+    public string StatutAnnonce { get; set; } = "Inconnu";
+
     public int GetId() => AnnonceId;
 }
