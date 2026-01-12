@@ -2,6 +2,8 @@
 @layout ClientLayout
 @using Shared.DTO.Recense
 @using Shared.DTO.Utilisateur
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
@@ -77,7 +79,34 @@
             </div>
 
             <div class="product-info-section">
-                <div class="category-badge">@annonce.Categorie</div>
+                <div class="category-badge-row">
+                    <div class="category-badge">@annonce.Categorie</div>
+        
+                    @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
+                    {
+                        <div class="product-actions-dropdown-container">
+                            <button class="btn-dropdown-toggle"
+                                    title="Actions"
+                                    @onclick="VM_DetailAnnonce.ToggleActionsDropdown">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                
+                            @if (VM_DetailAnnonce.ShowActionsDropdown)
+                            {
+                                <div class="product-dropdown">
+                                    <button class="dropdown-item" @onclick="VM_DetailAnnonce.ModifierAnnonce">
+                                        <i class="bi bi-pencil"></i>
+                                        <span>Modifier</span>
+                                    </button>
+                                    <button class="dropdown-item" @onclick="VM_DetailAnnonce.TogglePauseResumeModal">
+                                        <i class="bi bi-@(annonce.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
+                                        <span>@(annonce.StatutAnnonceId == 5 ? "Reprendre l'annonce" : "Mettre en pause")</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
 
                 <h1 class="product-title">@annonce.Title</h1>
 
@@ -323,6 +352,69 @@
     </div>
 }
 
+@* Add this modal after your ShowDeleteProductModal in ProductDetail.razor *@
+
+@if (VM_DetailAnnonce.ShowPauseResumeModal)
+{
+    <div class="modal-overlay" @onclick="() => VM_DetailAnnonce.TogglePauseResumeModal()">
+        <div class="modal-content review-modal delete-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>
+                    @if (VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5)
+                    {
+                        <span>Reprendre l'annonce</span>
+                    }
+                    else
+                    {
+                        <span>Mettre l'annonce en pause</span>
+                    }
+                </h3>
+                <button class="modal-close" @onclick="() => VM_DetailAnnonce.TogglePauseResumeModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-@(VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
+                    @if (VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5)
+                    {
+                        <span>Êtes-vous sûr de vouloir reprendre cette annonce ? Elle sera visible par tous les utilisateurs.</span>
+                    }
+                    else
+                    {
+                        <span>Êtes-vous sûr de vouloir mettre cette annonce en pause ? Elle ne sera plus visible par les autres utilisateurs.</span>
+                    }
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="() => VM_DetailAnnonce.TogglePauseResumeModal()">
+                    Annuler
+                </button>
+                <button class="@(VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5 ? "btn-primary" : "btn-pause")"
+                        @onclick="async () => await VM_DetailAnnonce.PauserReprendreAnnonce()"
+                        disabled="@VM_DetailAnnonce.IsSubmittingPauseResume">
+                    @if (VM_DetailAnnonce.IsSubmittingPauseResume)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>En cours...</span>
+                    }
+                    else
+                    {
+                        @if (VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5)
+                        {
+                            <span>Reprendre l'annonce</span>
+                        }
+                        else
+                        {
+                            <span>Mettre en pause</span>
+                        }
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @if (VM_DetailAnnonce.ShowImagePreview)
 {
     <div class="image-preview-overlay" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
@@ -342,13 +434,45 @@
     [Parameter]
     public int Id { get; set; }
 
+    private DotNetObjectReference<DetailAnnonce>? objRef;
+
     protected override async Task OnInitializedAsync()
     {
         await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
     }
 
-    public void Dispose()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("setupProductActionsClickOutside", objRef);
+        }
+    }
+
+    [JSInvokable]
+    public void CloseProductActionsDropdown()
+    {
+        if (VM_DetailAnnonce.ShowActionsDropdown)
+        {
+            VM_DetailAnnonce.ShowActionsDropdown = false;
+            StateHasChanged();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
     {
         VM_DetailAnnonce.CancelVisualisation();
+        
+        if (objRef != null)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("removeProductActionsClickOutside");
+            }
+            catch { }
+            
+            objRef.Dispose();
+        }
     }
 }

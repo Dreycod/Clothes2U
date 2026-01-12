@@ -13,7 +13,7 @@
         {
             <img src="images/placeholder_main.jpg" alt="Photo interlocuteur" />
         }
-        @if (annonceComponent.StatutAnnonceId == 2)
+        @if (annonceComponent.StatutAnnonceId == 5)
         {
             <div class="status-badge status-@annonceComponent.StatutAnnonceId">
                 <span class="status-icon">
@@ -47,7 +47,7 @@
                @onclick:preventDefault="true"
                @onclick:stopPropagation="true">
                 <div class="product-seller">
-                    <img class="seller-avatar" src="@SellerPhotoUrl" alt="@annonceComponent.NomAuteur" />
+                    <img class="seller-avatar" src="@SellerPhotoUrl" alt=""/>
                     <span class="seller-name">@(annonceComponent.NomAuteur ?? "Vendeur")</span>
                 </div>
             </a>

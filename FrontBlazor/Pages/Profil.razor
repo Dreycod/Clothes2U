@@ -3,6 +3,7 @@
 @layout ClientLayout
 @using System.Globalization
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>Clothes2U</PageTitle>
 
@@ -73,7 +74,7 @@
                             }
                             else
                             {
-                                <div class="profile-actions-dropdown-container" @ref="profileActionsRef">
+                                <div class="profile-actions-dropdown-container">
                                     <button class="btn-icon"
                                             title="Actions"
                                             @onclick="VM_Profil.ToggleDotsDropdown">
@@ -336,6 +337,13 @@
                     {
                     <div class="section-container">
                         <div class="section-header">
+                            @if (!VM_Profil.IsSameUser)
+                            {
+                                <button class="btn-add-review" @onclick="VM_Profil.ShowAddReview">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Ajouter un avis
+                                </button>
+                            }
                             <div class="carousel-controls">
                                 <button class="carousel-btn" 
                                         @onclick="VM_Profil.PreviousAvis"
@@ -363,16 +371,6 @@
                                     }
                                 </button>
                             </div>
-                        </div>
-
-                        <div class="reviews-header">
-                            @if (!VM_Profil.IsSameUser)
-                            {
-                                <button class="btn-add-review" @onclick="VM_Profil.ShowAddReview">
-                                    <i class="bi bi-plus-circle"></i>
-                                    Ajouter un avis
-                                </button>
-                            }
                         </div>
 
                     @if (VM_Profil.IsLoadingAvis)
@@ -670,12 +668,10 @@
     [Parameter]
     public string userLogin { get; set; }
 
-    private ElementReference profileActionsRef;
     private DotNetObjectReference<Profil>? objRef;
 
     protected override async Task OnInitializedAsync()
     {
-        VM_Profil.OnStateChanged += StateHasChanged;
         await VM_Profil.LoadUserProfile(userLogin);
     }
 
@@ -684,37 +680,33 @@
         if (firstRender)
         {
             objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("setupClickOutside", objRef, null, null, profileActionsRef);
+            await JS.InvokeVoidAsync("setupProfileActionsClickOutside", objRef);
         }
     }
 
     [JSInvokable]
-    public void CloseDropdowns()
+    public void CloseProfileActionsDropdown()
     {
-        VM_Profil.CloseProfileActionsDropdown();
-        StateHasChanged();
+        if (VM_Profil.showDotsDropdown)
+        {
+            VM_Profil.showDotsDropdown = false;
+            StateHasChanged();
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
         VM_Profil.OnStateChanged -= StateHasChanged;
-
+        
         if (objRef != null)
         {
-            await JS.InvokeVoidAsync("removeClickOutside");
+            try
+            {
+                await JS.InvokeVoidAsync("removeProfileActionsClickOutside");
+            }
+            catch { }
+            
             objRef.Dispose();
         }
-
-        if (VM_Profil is IAsyncDisposable disposable)
-        {
-            await disposable.DisposeAsync();
-        }
-    }
-
-    public void Dispose()
-    {
-        VM_Profil.OnStateChanged -= StateHasChanged;
     }
 }
-
-

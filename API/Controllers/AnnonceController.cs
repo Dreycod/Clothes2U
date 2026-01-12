@@ -311,4 +311,41 @@ public class AnnonceController : ControllerBase
         return Ok(annoncesDTO);
     }
 
+    [HttpPatch("PauseAnnonce/{id}")]
+    public async Task<IActionResult> PauserAnnonce(int id)
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        if (userId == null)
+            return Unauthorized("Utilisateur non connecté.");
+
+        Annonce annonceToPause = await _annonceManager.GetByIdAsync(id);
+        if (annonceToPause == null)
+            return NotFound("Annonce non trouvée.");
+
+        if (annonceToPause.UtilisateurId != userId)
+            return Forbid("Vous n'êtes pas le propriétaire de cette annonce.");
+
+        annonceToPause.StatutAnnonceId = 5;
+        await _annonceManager.UpdateAsync(annonceToPause);
+        return NoContent();
+    }
+
+    [HttpPatch("ReprendreAnnonce/{id}")]
+    public async Task<IActionResult> ReprendreAnnonce(int id)
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        if (userId == null)
+            return Unauthorized("Utilisateur non connecté.");
+
+        Annonce annonceToPause = await _annonceManager.GetByIdAsync(id);
+        if (annonceToPause == null)
+            return NotFound("Annonce non trouvée.");
+
+        if (annonceToPause.UtilisateurId != userId)
+            return Forbid("Vous n'êtes pas le propriétaire de cette annonce.");
+
+        annonceToPause.StatutAnnonceId = 1;
+        await _annonceManager.UpdateAsync(annonceToPause);
+        return NoContent();
+    }
 }

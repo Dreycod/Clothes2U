@@ -254,4 +254,16 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         response.EnsureSuccessStatusCode();
         return;
     }
+
+    public async Task ReprendreAnnonce(int annonceId)
+    {
+        var response = await PatchWithCredentialsAsync($"Annonce/ReprendreAnnonce/{annonceId}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task PauseAnnonce(int annonceId)
+    {
+        var response = await PatchWithCredentialsAsync($"Annonce/PauseAnnonce/{annonceId}");
+        response.EnsureSuccessStatusCode();
+    }
 }

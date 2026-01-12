@@ -11,6 +11,7 @@ using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO.Recense;
+using System.Runtime.CompilerServices;
 
 namespace FrontBlazor.ViewModel;
 
@@ -47,7 +48,10 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public bool ShowImagePreview { get; set; } = false;
     public string ImagePreview { get; set; } = string.Empty;
-    
+    public bool ShowActionsDropdown { get; set; } = false;
+    public bool ShowPauseResumeModal { get; set; } = false;
+    public bool IsSubmittingPauseResume { get; set; } = false;
+
     public DetailAnnonceViewModel(
         IAnnonceService annonceService,
         IFavorisService<FavorisDTO> favorisService, 
@@ -293,10 +297,78 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
         }
     }
+
+    public void ToggleActionsDropdown()
+    {
+        ShowActionsDropdown = !ShowActionsDropdown;
+        NotifyStateChanged();
+    }
+    public void TogglePauseResumeModal()
+    {
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        ShowPauseResumeModal = !ShowPauseResumeModal;
+        ShowActionsDropdown = false;
+        NotifyStateChanged();
+    }
+    public void ModifierAnnonce()
+    {
+        ShowActionsDropdown = false;
+        NotifyStateChanged();
+        _navigationManager.NavigateTo($"/update-article/{AnnonceDetail.AnnonceId}");
+    }
+
+    public async Task PauserReprendreAnnonce()
+    {
+        ShowActionsDropdown = false;
+        NotifyStateChanged();
+        string action = "";
+
+        if (AnnonceDetail.StatutAnnonceId == 5)
+            action = "reprendre";
+        else if (AnnonceDetail.StatutAnnonceId == 1)
+            action = "pauser";
+
+        try
+        {
+            switch (action)
+            {
+                case "reprendre":
+                    await _annonceService.ReprendreAnnonce(AnnonceDetail.AnnonceId);
+                    break;
+                case "pauser":
+                    await _annonceService.PauseAnnonce(AnnonceDetail.AnnonceId);
+                    break;
+                default:
+                    throw new InvalidOperationException("Action inconnue pour l'annonce.");
+            }
+            AnnonceDetail.StatutAnnonceId = action == "pauser" ? 5 : 1;
+            NotifyStateChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la pause de l'annonce : {ex.Message}");
+        }
+        finally
+        {
+            IsSubmittingPauseResume = false;
+            ShowPauseResumeModal = false;
+            NotifyStateChanged();
+        }
+    }
+
+    private async Task PauserAnnonce()
+    {
+        throw new NotImplementedException();
+    }
+
     public event Action? OnChange;
 
     private void NotifyStateChanged() => OnChange?.Invoke();
-    
+
     public int PageNumber { get; set; }
     public async Task PreviousSimilar()
     {
@@ -311,7 +383,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     {
         if (similarAnnonces.Count == 4)
         {
-            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId,PageNumber + 1,4 );
+            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId, PageNumber + 1, 4);
             if (newAnnonces.Count > 0)
             {
                 PageNumber++;
@@ -320,7 +392,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             }
         }
     }
-
     public async Task ToggleImagePreview(int? photoId = 0)
     {
         if (photoId == 0)
