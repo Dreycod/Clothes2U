@@ -1,0 +1,407 @@
+@page "/orders"
+@inject OrderViewModel VM
+@inject NavigationManager Navigation
+@layout ClientLayout
+@implements IDisposable
+
+<PageTitle>Mes Commandes - Clothes2U</PageTitle>
+
+<NavBar/>
+
+<div class="orders-page">
+    <div class="orders-container">
+        
+        <!-- ===================================
+             SIDEBAR GAUCHE - LISTE COMMANDES
+             =================================== -->
+        <aside class="orders-sidebar">
+            @if (VM.IsLoading)
+            {
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Chargement...</p>
+                </div>
+            }
+            else
+            {
+                <!-- Header avec titre et tabs -->
+                <div class="sidebar-header">
+                    <h1 class="sidebar-title">Mes Commandes</h1>
+                    
+                    <!-- Tabs Achats/Ventes -->
+                    <div class="order-tabs">
+                        <button class="order-tab @(VM.CurrentTab == OrderTab.Purchases ? "active" : "")"
+                                @onclick="() => VM.SwitchTab(OrderTab.Purchases)">
+                            <i class="bi bi-bag-fill"></i>
+                            Achats
+                        </button>
+                        <button class="order-tab @(VM.CurrentTab == OrderTab.Sales ? "active" : "")"
+                                @onclick="() => VM.SwitchTab(OrderTab.Sales)">
+                            <i class="bi bi-shop"></i>
+                            Ventes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats compactes -->
+                @if (VM.CurrentTab == OrderTab.Purchases && VM.PurchaseStats != null)
+                {
+                    <div class="sidebar-stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@VM.PurchaseStats.TotalCommandes</span>
+                            <span class="mini-stat-label">Total</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@VM.PurchaseStats.CommandesEnCours</span>
+                            <span class="mini-stat-label">En cours</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@VM.PurchaseStats.CommandesLivrees</span>
+                            <span class="mini-stat-label">Livrés</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@string.Format("{0:F0}", VM.PurchaseStats.MontantTotal) €</span>
+                            <span class="mini-stat-label">Dépensé</span>
+                        </div>
+                    </div>
+                }
+                else if (VM.CurrentTab == OrderTab.Sales && VM.SalesStats != null)
+                {
+                    <div class="sidebar-stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@VM.SalesStats.TotalCommandes</span>
+                            <span class="mini-stat-label">Total</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@VM.SalesStats.CommandesEnCours</span>
+                            <span class="mini-stat-label">À expédier</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@VM.SalesStats.CommandesLivrees</span>
+                            <span class="mini-stat-label">Complétées</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">@string.Format("{0:F0}", VM.SalesStats.MontantTotal) €</span>
+                            <span class="mini-stat-label">Revenus</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Filtres -->
+                <div class="sidebar-filters">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" 
+                               placeholder="Rechercher..." 
+                               @bind="VM.SearchQuery"
+                               @bind:event="oninput" />
+                    </div>
+                    
+                    <select class="status-filter" @bind="VM.StatusFilter">
+                        <option value="Tous">Tous les statuts</option>
+                        <option value="Payée">Payée</option>
+                        <option value="Expédiée">Expédiée</option>
+                        <option value="Livrée">Livrée</option>
+                        <option value="Annulée">Annulée</option>
+                    </select>
+                </div>
+
+                <!-- Liste des commandes -->
+                @if (!VM.GetFilteredOrders().Any())
+                {
+                    <div class="sidebar-empty">
+                        <i class="bi @(VM.CurrentTab == OrderTab.Purchases ? "bi-bag-x" : "bi-shop-window")"></i>
+                        <p>Aucune commande</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="orders-list">
+                        @foreach (var order in VM.GetFilteredOrders())
+                        {
+                            <div class="order-item @(selectedOrder?.CommandeId == order.CommandeId ? "active" : "")"
+                                 @onclick="() => SelectOrder(order)">
+                                
+                                <div class="order-thumbnail">
+                                    @if (!string.IsNullOrEmpty(order.PhotoAnnonce))
+                                    {
+                                        <img src="@order.PhotoAnnonce" alt="@order.TitreAnnonce" />
+                                    }
+                                    else
+                                    {
+                                        <div class="no-image">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="order-item-info">
+                                    <h3 class="order-item-title">@order.TitreAnnonce</h3>
+                                    <div class="order-item-meta">
+                                        <span class="order-item-price">@string.Format("{0:F2}", order.MontantTotal) €</span>
+                                        <span class="order-item-date">@order.DateCommande.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                </div>
+
+                                <span class="order-item-status @GetStatusClass(order.StatutCommandeId)"></span>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </aside>
+
+        <!-- ===================================
+             DÉTAILS COMMANDE (DROITE)
+             =================================== -->
+        <main class="order-details">
+            @if (selectedOrder == null)
+            {
+                <div class="no-order-selected">
+                    <i class="bi bi-receipt"></i>
+                    <p>Sélectionnez une commande pour voir les détails</p>
+                </div>
+            }
+            else
+            {
+                <!-- Header -->
+                <header class="order-details-header">
+                    <div class="order-header-info">
+                        <h2>@selectedOrder.TitreAnnonce</h2>
+                        <p class="order-number">Commande #@selectedOrder.CommandeId</p>
+                        <p class="order-date">@selectedOrder.DateCommande.ToString("dd MMMM yyyy à HH:mm")</p>
+                    </div>
+                    <div class="order-status-badge @GetStatusClass(selectedOrder.StatutCommandeId)">
+                        <i class="bi @VM.GetStatusIcon(selectedOrder.StatutCommandeId)"></i>
+                        @selectedOrder.StatutCommandeLibelle
+                    </div>
+                </header>
+
+                <!-- Contenu scrollable -->
+                <div class="order-details-content">
+                    
+                    <!-- Section produit -->
+                    <section class="order-product-section">
+                        <div class="product-image-large">
+                            @if (!string.IsNullOrEmpty(selectedOrder.PhotoAnnonce))
+                            {
+                                <img src="@selectedOrder.PhotoAnnonce" alt="@selectedOrder.TitreAnnonce" />
+                            }
+                            else
+                            {
+                                <div class="no-image">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="product-details">
+                            <h3>@selectedOrder.TitreAnnonce</h3>
+                            
+                            <div class="product-meta">
+                                @if (VM.CurrentTab == OrderTab.Purchases)
+                                {
+                                    <div class="product-meta-item">
+                                        <i class="bi bi-shop"></i>
+                                        <span>Vendu par <strong>@selectedOrder.NomVendeur</strong></span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="product-meta-item">
+                                        <i class="bi bi-person-fill"></i>
+                                        <span>Acheté par <strong>@selectedOrder.NomAcheteur</strong></span>
+                                    </div>
+                                }
+                                
+                                <div class="product-meta-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>@selectedOrder.DateCommande.ToString("dd MMMM yyyy")</span>
+                                </div>
+                            </div>
+
+                            <div class="product-price-detail">
+                                @string.Format("{0:F2}", selectedOrder.MontantTotal) €
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Récapitulatif prix -->
+                    <section class="order-summary-section">
+                        <h4>Récapitulatif</h4>
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span>Prix de l'article</span>
+                                <span>@string.Format("{0:F2}", selectedOrder.MontantTotal - selectedOrder.FraisService - selectedOrder.FraisLivraison) €</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Frais de service</span>
+                                <span>@string.Format("{0:F2}", selectedOrder.FraisService) €</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Frais de livraison</span>
+                                <span>@string.Format("{0:F2}", selectedOrder.FraisLivraison) €</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total</span>
+                                <span>@string.Format("{0:F2}", selectedOrder.MontantTotal) €</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Adresse de livraison -->
+                    <section class="shipping-section">
+                        <h4>
+                            <i class="bi bi-geo-alt-fill"></i>
+                            Adresse de livraison
+                        </h4>
+                        <div class="shipping-address">
+                            <p><strong>@selectedOrder.NomAcheteur</strong></p>
+                            <p>@selectedOrder.AdresseLivraison</p>
+                        </div>
+                    </section>
+
+                    <!-- Suivi de commande -->
+                    @if (!string.IsNullOrEmpty(selectedOrder.NumeroSuivi) || 
+                         selectedOrder.DateExpedition.HasValue || 
+                         selectedOrder.DateLivraison.HasValue)
+                    {
+                        <section class="tracking-section">
+                            <h4>
+                                <i class="bi bi-truck"></i>
+                                Suivi de commande
+                            </h4>
+
+                            @if (!string.IsNullOrEmpty(selectedOrder.NumeroSuivi))
+                            {
+                                <div class="tracking-number">
+                                    <i class="bi bi-box-seam"></i>
+                                    <span>Numéro de suivi : <strong>@selectedOrder.NumeroSuivi</strong></span>
+                                </div>
+                            }
+
+                            <div class="order-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon completed"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Commande payée</div>
+                                        <div class="timeline-date">@selectedOrder.DateCommande.ToString("dd/MM/yyyy à HH:mm")</div>
+                                    </div>
+                                </div>
+
+                                @if (selectedOrder.DateExpedition.HasValue)
+                                {
+                                    <div class="timeline-item">
+                                        <div class="timeline-icon completed"></div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Commande expédiée</div>
+                                            <div class="timeline-date">@selectedOrder.DateExpedition.Value.ToString("dd/MM/yyyy à HH:mm")</div>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (selectedOrder.DateLivraison.HasValue)
+                                {
+                                    <div class="timeline-item">
+                                        <div class="timeline-icon completed"></div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Commande livrée</div>
+                                            <div class="timeline-date">@selectedOrder.DateLivraison.Value.ToString("dd/MM/yyyy à HH:mm")</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </section>
+                    }
+                </div>
+
+                <!-- Footer avec actions -->
+                <footer class="order-details-footer">
+                    @if (VM.CurrentTab == OrderTab.Purchases)
+                    {
+                        <button class="btn-secondary" @onclick="() => ContactSeller(selectedOrder)">
+                            <i class="bi bi-chat-dots"></i>
+                            Contacter le vendeur
+                        </button>
+                        
+                        @if (selectedOrder.StatutCommandeId == 3)
+                        {
+                            <button class="btn-primary">
+                                <i class="bi bi-star-fill"></i>
+                                Laisser un avis
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <button class="btn-secondary" @onclick="() => ContactBuyer(selectedOrder)">
+                            <i class="bi bi-chat-dots"></i>
+                            Contacter l'acheteur
+                        </button>
+                        
+                        @if (selectedOrder.StatutCommandeId == 1)
+                        {
+                            <button class="btn-primary">
+                                <i class="bi bi-truck"></i>
+                                Marquer comme expédié
+                            </button>
+                        }
+                    }
+                </footer>
+            }
+        </main>
+
+    </div>
+</div>
+
+@code {
+    private OrderDTO? selectedOrder;
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM.OnChange += StateHasChanged;
+        await VM.LoadAsync();
+        
+        // Sélectionner automatiquement la première commande si elle existe
+        var orders = VM.GetFilteredOrders();
+        if (orders.Any())
+        {
+            selectedOrder = orders.First();
+        }
+    }
+
+    private void SelectOrder(OrderDTO order)
+    {
+        selectedOrder = order;
+        StateHasChanged();
+    }
+
+    private string GetStatusClass(int statusId)
+    {
+        return statusId switch
+        {
+            1 => "paid",
+            2 => "shipped",
+            3 => "delivered",
+            4 => "cancelled",
+            _ => "paid"
+        };
+    }
+
+    private void ContactSeller(OrderDTO order)
+    {
+        // Navigation vers la conversation avec le vendeur
+        Navigation.NavigateTo($"/messages");
+    }
+
+    private void ContactBuyer(OrderDTO order)
+    {
+        // Navigation vers la conversation avec l'acheteur
+        Navigation.NavigateTo($"/messages");
+    }
+
+    public void Dispose()
+    {
+        VM.OnChange -= StateHasChanged;
+    }
+}

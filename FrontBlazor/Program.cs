@@ -108,6 +108,7 @@ builder.Services.AddScoped<ClientBaseViewModel>();
 builder.Services.AddScoped<AddressViewModel>();
 builder.Services.AddScoped<ForgotPasswordViewModel>();
 builder.Services.AddScoped<ResetPasswordViewModel>();
+builder.Services.AddScoped<OrderViewModel>();
 
 // AuthService doit déjà être enregistré
 // (il contient les méthodes pour les adresses)
