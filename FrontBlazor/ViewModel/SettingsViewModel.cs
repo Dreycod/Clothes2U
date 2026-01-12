@@ -6,6 +6,7 @@ using Shared.DTO;
 using Shared.DTO.Annonce;
 using Shared.DTO.Bloque;
 using Shared.DTO.ConnexionRequest;
+using Shared.DTO.Photo;
 using Shared.DTO.Utilisateur;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,6 +27,7 @@ namespace FrontBlazor.ViewModel
 
         public string Username { get; set; }
         public string Email { get; set; }
+        public IBrowserFile? Photo { get; set; }
         public bool IsUploadingPhoto { get; set; }
         public byte[]? UploadedPhotoBytes { get; set; }
         public string? UploadedPhotoFileName { get; set; }
@@ -120,59 +122,86 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
         }
 
-        public void TriggerFileInput()
-        {
-
-        }
         public async Task HandlePhotoUpload(InputFileChangeEventArgs e)
         {
             try
             {
+                PreviewPhotoUrl = null;
+                UploadedPhotoBytes = null;
+
                 var file = e.File;
+
+                if (!file.ContentType.StartsWith("image/"))
+                    return;
+
+                const int MaxSize = 5 * 1024 * 1024;
+
+                if (file.Size > MaxSize)
+                    return;
+
+                using var ms = new MemoryStream();
+                await file.OpenReadStream(MaxSize).CopyToAsync(ms);
+
+                UploadedPhotoBytes = ms.ToArray();
                 UploadedPhotoFileName = file.Name;
 
-                using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                UploadedPhotoBytes = ms.ToArray();
+                PreviewPhotoUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(UploadedPhotoBytes)}";
 
-                var base64 = Convert.ToBase64String(UploadedPhotoBytes);
-                PreviewPhotoUrl = $"data:image/{GetImageFormat(UploadedPhotoFileName)};base64,{base64}";
-
-                NotifyStateChanged();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la prévisualisation: {ex.Message}");
+                Console.WriteLine($"Erreur preview: {ex}");
             }
         }
 
+
         public async Task ConfirmPhotoUpload()
         {
-            if (UploadedPhotoBytes == null) return;
+            Console.WriteLine("=== ConfirmPhotoUpload START ===");
+
+            if (UploadedPhotoBytes == null)
+            {
+                Console.WriteLine("No photo bytes to upload");
+                return;
+            }
 
             IsUploadingPhoto = true;
             NotifyStateChanged();
 
             try
             {
+                Console.WriteLine($"Uploading {UploadedPhotoBytes.Length} bytes...");
+
                 bool success = await _mediaService.UploadPhotoCompteAsync(
                     (int)CurrentUser.UtilisateurId,
                     UploadedPhotoBytes,
                     UploadedPhotoFileName
                 );
 
+                Console.WriteLine($"Upload result: {success}");
+
                 if (success)
                 {
+                    Console.WriteLine("Reloading settings...");
+                    await LoadSettings();
+
                     UploadedPhotoBytes = null;
                     UploadedPhotoFileName = null;
                     PreviewPhotoUrl = null;
-                    NotifyStateChanged();
+
+                    Console.WriteLine("=== ConfirmPhotoUpload SUCCESS ===");
+                }
+                else
+                {
+                    Console.WriteLine("Upload returned false");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de l'upload: {ex.Message}");
+                Console.WriteLine($"=== ConfirmPhotoUpload ERROR ===");
+                Console.WriteLine($"Exception: {ex.GetType().Name}");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
             }
             finally
             {
@@ -187,19 +216,6 @@ namespace FrontBlazor.ViewModel
             UploadedPhotoFileName = null;
             PreviewPhotoUrl = null;
             NotifyStateChanged();
-        }
-
-        private string GetImageFormat(string fileName)
-        {
-            var extension = Path.GetExtension(fileName)?.ToLower();
-            return extension switch
-            {
-                ".jpg" or ".jpeg" => "jpeg",
-                ".png" => "png",
-                ".gif" => "gif",
-                ".webp" => "webp",
-                _ => "jpeg"
-            };
         }
 
         public async Task UpdateUsername()

@@ -1,3 +1,4 @@
+using API.Models.EntityFramework;
 using API.Models.Repository.Managers;
 using Shared.DTO.Annonce;
 
@@ -42,6 +43,33 @@ public class AnnonceExtensionService : IAnnonceExtensionService
             {
                 annonceDetailDTO.IsLikedByCurrentUser = true;
             }
+        }
+        return annonceDetailDTO;
+    }
+
+    public async Task<IEnumerable<AnnonceDTO>> CheckOwnerAnnonce(IEnumerable<AnnonceDTO> annoncesDTO)
+    {
+        int? userId = await _currentUserService.GetUserId();
+        if (userId != null)
+        {
+            foreach (var annonce in annoncesDTO)
+            {
+                if (annonce.IdAuteur == userId)
+                {
+                    annonce.IsOwnerAnnonce = true;
+                }
+            }
+        }
+        return annoncesDTO;
+    }
+
+    public async Task<AnnonceDetailDTO> CheckOwnerAnnonceDetail(AnnonceDetailDTO annonceDetailDTO)
+    {
+        int? userId = await _currentUserService.GetUserId();
+        if (userId != null)
+        {
+            if (annonceDetailDTO.UtilisateurId == userId)
+                annonceDetailDTO.IsOwnerAnnonce = true;
         }
         return annonceDetailDTO;
     }

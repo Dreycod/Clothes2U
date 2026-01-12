@@ -32,7 +32,7 @@
     background: linear-gradient(135deg, #7a9d8e 0%, #5a7d6e 100%);
     background-image: url('/images/home_background.jpg');
     background-size: cover;
-    background-position: center;
+    background-position: center 70%;
 }
 
     .hero-background::after {
@@ -245,14 +245,34 @@
     transition: background-color 0.2s;
 }
 
-    .carousel-btn:hover {
+    .carousel-btn:hover:not(:disabled) {
         background-color: #e0e0e0;
+    }
+
+    .carousel-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
 
     .carousel-btn i {
         font-size: 1rem;
         color: #333;
     }
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e0e0e0;
+    border-top-color: #7a9d8e;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 .product-grid {
     display: grid;
@@ -503,13 +523,4 @@
     .category-card {
         height: 140px;
     }
-}
-
-.spinner-small {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #e0e0e0;
-    border-top-color: #7a9d8e;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
 }

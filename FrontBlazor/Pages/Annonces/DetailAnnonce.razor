@@ -51,34 +51,43 @@
         string produit = "AnnonceDetail";
 
         <div class="product-container">
-            <!-- Left Side - Product Image -->
+            
             <div class="product-image-section">
-                <div class="main-image">
-                    @if (annonce.Photos != null && annonce.Photos.Any())
-                    {
-                        <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
-                    }
+                <div class="main-image-wrapper">
+                    <div class="main-image">
+                        @if (annonce.Photos != null && annonce.Photos.Any())
+                        {
+                            <img src="@VM_DetailAnnonce.GetPhoto(annonce.Photos.First())" alt="@annonce.Title" />
+                        }
+                    </div>
+                    <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
+                        <i class="bi bi-x"></i>
+                    </button>
                 </div>
-                <button class="close-btn" @onclick="VM_DetailAnnonce.GoBack">
-                    <i class="bi bi-x"></i>
-                </button>
+        
+                @if (annonce.Photos != null && annonce.Photos.Count() > 1)
+                {
+                    <div class="image-thumbnails">
+                        @foreach (var photo in annonce.Photos)
+                        {
+                            <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
+                                <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
+                            </div>
+                        }
+                    </div>
+                }
             </div>
 
-            <!-- Right Side - Product Info -->
             <div class="product-info-section">
-                <!-- Category Badge -->
                 <div class="category-badge">@annonce.Categorie</div>
 
-                <!-- Title -->
                 <h1 class="product-title">@annonce.Title</h1>
 
-                <!-- Brand & Price -->
                 <div class="brand-price-row">
                     <span class="brand-name">@annonce.NomMarque</span>
                     <span class="product-price">@annonce.Prix€</span>
                 </div>
 
-                <!-- Price Status - Based on Negociable property -->
                 <div class="price-status">
                     @if (annonce.Negociable)
                     {
@@ -90,7 +99,6 @@
                     }
                 </div>
 
-                <!-- Actions Row -->
                 <div class="actions-row">
                     @if (!VM_DetailAnnonce.IsSameUser)
                     {
@@ -106,7 +114,6 @@
                     }
                 </div>
 
-                <!-- Seller Info -->
                 <div class="seller-section" @onclick="VM_DetailAnnonce.GotoProfile">
                     <img class="seller-avatar" src="@(VM_DetailAnnonce.GetPhoto(utilisateur.PhotoProfilId))" />
                     <div class="seller-info">
@@ -118,7 +125,6 @@
                     </div>
                 </div>
 
-                <!-- Product Details Grid -->
                 <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label">Taille</div>
@@ -134,7 +140,6 @@
                     </div>
                 </div>
 
-                <!-- Description -->
                 <div class="description-section">
                     <h3 class="section-title">Description</h3>
                     <p class="description-text">
@@ -163,15 +168,13 @@
                     </div>
                 </div>
 
-                <!-- Publication Date & Likes -->
                 <div class="product-stats">
                     <span><i class="bi bi-calendar"></i> Publié le @(annonce.DateAnnonce.ToString("dd/MM/yyyy"))</span>
                     <span><i class="bi bi@(annonce.IsLikedByCurrentUser ? "-heart-fill" : "-heart")"></i> @(annonce.NombreLikes) likes</span>
                     <span><i class="bi bi-eye"></i> @(annonce.NombreVues) vues </span>
                 </div>
 
-                <!-- Action Buttons -->
-                @if (!VM_DetailAnnonce.IsSameUser)
+                @if (!VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                 {
                     <div class="action-buttons">
                         <button class="btn-secondary" @onclick="VM_DetailAnnonce.ContactSeller">
@@ -189,8 +192,15 @@
                         Acheter l'article
                     </button>
                 }
+                else
+                {
+                    <button class="btn-danger" @onclick="VM_DetailAnnonce.ToggleDeleteProductModal">
+                        Supprimer votre article
+                    </button>
+                }
             </div>
         </div>
+
         <div class="similar-section">
             <div class="similar-container">
 
@@ -221,14 +231,12 @@
                     }
                     else if(VM_DetailAnnonce.similarAnnonces != null && VM_DetailAnnonce.similarAnnonces.Any())
                     {
-						string product = "SimilarAnnonce";
                         @foreach (AnnonceDTO similairAnnonce in VM_DetailAnnonce.similarAnnonces)
                         {
 
                             <AnnonceCard annonceComponent="similairAnnonce"
                                          OnToggleFavorite="(a) => VM_DetailAnnonce.ToggleFavorite(a)"    
-                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"
-										 IsOwnerTask="VM_DetailAnnonce.CheckIfOwnerAnnonce(similairAnnonce.AnnonceId, product)"/>
+                                         OnClickAnnonce="(a) => VM_DetailAnnonce.NavigateToProduct(a.AnnonceId)"/>
                         }
                     }
                     else
@@ -241,7 +249,6 @@
     }
 </div>
 
-<!-- Add Signalement Modal -->
 @if (VM_DetailAnnonce.ShowSignalerModal)
 {
     <div class="modal-overlay" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
@@ -254,7 +261,6 @@
             </div>
 
             <div class="modal-body">
-                <!-- Reason -->
                 <div class="form-group">
                     <label class="form-label">Raison</label>
                     <textarea class="form-textarea"
@@ -268,7 +274,7 @@
             <div class="modal-actions">
                 <button class="btn-secondary" @onclick="VM_DetailAnnonce.ToggleSignalerModal">Annuler</button>
                 <button class="btn-primary" @onclick="VM_DetailAnnonce.SubmitReport" disabled="@VM_DetailAnnonce.IsSubmittingReport">
-                    @if (VM_Profil.IsSubmittingReview)
+                    @if (VM_DetailAnnonce.IsSubmittingReport)
                     {
                         <span class="spinner-small-inline"></span>
                         <span>Envoi...</span>
@@ -283,7 +289,41 @@
     </div>
 }
 
-<Footer />
+@if (VM_DetailAnnonce.ShowDeleteProductModal)
+{
+    <div class="modal-overlay" @onclick="() => VM_DetailAnnonce.ToggleDeleteProductModal()">
+        <div class="modal-content review-modal delete-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Suppression de votre annonce</h3>
+                <button class="modal-close" @onclick="() => VM_DetailAnnonce.ToggleDeleteProductModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Êtes-vous sûr de vouloir supprimer cette annonce ? Cette action est irréversible.</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="() => VM_DetailAnnonce.ToggleDeleteProductModal()">Annuler</button>
+                <button class="btn-danger"
+                        @onclick="async () => await VM_DetailAnnonce.DeleteProduct()"
+                        disabled="@VM_DetailAnnonce.IsSubmittingDelete">
+                    @if (VM_DetailAnnonce.IsSubmittingDelete)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Suppression...</span>
+                    }
+                    else
+                    {
+                        <span>Supprimer l'annonce</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter]

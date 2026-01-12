@@ -52,6 +52,7 @@ public class AnnonceController : ControllerBase
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
@@ -68,6 +69,7 @@ public class AnnonceController : ControllerBase
         
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
         annonceDTO = await _annonceExtensionService.LikeAnnonceDetail(annonceDTO);
+        annonceDTO = await _annonceExtensionService.CheckOwnerAnnonceDetail(annonceDTO);
         await _notificationService.DeleteAnnonceNotificationForUser(id);
         return Ok(annonceDTO);
     }
@@ -193,7 +195,8 @@ public class AnnonceController : ControllerBase
         var annonces = await _annonceManager.FilterAsync(filterDto, page, pageSize, userId);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
-    
+        annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
+
         return Ok(annoncesDTO);
     }
     [AllowAnonymous]
@@ -214,7 +217,8 @@ public class AnnonceController : ControllerBase
         var annonces = await _annonceManager.GetSimilarAsync(annonceId, page, pageSize, userId);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
-    
+        annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
+
         return Ok(annoncesDTO);
     }
 
@@ -242,5 +246,25 @@ public class AnnonceController : ControllerBase
         await _annonceManager.UpdateAsync(annonceToSell.Result);
         return NoContent();
     }
+
+    [HttpGet("ByUtilisateurIdPagination/{id}")]
+    public async Task<ActionResult<AnnonceDetailDTO>> GetAnnoncesPaginationByUserId(int id, 
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30)
+    {
+        if (page <= 0 || pageSize <= 0)
+        {
+            return BadRequest("Page et pageSize doivent être supérieurs à 0");
+        }
+        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(id);
+        IEnumerable<Annonce> annoncesPaginees = annonces
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
     
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
+        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
+        annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
+        return Ok(annoncesDTO);
+    }
+
 }
