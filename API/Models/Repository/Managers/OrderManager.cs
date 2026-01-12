@@ -20,6 +20,7 @@ public class OrderManager : IOrderRepository
             .Include(c => c.Acheteur)
             .Include(c => c.Vendeur)
             .Include(c => c.AdresseLivraison)
+            .Include(c => c.StatutCommande)
             .Include(c => c.Conversation)
             .FirstOrDefaultAsync(c => c.CommandeId == id);
     }
@@ -31,6 +32,7 @@ public class OrderManager : IOrderRepository
             .Include(c => c.Acheteur)
             .Include(c => c.Vendeur)
             .Include(c => c.AdresseLivraison)
+            .Include(c => c.StatutCommande)
             .Include(c => c.Conversation)
             .OrderByDescending(c => c.DateCommande)
             .ToListAsync();
@@ -43,6 +45,7 @@ public class OrderManager : IOrderRepository
                 .ThenInclude(a => a.Photos)
             .Include(c => c.Acheteur)
             .Include(c => c.Conversation)
+            .Include(c => c.StatutCommande)
             .Include(c => c.Vendeur)
             .Include(c => c.AdresseLivraison)
             .FirstOrDefaultAsync(c => c.CommandeId == orderId);
@@ -54,6 +57,7 @@ public class OrderManager : IOrderRepository
             .Include(c => c.Annonce)
                 .ThenInclude(a => a.Photos)
             .Include(c => c.Vendeur)
+            .Include(c => c.StatutCommande)
             .Include(c => c.AdresseLivraison)
             .Include(c => c.Conversation)
             .Where(c => c.AcheteurId == userId)
@@ -67,6 +71,7 @@ public class OrderManager : IOrderRepository
             .Include(c => c.Annonce)
                 .ThenInclude(a => a.Photos)
             .Include(c => c.Acheteur)
+            .Include(c => c.StatutCommande)
             .Include(c => c.AdresseLivraison)
             .Include(c => c.Conversation)
             .Where(c => c.VendeurId == sellerId)
@@ -82,6 +87,7 @@ public class OrderManager : IOrderRepository
             .Include(c => c.Conversation)
             .Include(c => c.Vendeur)
             .Include(c => c.AdresseLivraison)
+            .Include(c => c.StatutCommande)
             .FirstOrDefaultAsync(c => c.StripePaymentIntentId == paymentIntentId);
     }
 

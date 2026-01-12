@@ -47,7 +47,8 @@ public class OrderWebService :BaseGenericService, IOrderService
         catch (Exception ex)
         {
             //_logger.LogError(ex, "❌ Error getting user orders for user {UserId}", userId);
-            return new List<OrderDTO>();
+            Console.WriteLine($"Ne peut pas GetOrdersAsync {ex.Message}");
+            return null;
         }
     }
 
@@ -64,6 +65,7 @@ public class OrderWebService :BaseGenericService, IOrderService
         catch (Exception ex)
         {
             //_logger.LogError(ex, "❌ Error getting seller orders for seller {SellerId}", sellerId);
+            Console.WriteLine($"Ne peut pas GetOrdersAsync {ex.Message}");
             return new List<OrderDTO>();
         }
     }
@@ -83,7 +85,7 @@ public class OrderWebService :BaseGenericService, IOrderService
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "❌ Error getting order {OrderId}", orderId);
+            Console.WriteLine($"GetOrderByIdAsync {ex.Message}");
             return null;
         }
     }
@@ -93,17 +95,17 @@ public class OrderWebService :BaseGenericService, IOrderService
         try
         {
             var response = await GetWithCredentialsAsync($"order/payment-intent/{paymentIntentId}");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 return null;
             }
-            
+
             return await response.Content.ReadFromJsonAsync<OrderDTO>();
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "❌ Error getting order by payment intent {PaymentIntentId}", paymentIntentId);
+            Console.WriteLine($"peymentintent faile {ex.Message}");
             return null;
         }
     }
@@ -118,6 +120,7 @@ public class OrderWebService :BaseGenericService, IOrderService
         catch (Exception ex)
         {
             //_logger.LogError(ex, "❌ Error updating order status for {OrderId}", orderId);
+            Console.WriteLine($"UpdateOrderStatusAsync {ex.Message}");
             return false;
         }
     }
@@ -135,6 +138,7 @@ public class OrderWebService :BaseGenericService, IOrderService
         catch (Exception ex)
         {
             //_logger.LogError(ex, "❌ Error getting order stats for user {UserId}", userId);
+            Console.WriteLine($"Ne peut pas GetUserOrderStatsAsync {ex.Message}");
             return new OrderStatsDTO();
         }
     }
