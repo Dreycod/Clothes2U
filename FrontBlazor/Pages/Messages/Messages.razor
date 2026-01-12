@@ -3,7 +3,7 @@
 @inject NavigationManager Navigation
 @inject MessagerieViewModel VM_Messagerie
 @inject IJSRuntime JSRuntime
-@*@implements IDisposable*@
+@implements IDisposable
 
 <PageTitle>Messages - Clothes2U</PageTitle>
 
@@ -743,6 +743,7 @@
     </div>
 }
 
+<Footer />
 
 @code {
     private bool showPriceModal = false;
@@ -798,17 +799,17 @@
         }
     }
 
-    // public void Dispose()
-    // {
-    //     if (VM_Messagerie != null && VM_Messagerie.utilisateur != null)
-    //     {
-    //         VM_Messagerie.SelectConversationAsync(0); // ou null
-    //         // Ou directement :
-    //         // SignalRHandler.SetContext(null, ViewModel.Conversations, null, ViewModel.utilisateur.UtilisateurId);
-    //     }
-    //     VM_Messagerie.OnStateChanged -= StateHasChanged;
-    //     VM_Messagerie.OnMessageReceivedUI -= null;
-    // }
+    public void Dispose()
+    {
+        if (VM_Messagerie != null && VM_Messagerie.utilisateur != null)
+        {
+            VM_Messagerie.SelectConversationAsync(0); // ou null
+            // Ou directement :
+            // SignalRHandler.SetContext(null, ViewModel.Conversations, null, ViewModel.utilisateur.UtilisateurId);
+        }
+        VM_Messagerie.OnStateChanged -= StateHasChanged;
+        VM_Messagerie.OnMessageReceivedUI -= null;
+    }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {

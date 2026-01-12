@@ -326,15 +326,15 @@ public class MessageController : ControllerBase
         
         await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
         
-        var messagePayee = await _messageValidationManager.GetByIdAsync(dto.MessageEstPayeeId);
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+        if (conversation == null)
+            return BadRequest("Conversation introuvable");
+
+        var commande = conversation.Commandes?.LastOrDefault();
+        if (commande == null)
+            return BadRequest("Commande introuvable");
         
-        messagePayee.EstEnvoye = true;
-        
-        await _messageValidationManager.UpdateAsync(messagePayee);
-        
-        var order = await _orderService.GetByIdAsync(messagePayee.Message.Conversation.Commandes.LastOrDefault().ConversationId);
-        
-        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 2);
+        await _orderService.UpdateOrderStatusAsync(commande.CommandeId, 2);
         
         try
         {
@@ -381,7 +381,9 @@ public class MessageController : ControllerBase
             EstConforme = dto.EstConforme,
             MessageEstEnvoieId = dto.MessageEstEnvoieId
         };
-
+        
+        
+        
         if (!dto.EstConforme)
         {
             if (dto.Photo == null) return BadRequest("Photo manquante");
@@ -395,9 +397,16 @@ public class MessageController : ControllerBase
         }
         await _messageEstRecuManager.AddAsync(messageRecu);
         
-        var order = await _orderService.GetByIdAsync(messageRecu.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+        if (conversation == null)
+            return BadRequest("Conversation introuvable");
+
+        var commande = conversation.Commandes?.LastOrDefault();
+        if (commande == null)
+            return BadRequest("Commande introuvable");
+        //commande.StatutCommandeId = 3;
         
-        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 3);
+        await _orderService.UpdateOrderStatusAsync(commande.CommandeId, 3);
         
         try
         {
@@ -439,18 +448,26 @@ public class MessageController : ControllerBase
         
         if (messagePayee.EstAnnule) return BadRequest();
         
-        
-        
         messagePayee.EstAnnule = true;
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
-        var annonce = await _annonceService.GetByIdAsync(messagePayee.Message.ConversationId);
+        if (messagePayee.Message?.Conversation == null)
+            return BadRequest("Conversation introuvable");
+        
+        var annonce = messagePayee.Message.Conversation.LAnnonce;
+        
+        if (annonce == null) return BadRequest("Annonce introuvable");
+        
         annonce.StatutAnnonceId = 1;
         await _annonceService.UpdateAsync(annonce);
         
-        var order = await _orderService.GetByIdAsync(messagePayee.Message.Conversation.Commandes.LastOrDefault().ConversationId);
-        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 4);
+        var commande = messagePayee.Message.Conversation.Commandes?.LastOrDefault();
+        if (commande == null)
+            return BadRequest("Commande introuvable");
+        commande.StatutCommandeId = 4;
+        
+        await _orderService.UpdateAsync(commande);
         
         try
         {

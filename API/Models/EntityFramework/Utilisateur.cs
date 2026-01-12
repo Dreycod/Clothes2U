@@ -75,6 +75,12 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Utilisateur.UtilisateursSupprimes))]
     public virtual Utilisateur? DeletedByAdminNav { get; set; }
 
+    [InverseProperty(nameof(SupportTicket.UtilisateurTicket))]
+    public virtual ICollection<SupportTicket> SupportTicketsUtilisateurs { get; set; } = new List<SupportTicket>();
+
+    [InverseProperty(nameof(SupportTicket.Admin))]
+    public virtual ICollection<SupportTicket> SupportTicketsAdmins { get; set; } = new List<SupportTicket>();
+
 
     [InverseProperty(nameof(Utilisateur.DeletedByAdminNav))]
     public virtual ICollection<Utilisateur> UtilisateursSupprimes { get; set; } = new List<Utilisateur>();

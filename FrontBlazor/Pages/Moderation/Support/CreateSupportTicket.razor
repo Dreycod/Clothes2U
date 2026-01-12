@@ -1,0 +1,36 @@
+﻿@page "/support"
+@layout ClientLayout
+@inject CreateSupportTicketViewModel VM
+
+<PageTitle>Support - Clothes2U</PageTitle>
+
+<div class="container">
+    <h1>Contacter le support</h1>
+
+    <div class="card p-4">
+        <div class="mb-3">
+            <label class="form-label">Sujet</label>
+            <input class="form-control" @bind="VM.Subject" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Message</label>
+            <textarea class="form-control" rows="5" @bind="VM.Message"></textarea>
+        </div>
+
+        @if (!string.IsNullOrEmpty(VM.ErrorMessage))
+        {
+            <div class="alert alert-danger">@VM.ErrorMessage</div>
+        }
+
+        <button class="btn btn-primary"
+                disabled="@VM.IsLoading"
+                @onclick="VM.SubmitAsync">
+            @if (VM.IsLoading)
+            {
+                <span class="spinner-border spinner-border-sm"></span>
+            }
+            Envoyer
+        </button>
+    </div>
+</div>
