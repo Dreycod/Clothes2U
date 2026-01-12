@@ -104,6 +104,7 @@ builder.Services.AddScoped<DemandesRestaurationViewModel>();
 builder.Services.AddScoped<DemandeRestaurationDetailViewModel>();
 builder.Services.AddScoped<HistoriqueTransactionViewModel>();
 builder.Services.AddScoped<SettingsViewModel>();
+builder.Services.AddScoped<UpdateAnnonceViewModel>();
 builder.Services.AddScoped<CreationAnnonceViewModel>();
 builder.Services.AddScoped<AcheterViewModel>();
 builder.Services.AddScoped<ClientBaseViewModel>();

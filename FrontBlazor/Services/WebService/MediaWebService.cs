@@ -28,6 +28,14 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
         var baseUrl = _httpClient.BaseAddress?.ToString();
         return $"{baseUrl}Medias/Photos/{photoId}" ?? "";
     }
+    public async Task<PhotoDTO> GetPhotoDTO(int id)
+    {
+        var response = await GetWithCredentialsAsync($"Medias/GetPhotoDTO/{id}");
+        response.EnsureSuccessStatusCode();
+
+        var photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
+        return photo ?? new PhotoDTO();
+    }
 
     public async Task<bool> UploadPhotoAnnonceAsync(int annonceId, byte[] imageBytes, bool IsDangerous, string fileName)
     {
