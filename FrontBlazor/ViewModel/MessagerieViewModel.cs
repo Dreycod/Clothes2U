@@ -870,5 +870,6 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         IsSendingReception = false;
         NotifyStateChanged();
     }
+
 }
 }
