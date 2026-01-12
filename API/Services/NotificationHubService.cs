@@ -27,4 +27,18 @@ public class NotificationHubService : INotificationHubService
             Console.WriteLine($"❌ [NotificationHubService] Error: {ex.Message}");
         }
     }
+
+    public async Task UpdateUnreadMesssageCount(int userId, int count)
+    {
+        try
+        {
+            await _hubContext.Clients
+                .Group($"User_{userId}")
+                .SendAsync("UpdateMessageCount", count);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ [NotificationHubService] Error: {ex.Message}");
+        }
+    }
 }

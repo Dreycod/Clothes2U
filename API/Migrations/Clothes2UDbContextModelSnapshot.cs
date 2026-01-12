@@ -339,6 +339,10 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("cmd_annonce_id");
 
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_conversation_id");
+
                     b.Property<DateTime>("DateCommande")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("cmd_date_commande");
@@ -368,11 +372,9 @@ namespace API.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("cmd_numero_suivi");
 
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("cmd_statut");
+                    b.Property<int>("StatutCommandeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cmd_statut_commande_id");
 
                     b.Property<string>("StripePaymentIntentId")
                         .HasMaxLength(255)
@@ -390,6 +392,10 @@ namespace API.Migrations
                     b.HasIndex("AdresseLivraisonId");
 
                     b.HasIndex("AnnonceId");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("StatutCommandeId");
 
                     b.HasIndex("VendeurId");
 
@@ -1797,6 +1803,25 @@ namespace API.Migrations
                     b.ToTable("t_e_statut_annonce_staann", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.StatutCommande", b =>
+                {
+                    b.Property<int>("StatutCommandeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("stacom_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StatutCommandeId"));
+
+                    b.Property<string>("Libelle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("stacom_libelle");
+
+                    b.HasKey("StatutCommandeId");
+
+                    b.ToTable("t_e_statut_commande_stacom", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.StatutConversation", b =>
                 {
                     b.Property<int>("StatutConversationId")
@@ -2308,6 +2333,19 @@ namespace API.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Commande_Annonce");
 
+                    b.HasOne("API.Models.EntityFramework.Conversation", "Conversation")
+                        .WithMany("Commandes")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_Conversation");
+
+                    b.HasOne("API.Models.EntityFramework.StatutCommande", "StatutCommande")
+                        .WithMany("Commandes")
+                        .HasForeignKey("StatutCommandeId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_StatutCommande");
+
                     b.HasOne("API.Models.EntityFramework.Utilisateur", "Vendeur")
                         .WithMany("CommandesVendues")
                         .HasForeignKey("VendeurId")
@@ -2320,6 +2358,10 @@ namespace API.Migrations
                     b.Navigation("AdresseLivraison");
 
                     b.Navigation("Annonce");
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("StatutCommande");
 
                     b.Navigation("Vendeur");
                 });
@@ -3141,6 +3183,8 @@ namespace API.Migrations
                 {
                     b.Navigation("Acheteur");
 
+                    b.Navigation("Commandes");
+
                     b.Navigation("Messages");
 
                     b.Navigation("Transaction");
@@ -3308,6 +3352,11 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.EntityFramework.StatutAnnonce", b =>
                 {
                     b.Navigation("Annonces");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.StatutCommande", b =>
+                {
+                    b.Navigation("Commandes");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.StatutConversation", b =>

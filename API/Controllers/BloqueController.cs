@@ -49,17 +49,16 @@ namespace API.Controllers
             if (exists)
                 return BadRequest("Cet utilisateur est déjà bloqué.");
             Abonnement abonnement = await _abonnementManager.FindAbonnement(userId, utilisateurBloqueID);
-            if (abonnement == null)
+            if (abonnement != null)
             {
                 await _abonnementManager.DeleteAsync(abonnement);
             }
             Bloque bloque = new Bloque()
             {
-                UtilisateurBloqueurId = (int)userId,
+                UtilisateurBloqueurId = userId,
                 UtilisateurBloqueId = utilisateurBloqueID
             };
             await _bloqueRepo.AddAsync(bloque);
-
             return Ok(_mapper.Map<BloqueDTO>(bloque));
         }
         [HttpDelete("{utilisateurBloqueId}")]

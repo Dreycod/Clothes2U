@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Shared.DTO;
 using FrontBlazor.Services.GenericService;
 using Shared.DTO.Couleur;
+using Shared.DTO.Annonce;
 
 namespace FrontBlazor.Services
 {
@@ -65,6 +66,45 @@ namespace FrontBlazor.Services
         public Task UpdateAsync(CouleurDTO updatedEntity)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<EstDeCouleurDTO?> CouleurToEdc(CouleurDTO couleur, AnnonceDTO annonce)
+        {
+            try
+            {
+                CreateEstDeCouleurDTO bodyDto = new CreateEstDeCouleurDTO
+                {
+                    CouleurId = couleur.CouleurId,
+                    AnnonceId = annonce.AnnonceId
+                };
+                var body = JsonContent.Create(bodyDto);
+                var response = await PostWithCredentialsAsync("EstDeCouleur", body);
+                response.EnsureSuccessStatusCode();
+                var edc = await response.Content.ReadFromJsonAsync<EstDeCouleurDTO>();
+                return edc;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CouleurToEdc Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<CouleurDTO?> AddAsync(CreateCouleurDTO couleur)
+        {
+            try
+            {
+                var body = JsonContent.Create(couleur);
+                var response = await PostWithCredentialsAsync("Couleur", body);
+                response.EnsureSuccessStatusCode();
+                var createdCouleur = await response.Content.ReadFromJsonAsync<CouleurDTO>();
+                return createdCouleur;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AddCouleur Error: {ex.Message}");
+                return null;
+            }
         }
     }
 }

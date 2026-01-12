@@ -22,16 +22,17 @@ namespace FrontBlazor.Services
             return response;
         }
 
-        public async Task<List<NoteUtilisateurDetailDTO>?> GetAllNotesByUtilisateurId(int utilisateurId)
+        public async Task<List<NoteUtilisateurDetailDTO>?> GetNotesByUtilisateurId(int utilisateurId, int page = 1, int pageSize = 5)
         {
-            return await _httpClient.GetFromJsonAsync<List<NoteUtilisateurDetailDTO>?>($"NoteUtilisateur/User/{utilisateurId}");
+            var response = await GetWithCredentialsAsync($"NoteUtilisateur/User/{utilisateurId}?page={page}&pageSize={pageSize}");
+            response.EnsureSuccessStatusCode();
+            var avis = await response.Content.ReadFromJsonAsync<List<NoteUtilisateurDetailDTO>>();
+            return avis ?? new List<NoteUtilisateurDetailDTO>();
         }
 
         public async Task<NoteUtilisateurDetailDTO?> GetByIdAsync(int id)
         {
             return await _httpClient.GetFromJsonAsync<NoteUtilisateurDetailDTO>($"NoteUtilisateur/{id}");
         }
-
-        // delete est dans WritableService
     }
 }

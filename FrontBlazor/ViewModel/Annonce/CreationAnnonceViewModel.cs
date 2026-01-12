@@ -22,6 +22,7 @@ using Shared.DTO.Tag;
 using Shared.DTO.Recense; 
 using FrontBlazor.Services.Interfaces.GenericIServices;
 using System.Diagnostics;
+using FrontBlazor.Services;
 
 namespace FrontBlazor.ViewModel
 {
@@ -36,6 +37,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IListableService<MesureDTO> _mesureService;
         private readonly NavigationManager _nav;
+        private readonly ICouleurService<CouleurDTO> _couleurService;
         private readonly ITagService<TagDTO> _tagService;
         public List<CategorieDTO> Categories { get; set; }
         public List<CouleurDTO> Couleurs { get; set; }
@@ -45,7 +47,6 @@ namespace FrontBlazor.ViewModel
         public List<EtatArticleDTO> Etats { get; set; }
 
         private readonly IListableService<CategorieDTO> _categorieService;
-        private readonly IListableService<CouleurDTO> _couleurService;
         private readonly IListableService<MarqueDTO> _marqueService;
         private readonly IListableService<EtatArticleDTO> _etatService;
         private readonly IListableService<GenreDTO> _genreService;
@@ -84,7 +85,7 @@ namespace FrontBlazor.ViewModel
             IAuthService authService,
             IListableService<MesureDTO> mesureService,
             IListableService<CategorieDTO> categorieService,
-            IListableService<CouleurDTO> couleurService,
+            ICouleurService<CouleurDTO> couleurService,
             IListableService<MarqueDTO> marqueService,
             IListableService<EtatArticleDTO> etatService,
             IListableService<GenreDTO> genreService,
@@ -449,6 +450,34 @@ namespace FrontBlazor.ViewModel
                     .OrderByDescending(a => a.AnnonceId)
                     .FirstOrDefault(a => a.Titre == NewAnnonce.Titre);
 
+                if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
+                {
+                    foreach (var couleurId in SelectedCouleurIds)
+                    {
+                        var couleur = Couleurs.FirstOrDefault(c => c.CouleurId == couleurId);
+                        if (couleur != null)
+                        {
+                            try
+                            {
+                                var edc = await _couleurService.CouleurToEdc(couleur, createdAnnonce);
+                                if (edc != null)
+                                {
+                                    Console.WriteLine($"✅ EstDeCouleur créé: ID={edc.EstDeCouleurId} pour CouleurID={couleur.CouleurId}");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ CouleurToEdc a retourné null pour CouleurID={couleur.CouleurId}");
+                                }
+                            }
+                            catch (Exception edcEx)
+                            {
+                                Console.WriteLine($"❌ Erreur création EstDeCouleur pour CouleurID={couleur.CouleurId}: {edcEx.Message}");
+                                AddError($"La couleur '{couleur.Nom}' n'a pas pu être associée");
+                            }
+                        }
+                    }
+                }
+
                 if (SelectedFilePreviews.Count != 0)
                 {
                     IsUploadingPhotos = true;
@@ -555,7 +584,6 @@ namespace FrontBlazor.ViewModel
                             }
                         }
 
-                        // ✅ Ensuite crée les associations Recense
                         if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
                         {
                             Console.WriteLine($"📎 Création de {tagDTOs.Count} associations Recense...");

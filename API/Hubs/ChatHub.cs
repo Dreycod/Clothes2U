@@ -1,4 +1,5 @@
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using API.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -8,10 +9,13 @@ namespace API.Hubs;
 public class ChatHub : Hub
 {
     private readonly INotificationService _notificationService;
+    private readonly IMessageService _messageService;
     public ChatHub(
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IMessageService messageService)
     {
         _notificationService = notificationService;
+        _messageService = messageService;
     }
     // Cette méthode n'est plus utilisée directement - c'est le controller qui broadcast
     public async Task SendMessage(int conversationId, int senderId, string message, List<int> photoIds)
@@ -57,6 +61,7 @@ public class ChatHub : Hub
         // Notifier tous les membres du groupe
         await Clients.Group(groupName).SendAsync("MessagesRead", conversationId, userId);
         await _notificationService.DeleteMessagesNotificationByConversationId(conversationId,  userId);
+        await _messageService.SendMessageCount(userId);
         Console.WriteLine($"[Hub] ✅ Broadcasted MessagesRead to group {groupName}");
     }
     

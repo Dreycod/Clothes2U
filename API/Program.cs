@@ -253,9 +253,9 @@ builder.Services.AddScoped<ITransactionRepository<Transaction, int>, Transaction
 builder.Services.AddScoped<IPasswordResetRepository<PasswordResetToken, int>, PasswordResetManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Mesure>, MesureManager>();
 builder.Services.AddScoped<IClusterRepository, ClusterManager>(); 
-builder.Services.AddScoped<ICaracteristiquesRepository<Est_De_Couleur>, EstDeCouleurManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
+builder.Services.AddScoped<IEstDeCouleurRepository<Est_De_Couleur, int>, EstDeCouleurManager>();
 
 
 //services
@@ -287,6 +287,7 @@ builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
 builder.Services.AddScoped<IDataRepository<NotificationAchatAnnonce, int>, NotificationAchatManager>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationHubService, NotificationHubService>();

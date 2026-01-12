@@ -17,6 +17,7 @@ public interface ISignalRService
     
     // Événement pour les notifications
     event Action<int>? OnNotificationCountUpdated;
+    event Action<int>? OnMessageCountUpdated;
     
     // Propriétés de connexion
     bool IsConnected { get; }
