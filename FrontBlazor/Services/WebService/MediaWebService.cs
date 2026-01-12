@@ -175,9 +175,18 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
 
     public async Task<ValidationResponseDTO> ValidationImageAsync(bool Reponse, int Photoid)
     {
-        var response = await PostWithCredentialsAsync($"Medias/validationImage?reponse={Reponse}&photoId={Photoid}", null);
+        var response = await PostWithCredentialsAsync($"Medias/Validation?Reponse={Reponse}&PhotoID={Photoid}", null);
         response.EnsureSuccessStatusCode();
         var validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponseDTO>();
         return validationResponse!;
     }
+
+    public async Task<List<PhotoDTO>> GetAllPhotosValidation()
+    {
+        var response =  await GetWithCredentialsAsync("Medias/Photos/GetAllPhotosValidation");
+        response.EnsureSuccessStatusCode();
+        var photos = await response.Content.ReadFromJsonAsync<List<PhotoDTO>>();
+        return photos ?? new List<PhotoDTO>();
+    }
+
 }
