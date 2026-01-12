@@ -13,9 +13,12 @@ public class Photo : IEntity
     
     [Column("pho_image", TypeName = "bytea")]
     public byte[] Image { get; set; }
-    
+
+    [Column("pho_validation")]
+    public bool? EnAttenteValidation { get; set; }
+
     //relaiton avec les autres tables
-    
+
     [InverseProperty(nameof(Illustre_Annonce.Photo))]
     public virtual ICollection<Illustre_Annonce> Annonces { get; set; } = new List<Illustre_Annonce>();
     

@@ -38,7 +38,8 @@ public class PhotoManager : GenericCRUDManager<Photo>, IPhotoRepository
 
         var photo = new Photo
         {
-            Image = imageBytes
+            Image = imageBytes,
+            EnAttenteValidation = photoDto.EnAttenteValidation
         };
 
         _context.Photos.Add(photo);

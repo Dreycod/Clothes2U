@@ -6,6 +6,7 @@ using API.Models.Repository;
 using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
+using API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,9 +29,12 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageEstRecu, int> _messageEstRecuManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
+    private readonly IAnnonceRepository<Annonce, int, int> _annonceService;
+    private readonly IOrderRepository _orderService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub> _hubContext;
+    private readonly IMessageService _messageService;
 
     public MessageController(
         IMessageRepository messageManager,
@@ -41,9 +45,12 @@ public class MessageController : ControllerBase
         IDataRepository<MessageContientImage, int> messageContientImageManager,
         IDataRepository<MessageEnvoieColis, int> messageEnvoieColisManager,
         IDataRepository<MessageEstRecu, int> messageEstRecuManager,
+        IAnnonceRepository<Annonce, int, int> annonceService,
+        IOrderRepository orderService,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
+        IMessageService messageService,
         IHubContext<ChatHub> hubContext)
     {
         _messageManager = messageManager;
@@ -55,9 +62,12 @@ public class MessageController : ControllerBase
         _messageEstRecuManager = messageEstRecuManager;
         _notificationService = notificationMessageManager;
         _messageContientImageManager = messageContientImageManager;
+        _annonceService = annonceService;
+        _orderService = orderService;
         _photoService = photoService;
         _mapper = mapper;
         _hubContext = hubContext;
+        _messageService = messageService;
     }
     [Authorize]
     [HttpPost("texte")]
@@ -131,18 +141,27 @@ public class MessageController : ControllerBase
                         : dto.Content[..Math.Min(50, dto.Content.Length)]
                  };
                  await _notificationService.CreateNotification(notification);
-                 
+                 await _messageService.SendMessageCount((int)targetUserId);
                  // 🔥 BROADCASTER VIA SIGNALR
                  //Console.WriteLine($"[MessageController] 📡 Broadcasting to group: conversation_{message.ConversationId}");
                  
-                 await _hubContext.Clients
-                     .Group($"conversation_{message.ConversationId}")
-                     .SendAsync("ReceiveMessage", 
-                         message.ConversationId, 
-                         message.UtilisateurId, 
-                         dto.Content, 
-                         photoIds,
-                         message.MessageDate);
+                 try
+                 {
+                     await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                         .SendAsync("ReceiveMessage", 
+                             dto.ConversationId, 
+                             dto.UtilisateurId, 
+                             dto.Content,
+                             photoIds,
+                             message.MessageDate,
+                             message.MessageId);
+        
+                     Console.WriteLine($"[MessageController] ✅ Message notification sent");
+                 }
+                 catch (Exception ex)
+                 {
+                     Console.WriteLine($"[MessageController] ❌ Error sending message notification: {ex.Message}");
+                 }
                  
                  Console.WriteLine($"[MessageController] ✅ Message broadcasted successfully");
              }
@@ -235,7 +254,7 @@ public class MessageController : ControllerBase
     [HttpPost("payee")]
     [ProducesResponseType(typeof(MessageEstPayeePostDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessageValidation(MessageEstPayeePostDTO dto)
+    public async Task<ActionResult<MessageEstPayeePostDTO>> PostMessagePayee(MessageEstPayeePostDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -257,6 +276,22 @@ public class MessageController : ControllerBase
         };
         
         await _messageValidationManager.AddAsync(messageValidation);
+        
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                .SendAsync("ReceivePayment", 
+                    dto.ConversationId, 
+                    message.MessageId, 
+                    dto.UtilisateurId, 
+                    message.MessageDate);
+        
+            Console.WriteLine($"[MessageController] ✅ Payment notification sent for conversation {dto.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending payment notification: {ex.Message}");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
@@ -295,6 +330,28 @@ public class MessageController : ControllerBase
         messagePayee.EstEnvoye = true;
         
         await _messageValidationManager.UpdateAsync(messagePayee);
+        
+        var order = await _orderService.GetByIdAsync(messagePayee.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        
+        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 2);
+        
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                .SendAsync("ReceiveColisEnvoye", 
+                    dto.ConversationId, 
+                    message.MessageId, 
+                    dto.UtilisateurId, 
+                    photo.PhotoId,
+                    message.MessageDate,
+                    dto.MessageEstPayeeId);
+        
+            Console.WriteLine($"[MessageController] ✅ Colis envoyé notification sent for conversation {dto.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending colis envoyé notification: {ex.Message}");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
     }
@@ -337,7 +394,29 @@ public class MessageController : ControllerBase
         }
         await _messageEstRecuManager.AddAsync(messageRecu);
         
-        var messageEnvoieColis = await _messageEnvoieColisManager.GetByIdAsync(dto.MessageEstEnvoieId);
+        var order = await _orderService.GetByIdAsync(messageRecu.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        
+        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 3);
+        
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
+                .SendAsync("ReceiveColisRecu", 
+                    dto.ConversationId, 
+                    message.MessageId, 
+                    dto.UtilisateurId, 
+                    dto.EstConforme,
+                    messageRecu.PhotoId != null ? messageRecu.PhotoId : 0,
+                    dto.Description,
+                    message.MessageDate,
+                    dto.MessageEstEnvoieId);
+        
+            Console.WriteLine($"[MessageController] ✅ Colis reçu notification sent for conversation {dto.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending colis reçu notification: {ex.Message}");
+        }
         
         
         return CreatedAtAction(nameof(GetById), new { id = message.MessageId }, dto);
@@ -357,10 +436,36 @@ public class MessageController : ControllerBase
 
         if (messagePayee.EstEnvoye) return BadRequest();
         
+        if (messagePayee.EstAnnule) return BadRequest();
+        
+        
+        
         messagePayee.EstAnnule = true;
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
+        var annonce = await _annonceService.GetByIdAsync(messagePayee.Message.ConversationId);
+        annonce.StatutAnnonceId = 1;
+        await _annonceService.UpdateAsync(annonce);
+        
+        var order = await _orderService.GetByIdAsync(messagePayee.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 4);
+        
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
+                .SendAsync("ReceivePaymentCancelled", 
+                    messagePayee.Message.ConversationId, 
+                    messagePayee.MessageId,
+                    messagePayee.Message.UtilisateurId);
+        
+            Console.WriteLine($"[MessageController] ✅ Payment cancelled notification sent for conversation {messagePayee.Message.ConversationId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
+        }
+       
         return NoContent();
     }
     
@@ -405,16 +510,23 @@ public class MessageController : ControllerBase
         var message = await _messageManager.GetByIdAsync(messageId);
         if (message == null) return NotFound();
         
-        var newMessage = _mapper.Map<Message>(message);
-        newMessage.MessageLu = true; 
+        message.MessageLu = true; 
         
-        await _messageManager.UpdateAsync(newMessage);
+        await _messageManager.UpdateAsync(message);
         
         // Notifier SignalR
         // Dans MessageController après avoir sauvegardé le message
-        await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
-            .SendAsync("ReceiveMessage", message.ConversationId, message.UtilisateurId, message.MessageTexte.Content, message.MessageDate);
-
+        try
+        {
+            await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
+                .SendAsync("MessagesRead", message.ConversationId, message.UtilisateurId);
+        
+            Console.WriteLine($"[MessageController] ✅ MessagesRead notification sent");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MessageController] ❌ Error sending MessagesRead notification: {ex.Message}");
+        }
         return NoContent();
     }
 

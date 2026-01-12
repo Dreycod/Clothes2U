@@ -27,7 +27,22 @@
                         {
                             var index = i;
                             <div class="uploaded-photo">
-                                <img src="@VM_CreationAnnonce.SelectedFilePreviews[i].PreviewBase64" alt="Photo" />
+                                <img src="@VM_CreationAnnonce.SelectedFilePreviews[i].PreviewBase64"
+                                     alt="Photo" />
+
+                                @if (VM_CreationAnnonce.SelectedFilePreviews[i].IsDangerous)
+                                {
+                                    <div class="danger-badge">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                }
+                                else if (VM_CreationAnnonce.SelectedFilePreviews[i].IsTextile == false)
+                                {
+                                    <div class="danger-badge">
+                                        <i class="bi bi-question-circle-fill"></i>
+                                    </div>
+                                }
+
                                 <button type="button"
                                         class="remove-photo-btn"
                                         @onclick="() => RemovePhoto(index)"
@@ -62,6 +77,41 @@
                 }
             </div>
         </div>
+
+        @if (VM_CreationAnnonce.API_Messages.Any())
+        {
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Attention:</strong>
+                    <ul>
+                        @foreach (var message in VM_CreationAnnonce.API_Messages)
+                        {
+                            <li>@message</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+        @if (VM_CreationAnnonce.SelectedFilePreviews.Any(p => p.IsDangerous))
+        {
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <p>
+                    ⚠️ Une ou plusieurs photos ont été détectées comme potentiellement dangereuses.
+                </p>
+            </div>
+        }
+        @if (VM_CreationAnnonce.SelectedFilePreviews.Any(p => p.IsTextile == false))
+        {
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <p>
+                    ⚠️ Une ou plusieurs photos n'ont pas été reconnues comme des articles textiles.
+                </p>
+            </div>
+        }
 
         <!-- ============================================ -->
         <!-- SECTION 2: INFORMATIONS DE L'ARTICLE -->
@@ -469,6 +519,11 @@
                     <span class="spinner-small-inline"></span>
                     <span>Mise à jour des tags...</span>
                 }
+                else if (VM_CreationAnnonce.SelectedFilePreviews.Any(p => p.IsDangerous))
+                {
+                  <i class="bi bi-check-lg"></i>
+                  <span>Publier l'article en analyse</span>
+                }
                 else
                 {
                     <i class="bi bi-check-lg"></i>
@@ -524,6 +579,7 @@
     {
         Console.WriteLine($"[Page] 🗑️ Removing photo at index {index}");
         VM_CreationAnnonce.RemoveSelectedPhotoAt(index);
+        
     }
 
     // Marque Dropdown

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers
 {
-    public class EstDeCouleurManager : GenericCRUDManager<Est_De_Couleur>, ICaracteristiquesRepository<Est_De_Couleur>
+    public class EstDeCouleurManager : GenericCRUDManager<Est_De_Couleur>, IEstDeCouleurRepository<Est_De_Couleur, int>
     {
         public EstDeCouleurManager(Clothes2UDbContext context) : base(context) { }
 
@@ -18,6 +18,11 @@ namespace API.Models.Repository.Managers
                 .Include(a => a.Couleur)
                 .Include(a => a.Annonce)
                 .AsSplitQuery();
+        }
+        public async Task<Est_De_Couleur?> GetByEstDeCouleurId(int id)
+        {
+            return await BaseEstDeCouleurQuery()
+                .FirstOrDefaultAsync(e => e.EstDeCouleurId == id);
         }
     }
 }

@@ -63,8 +63,9 @@ namespace FrontBlazor.ViewModel
             IAuthService authService,
             IMediasService mediaService,
             INotificationService notificationService,
+            ISignalRService notificationHubService,
             IBloqueService bloqueService)
-            : base(navigationManager, authService, notificationService)
+            : base(navigationManager, authService,notificationHubService, notificationService)
         {
             _navigationManager = navigationManager;
             _utilisateurService = utilisateurService;

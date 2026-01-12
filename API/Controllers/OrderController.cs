@@ -69,7 +69,8 @@ public class OrderController : ControllerBase
                 FraisService = dto.FraisService,
                 FraisLivraison = dto.FraisLivraison,
                 StripePaymentIntentId = dto.StripePaymentIntentId,
-                Statut = "Payée",
+                StatutCommandeId = dto.StatutCommandeId,
+                ConversationId =dto.ConversationId,
                 DateCommande = DateTime.UtcNow
             };
 
@@ -163,14 +164,14 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDTO dto)
     {
-        var success = await _orderRepository.UpdateOrderStatusAsync(id, dto.Statut, dto.NumeroSuivi);
+        var success = await _orderRepository.UpdateOrderStatusAsync(id, dto.StatusCommandeId, dto.NumeroSuivi);
         
         if (!success)
         {
             return NotFound();
         }
 
-        _logger.LogInformation($"✅ Order {id} status updated to: {dto.Statut}");
+        _logger.LogInformation($"✅ Order {id} status updated to: {dto.StatusCommandeId}");
         return NoContent();
     }
 
@@ -186,8 +187,8 @@ public class OrderController : ControllerBase
         var stats = new OrderStatsDTO
         {
             TotalCommandes = orders.Count,
-            CommandesEnCours = orders.Count(o => o.Statut == "Payée" || o.Statut == "Expédiée"),
-            CommandesLivrees = orders.Count(o => o.Statut == "Livrée"),
+            CommandesEnCours = orders.Count(o => o.StatutCommande.Libelle == "Payée" || o.StatutCommande.Libelle == "Expédiée"),
+            CommandesLivrees = orders.Count(o => o.StatutCommande.Libelle == "Livrée"),
             MontantTotal = orders.Sum(o => o.MontantTotal)
         };
 

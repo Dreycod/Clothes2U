@@ -49,9 +49,10 @@ namespace FrontBlazor.ViewModel
             IFavorisService<FavorisDTO> favorisService,
             IAuthService authService,
             NavigationManager navigationManager,
+            ISignalRService notificationHubService,
             INotificationService notificationService
             )
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService,notificationHubService, notificationService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;

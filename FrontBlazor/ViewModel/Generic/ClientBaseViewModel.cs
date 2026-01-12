@@ -8,12 +8,13 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel.Generic;
 
-public class ClientBaseViewModel
+public class ClientBaseViewModel : IAsyncDisposable
 {
     protected readonly IAuthService  _authService;
     protected readonly NavigationManager _nav;
     private SearchAnnonceViewModel? _searchViewModel;
     private readonly INotificationService _notificationService;
+    private readonly ISignalRService _signalRService;
 
     public int NotificationCount { get; set; }
     public int MessageCount { get; set; }
@@ -36,12 +37,16 @@ public class ClientBaseViewModel
     public ClientBaseViewModel(
         NavigationManager nav,
         IAuthService authService,
+        ISignalRService signalRService,
         INotificationService notificationService
         )
     {
         _notificationService =  notificationService;
         _nav = nav;
+        _signalRService = signalRService;
         _authService = authService;
+        _signalRService.OnNotificationCountUpdated += HandleNotificationCountUpdate;
+        _signalRService.OnMessageCountUpdated += HandleUnReadMesssageCountUpdate;
     }
     
     protected void NotifyStateChanged()
@@ -62,6 +67,7 @@ public class ClientBaseViewModel
             IsLoggedIn = true;
             utilisateur = user;
             RoleUtilisateur = user.RoleUtilisateur;
+            await _signalRService.StartNotificationHubAsync();
             if (user.Statut != "Actif")
             {
                 _nav.NavigateTo("/Sanction");
@@ -153,12 +159,28 @@ public class ClientBaseViewModel
         {
             IsLoggedIn = false;
             showDropdown = false;
+        
+            await _signalRService.StopAsync();
             await _authService.LogoutAsync();
             _nav.NavigateTo(_nav.Uri, true);
         }
         
-       
-    
+        private void HandleNotificationCountUpdate(int count)
+        {
+            NotificationCount = count;
+            NotifyStateChanged();
+        }
+
+        private void HandleUnReadMesssageCountUpdate(int count)
+        {
+            MessageCount = count;
+            NotifyStateChanged();
+        }
+        public async ValueTask DisposeAsync()
+        {
+            _signalRService.OnNotificationCountUpdated -= HandleNotificationCountUpdate;
+            await _signalRService.StopAsync();
+        }
 
         public async Task DeleteNotification(int id)
         {
@@ -217,4 +239,8 @@ public class ClientBaseViewModel
             showDropDownNotification = false;
             NotifyStateChanged();
         }
+        
+        
+
+      
 }

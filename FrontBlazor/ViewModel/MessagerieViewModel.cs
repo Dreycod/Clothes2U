@@ -5,6 +5,7 @@ using Shared.DTO.Conversation;
 using Shared.DTO.Message;
 using Shared.DTO.Utilisateur;
 using FrontBlazor.Services.Interfaces;
+using FrontBlazor.Services.WebService;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -23,6 +24,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public readonly ISignalRService _signalRService;
     private readonly ISignalementService _signalementService;
     private readonly IUtilisateurService _utilisateurService;
+    private readonly SignalRHandlerWebService _signalRHandler;
     private readonly NavigationManager _nav;
 
     public ObservableCollection<ConversationDTO> Conversations { get; private set; } = new();
@@ -39,9 +41,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public List<IBrowserFile> SelectedFile { get; set; }
     public List<(IBrowserFile File, string PreviewBase64)> SelectedFilePreviews { get; set; } = new();
     public bool IsLoading { get; private set; } = false;
-    public bool IsTyping { get; private set; } = false;
     public string? PriceProposalError { get; set; }
-    public string TypingUserName { get; private set; } = "";
 
     public ElementReference MessagesContainer;
     public event Action? OnMessageReceivedUI; 
@@ -49,6 +49,9 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     private System.Threading.Timer? _typingTimer;
     private System.Threading.Timer? _typingDisplayTimer;
     private bool _typingNotified = false;
+    
+    public bool IsTyping => _signalRHandler.IsTyping;
+    public string TypingUserName => _signalRHandler.TypingUserName;
 
     public List<string> ErrorMessages { get; private set; } = new();
     public bool ShowReportModal { get; set; }
@@ -74,11 +77,12 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         IMessageService messageService,
         IMediasService mediaService,
         NavigationManager nav,
-        ISignalRService signalRService,
         ISignalementService signalementService,
         NavigationManager navigationManager,
-    INotificationService notificationService)
-        : base(navigationManager, authService, notificationService)
+        ISignalRService signalRService,
+        SignalRHandlerWebService signalRHandlerWebService,
+        INotificationService notificationService)
+        : base(navigationManager, authService,signalRService, notificationService)
     
     {
         _conversationService = conversationService;
@@ -88,13 +92,17 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         _signalRService = signalRService;
         _utilisateurService = utilisateurService;
         _mediaService = mediaService;
+        _signalRHandler = signalRHandlerWebService;
         _signalementService = signalementService;
         
-        _signalRService.OnMessageReceived += HandleMessageReceived;
-        _signalRService.OnUserTyping += HandleUserTyping;
-        _signalRService.OnMessagesRead += HandleMessagesRead;
-        _signalRService.OnProposalResponse += HandleProposalResponse;
-        _signalRService.OnPriceProposalReceived += HandlePriceProposalReceived;
+        _signalRHandler.OnStateChanged += NotifyStateChanged;
+        _signalRHandler.OnMessageReceivedUI += () => OnMessageReceivedUI?.Invoke();
+        
+        // _signalRHandler.OnMessageReceived += HandleMessageReceived;
+        // _signalRHandler.OnUserTyping += HandleUserTyping;
+        // _signalRHandler.OnMessagesRead += HandleMessagesRead;
+        // _signalRHandler.OnProposalResponse += HandleProposalResponse;
+        // _signalRHandler.OnPriceProposalReceived += HandlePriceProposalReceived;
     }
 
     public override async Task LoadAsync()
@@ -144,6 +152,15 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             }
         }
 
+        if (utilisateur != null)
+        {
+            _signalRHandler.SetContext(
+                SelectedConversation,
+                Conversations,
+                SelectedConversationId,
+                utilisateur.UtilisateurId
+            );
+        }
         
         IsLoading = false;
         NotifyStateChanged();
@@ -155,6 +172,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             utilisateur = await _authService.GetCurrentUserAsync();
 
         SelectedConversationId = conversationId;
+        
         var conv = await _conversationService.GetConversationDetailById(conversationId);
 
         if (conv != null)
@@ -221,7 +239,19 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         // ✅ Mettre à jour localement
         NotificationCount = updateNotifs.NotificationsCount;
         MessageCount = updateNotifs.MessagesCount;
+        
         await base.LoadAsync(); 
+        
+        if (utilisateur != null)
+        {
+            _signalRHandler.SetContext(
+                SelectedConversation,
+                Conversations,
+                SelectedConversationId,
+                utilisateur.UtilisateurId
+            );
+        }
+    
         await _signalRService.MarkMessagesAsRead(conversationId, utilisateur!.UtilisateurId);
         NotifyStateChanged();
     }
@@ -287,7 +317,16 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                     Console.WriteLine($"[VM] Error moving conversation to top after sending: {ex.Message}");
                 }
             }
-            
+                
+            if (utilisateur != null)
+            {
+                _signalRHandler.SetContext(
+                    SelectedConversation,
+                    Conversations,
+                    SelectedConversationId,
+                    utilisateur.UtilisateurId
+                );
+            }
         }
         catch (Exception ex)
         {
@@ -306,7 +345,6 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         
         PriceProposalError = null;
 
-        // ❌ Prix supérieur au prix actuel
         if (proposedPrice > SelectedConversation.PrixAnnonce)
         {
             PriceProposalError = "Le prix proposé ne peut pas être supérieur au prix.";
@@ -339,6 +377,16 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             {
                 conv.LastMessage = $"Proposition: {proposedPrice} €";
                 conv.HasNewMessages = false;
+            }
+            
+            if (utilisateur != null)
+            {
+                _signalRHandler.SetContext(
+                    SelectedConversation,
+                    Conversations,
+                    SelectedConversationId,
+                    utilisateur.UtilisateurId
+                );
             }
 
             NotifyStateChanged();
@@ -409,6 +457,16 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
                 messageId, 
                 accepted
             );
+            
+            if (utilisateur != null)
+            {
+                _signalRHandler.SetContext(
+                    SelectedConversation,
+                    Conversations,
+                    SelectedConversationId,
+                    utilisateur.UtilisateurId
+                );
+            }
 
             NotifyStateChanged();
         }
@@ -418,144 +476,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             throw;
         }
     }
-
-    private async void HandleMessageReceived(int conversationId, int senderId, string message, List<int> photoIds, DateTime date)
-    {
-        if (SelectedConversation != null && SelectedConversation.ConversationId == conversationId)
-        {
-            var exists = SelectedConversation.ListMessages?.Any(m =>
-                m.SenderId == senderId &&
-                //m.Content == message &&
-                m.Date.HasValue &&
-                Math.Abs((m.Date.Value - date).TotalSeconds) < 2
-            ) ?? false;
-
-            if (!exists)
-            {
-                var newMessage = new MessageTextDTO()
-                {
-                    Content = message,
-                    SenderId = senderId,
-                    Date = date,
-                    SentByCurrentUser = senderId == utilisateur?.UtilisateurId,
-                    Photos = photoIds,
-                    Lu = false // ✅ Nouveau message non lu
-                };
-
-                SelectedConversation.ListMessages?.Add(newMessage);
-
-                var previewConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
-                if (previewConv != null)
-                {
-                    previewConv.LastMessage = message;
-                }
-                
-                // Marquer automatiquement comme lu si on est dans la conversation
-                if (senderId != utilisateur?.UtilisateurId)
-                {
-                    try
-                    {
-                        // Appeler l'API
-                        await _messageService.MaskAsRead(newMessage.MessageId.Value);
-                        
-                        // Mettre à jour localement seulement si l'API a réussi
-                        newMessage.Lu = true;
-                        
-                        // Notifier SignalR
-                        await _signalRService.MarkMessagesAsRead(conversationId, utilisateur!.UtilisateurId);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[VM] ❌ Error auto-marking message as read: {ex.Message}");
-                    }
-                }
-            }
-
-            NotifyStateChanged();
-            OnMessageReceivedUI?.Invoke();
-        }
-        else
-        {
-            var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
-            if (conv != null)
-            {
-                conv.LastMessage = message;
-                conv.HasNewMessages = true;
-
-                try
-                {
-                    Conversations.Remove(conv);
-                    Conversations.Insert(0, conv);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[VM] Error moving conversation to top: {ex.Message}");
-                }
-
-            }
-
-            NotifyStateChanged();
-        }
-    }
-
-    private void HandleMessagesRead(int conversationId, int userId)
-    {
-        // L'autre utilisateur a lu nos messages
-        if (userId != utilisateur?.UtilisateurId)
-        {
-            ConversationDTO? targetConv = null;
-        
-            if (SelectedConversationId == conversationId && SelectedConversation != null)
-            {
-                targetConv = SelectedConversation;
-            }
-            else
-            {
-                targetConv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
-            }
-
-            if (targetConv?.ListMessages != null)
-            {
-                // Marquer MES messages envoyés comme lus
-                var mySentMessages = targetConv.ListMessages
-                    .Where(m => m.SenderId == utilisateur!.UtilisateurId && m.SentByCurrentUser == true && m.Lu == false)
-                    .ToList();
-            
-                if (mySentMessages.Any())
-                {
-                    foreach (var m in mySentMessages)
-                    {
-                        m.Lu = true;
-                    }
-                    NotifyStateChanged();
-                }
-            }
-        }
-    }
-
-    private void HandleUserTyping(int conversationId, int userId, string userName)
-    {
-        // CORRECTION 4 : Ne pas afficher si c'est nous ou si ce n'est pas la conversation active
-        if (SelectedConversationId != conversationId || userId == utilisateur?.UtilisateurId)
-        {
-            return;
-        }
-
-        // Afficher le nom de l'interlocuteur
-        IsTyping = true;
-        TypingUserName = userName;
-        NotifyStateChanged();
-
-        // Arrêter l'indicateur après 3 secondes
-        _typingDisplayTimer?.Dispose();
-        _typingDisplayTimer = new System.Threading.Timer(_ =>
-        {
-            IsTyping = false;
-            TypingUserName = "";
-            NotifyStateChanged();
-        }, null, 3000, Timeout.Infinite);
-    }
-
+    
     public void HandleTyping(KeyboardEventArgs e)
     {
         if (SelectedConversation == null || utilisateur == null)
@@ -574,82 +495,19 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         
         _ = _signalRService.NotifyTyping(SelectedConversation.ConversationId, utilisateur.UtilisateurId, utilisateur.Login ?? "Utilisateur");
     }
-    
-    private void HandleProposalResponse(int conversationId, int messageId, bool accepted)
-    {
-        if (SelectedConversation?.ConversationId == conversationId)
-        {
-            var message = SelectedConversation.ListMessages?
-                .OfType<MessageDemandeDTO>()
-                .FirstOrDefault(m => m.MessageId == messageId);
-
-            if (message != null)
-            {
-                message.EstAcceptee = accepted;
-                message.EstRepondue = true;
-                SelectedConversation.Prix = accepted ? message.PrixPropose : 0;
-                NotifyStateChanged();
-            }
-        }
-    }
-
-    private void HandlePriceProposalReceived(int conversationId, int messageId, int senderId, decimal proposedPrice, DateTime date)
-    {
-        if (SelectedConversation?.ConversationId == conversationId)
-        {
-            var exists = SelectedConversation.ListMessages?.Any(m => m.MessageId == messageId) ?? false;
-
-            if (!exists)
-            {
-                var newDemande = new MessageDemandeDTO
-                {
-                    MessageId = messageId,
-                    ConversationId = conversationId,
-                    SenderId = senderId,
-                    Date = date,
-                    PrixPropose = proposedPrice,
-                    EstAcceptee = false,
-                    EstRepondue = false,
-                    SentByCurrentUser = senderId == utilisateur?.UtilisateurId
-                };
-            
-                SelectedConversation.ListMessages?.Add(newDemande);
-                NotifyStateChanged();
-                OnMessageReceivedUI?.Invoke();
-            }
-        }
-        else
-        {
-            var conv = Conversations.FirstOrDefault(c => c.ConversationId == conversationId);
-            if (conv != null)
-            {
-                conv.LastMessage = $"Proposition: {proposedPrice} €";
-                conv.HasNewMessages = true;
-
-                try
-                {
-                    Conversations.Remove(conv);
-                    Conversations.Insert(0, conv);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[VM] Error moving conversation to top: {ex.Message}");
-                }
-            }
-
-            NotifyStateChanged();
-        }
-    }
 
     public void Dispose()
     {
-        _signalRService.OnMessageReceived -= HandleMessageReceived;
-        _signalRService.OnUserTyping -= HandleUserTyping;
-        _signalRService.OnMessagesRead -= HandleMessagesRead;
-        _signalRService.OnProposalResponse -= HandleProposalResponse; 
-        _signalRService.OnPriceProposalReceived -= HandlePriceProposalReceived;
+        _signalRHandler.SetContext(
+            selectedConversation: null,
+            conversations: Conversations,
+            selectedConversationId: null,
+            currentUserId: utilisateur?.UtilisateurId ?? 0
+        );
+        
+        _signalRHandler.OnStateChanged -= NotifyStateChanged;
+        _signalRHandler.Dispose();
         _typingTimer?.Dispose();
-        _typingDisplayTimer?.Dispose();
     }
     
     private async Task<byte[]> ConvertIBrowserFileToBytesAsync(IBrowserFile file)
@@ -899,20 +757,20 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     NotifyStateChanged();
 }
 
-public void FermerModalReception()
-{
-    ShowReceptionModal = false;
-    ColisEstConforme = false;
-    ReceptionDescription = "";
-    ReceptionPhoto = null;
-    ReceptionPhotoPreviewBase64 = null;
-    ReceptionError = null;
-    CurrentMessageEnvoieColisId = null;
-    NotifyStateChanged();
-}
+    public void FermerModalReception()
+    {
+        ShowReceptionModal = false;
+        ColisEstConforme = false;
+        ReceptionDescription = "";
+        ReceptionPhoto = null;
+        ReceptionPhotoPreviewBase64 = null;
+        ReceptionError = null;
+        CurrentMessageEnvoieColisId = null;
+        NotifyStateChanged();
+    }
 
-public async Task OnReceptionPhotoSelected(InputFileChangeEventArgs e)
-{
+    public async Task OnReceptionPhotoSelected(InputFileChangeEventArgs e)
+    {
     ReceptionError = null;
     ReceptionPhoto = null;
     ReceptionPhotoPreviewBase64 = null;
@@ -942,8 +800,8 @@ public async Task OnReceptionPhotoSelected(InputFileChangeEventArgs e)
     NotifyStateChanged();
 }
 
-public async Task ConfirmerReceptionColisAsync()
-{
+    public async Task ConfirmerReceptionColisAsync()
+    {
     if (SelectedConversation == null || utilisateur == null || CurrentMessageEnvoieColisId == null)
         return;
 
@@ -1012,5 +870,6 @@ public async Task ConfirmerReceptionColisAsync()
         IsSendingReception = false;
         NotifyStateChanged();
     }
+
 }
 }

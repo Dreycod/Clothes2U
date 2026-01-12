@@ -48,5 +48,11 @@ namespace API.Models.Repository.Managers
                 .FirstOrDefaultAsync(b => b.UtilisateurBloqueurId == bloqueurId &&
                                           b.UtilisateurBloqueId == bloqueId);
         }
+
+        public async Task<List<int>> GetUserBlockedIds(int userId)
+        {
+            return await _context.Bloques.Where(b => b.UtilisateurBloqueurId == userId)
+                .Select(b =>b.UtilisateurBloqueId).ToListAsync();
+        }
     }
 }

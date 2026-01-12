@@ -145,6 +145,10 @@
                     <p class="description-text">
                         @(annonce.Description ?? "Aucune description disponible.")
                     </p>
+                    @foreach (string couleur in annonce.Couleurs)
+                    {
+                        <p>@couleur</p>
+                    }
                 </div>
 
                 <div class="tags-section">
@@ -154,7 +158,7 @@
                         {
                             @foreach (string tag in VM_DetailAnnonce.AnnonceDetail.Tags)
                             {
-                                <AnnonceTag Tag="tag"/>
+                                <AnnonceTag Tag="@tag" />
                             }
                         }
                         else

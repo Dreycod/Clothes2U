@@ -10,6 +10,7 @@ using Shared.DTO.Categorie;
 using Shared.DTO.EtatArticle;
 using Shared.DTO.Favoris;
 using Shared.DTO.Marque;
+using Shared.DTO.SousCategorie;
 using Shared.DTO.Taille;
 using Shared.DTO.Utilisateur;
 
@@ -51,10 +52,7 @@ namespace FrontBlazor.ViewModel
         public string? ErrorMessage { get; set; }
         public string? Query { get; set; }
 
-        public List<string> SelectedCategories { get; set; } = new();
-        public List<string> SelectedSousCategories { get; set; } = new();
         public List<string> SelectedMarques { get; set; } = new();
-        public List<string> SelectedTailles { get; set; } = new();
         public List<string> SelectedGenres { get; set; } = new();
         public List<string> SelectedEtats { get; set; } = new();
         public HashSet<int> ExpandedCategories { get; set; } = new();
@@ -82,8 +80,9 @@ namespace FrontBlazor.ViewModel
             INotificationService notificationPopUpService,
             NavigationManager navigationManager,
             INotificationService notificationService,
+            ISignalRService notificationHubService,
             LoginViewModel vM_Login)
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService, notificationHubService,notificationService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
@@ -146,13 +145,47 @@ namespace FrontBlazor.ViewModel
         }
 
         #region Filter Actions
-        public void ToggleCategory(int categoryId)
-        {
-            if (ExpandedCategories.Contains(categoryId))
-                ExpandedCategories.Remove(categoryId);
-            else
-                ExpandedCategories.Add(categoryId);
+        public CategorieDTO? SelectedCategory { get; set; }
 
+        public async Task ToggleCategory(CategorieDTO categorie)
+        {
+            if (SelectedCategory?.IdCategorie == categorie.IdCategorie)
+            {
+                SelectedCategory = null;
+                SelectedSousCategory = null;
+                TaillesDisponibles = null;
+                SelectedTaille = null;
+            }
+            else
+            {
+                TaillesDisponibles = null;
+                SelectedCategory = categorie;
+            }
+
+            await OnFilterChanged(); 
+            NotifyStateChanged();
+        }
+        public SousCategorieDTO? SelectedSousCategory { get; set; }
+        public List<TailleDTO>? TaillesDisponibles { get; set; } = null;
+
+        public async Task ToggleSousCategory(SousCategorieDTO sousCategorie)
+        {
+            if (SelectedSousCategory?.SousCategorieId == sousCategorie.SousCategorieId) // ✅ Ajoute le ?
+            {
+                TaillesDisponibles = null;
+                SelectedSousCategory = null;
+                SelectedTaille = null;
+            }
+            else
+            {
+                SelectedSousCategory = sousCategorie;
+                TaillesDisponibles = Tailles.Where(t => 
+                    t.Mesures != null && 
+                    t.Mesures.Any(m => m.SousCategorieId == SelectedSousCategory.SousCategorieId)
+                ).ToList();
+            }
+    
+            await OnFilterChanged(); 
             NotifyStateChanged();
         }
 
@@ -168,10 +201,10 @@ namespace FrontBlazor.ViewModel
 
         public async Task ResetFilters()
         {
-            SelectedCategories.Clear();
-            SelectedSousCategories.Clear();
+            SelectedCategory = null;
+            SelectedSousCategory = null;
             SelectedMarques.Clear();
-            SelectedTailles.Clear();
+            SelectedTaille = null;
             SelectedGenres.Clear();
             ExpandedCategories.Clear();
             CurrentPage = 1;
@@ -198,19 +231,33 @@ namespace FrontBlazor.ViewModel
         {
             await OnFilterChanged();
         }
+        public TailleDTO? SelectedTaille { get; set; }
+
+        public async Task ToggleSelectedTaille(TailleDTO taille)
+        {
+            if (SelectedTaille?.TailleId == taille.TailleId)
+            {
+                SelectedTaille = null;
+            }
+            else
+            {
+                SelectedTaille = taille;
+            }
+
+            await OnFilterChanged(); 
+            NotifyStateChanged();
+        }
 
         private async Task ApplyFilters()
         {
-            Console.WriteLine("ordre : " + SelectedSortOrder);
-            Console.WriteLine("champs : " + SelectedSortField);
             var filterRequest = new FilterDTO
             {
                 MotCle = Query,
-                Categories = SelectedCategories,
-                SousCategories = SelectedSousCategories,
+                Categories = SelectedCategory?.LibelleCategorie,
+                SousCategories = SelectedSousCategory?.LibelleSousCategorie,
                 Etats = SelectedEtats,
                 Marques = SelectedMarques,
-                Tailles = SelectedTailles,
+                Tailles = SelectedTaille?.Libelletaille,
                 Genre = SelectedGenres,
                 PrixMax = SelectedMaxPrice,
                 PrixMin = SelectedMinPrice,
@@ -315,10 +362,10 @@ namespace FrontBlazor.ViewModel
             var filterRequest = new FilterDTO
             {
                 MotCle = Query,
-                Categories = SelectedCategories,
-                SousCategories = SelectedSousCategories,
+                Categories = SelectedCategory?.LibelleCategorie,
+                SousCategories = SelectedSousCategory?.LibelleSousCategorie,
                 Marques = SelectedMarques,
-                Tailles = SelectedTailles,
+                Tailles = SelectedTaille?.Libelletaille,
                 Genre = SelectedGenres,
                 PrixMax = SelectedMaxPrice,
                 PrixMin = SelectedMinPrice

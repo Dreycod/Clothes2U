@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Shared.DTO.Annonce;
 using Shared.DTO.Couleur;
 using Shared.DTO.Mesures;
+using Shared.DTO.Detection;
 using System.Collections.ObjectModel;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
@@ -13,9 +14,15 @@ using Shared.DTO.EtatArticle;
 using Shared.DTO.Marque;
 using Shared.DTO.Taille;
 using Shared.DTO.Tag;
+using Shared.DTO.Recense;
+using FrontBlazor.Services.Interfaces.GenericIServices;
+using System.Diagnostics;
+using Shared.DTO.Photo;
+using Shared.DTO.Tag;
 using Shared.DTO.Recense; 
 using FrontBlazor.Services.Interfaces.GenericIServices;
 using System.Diagnostics;
+using FrontBlazor.Services;
 
 namespace FrontBlazor.ViewModel
 {
@@ -30,6 +37,7 @@ namespace FrontBlazor.ViewModel
         private readonly IAuthService _authService;
         private readonly IListableService<MesureDTO> _mesureService;
         private readonly NavigationManager _nav;
+        private readonly ICouleurService<CouleurDTO> _couleurService;
         private readonly ITagService<TagDTO> _tagService;
         public List<CategorieDTO> Categories { get; set; }
         public List<CouleurDTO> Couleurs { get; set; }
@@ -39,19 +47,17 @@ namespace FrontBlazor.ViewModel
         public List<EtatArticleDTO> Etats { get; set; }
 
         private readonly IListableService<CategorieDTO> _categorieService;
-        private readonly IListableService<CouleurDTO> _couleurService;
         private readonly IListableService<MarqueDTO> _marqueService;
         private readonly IListableService<EtatArticleDTO> _etatService;
         private readonly IListableService<GenreDTO> _genreService;
         private readonly IListableService<TailleDTO> _tailleService;
-
         // État de l'annonce en cours de création
         public CreateAnnonceDTO NewAnnonce { get; private set; } = new();
 
         // Photos
         public List<IBrowserFile> SelectedFiles { get; set; } = new();
-        public List<(IBrowserFile File, string PreviewBase64)> SelectedFilePreviews { get; set; } = new();
-
+        public List<(IBrowserFile File, string PreviewBase64, bool IsDangerous, bool IsTextile)> SelectedFilePreviews { get; set; } = new();
+        private bool markAnnonceAsAnalyse = false;
         // IDs des couleurs sélectionnées (multi-sélection)
         public List<int> SelectedCouleurIds { get; private set; } = new();
 
@@ -68,6 +74,7 @@ namespace FrontBlazor.ViewModel
         public bool IsUploadingPhotos { get; private set; } = false;
         public bool IsUpdatingTags { get; private set; } = false;
         public List<string> ErrorMessages { get; private set; } = new();
+        public List<string> API_Messages { get; private set; } = new();
         public bool? HasCreated { get; private set; } = null;
 
         // Event pour notifier les changements d'état
@@ -79,15 +86,16 @@ namespace FrontBlazor.ViewModel
             IAuthService authService,
             IListableService<MesureDTO> mesureService,
             IListableService<CategorieDTO> categorieService,
-            IListableService<CouleurDTO> couleurService,
+            ICouleurService<CouleurDTO> couleurService,
             IListableService<MarqueDTO> marqueService,
             IListableService<EtatArticleDTO> etatService,
             IListableService<GenreDTO> genreService,
-            IListableService<TailleDTO> tailleService, 
+            IListableService<TailleDTO> tailleService,
             NavigationManager navigationManager,
             INotificationService notificationService,
             ITagService<TagDTO> tagService,
-            NavigationManager nav): base(navigationManager, authService, notificationService)
+            ISignalRService notificationHubService,
+            NavigationManager nav): base(navigationManager, authService,notificationHubService, notificationService)
         {
             _annonceService = annonceService ?? throw new ArgumentNullException(nameof(annonceService));
             _mediaService = mediaService ?? throw new ArgumentNullException(nameof(mediaService));
@@ -100,6 +108,7 @@ namespace FrontBlazor.ViewModel
             _etatService = etatService;
             _genreService = genreService;
             _tailleService = tailleService;
+            _tagService = tagService;
             _tagService = tagService;
         }
 
@@ -211,13 +220,13 @@ namespace FrontBlazor.ViewModel
                 {
                     if (file.Size > maxFileSize)
                     {
-                        AddError($"{file.Name} est trop volumineux (max 10MB)");
+                        AddAPIMessage($"{file.Name} est trop volumineux (max 10MB)");
                         continue;
                     }
 
                     if (!file.ContentType.StartsWith("image/"))
                     {
-                        AddError($"{file.Name} n'est pas une image valide");
+                        AddAPIMessage($"{file.Name} n'est pas une image valide");
                         continue;
                     }
 
@@ -227,15 +236,40 @@ namespace FrontBlazor.ViewModel
                     var base64 = Convert.ToBase64String(ms.ToArray());
                     var dataUrl = $"data:{file.ContentType};base64,{base64}";
 
+                    PhotoUploadDTO _photoUpload = new PhotoUploadDTO
+                    {
+                        Base64Data = dataUrl,
+                        FileName = file.Name
+                    };
 
+                    bool Danger = false;
 
-                    SelectedFilePreviews.Add((file, dataUrl));
+                    Task<DetectionResultDTO> detectionResult = _mediaService.DetectImageDanger(_photoUpload);
+                    var detection = await detectionResult;
+                    if (detection.Success)
+                    { 
+                        Console.WriteLine($"✅ Image {file.Name} vérifie");
+                        Console.WriteLine($"✅ Danger : {detection.IsDangerous}");
+                        Console.WriteLine($"✅ Détection: {detection.DangerAccuracy}");
+                        Console.WriteLine($"✅ Textile: {detection.IsTextile}");
+                        Console.WriteLine($"✅ Détection: {detection.TextileAccuracy}");
 
-                    Console.WriteLine($"✅ Photo ajoutée: {file.Name} ({file.Size} bytes)");
+                        SelectedFilePreviews.Add((file, dataUrl, detection.IsDangerous, detection.IsTextile));
+
+                        Console.WriteLine($"✅ Photo ajoutée: {file.Name} ({file.Size} bytes)");
+
+                        API_Messages.RemoveAll(m => m.Contains($"FastAPI")); // Delete des messages hors connexion
+                      }
+                    else
+                    {
+                        AddAPIMessage($"Image {file.Name} rejetée: {detection.ErrorMessage}");
+                        Console.WriteLine($"❌ Image rejetée par détection: {detection.ErrorMessage}");
+                        continue;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    AddError($"Erreur lors du chargement de {file.Name}: {ex.Message}");
+                    AddAPIMessage($"Erreur lors du chargement de {file.Name}: {ex.Message}");
                     Console.WriteLine($"❌ Erreur photo upload: {ex.Message}");
                 }
             }
@@ -254,6 +288,8 @@ namespace FrontBlazor.ViewModel
             if (SelectedFiles != null && index < SelectedFiles.Count)
                 SelectedFiles.RemoveAt(index);
 
+            API_Messages.RemoveAll(m => m.Contains($"{removed.File.Name}"));
+            
             Console.WriteLine($"🗑️ Photo supprimée: {removed.File.Name}");
             NotifyStateChanged();
         }
@@ -362,6 +398,7 @@ namespace FrontBlazor.ViewModel
         public async Task PublishAnnonceAsync()
         {
             ErrorMessages.Clear();
+            API_Messages.Clear();
             HasCreated = null;
             NotifyStateChanged();
 
@@ -389,7 +426,14 @@ namespace FrontBlazor.ViewModel
 
                 NewAnnonce.UtilisateurId = currentUser.UtilisateurId;
                 NewAnnonce.DateAnnonce = DateTime.UtcNow;
-                NewAnnonce.StatutAnnonceId = 1;
+                if (SelectedFilePreviews.Any(p => p.IsDangerous))
+                {
+                    NewAnnonce.StatutAnnonceId = 3; // Mise en analyse
+                }
+                else
+                {
+                    NewAnnonce.StatutAnnonceId = 1;
+                }
                 NewAnnonce.Couleurs = SelectedCouleurIds;
                 NewAnnonce.Tags = Tags;
 
@@ -407,6 +451,34 @@ namespace FrontBlazor.ViewModel
                     .OrderByDescending(a => a.AnnonceId)
                     .FirstOrDefault(a => a.Titre == NewAnnonce.Titre);
 
+                if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
+                {
+                    foreach (var couleurId in SelectedCouleurIds)
+                    {
+                        var couleur = Couleurs.FirstOrDefault(c => c.CouleurId == couleurId);
+                        if (couleur != null)
+                        {
+                            try
+                            {
+                                var edc = await _couleurService.CouleurToEdc(couleur, createdAnnonce);
+                                if (edc != null)
+                                {
+                                    Console.WriteLine($"✅ EstDeCouleur créé: ID={edc.EstDeCouleurId} pour CouleurID={couleur.CouleurId}");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ CouleurToEdc a retourné null pour CouleurID={couleur.CouleurId}");
+                                }
+                            }
+                            catch (Exception edcEx)
+                            {
+                                Console.WriteLine($"❌ Erreur création EstDeCouleur pour CouleurID={couleur.CouleurId}: {edcEx.Message}");
+                                AddError($"La couleur '{couleur.Nom}' n'a pas pu être associée");
+                            }
+                        }
+                    }
+                }
+
                 if (SelectedFilePreviews.Count != 0)
                 {
                     IsUploadingPhotos = true;
@@ -421,8 +493,18 @@ namespace FrontBlazor.ViewModel
                             Console.WriteLine($"✅ Annonce retrouvée avec ID: {createdAnnonce.AnnonceId}");
 
                             var photosDataUrls = SelectedFilePreviews
-                                .Select(p => p.PreviewBase64)
+                                .Select(p => new PhotoDataDTO
+                                {
+                                    PreviewBase64 = p.PreviewBase64,
+                                    IsDangerous = p.IsDangerous
+                                })
                                 .ToList();
+
+                            foreach (var photo in photosDataUrls)
+                            {
+                                Console.WriteLine($"Photo IsDangerous: {photo.IsDangerous}");
+                            }
+
                             try
                             {
                                 var uploadSuccess = await _mediaService.UploadMultiplePhotosAnnonceAsync(
@@ -503,7 +585,6 @@ namespace FrontBlazor.ViewModel
                             }
                         }
 
-                        // ✅ Ensuite crée les associations Recense
                         if (createdAnnonce != null && createdAnnonce.AnnonceId > 0)
                         {
                             Console.WriteLine($"📎 Création de {tagDTOs.Count} associations Recense...");
@@ -565,6 +646,14 @@ namespace FrontBlazor.ViewModel
             }
         }
 
+        #endregion
+
+        #region API Messages Management
+        public void AddAPIMessage(string message)
+        {
+            API_Messages.Add(message);
+            NotifyStateChanged();
+        }
         #endregion
 
         #region Error Management

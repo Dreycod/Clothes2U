@@ -18,7 +18,7 @@ namespace API.Controllers;
 public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
-    private readonly ICaracteristiquesRepository<Est_De_Couleur> _estDeCouleurRepository;
+    private readonly IEstDeCouleurRepository<Est_De_Couleur, int> _estDeCouleurRepository;
     private readonly IAnnonceExtensionService _annonceExtensionService;
     private readonly INotificationService _notificationService;
     private readonly ISuggestionService _suggestionService;
@@ -27,7 +27,7 @@ public class AnnonceController : ControllerBase
 
     public AnnonceController(
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
-        ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,
+        IEstDeCouleurRepository<Est_De_Couleur, int> estDeCouleurRepo,
         IAnnonceExtensionService annonceExtensionService,
         IMapper mapper,
         ICurrentUserService currentUserService,
@@ -55,6 +55,7 @@ public class AnnonceController : ControllerBase
         annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
+
     [AllowAnonymous]
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(AnnonceDetailDTO),StatusCodes.Status200OK)]
@@ -105,7 +106,7 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PutAnnonce(int id, [FromBody] AnnonceDetailDTO annonceDTO)
+    public async Task<IActionResult> PutAnnonce(int id, [FromBody] PutAnnonceDTO annonceDTO)
     {
         if (id != annonceDTO.AnnonceId)
         {

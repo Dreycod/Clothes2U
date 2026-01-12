@@ -16,10 +16,11 @@ public class LoginViewModel : ClientBaseViewModel
     public LoginViewModel(
         IAuthService authService,
         NavigationManager navigationManager,
-        INotificationService notificationService
+        INotificationService notificationService,
+        ISignalRService notificationHubService
         
         )
-        : base(navigationManager, authService, notificationService)
+        : base(navigationManager, authService,notificationHubService, notificationService)
     {
         _authService = authService;
     }
