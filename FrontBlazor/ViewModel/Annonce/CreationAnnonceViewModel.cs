@@ -58,7 +58,6 @@ namespace FrontBlazor.ViewModel
         // Photos
         public List<IBrowserFile> SelectedFiles { get; set; } = new();
         public List<(IBrowserFile File, string PreviewBase64, bool IsDangerous, bool IsTextile)> SelectedFilePreviews { get; set; } = new();
-        private bool markAnnonceAsAnalyse = false;
         // IDs des couleurs sélectionnées (multi-sélection)
         public List<int> SelectedCouleurIds { get; private set; } = new();
 

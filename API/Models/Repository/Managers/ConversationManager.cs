@@ -17,6 +17,7 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Include(c => c.LAnnonce)
             .ThenInclude(a => a.Photos)
             .ThenInclude(p => p.Photo)
+            .Include(c => c.Commandes)
             .Include(c => c.Messages)
             .ThenInclude(m => m.Utilisateur)
             .Include(c => c.Messages)

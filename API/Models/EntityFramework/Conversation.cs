@@ -47,7 +47,7 @@ public class Conversation : IEntity
     public virtual Vend? Vendeur { get; set; }
     
     [InverseProperty(nameof(Commande.Conversation))]
-    public virtual List<Commande>? Commandes { get; set; }
+    public virtual List<Commande>? Commandes { get; set; } = new List<Commande>();
     
     [ForeignKey(nameof(AnnonceId))]
     [InverseProperty(nameof(Annonce.LesConversations))]
