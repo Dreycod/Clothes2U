@@ -270,10 +270,16 @@ public class MessageController : ControllerBase
         
         await _messageManager.AddAsync(message);
 
+        var order = _orderService.GetOrdersByUserIdAsync(dto.UtilisateurId);
+        if (order == null) return BadRequest("Order introuvable");
+        
+        var commande = order.Result.LastOrDefault();
+        if (commande == null) return BadRequest("Commande introuvable");
         
         var messageValidation = new MessageEstPayee()
         {
             MessageId = message.MessageId,
+            CommandeId = commande.CommandeId,
         };
         
         await _messageValidationManager.AddAsync(messageValidation);

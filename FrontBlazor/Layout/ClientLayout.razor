@@ -109,9 +109,16 @@
                                     <a href="/historique"
                                        class="dropdown-item"
                                        @onclick='() => Vm_NavBar.NavigateToPage("/historique")'
-                                        @onclick:preventDefault="true">
+                                       @onclick:preventDefault="true">
                                         <i class="bi bi-clock-history"></i>
                                         <span>Historique des transactions</span>
+                                    </a>
+                                    <a href="/orders"
+                                       class="dropdown-item"
+                                       @onclick='() => Vm_NavBar.NavigateToPage("/orders")'
+                                       @onclick:preventDefault="true">
+                                        <i class="bi bi-bag"></i>
+                                        <span>Commandes</span>
                                     </a>
                                     <a href="/settings" 
                                        class="dropdown-item"

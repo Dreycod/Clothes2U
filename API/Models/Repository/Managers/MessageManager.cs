@@ -16,6 +16,7 @@ public class MessageManager :  GenericCRUDManager<Message>, IMessageRepository
             .ThenInclude(mt => mt.Photos)
             .Include(m => m.MessageDemande)
             .Include(m => m.MessageEstPayee)
+                .ThenInclude(c => c.Commande)
             .Include(m => m.MessageEnvoieColis)
             .Include(m => m.MessageEstRecu)
             .Include(m => m.Conversation)

@@ -1028,6 +1028,10 @@ namespace API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageEstPayeeId"));
 
+                    b.Property<int>("CommandeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mespay_commande_id");
+
                     b.Property<bool>("EstAnnule")
                         .HasColumnType("boolean")
                         .HasColumnName("mespay_est_annulee");
@@ -1041,6 +1045,9 @@ namespace API.Migrations
                         .HasColumnName("mespay_message_id");
 
                     b.HasKey("MessageEstPayeeId");
+
+                    b.HasIndex("CommandeId")
+                        .IsUnique();
 
                     b.HasIndex("MessageId")
                         .IsUnique();
@@ -2675,11 +2682,19 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.MessageEstPayee", b =>
                 {
+                    b.HasOne("API.Models.EntityFramework.Commande", "Commande")
+                        .WithOne("MessageEstPayee")
+                        .HasForeignKey("API.Models.EntityFramework.MessageEstPayee", "CommandeId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Commande_MessagesPayees");
+
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
                         .WithOne("MessageEstPayee")
                         .HasForeignKey("API.Models.EntityFramework.MessageEstPayee", "MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Commande");
 
                     b.Navigation("Message");
                 });
@@ -3177,6 +3192,12 @@ namespace API.Migrations
                     b.Navigation("Annonces");
 
                     b.Navigation("SousCategories");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
+                {
+                    b.Navigation("MessageEstPayee")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>

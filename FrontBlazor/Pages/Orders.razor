@@ -256,8 +256,9 @@
                             Adresse de livraison
                         </h4>
                         <div class="shipping-address">
-                            <p><strong>@selectedOrder.NomAcheteur</strong></p>
-                            <p>@selectedOrder.AdresseLivraison</p>
+                            <p><strong>@selectedOrder.AdresseLivraison.AdresseRue</strong></p>
+                            <p>@selectedOrder.AdresseLivraison.AdresseCodePostal @selectedOrder.AdresseLivraison.AdresseVille</p>
+                            <p>@selectedOrder.AdresseLivraison.AdressePays</p>
                         </div>
                     </section>
 
@@ -362,12 +363,21 @@
         VM.OnChange += StateHasChanged;
         await VM.LoadAsync();
         
-        // Sélectionner automatiquement la première commande si elle existe
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var orders = VM.GetFilteredOrders();
-        if (orders.Any())
+        
+        if (query.TryGetValue("orderId", out var idString))
+        {
+            if (int.TryParse(idString, out int orderId))
+            {
+                selectedOrder = orders.Find(o => o.CommandeId == orderId);
+            }
+        }else if (orders.Any())
         {
             selectedOrder = orders.First();
         }
+        
     }
 
     private void SelectOrder(OrderDTO order)
@@ -391,13 +401,13 @@
     private void ContactSeller(OrderDTO order)
     {
         // Navigation vers la conversation avec le vendeur
-        Navigation.NavigateTo($"/messages");
+        Navigation.NavigateTo($"/messages?conversationId={order.ConversationId}");
     }
 
     private void ContactBuyer(OrderDTO order)
     {
         // Navigation vers la conversation avec l'acheteur
-        Navigation.NavigateTo($"/messages");
+        Navigation.NavigateTo($"/messages?conversationId={order.ConversationId}");
     }
 
     public void Dispose()
