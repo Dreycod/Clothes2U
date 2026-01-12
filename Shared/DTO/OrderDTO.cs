@@ -12,6 +12,7 @@ public class OrderDTO
     public string? NumeroSuivi { get; set; }
     public DateTime? DateExpedition { get; set; }
     public DateTime? DateLivraison { get; set; }
+    public int ConversationId { get; set; }
     
     // Informations de l'annonce
     public int AnnonceId { get; set; }

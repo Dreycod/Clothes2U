@@ -256,7 +256,8 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
             FraisService = ServiceFee,
             FraisLivraison = ShippingCost,
             StripePaymentIntentId = paymentIntentId,
-            StatutCommande = "Payée"
+            StatutCommandeId = 1,
+            ConversationId = SelectedConversation!.ConversationId
         };
         
         Console.WriteLine("bchjdsfgcjherfgcjkhgercgy");

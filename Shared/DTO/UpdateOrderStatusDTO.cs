@@ -2,6 +2,6 @@ namespace Shared.DTO;
 
 public class UpdateOrderStatusDTO
 {
-    public string Statut { get; set; } = "";
+    public int StatusCommandeId { get; set; }
     public string? NumeroSuivi { get; set; }
 }

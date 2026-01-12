@@ -29,6 +29,8 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageEstRecu, int> _messageEstRecuManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
+    private readonly IAnnonceRepository<Annonce, int, int> _annonceService;
+    private readonly IOrderRepository _orderService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub> _hubContext;
@@ -43,6 +45,8 @@ public class MessageController : ControllerBase
         IDataRepository<MessageContientImage, int> messageContientImageManager,
         IDataRepository<MessageEnvoieColis, int> messageEnvoieColisManager,
         IDataRepository<MessageEstRecu, int> messageEstRecuManager,
+        IAnnonceRepository<Annonce, int, int> annonceService,
+        IOrderRepository orderService,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
         IMapper mapper,
@@ -58,6 +62,8 @@ public class MessageController : ControllerBase
         _messageEstRecuManager = messageEstRecuManager;
         _notificationService = notificationMessageManager;
         _messageContientImageManager = messageContientImageManager;
+        _annonceService = annonceService;
+        _orderService = orderService;
         _photoService = photoService;
         _mapper = mapper;
         _hubContext = hubContext;
@@ -325,6 +331,10 @@ public class MessageController : ControllerBase
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
+        var order = await _orderService.GetByIdAsync(messagePayee.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        
+        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 2);
+        
         try
         {
             await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
@@ -384,6 +394,10 @@ public class MessageController : ControllerBase
         }
         await _messageEstRecuManager.AddAsync(messageRecu);
         
+        var order = await _orderService.GetByIdAsync(messageRecu.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        
+        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 3);
+        
         try
         {
             await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
@@ -422,9 +436,20 @@ public class MessageController : ControllerBase
 
         if (messagePayee.EstEnvoye) return BadRequest();
         
+        if (messagePayee.EstAnnule) return BadRequest();
+        
+        
+        
         messagePayee.EstAnnule = true;
         
         await _messageValidationManager.UpdateAsync(messagePayee);
+        
+        var annonce = await _annonceService.GetByIdAsync(messagePayee.Message.ConversationId);
+        annonce.StatutAnnonceId = 1;
+        await _annonceService.UpdateAsync(annonce);
+        
+        var order = await _orderService.GetByIdAsync(messagePayee.Message.Conversation.Commandes.LastOrDefault().ConversationId);
+        await _orderService.UpdateOrderStatusAsync(order.ConversationId, 4);
         
         try
         {

@@ -801,6 +801,12 @@
 
     public void Dispose()
     {
+        if (VM_Messagerie != null && VM_Messagerie.utilisateur != null)
+        {
+            VM_Messagerie.SelectConversationAsync(0); // ou null
+            // Ou directement :
+            // SignalRHandler.SetContext(null, ViewModel.Conversations, null, ViewModel.utilisateur.UtilisateurId);
+        }
         VM_Messagerie.OnStateChanged -= StateHasChanged;
         VM_Messagerie.OnMessageReceivedUI -= null;
     }

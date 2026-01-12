@@ -47,7 +47,6 @@ public class ClientBaseViewModel : IAsyncDisposable
         _authService = authService;
         _signalRService.OnNotificationCountUpdated += HandleNotificationCountUpdate;
         _signalRService.OnMessageCountUpdated += HandleUnReadMesssageCountUpdate;
-
     }
     
     protected void NotifyStateChanged()
@@ -240,4 +239,8 @@ public class ClientBaseViewModel : IAsyncDisposable
             showDropDownNotification = false;
             NotifyStateChanged();
         }
+        
+        
+
+      
 }
