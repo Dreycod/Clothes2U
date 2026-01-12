@@ -18,7 +18,7 @@ namespace API.Controllers;
 public class AnnonceController : ControllerBase
 {
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
-    private readonly ICaracteristiquesRepository<Est_De_Couleur> _estDeCouleurRepository;
+    private readonly IEstDeCouleurRepository<Est_De_Couleur, int> _estDeCouleurRepository;
     private readonly IAnnonceExtensionService _annonceExtensionService;
     private readonly INotificationService _notificationService;
     private readonly ISuggestionService _suggestionService;
@@ -27,7 +27,7 @@ public class AnnonceController : ControllerBase
 
     public AnnonceController(
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
-        ICaracteristiquesRepository<Est_De_Couleur> estDeCouleurRepo,
+        IEstDeCouleurRepository<Est_De_Couleur, int> estDeCouleurRepo,
         IAnnonceExtensionService annonceExtensionService,
         IMapper mapper,
         ICurrentUserService currentUserService,
