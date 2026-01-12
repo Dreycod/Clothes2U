@@ -731,7 +731,7 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public new void CloseAllDropdowns()
+        public void CloseProfileActionsDropdown()
         {
             showDotsDropdown = false;
             NotifyStateChanged();
