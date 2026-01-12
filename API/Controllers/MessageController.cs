@@ -11,6 +11,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Shared.DTO;
 using Shared.DTO.Notification;
 
 namespace API.Controllers;
@@ -29,7 +30,7 @@ public class MessageController : ControllerBase
     private readonly IDataRepository<MessageEstRecu, int> _messageEstRecuManager;
     private readonly IDataRepository<MessageContientImage, int> _messageContientImageManager;
     private readonly IPhotoRepository _photoService;
-    private readonly IAnnonceRepository<Annonce, int, int> _annonceService;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceService;
     private readonly IOrderRepository _orderService;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
@@ -45,7 +46,7 @@ public class MessageController : ControllerBase
         IDataRepository<MessageContientImage, int> messageContientImageManager,
         IDataRepository<MessageEnvoieColis, int> messageEnvoieColisManager,
         IDataRepository<MessageEstRecu, int> messageEstRecuManager,
-        IAnnonceRepository<Annonce, int, int> annonceService,
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceService,
         IOrderRepository orderService,
         IPhotoRepository photoService,
         INotificationService notificationMessageManager,
