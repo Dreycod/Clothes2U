@@ -57,7 +57,7 @@
         <main class="mod-content">
             <h1 class="mod-page-title">Validation d'images</h1>
 
-            @if (VM_ImagesValidation?._ValidationMessage?.Any() == true)
+            @if (VM_ImagesValidation._ValidationMessage.Any())
             {
                 <div class="validation-messages">
                     @foreach (var msg in VM_ImagesValidation._ValidationMessage)
@@ -74,6 +74,8 @@
                 {
                     var preview = VM_ImagesValidation.SelectedFilePreviews[i];
                     var photoId = preview.PhotoID;
+                    var Username = preview.Username;
+                    var AnnonceID = preview.AnnonceID;
 
                     <div class="uploaded-photo" @key="photoId">
                         <img src="@preview.PreviewBase64" alt="Photo" />
@@ -82,8 +84,8 @@
                             <div class="image-user">
                                 <div class="user-avatar-small"></div>
                                 <div class="user-meta">
-                                    <h4>User @(i + 1)</h4>
-                                    <p>Il y a @(i + 1) heures</p>
+                                    <h4>User: @(Username)</h4>
+                                    <p>AnnonceID: @(AnnonceID)</p>
                                 </div>
                             </div>
 
@@ -115,6 +117,7 @@
     protected override async Task OnInitializedAsync()
     {
         await VM_ImagesValidation.LoadAsync();
+        VM_ImagesValidation.OnStateChanged += StateHasChanged;
     }
 
 }

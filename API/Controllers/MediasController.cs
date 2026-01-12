@@ -16,13 +16,11 @@ public class MediasController : ControllerBase
     private readonly IPhotoService _photoService;
     private readonly IDetectionService _detectionService;
     private readonly ILogger<MediasController> _logger;
-    private readonly IHubContext<ChatHub> _hubContext;
     
-    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IHubContext<ChatHub> hubContext, IDetectionService detectionService)
+    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IDetectionService detectionService)
     {
         _photoService = photoService;
         _logger = logger;
-        _hubContext = hubContext;
         _detectionService = detectionService;
     }
 

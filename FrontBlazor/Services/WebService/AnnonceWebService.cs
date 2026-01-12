@@ -1,11 +1,11 @@
-using Shared.DTO;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
+using Shared.DTO;
+using Shared.DTO.Annonce;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Runtime.Serialization;
-using Microsoft.AspNetCore.WebUtilities;
-using Shared.DTO.Annonce;
 
 namespace FrontBlazor.Services;
 
@@ -153,6 +153,18 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         response.EnsureSuccessStatusCode();
         var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
         return annonces ?? new List<AnnonceDTO>();
+    }
+    public async Task<IEnumerable<AnnonceDTO>> GetAnnoncesByPhotoIDs(IEnumerable<int> photoIDs)
+    {
+        if (photoIDs == null || !photoIDs.Any())
+            return Enumerable.Empty<AnnonceDTO>();
+
+        var query = string.Join("&", photoIDs.Select(id => $"PhotoIDs={id}"));
+        var response = await GetWithCredentialsAsync($"Annonce/GetAnnoncesByPhotoIDs?{query}");
+        response.EnsureSuccessStatusCode();
+
+        var annonces = await response.Content.ReadFromJsonAsync<List<AnnonceDTO>>();
+        return annonces ?? Enumerable.Empty<AnnonceDTO>();
     }
 
     public async Task VendreAnnonce(int AnnonceId)
