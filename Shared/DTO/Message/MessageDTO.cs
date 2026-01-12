@@ -48,6 +48,7 @@ public class MessageEstPayeeDTO : MessageDTO
 {
     public override string TypeMessage => "Payee";
     public int MessageEstPayeeId { get; set; }
+    public int OrderId { get; set; }
     public bool EstEnvoye { get; set; }
     public bool EstAnnule { get; set; }
 }

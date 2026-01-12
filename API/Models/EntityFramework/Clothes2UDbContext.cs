@@ -190,6 +190,11 @@ public partial class Clothes2UDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Commande_Vendeur");
             
+            entity.HasOne(e => e.MessageEstPayee)
+                .WithOne(e => e.Commande)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Commande_MessagesPayees");
+            
             entity.HasOne(e => e.AdresseLivraison)
                 .WithMany(e => e.Commandes)
                 .HasForeignKey(e => e.AdresseLivraisonId)
@@ -685,6 +690,11 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.MessageEnvoieColis)
                 .WithOne(e => e.MessageEstPayee)
                 .HasForeignKey<MessageEnvoieColis>(e => e.MessageEstPayeeId);
+            
+            entity.HasOne(e => e.Commande)
+                .WithOne(e => e.MessageEstPayee)
+                .HasForeignKey<MessageEstPayee>(e => e.CommandeId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<MessageEnvoieColis>(entity =>
