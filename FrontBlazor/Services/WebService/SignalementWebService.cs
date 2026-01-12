@@ -44,8 +44,4 @@ public class SignalementWebService : BaseGenericService, ISignalementService
         }
         return null;
     }
-    public async Task DeleteAsync(int id)
-    {
-        await DeleteWithCredentialsAsync($"Signalement/Delete/{id}");
-    }
 }

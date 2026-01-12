@@ -10,5 +10,4 @@ public interface INotificationService
 {
     Task<ObservableCollection<NotificationDTO>> GetAllAsync();
     Task DeleteNotification(int notificationId);
-    Task CreateNotificationAvertissement(CreateAvertissementRequestDTO request);
 }
