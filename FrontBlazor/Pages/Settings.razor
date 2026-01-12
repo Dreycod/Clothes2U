@@ -185,10 +185,10 @@
                             </div>
                             <div class="card-body">
                                 <p class="preference-description">Choisissez comment vous souhaitez recevoir les notifications</p>
-                                <button class="tab-btn"
+                                <button class="verif-btn"
                                         @onclick='() => NavigationManager.NavigateTo("/verification")'>
                                     <i class="bi bi-shield-check"></i>
-                                    <span>Vérifiez ici votre compte</span>
+                                    <span>Cliquez ici pour vérifier votre compte</span>
                                 </button>
                                 @if (!VM_Settings.CurrentUser.ValidEmail == true)
                                 {

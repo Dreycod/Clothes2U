@@ -106,7 +106,7 @@ namespace FrontBlazor.ViewModel
             IBloqueService bloqueService,
             ISignalRService notificationHubService,
             INotificationService notificationService)
-        : base(navigationManager, authService,notificationHubService, notificationService)
+        : base(navigationManager, authService, notificationHubService, notificationService)
         {
             _utilisateurService = utilisateurService;
             _annonceService = annonceService;
@@ -729,6 +729,12 @@ namespace FrontBlazor.ViewModel
                 IsLoadingPreviousAvis = false;
                 NotifyStateChanged();
             }
+        }
+
+        public new void CloseAllDropdowns()
+        {
+            showDotsDropdown = false;
+            NotifyStateChanged();
         }
     }
 }

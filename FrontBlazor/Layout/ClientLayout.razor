@@ -163,10 +163,14 @@
         <a href="/privacy">Politique de confidalité</a>
         <a href="/return">Politique de retour</a>
     </footer>
+    <CookieConsent />
 </div>
 
 
 @code {
+
+
+
     private ElementReference notificationRef;
     private ElementReference profileRef;
     private DotNetObjectReference<ClientLayout>? objRef;
@@ -182,7 +186,7 @@
         if (firstRender)
         {
             objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, notificationRef, profileRef, null);
         }
     }
 

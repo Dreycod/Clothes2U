@@ -3,6 +3,7 @@ using Shared.DTO.Annonce;
 using API.Extensions;
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Shared.Enums;
 
 namespace API.Models.Repository.Managers;
 
@@ -52,7 +53,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     public async Task<IEnumerable<Annonce>> GetActiveAnnonces()
     {
         return await BaseAnnonceQuery()
-            .Where(a => a.Statut.StatutLibelle == "En Ligne" && a.Utilisateur.Statut.StatutLibelle == "Actif") 
+            .Where(a => a.StatutAnnonceId == (int)AnnonceStatut.EnLigne && a.Utilisateur.StatutId == (int)UtilisateurStatut.Actif) 
             .ToListAsync();
     }
 
@@ -101,7 +102,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         );
     }
 
-    query = query.Where(p => p.Utilisateur.Statut.StatutLibelle == "Actif" && p.Statut.StatutLibelle == "En Ligne");
+    query = query.Where(p => p.Utilisateur.StatutId == (int)UtilisateurStatut.Actif && p.StatutAnnonceId == (int)AnnonceStatut.EnLigne);
     
     if (filterDto.Marques != null && filterDto.Marques.Any())
     {
@@ -177,8 +178,8 @@ public async Task<IEnumerable<Annonce>> GetSimilarAsync(int annonceId, int page,
 
     var query = BaseAnnonceQuery()
         .Where(a => a.AnnonceId != annonceId)
-        .Where(a => a.Statut.StatutLibelle == "En Ligne")
-        .Where(a => a.Utilisateur.Statut.StatutLibelle == "Actif");
+        .Where(a => a.StatutAnnonceId == (int)AnnonceStatut.EnLigne)
+        .Where(a => a.Utilisateur.StatutId == (int)UtilisateurStatut.Actif);
 
     // ✅ Charger les IDs des utilisateurs bloqués AVANT
     List<int> blockedUserIds = new List<int>();

@@ -2,10 +2,9 @@
 @inject NavigationManager NavigationManager
 @layout ClientLayout
 @using System.Globalization
+@inject IJSRuntime JS
 
 <PageTitle>Clothes2U</PageTitle>
-
-<NavBar />
 
 <div class="profile-page">
     <div class="profile-container">
@@ -72,7 +71,7 @@
                                     <span>Ajouter un article</span>
                                 </button>
 
-                                <div class="profile-dropdown-container">
+@*                                 <div class="profile-dropdown-container">
                                     <button class="btn-icon"
                                             title="Paramètres"
                                             @onclick="VM_Profil.ToggleDotsDropdown">
@@ -88,11 +87,11 @@
                                             </button>
                                         </div>
                                     }
-                                </div>
+                                </div> *@
                             }
                             else
                             {
-                                <div class="profile-dropdown-container">
+                                <div class="profile-actions-dropdown-container" @ref="profileActionsRef">
                                     <button class="btn-icon"
                                             title="Actions"
                                             @onclick="VM_Profil.ToggleDotsDropdown">
@@ -689,9 +688,45 @@
     [Parameter]
     public string userLogin { get; set; }
 
+    private ElementReference profileActionsRef;
+    private DotNetObjectReference<Profil>? objRef;
+
     protected override async Task OnInitializedAsync()
     {
+        VM_Profil.OnStateChanged += StateHasChanged;
         await VM_Profil.LoadUserProfile(userLogin);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("setupClickOutside", objRef, null, null, profileActionsRef);
+        }
+    }
+
+    [JSInvokable]
+    public void CloseDropdowns()
+    {
+        VM_Profil.CloseAllDropdowns();
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        VM_Profil.OnStateChanged -= StateHasChanged;
+
+        if (objRef != null)
+        {
+            await JS.InvokeVoidAsync("removeClickOutside");
+            objRef.Dispose();
+        }
+
+        if (VM_Profil is IAsyncDisposable disposable)
+        {
+            await disposable.DisposeAsync();
+        }
     }
 
     public void Dispose()

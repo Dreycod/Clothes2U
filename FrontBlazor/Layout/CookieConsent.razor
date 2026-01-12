@@ -1,0 +1,66 @@
+﻿@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+@if (ShowBanner)
+{
+    <div class="cookie-banner">
+        <div class="cookie-overlay"></div>
+        <div class="cookie-content">
+            <div class="cookie-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="cookie-text">
+                <h3 class="cookie-title">🔒 Cookies essentiels</h3>
+                <p class="cookie-description">
+                    Nous utilisons uniquement des <strong>cookies essentiels</strong> nécessaires au bon fonctionnement du site
+                    (connexion, panier, sécurité). Ces cookies sont <strong>indispensables</strong> et ne peuvent pas être refusés.
+                    <a href="/privacy" class="cookie-link">En savoir plus</a>
+                </p>
+            </div>
+            <div class="cookie-actions">
+                <button class="btn-cookie-accept" @onclick="AcceptCookies">
+                    <i class="bi bi-check-lg"></i>
+                    J'accepte et continue
+                </button>
+                <button class="btn-cookie-decline" @onclick="DeclineCookies">
+                    <i class="bi bi-x-lg"></i>
+                    Je refuse et quitte
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool ShowBanner { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Vérifier si l'utilisateur a déjà accepté
+            var consent = await JS.InvokeAsync<string>("localStorage.getItem", "cookieConsent");
+
+            if (string.IsNullOrEmpty(consent) || consent != "accepted")
+            {
+                // Pas encore accepté, on affiche le bandeau
+                ShowBanner = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task AcceptCookies()
+    {
+        // Enregistrer l'acceptation
+        await JS.InvokeVoidAsync("localStorage.setItem", "cookieConsent", "accepted");
+        ShowBanner = false;
+        StateHasChanged();
+    }
+
+    private async Task DeclineCookies()
+    {
+        // L'utilisateur refuse : on le renvoie à la page d'accueil du navigateur
+        await JS.InvokeVoidAsync("eval", "window.location.href = 'about:blank'");
+    }
+}

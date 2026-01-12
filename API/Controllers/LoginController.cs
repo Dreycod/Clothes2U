@@ -77,6 +77,7 @@ public class LoginController : ControllerBase
         }
 
         Utilisateur utilisateur = await _utilisateurManager.GetUtilisateurByLogin(auth.user.Login);
+
         var tokenString = _loginService.GenerateJwtToken(utilisateur);
         var cookieOptions = new CookieOptions
         {
