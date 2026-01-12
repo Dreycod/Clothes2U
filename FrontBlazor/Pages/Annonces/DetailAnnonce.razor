@@ -127,7 +127,7 @@
                 </div>
 
                 <div class="actions-row">
-                    @if (!VM_DetailAnnonce.IsSameUser)
+                    @if (!VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                     {
 
                         <button class="btn-action"
@@ -351,8 +351,6 @@
         </div>
     </div>
 }
-
-@* Add this modal after your ShowDeleteProductModal in ProductDetail.razor *@
 
 @if (VM_DetailAnnonce.ShowPauseResumeModal)
 {
