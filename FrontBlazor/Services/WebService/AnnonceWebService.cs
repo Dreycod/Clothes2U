@@ -252,5 +252,6 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         var body = JsonContent.Create(annonce);
         var response = await PutWithCredentialsAsync($"Annonce/id/{id}", body);
         response.EnsureSuccessStatusCode();
+        return;
     }
 }

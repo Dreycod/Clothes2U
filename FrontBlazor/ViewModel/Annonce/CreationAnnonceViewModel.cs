@@ -3,7 +3,6 @@ using FrontBlazor.Services;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.Services.Interfaces.GenericIServices;
-using FrontBlazor.Services.Interfaces.GenericIServices;
 using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -17,12 +16,9 @@ using Shared.DTO.Marque;
 using Shared.DTO.Mesures;
 using Shared.DTO.Photo;
 using Shared.DTO.Recense;
-using Shared.DTO.Recense; 
-using Shared.DTO.Tag;
 using Shared.DTO.Tag;
 using Shared.DTO.Taille;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Diagnostics;
 
 namespace FrontBlazor.ViewModel

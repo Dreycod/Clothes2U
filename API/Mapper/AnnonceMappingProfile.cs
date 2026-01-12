@@ -12,6 +12,7 @@ using Shared.DTO.Mesures;
 using API.Models.EntityFramework;
 using AutoMapper;
 using Shared.DTO.Tag;
+using Shared.DTO.Photo;
 
 namespace API.Mapper;
 
@@ -36,9 +37,16 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
             .ForMember(dest => dest.StatutAnnonce, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
             .ReverseMap();
-        
-        
-        
+
+        CreateMap<Photo, PhotoResponseDTO>()
+            .ForMember(dest => dest.PhotoId, opt => opt.MapFrom(src => src.PhotoId))
+            .ForMember(dest => dest.Url, opt => opt.MapFrom(src => $"/api/Medias/Photos/{src.PhotoId}"))
+            .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => "Unknown"))
+            .ReverseMap();
+
+        CreateMap<Photo, PhotoDTO>()
+            .ReverseMap();
+
         CreateMap<Annonce, AnnonceDetailDTO>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
             .ForMember(dest => dest.NomMarque, opt => opt.MapFrom(src => src.Marque.NomMarque ?? "Inconnue"))
@@ -59,6 +67,7 @@ public class AnnonceMappingProfile : Profile
             .ForMember(dest => dest.Couleurs, opt => opt.MapFrom(src => src.Couleurs.Select(t => t.Couleur.Nom).ToList()))
             .ForMember(dest => dest.StatutAnnonce, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
             .ForMember(dest => dest.StatutAnnonceId, opt => opt.MapFrom(src => src.StatutAnnonceId))
+            .ForMember(dest => dest.GenreAnnonce, opt => opt.MapFrom(src => src.GenreAnnonce.NomGenre))
             .ReverseMap();
 
         CreateMap<CreateAnnonceDTO, Annonce>()

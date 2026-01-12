@@ -1,11 +1,12 @@
-using Shared.DTO.Photo;
 using API.Exceptions;
 using API.Hubs;
+using API.Models.EntityFramework;
 using API.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Shared.DTO.Detection;
-using API.Models.EntityFramework;
+using Shared.DTO.Photo;
 
 namespace API.Controllers;
 
@@ -16,12 +17,13 @@ public class MediasController : ControllerBase
     private readonly IPhotoService _photoService;
     private readonly IDetectionService _detectionService;
     private readonly ILogger<MediasController> _logger;
-    
-    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IDetectionService detectionService)
+    private readonly IMapper _mapper;
+    public MediasController(IPhotoService photoService, ILogger<MediasController> logger, IDetectionService detectionService, IMapper mapper)
     {
         _photoService = photoService;
         _logger = logger;
         _detectionService = detectionService;
+        _mapper = mapper;
     }
 
     [HttpGet("Photos/{id:int}")]
@@ -38,6 +40,35 @@ public class MediasController : ControllerBase
                 return NotFound($"Photo {id} introuvable");
             }
             return File(photo.Image, "image/jpeg");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la récupération de la photo {PhotoId}", id);
+            return StatusCode(500, new { message = "Erreur lors de la récupération de la photo", error = ex.Message });
+        }
+    }
+
+    [HttpGet("GetPhotoDTO/{id:int}")]
+    [ProducesResponseType(typeof(PhotoDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPhotoDTO(int id)
+    {
+        try
+        {
+            var photo = await _photoService.GetPhotoAsync(id);
+
+            if (photo == null)
+            {
+                return NotFound($"Photo {id} introuvable");
+            }
+            PhotoDTO photoDTO = _mapper.Map<PhotoDTO>(photo);
+
+            if (photoDTO == null)
+            {
+                return NotFound($"PhotoDTO pour la photo {id} introuvable");
+            }
+
+            return Ok(photoDTO);
         }
         catch (Exception ex)
         {

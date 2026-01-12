@@ -1,0 +1,715 @@
+﻿@page "/update-article/{AnnonceId:int}"
+@using Microsoft.AspNetCore.Components.Forms
+@inject UpdateAnnonceViewModel VM_UpdateAnnonce
+@inject NavigationManager Navigation
+@layout ClientLayout
+@implements IDisposable
+
+<PageTitle>Modifier un article - Clothes2U</PageTitle>
+
+<NavBar />
+
+<div class="add-article-page">
+    <div class="add-article-container">
+
+        <!-- ============================================ -->
+        <!-- SECTION 1: PHOTOS -->
+        <!-- ============================================ -->
+        <div class="form-section photos-section">
+            <h2 class="section-title">Photos de l'article</h2>
+            <p class="section-subtitle">Ajoutez jusqu'à 5 photos pour montrer votre article</p>
+
+            <div class="photo-upload-area">
+                @if (VM_UpdateAnnonce.SelectedFilePreviews.Any())
+                {
+                    <div class="uploaded-photos-grid">
+                        @for (int i = 0; i < VM_UpdateAnnonce.SelectedFilePreviews.Count; i++)
+                        {
+                            var index = i;
+                            <div class="uploaded-photo">
+                                <img src="@VM_UpdateAnnonce.SelectedFilePreviews[i].PreviewBase64" alt="Photo" />
+
+                                @if (VM_UpdateAnnonce.SelectedFilePreviews[i].IsDangerous)
+                                {
+                                    <div class="danger-badge">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                }
+                                else if (VM_UpdateAnnonce.SelectedFilePreviews[i].IsTextile == false)
+                                {
+                                    <div class="danger-badge">
+                                        <i class="bi bi-question-circle-fill"></i>
+                                    </div>
+                                }
+
+                                <button type="button"
+                                        class="remove-photo-btn"
+                                        @onclick="() => RemovePhoto(index)"
+                                        @onclick:preventDefault="true"
+                                        @onclick:stopPropagation="true">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        }
+                        @if (VM_UpdateAnnonce.SelectedFilePreviews.Count < 5)
+                        {
+                            <label class="add-more-btn">
+                                <i class="bi bi-plus"></i>
+                                <InputFile OnChange="OnPhotosSelected"
+                                           accept="image/*"
+                                           multiple
+                                           style="display: none;" />
+                            </label>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <label class="upload-placeholder">
+                        <i class="bi bi-upload"></i>
+                        <span>Cliquez pour ajouter des photos</span>
+                        <InputFile OnChange="OnPhotosSelected"
+                                   accept="image/*"
+                                   multiple
+                                   style="display: none;" />
+                    </label>
+                }
+            </div>
+        </div>
+
+        @if (VM_UpdateAnnonce.API_Messages.Any())
+        {
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Attention:</strong>
+                    <ul>
+                        @foreach (var message in VM_UpdateAnnonce.API_Messages)
+                        {
+                            <li>@message</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+        @if (VM_UpdateAnnonce.SelectedFilePreviews.Any(p => p.IsDangerous))
+        {
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <p>
+                    ⚠️ Une ou plusieurs photos ont été détectées comme potentiellement dangereuses.
+                </p>
+            </div>
+        }
+        @if (VM_UpdateAnnonce.SelectedFilePreviews.Any(p => p.IsTextile == false))
+        {
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <p>
+                    ⚠️ Une ou plusieurs photos n'ont pas été reconnues comme des articles textiles.
+                </p>
+            </div>
+        }
+
+        <!-- ============================================ -->
+        <!-- SECTION 2: INFORMATIONS DE L'ARTICLE -->
+        <!-- ============================================ -->
+        <div class="form-section info-section">
+            <h2 class="section-title">Informations sur l'article</h2>
+
+            <div class="form-grid">
+                <!-- Nom de l'article -->
+                <div class="form-group full-width">
+                    <label class="form-label">Nom de l'article *</label>
+                    <input type="text"
+                           class="form-input"
+                           placeholder="Ex: T-Shirt Adidas Vert"
+                           @bind="VM_UpdateAnnonce.NewAnnonce.Titre" />
+                </div>
+
+                <!-- Prix -->
+                <div class="form-group">
+                    <label class="form-label">Prix (€) *</label>
+                    <input type="number"
+                           class="form-input"
+                           placeholder="0.00"
+                           @bind="VM_UpdateAnnonce.NewAnnonce.Prix"
+                           step="0.01"
+                           min="0" />
+                </div>
+
+                <!-- Négociable - Toggle Switch CORRIGÉ -->
+                <div class="form-group">
+                    <label class="form-label">Offre négociable?</label>
+                    <div class="toggle-switch-container">
+                        <button type="button"
+                                class="toggle-switch @(VM_UpdateAnnonce.NewAnnonce.EstNegociable ? "active" : "")"
+                                @onclick="() => VM_UpdateAnnonce.NewAnnonce.EstNegociable = !VM_UpdateAnnonce.NewAnnonce.EstNegociable">
+                            <span class="toggle-option @(VM_UpdateAnnonce.NewAnnonce.EstNegociable ? "" : "selected")">Non</span>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-option @(VM_UpdateAnnonce.NewAnnonce.EstNegociable ? "selected" : "")">Oui</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group full-width">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-textarea"
+                              placeholder="Décrivez l'article, son état, usage, les détails, etc."
+                              @bind="VM_UpdateAnnonce.NewAnnonce.Description"
+                              rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 3: GENRE -->
+        <!-- ============================================ -->
+        <div class="form-section genre-section">
+            <h2 class="section-title">Genre *</h2>
+
+            @if (VM_UpdateAnnonce.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (VM_UpdateAnnonce.Genres?.Any() == true)
+            {
+                <div class="button-grid-3">
+                    @foreach (var genre in VM_UpdateAnnonce.Genres)
+                    {
+                        <button type="button"
+                                class="selection-btn @(VM_UpdateAnnonce.NewAnnonce.GenreId == genre.GenreId ? "active" : "")"
+                                @onclick="() => VM_UpdateAnnonce.NewAnnonce.GenreId = genre.GenreId">
+                            @genre.NomGenre
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 4: MARQUE (Dropdown avec recherche) -->
+        <!-- ============================================ -->
+        <div class="form-section brand-section">
+            <h2 class="section-title">Marque *</h2>
+
+            @if (VM_UpdateAnnonce.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (VM_UpdateAnnonce.Marques?.Any() == true)
+            {
+                <div class="dropdown-container @(isMarqueDropdownOpen ? "open" : "")">
+                    <div class="dropdown-input" @onclick="ToggleMarqueDropdown">
+                        @if (VM_UpdateAnnonce.NewAnnonce.MarqueId != 0)
+                        {
+                            var selectedMarque = VM_UpdateAnnonce.Marques.FirstOrDefault(m => m.MarqueID == VM_UpdateAnnonce.NewAnnonce.MarqueId);
+                            <span class="selected-value">@selectedMarque?.NomMarque</span>
+                            <button type="button"
+                                    class="clear-btn"
+                                    @onclick="ClearMarque"
+                                    @onclick:stopPropagation="true">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        }
+                        else if (isMarqueDropdownOpen)
+                        {
+                            <input type="text"
+                                   class="search-input-inline"
+                                   placeholder="Rechercher une marque..."
+                                   @bind="marqueSearch"
+                                   @bind:event="oninput"
+                                   @onblur="OnMarqueSearchBlur"
+                                   @onclick:stopPropagation="true"
+                                   @ref="marqueSearchInput" />
+                        }
+                        else
+                        {
+                            <span class="placeholder-text">Sélectionner une marque</span>
+                        }
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
+                    </div>
+
+                    @if (isMarqueDropdownOpen)
+                    {
+                        <div class="dropdown-list">
+                            @foreach (var marque in GetFilteredMarques())
+                            {
+                                <div class="dropdown-item @(VM_UpdateAnnonce.NewAnnonce.MarqueId == marque.MarqueID ? "selected" : "")"
+                                     @onclick="() => SelectMarque(marque.MarqueID)"
+                                     @onmousedown:preventDefault="true">
+                                    @marque.NomMarque
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 5: CATÉGORIE & ÉTAT (Dropdown) -->
+        <!-- ============================================ -->
+        <div class="form-section category-section">
+            <h2 class="section-title">Catégorie & État</h2>
+
+            <div class="category-state-grid">
+                <!-- Catégorie -->
+                <div class="category-group">
+                    <label class="form-label">Catégorie *</label>
+                    @if (VM_UpdateAnnonce.IsLoading)
+                    {
+                        <div class="loading-inline">
+                            <div class="spinner-small"></div>
+                            <span>Chargement...</span>
+                        </div>
+                    }
+                    else if (VM_UpdateAnnonce.Categories?.Any() == true)
+                    {
+                        <div class="button-grid-2">
+                            @foreach (var categorie in VM_UpdateAnnonce.Categories)
+                            {
+                                <button type="button"
+                                        class="selection-btn @(VM_UpdateAnnonce.NewAnnonce.CategorieId == categorie.IdCategorie ? "active" : "")"
+                                        @onclick="() => OnCategorieSelected(categorie.IdCategorie)">
+                                    @categorie.LibelleCategorie
+                                </button>
+                            }
+                        </div>
+
+                        <!-- Sous-catégories -->
+                        @if (VM_UpdateAnnonce.NewAnnonce.CategorieId != 0)
+                        {
+                            var selectedCat = VM_UpdateAnnonce.Categories.FirstOrDefault(c => c.IdCategorie == VM_UpdateAnnonce.NewAnnonce.CategorieId);
+                            if (selectedCat?.SousCategories?.Any() == true)
+                            {
+                                <div class="subcategory-section">
+                                    <label class="form-label">Sous-catégorie *</label>
+                                    <div class="button-grid-2">
+                                        @foreach (var sousCategorie in selectedCat.SousCategories)
+                                        {
+                                            <button type="button"
+                                                    class="selection-btn @(VM_UpdateAnnonce.NewAnnonce.SousCategorieId == sousCategorie.SousCategorieId ? "active" : "")"
+                                                    @onclick="() => OnSousCategorieSelected(sousCategorie.SousCategorieId)">
+                                                @sousCategorie.LibelleSousCategorie
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+
+                <!-- État de l'article - DROPDOWN -->
+                <div class="state-group">
+                    <label class="form-label">État de l'article *</label>
+                    @if (VM_UpdateAnnonce.IsLoading)
+                    {
+                        <div class="loading-inline">
+                            <div class="spinner-small"></div>
+                            <span>Chargement...</span>
+                        </div>
+                    }
+                    else if (VM_UpdateAnnonce.Etats?.Any() == true)
+                    {
+                        <div class="dropdown-container @(isEtatDropdownOpen ? "open" : "")">
+                            <div class="dropdown-input" @onclick="() => isEtatDropdownOpen = !isEtatDropdownOpen">
+                                @if (VM_UpdateAnnonce.NewAnnonce.EtatId != 0)
+                                {
+                                    var selectedEtat = VM_UpdateAnnonce.Etats.FirstOrDefault(e => e.EtatArticleId == VM_UpdateAnnonce.NewAnnonce.EtatId);
+                                    <span class="selected-value">@selectedEtat?.NomEtat</span>
+                                }
+                                else
+                                {
+                                    <span class="placeholder-text">Sélectionner l'état</span>
+                                }
+                                <i class="bi bi-chevron-down dropdown-arrow"></i>
+                            </div>
+
+                            @if (isEtatDropdownOpen)
+                            {
+                                <div class="dropdown-list">
+                                    @foreach (var etat in VM_UpdateAnnonce.Etats)
+                                    {
+                                        <div class="dropdown-item @(VM_UpdateAnnonce.NewAnnonce.EtatId == etat.EtatArticleId ? "selected" : "")"
+                                             @onclick="() => SelectEtat(etat.EtatArticleId)">
+                                            @etat.NomEtat
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 6: TAILLE (dépend de la catégorie) -->
+        <!-- ============================================ -->
+        <div class="form-section size-section">
+            <h2 class="section-title">Taille *</h2>
+
+            @if (VM_UpdateAnnonce.NewAnnonce.SousCategorieId == 0)
+            {
+                <p class="info-message">
+                    <i class="bi bi-info-circle"></i>
+                    Veuillez d'abord sélectionner une catégorie
+                </p>
+            }
+            else if (VM_UpdateAnnonce.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (GetFilteredTailles()?.Any() == true)
+            {
+                <div class="size-buttons">
+                    @foreach (var taille in GetFilteredTailles())
+                    {
+                        <button type="button"
+                                class="size-btn @(VM_UpdateAnnonce.NewAnnonce.TailleId == taille.TailleId ? "active" : "")"
+                                @onclick="() => VM_UpdateAnnonce.NewAnnonce.TailleId = taille.TailleId">
+                            @taille.Libelletaille
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="info-message">
+                    <i class="bi bi-info-circle"></i>
+                    Aucune taille disponible pour cette catégorie
+                </p>
+            }
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 7: COULEURS (multi-sélection) -->
+        <!-- ============================================ -->
+        <div class="form-section color-section">
+            <h2 class="section-title">Couleur(s) *</h2>
+            <p class="section-subtitle">Sélectionnez une ou plusieurs couleurs</p>
+
+            @if (VM_UpdateAnnonce.IsLoading)
+            {
+                <div class="loading-inline">
+                    <div class="spinner-small"></div>
+                    <span>Chargement...</span>
+                </div>
+            }
+            else if (VM_UpdateAnnonce.Couleurs?.Any() == true)
+            {
+                <div class="color-grid">
+                    @foreach (var couleur in VM_UpdateAnnonce.Couleurs)
+                    {
+                        <label class="color-checkbox @(VM_UpdateAnnonce.IsCouleurSelected(couleur.CouleurId) ? "active" : "")">
+                            <input type="checkbox"
+                                   checked="@VM_UpdateAnnonce.IsCouleurSelected(couleur.CouleurId)"
+                                   @onchange="() => VM_UpdateAnnonce.ToggleCouleur(couleur.CouleurId)"
+                                   style="display: none;" />
+                            <span class="color-name">@couleur.Nom</span>
+                            <i class="bi bi-check-circle-fill"></i>
+                        </label>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 8: TAGS -->
+        <!-- ============================================ -->
+        <div class="form-section tags-section">
+            <h2 class="section-title">Tags</h2>
+            <p class="section-subtitle">Ajoutez des mots-clés pour faciliter la recherche (optionnel)</p>
+
+            <div class="tags-input-container">
+                <div class="tags-list" @onclick="FocusTagsInput">
+                    @foreach (var tag in VM_UpdateAnnonce.Tags)
+                    {
+                        <span class="tag-item">
+                            @tag
+                            <button type="button"
+                                    class="tag-remove-btn"
+                                    @onclick="() => RemoveTag(tag)"
+                                    @onclick:stopPropagation="true">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </span>
+                    }
+                    <input type="text"
+                           class="tags-input"
+                           placeholder="Ajouter un tag..."
+                           @bind="currentTag"
+                           @bind:event="oninput"
+                           @onkeydown="HandleTagKeyDown"
+                           @ref="tagsInputElement" />
+                </div>
+                <div class="tags-info">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Appuyez sur Entrée pour ajouter un tag</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- MESSAGES D'ERREUR -->
+        <!-- ============================================ -->
+        @if (VM_UpdateAnnonce.ErrorMessages.Any())
+        {
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Erreurs de validation:</strong>
+                    <ul>
+                        @foreach (var message in VM_UpdateAnnonce.ErrorMessages)
+                        {
+                            <li>@message</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+        @if (VM_UpdateAnnonce.HasCreated == true)
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                <p>✅ L'article a été créé avec succès ! Redirection...</p>
+            </div>
+        }
+
+        <!-- ============================================ -->
+        <!-- BOUTONS D'ACTION -->
+        <!-- ============================================ -->
+        <div class="action-buttons">
+            <button class="btn-cancel"
+                    @onclick="OnCancel"
+                    disabled="@(VM_UpdateAnnonce.IsLoading || VM_UpdateAnnonce.IsUploadingPhotos || VM_UpdateAnnonce.IsUpdatingTags)">
+                Annuler
+            </button>
+
+            <button class="btn-submit"
+                    @onclick="OnPublishClick"
+                    disabled="@(VM_UpdateAnnonce.IsLoading || VM_UpdateAnnonce.IsUploadingPhotos || VM_UpdateAnnonce.IsUpdatingTags)">
+                @if (VM_UpdateAnnonce.IsLoading)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Publication...</span>
+                }
+                else if (VM_UpdateAnnonce.IsUploadingPhotos)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Upload des photos...</span>
+                }
+                else if (VM_UpdateAnnonce.IsUpdatingTags)
+                {
+                    <span class="spinner-small-inline"></span>
+                    <span>Mise à jour des tags...</span>
+                }
+                else if (VM_UpdateAnnonce.SelectedFilePreviews.Any(p => p.IsDangerous))
+                {
+                    <i class="bi bi-check-lg"></i>
+                    <span>Publier l'article en analyse</span>
+                }
+                else
+                {
+                    <i class="bi bi-check-lg"></i>
+                    <span>Publier l'article</span>
+                }
+            </button>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private string marqueSearch = "";
+    private bool isMarqueDropdownOpen = false;
+    private bool isEtatDropdownOpen = false;
+    private ElementReference marqueSearchInput;
+    private ElementReference tagsInputElement;
+    private string currentTag = "";
+    private bool shouldFocusMarqueSearch = false;
+    [Parameter]
+    public int AnnonceId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await VM_UpdateAnnonce.LoadAsync(AnnonceId);
+        VM_UpdateAnnonce.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldFocusMarqueSearch)
+        {
+            shouldFocusMarqueSearch = false;
+            await Task.Delay(50); // Petit délai pour assurer que le DOM est prêt
+            try
+            {
+                await marqueSearchInput.FocusAsync();
+            }
+            catch { }
+        }
+    }
+
+    public void Dispose()
+    {
+        VM_UpdateAnnonce.OnChange -= StateHasChanged;
+    }
+
+    // Photos
+    private async Task OnPhotosSelected(InputFileChangeEventArgs e)
+    {
+        await VM_UpdateAnnonce.OnImagesSelectedAsync(e);
+    }
+
+    private void RemovePhoto(int index)
+    {
+        Console.WriteLine($"[Page] 🗑️ Removing photo at index {index}");
+        VM_UpdateAnnonce.RemoveSelectedPhotoAt(index);
+        
+    }
+
+    // Marque Dropdown
+    private void ToggleMarqueDropdown()
+    {
+        isMarqueDropdownOpen = !isMarqueDropdownOpen;
+        if (isMarqueDropdownOpen)
+        {
+            shouldFocusMarqueSearch = true;
+        }
+        else
+        {
+            marqueSearch = "";
+        }
+    }
+
+    private void OnMarqueSearchBlur()
+    {
+        // Délai pour permettre le clic sur un élément de la liste
+        Task.Delay(200).ContinueWith(_ => InvokeAsync(() =>
+        {
+            isMarqueDropdownOpen = false;
+            marqueSearch = "";
+            StateHasChanged();
+        }));
+    }
+
+    private void SelectMarque(int marqueId)
+    {
+        VM_UpdateAnnonce.NewAnnonce.MarqueId = marqueId;
+        isMarqueDropdownOpen = false;
+        marqueSearch = "";
+        StateHasChanged();
+    }
+
+    private void ClearMarque()
+    {
+        VM_UpdateAnnonce.NewAnnonce.MarqueId = 0;
+        marqueSearch = "";
+        StateHasChanged();
+    }
+
+    // État Dropdown
+    private void SelectEtat(int etatId)
+    {
+        VM_UpdateAnnonce.NewAnnonce.EtatId = etatId;
+        isEtatDropdownOpen = false;
+        StateHasChanged();
+    }
+
+    // Catégories
+    private void OnCategorieSelected(int categorieId)
+    {
+        VM_UpdateAnnonce.NewAnnonce.CategorieId = categorieId;
+        VM_UpdateAnnonce.NewAnnonce.SousCategorieId = 0;
+        VM_UpdateAnnonce.UpdateAvailableTailles(0);
+        StateHasChanged();
+    }
+
+    private void OnSousCategorieSelected(int sousCategorieId)
+    {
+        VM_UpdateAnnonce.NewAnnonce.SousCategorieId = sousCategorieId;
+        VM_UpdateAnnonce.UpdateAvailableTailles(sousCategorieId);
+        StateHasChanged();
+    }
+
+    // Tags
+    private void HandleTagKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (!string.IsNullOrWhiteSpace(currentTag))
+            {
+                VM_UpdateAnnonce.AddTag(currentTag.Trim());
+                currentTag = "";
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void RemoveTag(string tag)
+    {
+        VM_UpdateAnnonce.RemoveTag(tag);
+        StateHasChanged();
+    }
+
+    private async Task FocusTagsInput()
+    {
+        await tagsInputElement.FocusAsync();
+    }
+
+    // Publication
+    private async Task OnPublishClick()
+    {
+        await VM_UpdateAnnonce.PublishAnnonceAsync();
+    }
+
+    private void OnCancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    // Filtres
+    private IEnumerable<MarqueDTO> GetFilteredMarques()
+    {
+        if (VM_UpdateAnnonce.Marques == null)
+            return Enumerable.Empty<MarqueDTO>();
+
+        var filtered = VM_UpdateAnnonce.Marques.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(marqueSearch))
+        {
+            filtered = filtered.Where(m =>
+                m.NomMarque.Contains(marqueSearch, StringComparison.OrdinalIgnoreCase)
+            );
+        }
+
+        return filtered.OrderBy(m => m.NomMarque);
+    }
+
+    private IEnumerable<TailleDTO>? GetFilteredTailles()
+    {
+        if (VM_UpdateAnnonce.Tailles == null || VM_UpdateAnnonce.NewAnnonce.SousCategorieId == 0)
+            return null;
+
+        if (!VM_UpdateAnnonce.AvailableTailleIds.Any())
+            return null;
+
+        return VM_UpdateAnnonce.Tailles
+            .Where(t => VM_UpdateAnnonce.AvailableTailleIds.Contains(t.TailleId))
+            .OrderBy(t => t.Libelletaille);
+    }
+}

@@ -25,5 +25,7 @@ public class AnnonceDetailDTO
     public bool IsOwnerAnnonce { get; set; } = false;
     public string StatutAnnonce { get; set; }
     public int StatutAnnonceId { get; set; }
+    public string GenreAnnonce { get; set; } = null!;
+
 
 }

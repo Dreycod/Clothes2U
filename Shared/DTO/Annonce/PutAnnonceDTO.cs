@@ -19,5 +19,7 @@ namespace Shared.DTO.Annonce
         public int StatutAnnonceId { get; set; } = 1;
         public List<int>? Couleurs { get; set; }
         public int GenreId { get; set; }
+        public List<String>? Tags { get; set; }
+
     }
 }
