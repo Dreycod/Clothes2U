@@ -1,4 +1,6 @@
 ﻿using API.Models.EntityFramework;
+using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using API.Services.Interfaces;
 using AutoMapper;
@@ -9,19 +11,28 @@ using Shared.DTO.SupportTicket;
 
 namespace API.Controllers
 {
+    
+
+    [Microsoft.AspNetCore.Components.Route("api/[controller]")]
     [ApiController]
-    [Route("api/support")]
+    [Route("api/[controller]")]
     public class SupportController : ControllerBase
     {
         private readonly ISupportService _supportService;
+        private readonly IDataRepository<SupportTicket, int> _ticketSupportRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly IMapper _mapper;
 
         public SupportController(
             ISupportService supportService,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            IMapper mapper,
+            IDataRepository<SupportTicket, int> ticketSupportRepository)
         {
             _supportService = supportService;
             _currentUser = currentUser;
+            _ticketSupportRepository = ticketSupportRepository;
+            _mapper = mapper;
         }
 
         // USER
@@ -50,7 +61,9 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTickets()
         {
-            return Ok(await _supportService.GetOpenTicketsAsync());
+            IEnumerable<SupportTicket> tickets = await _supportService.GetOpenTicketsAsync();
+            IEnumerable<SupportTicketViewDTO> ticketsDTO = _mapper.Map<IEnumerable<SupportTicketViewDTO>>(tickets);
+            return Ok(ticketsDTO);
         }
 
         [Authorize(Roles = "Admin, Moderateur")]
@@ -60,6 +73,19 @@ namespace API.Controllers
             int adminId = await _currentUser.GetUserIdOrThrow();
             await _supportService.ReplyAsync(adminId, dto);
             return Ok();
+        }
+
+        [HttpGet("id/{id}")]
+        [Authorize(Roles = "Admin, Moderateur")]
+        public async Task<IActionResult> GetTicket(int id)
+        {
+            SupportTicket ticket = await _ticketSupportRepository.GetByIdAsync(id);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+            SupportTicketDetailViewDTO dto = _mapper.Map<SupportTicketDetailViewDTO>(ticket);
+            return Ok(dto);
         }
     }
 }

@@ -51,11 +51,6 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         }
     }
 
-    public Task<AnnonceDTO> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<List<AnnonceDTO>?> GetAnnonceByFilter(FilterDTO filterDto, int page = 1, int pageSize = 20)
     {
         var queryParams = new List<KeyValuePair<string, string?>>();
@@ -120,17 +115,17 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
     {
         try
         {
-            _logger.LogInformation("Tentative de création d'annonce: {Titre}", createAnnonceDto.Titre);
+            _logger.LogInformation("Tentative de crï¿½ation d'annonce: {Titre}", createAnnonceDto.Titre);
             var body = JsonContent.Create(createAnnonceDto);
             var response = await PostWithCredentialsAsync("Annonce", body);
 
-            // ? GÉRER SPÉCIFIQUEMENT LE BADREQUEST (400)
+            // ? Gï¿½RER SPï¿½CIFIQUEMENT LE BADREQUEST (400)
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("Création annonce refusée (BadRequest): {Error}", errorContent);
+                _logger.LogWarning("Crï¿½ation annonce refusï¿½e (BadRequest): {Error}", errorContent);
 
-                // ? Vérifier si c'est un mot interdit
+                // ? Vï¿½rifier si c'est un mot interdit
                 if (errorContent.Contains("Mot Interdit", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new MotInterditException("Votre annonce contient un mot interdit. Veuillez modifier le titre ou la description.");
@@ -140,38 +135,38 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
                 throw new BadRequestException(errorContent, 400);
             }
 
-            // ? Vérifier le succès
+            // ? Vï¿½rifier le succï¿½s
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Erreur création annonce: {StatusCode} - {Error}", response.StatusCode, error);
+                _logger.LogError("Erreur crï¿½ation annonce: {StatusCode} - {Error}", response.StatusCode, error);
                 throw new HttpRequestException($"Erreur serveur ({response.StatusCode}): {error}");
             }
 
-            // ? Succès - Retourner l'annonce créée
+            // ? Succï¿½s - Retourner l'annonce crï¿½ï¿½e
             var createdAnnonce = await response.Content.ReadFromJsonAsync<AnnonceDTO>();
-            _logger.LogInformation("Annonce créée avec succès: ID={AnnonceId}", createdAnnonce?.AnnonceId);
+            _logger.LogInformation("Annonce crï¿½ï¿½e avec succï¿½s: ID={AnnonceId}", createdAnnonce?.AnnonceId);
 
             return createdAnnonce;
         }
         catch (MotInterditException)
         {
-            // ? Relancer l'exception pour qu'elle soit capturée par le ViewModel
+            // ? Relancer l'exception pour qu'elle soit capturï¿½e par le ViewModel
             throw;
         }
         catch (BadRequestException)
         {
-            // ? Relancer l'exception pour qu'elle soit capturée par le ViewModel
+            // ? Relancer l'exception pour qu'elle soit capturï¿½e par le ViewModel
             throw;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Erreur réseau lors de la création d'annonce");
+            _logger.LogError(ex, "Erreur rï¿½seau lors de la crï¿½ation d'annonce");
             throw new Exception("Erreur de connexion au serveur", ex);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erreur inattendue lors de la création d'annonce");
+            _logger.LogError(ex, "Erreur inattendue lors de la crï¿½ation d'annonce");
             throw;
         }
     }

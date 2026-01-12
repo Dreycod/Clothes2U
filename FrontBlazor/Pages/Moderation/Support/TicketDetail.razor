@@ -1,0 +1,29 @@
+@page "/moderation/TicketDetails/{Id:int}"
+@layout ModerationLayout
+@inject TicketDetailViewModel VM
+
+<PageTitle>Support - Modération</PageTitle>
+<link rel="stylesheet" href="/css/moderation-shared.css" />
+<link href="css/Moderation/moderation-shared.css" rel="stylesheet"/>
+
+@if (VM.IsLoading)
+{
+    <p>Chargement</p>
+}
+else
+{
+    <p>@VM.TicketDetail.MessageUtilisateur</p>
+}
+
+
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        VM.Id = Id;
+        await VM.LoadAsync();
+    }
+}

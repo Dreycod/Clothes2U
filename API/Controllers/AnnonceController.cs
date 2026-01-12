@@ -50,16 +50,12 @@ public class AnnonceController : ControllerBase
         _motInterditService = motInterditService;
         _illustreAnnonceManager = illustreAnnonceManager;
     }
-
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByUtilisateurId(int utilisateurId)
     {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
-        annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
+        IEnumerable<AnnonceDTO> annoncesDTO = await _annonceExtensionService.GetAnnoncesByUserId(utilisateurId);
         return Ok(annoncesDTO);
     }
 
@@ -300,12 +296,9 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(id);
-        IEnumerable<Annonce> annoncesPaginees = annonces
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize);
+        IEnumerable<AnnonceDTO> annonces = await _annonceExtensionService.GetAnnoncesByUserId(id);
 
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
         return Ok(annoncesDTO);

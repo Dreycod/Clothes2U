@@ -19,12 +19,10 @@ else
         @foreach (var ticket in VM.Tickets)
         {
             <div class="support-card">
-                <h4>@ticket.Subject</h4>
-                <p>@ticket.MessageUtilisateur</p>
-                <small>@ticket.EmailUtilisateur</small>
+                <h4>@ticket.Title</h4>
 
                 <button class="btn btn-sm btn-primary"
-                        @onclick="() => VM.OpenReply(ticket.Id)">
+                        @onclick="() => VM.OpenDetails(ticket.TicketId)">
                     Répondre
                 </button>
             </div>
@@ -32,22 +30,6 @@ else
     </div>
 }
 
-@if (VM.IsReplying)
-{
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <h3>Répondre au ticket</h3>
-
-            <textarea class="form-control"
-                      rows="5"
-                      @bind="VM.ReplyMessage"></textarea>
-
-            <button class="btn btn-success" @onclick="VM.SendReplyAsync">
-                Envoyer
-            </button>
-        </div>
-    </div>
-}
 
 @code {
     protected override async Task OnInitializedAsync()

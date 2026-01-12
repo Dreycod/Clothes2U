@@ -8,7 +8,7 @@ namespace API.Mapper
     {
         public SupportServiceMappingProfile() 
         {
-            CreateMap<SupportTicket, SupportTicketViewDTO>()
+            CreateMap<SupportTicket, SupportTicketDetailViewDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.SupportTicketId))
                 .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
                 .ForMember(dest => dest.MessageUtilisateur, opt => opt.MapFrom(src => src.MessageUtilisateur))
@@ -16,6 +16,9 @@ namespace API.Mapper
                 .ForMember(dest => dest.EmailUtilisateur, opt => opt.MapFrom(src => src.UtilisateurTicket.Email))
                 .ForMember(dest => dest.EmailVerifie, opt => opt.MapFrom(src => src.UtilisateurTicket.ValidEmail))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+            CreateMap<SupportTicket, SupportTicketViewDTO>()
+                .ForMember(dest => dest.TicketId, opt => opt.MapFrom(src => src.SupportTicketId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Subject));
         }
     }
 }

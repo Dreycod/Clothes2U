@@ -28,6 +28,7 @@ public class UtilisateurController :  ControllerBase
     private readonly IMessageRepository _messageRepository;
     private readonly IUserDeletionService _userDeletionService;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly IAnnonceExtensionService _annonceExtensionService;
 
     public UtilisateurController(
         IUtilisateurRepository utilisateurManager,
@@ -36,7 +37,8 @@ public class UtilisateurController :  ControllerBase
         INotificationRepository notificationRepository,
         IMessageRepository messageRepository,
         IUserDeletionService userDeletionService,
-        IAnnonceRepository<Annonce, int, FilterDTO> annonceManager
+        IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
+        IAnnonceExtensionService annonceExtensionService
         )
     {
         _utilisateurManager = utilisateurManager;
@@ -44,6 +46,7 @@ public class UtilisateurController :  ControllerBase
         _currentUserService = currentUserService;
         _notificationRepository = notificationRepository;
         _messageRepository = messageRepository;
+        _annonceExtensionService =  annonceExtensionService;
         _userDeletionService = userDeletionService;
         _annonceManager = annonceManager;
     }
@@ -153,12 +156,13 @@ public class UtilisateurController :  ControllerBase
         }
 
         // get annonces
-        var annonces = await _annonceManager.GetByUtilisateurId(userId); // only active annonces
+        var annonces = await _annonceExtensionService.GetAnnoncesByUserId(userId); 
         foreach (var annonce in annonces)
         {
-            if (annonce.StatutAnnonceId == 1) // only active annonces
+            if (annonce.StatutAnnonceId == 1)
             {
-                await _annonceManager.DeleteAsync(annonce);
+                var annonceToDelete = await _annonceManager.GetByIdAsync(annonce.AnnonceId);
+                await _annonceManager.DeleteAsync(annonceToDelete);
             }
         }
 

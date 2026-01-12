@@ -113,6 +113,7 @@ builder.Services.AddScoped<ForgotPasswordViewModel>();
 builder.Services.AddScoped<ResetPasswordViewModel>();
 builder.Services.AddScoped<OrderViewModel>();
 builder.Services.AddScoped<CreateSupportTicketViewModel>();
+builder.Services.AddScoped<TicketDetailViewModel>();
 builder.Services.AddScoped<SupportTicketsViewModel>();
 
 // AuthService doit déjà être enregistré

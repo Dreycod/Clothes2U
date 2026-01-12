@@ -6,7 +6,7 @@ namespace API.Models.Repository;
 public interface IAnnonceRepository<TEntity, TIdentifier, TFilterEntity> : IDataRepository<TEntity, TIdentifier>, ISuspendRepository
 {
     Task<IEnumerable<TEntity>> GetActiveAnnonces();
-    Task<IEnumerable<TEntity>> GetByUtilisateurId(TIdentifier id);
+    Task<IEnumerable<TEntity>> GetByUtilisateurId(int userId, int? currentUserId);
     
     Task<IEnumerable<TEntity>> GetByUtilisateurFavoris(TIdentifier id);
     Task<IEnumerable<TEntity>> FilterAsync(TFilterEntity filterDto, int page, int pageSize, int? currentUserId = null);

@@ -57,5 +57,21 @@ namespace FrontBlazor.Services.WebService
             var response = await PostWithCredentialsAsync("support/reply", content);
             response.EnsureSuccessStatusCode();
         }
+
+        public async Task<SupportTicketDetailViewDTO> GetTicketById(int id)
+        {
+            try
+            {
+                var response = await GetWithCredentialsAsync($"support/id/{id}");
+                response.EnsureSuccessStatusCode();
+                var ticket = await response.Content.ReadFromJsonAsync<SupportTicketDetailViewDTO>();
+                return ticket ?? null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error during GetTicketById : " + ex.Message);
+                return null;
+            }
+        }
     }
 }
