@@ -1,5 +1,6 @@
 using Shared.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 namespace Shared.DTO.Photo
 {
     // DTO pour l'upload de photos (indépendant de ASP.NET Core)
@@ -36,8 +37,11 @@ namespace Shared.DTO.Photo
     // DTO pour validation Photo
     public class PhotoDTO
     {
+        [JsonPropertyName("photoId")]
         public int PhotoId { get; set; }
+        [JsonPropertyName("image")]
         public byte[] Image { get; set; }
+        [JsonPropertyName("enAttenteValidation")]
         public bool? EnAttenteValidation { get; set; }
     }
     public class PhotoDataDTO

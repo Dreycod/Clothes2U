@@ -27,6 +27,7 @@ public class DecisionController : ControllerBase
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotificationMailService  _mailService;
+    private readonly INotificationService _notificationService;
 
     public DecisionController(
         IDecisionRepository decisionManager,
@@ -37,6 +38,7 @@ public class DecisionController : ControllerBase
         INoteUtilisateurRepository noteUtilisateurManager,
         IConversationRepository<Conversation, int> conversationManager,
         INotificationMailService mailService,
+        INotificationService notificationService,
         IMapper mapper)
     {
         _currentUserService =  currentUserService;
@@ -48,6 +50,7 @@ public class DecisionController : ControllerBase
         _conversationManager = conversationManager;
         _mapper = mapper;
         _mailService = mailService;
+        _notificationService = notificationService;
     }
 
     [HttpGet]
@@ -86,10 +89,17 @@ public class DecisionController : ControllerBase
     {
         try
         {
+            Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
             int userId = await _currentUserService.GetUserIdOrThrow();
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (decisionDTO is DecisionIgnorPostDTO)
+            {
+                await _signalementManager.DeleteAsync(signalement);
+                return decisionDTO;
             }
 
             Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
@@ -103,6 +113,9 @@ public class DecisionController : ControllerBase
             switch (decisionDTO)
             {
                 case DecisionAvertissementPostDTO avertissement:
+                    await _notificationService.CreateNotificationAvertissement(avertissement.UtilisateurId,
+                        avertissement.MessageModerateur);
+                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
                     decision = await CreateAvertissement(decision); 
                     break;
 
@@ -119,15 +132,15 @@ public class DecisionController : ControllerBase
                     decision = await CreateSanctionBannissement(decision, bannissement);
                     await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
                     break;
-
                 default:
                     return BadRequest("Type de décision non reconnu");
             }
+            await _signalementManager.DeleteAsync(signalement);
             var createdDecision = await _decisionManager.AddAsync(decision);
             var resultDTO = _mapper.Map<DecisionPostDTO>(createdDecision);
-
             return CreatedAtAction(nameof(GetAllDecisionsByModerateurId), 
                 new { id = userId }, resultDTO);
+        
         }
         catch (Exception e)
         {

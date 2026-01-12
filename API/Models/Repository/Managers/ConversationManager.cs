@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Shared.Enums;
 
 namespace API.Models.Repository.Managers;
 
@@ -17,6 +18,7 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Include(c => c.LAnnonce)
             .ThenInclude(a => a.Photos)
             .ThenInclude(p => p.Photo)
+            .Include(c => c.Commandes)
             .Include(c => c.Messages)
             .ThenInclude(m => m.Utilisateur)
             .Include(c => c.Messages)
@@ -52,8 +54,8 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
                     : !c.Vendeur.UtilisateurVendeur.UtilisateursBloques.Any(b => b.UtilisateurBloqueId == id) &&
                       !c.Vendeur.UtilisateurVendeur.BloqueParUtilisateurs.Any(b => b.UtilisateurBloqueurId == id)) &&
                 (c.Vendeur.UtilisateurVendeurId == id 
-                    ? c.Acheteur.UtilisateurAcheteur.Statut.StatutLibelle == "Actif"
-                    : c.Vendeur.UtilisateurVendeur.Statut.StatutLibelle == "Actif")
+                    ? c.Acheteur.UtilisateurAcheteur.StatutId == (int)UtilisateurStatut.Actif
+                    : c.Vendeur.UtilisateurVendeur.StatutId == (int)UtilisateurStatut.Actif)
             )
             .ToListAsync();
     }

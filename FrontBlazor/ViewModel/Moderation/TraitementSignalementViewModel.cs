@@ -194,17 +194,11 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
             DecisionAvertissementPostDTO decision = new DecisionAvertissementPostDTO
             {
                 UtilisateurId = UtilisateurSignale.UtilisateurId,
-                ElementDecision = elementDecision
-
+                ElementDecision = elementDecision,
+                MessageModerateur = WarningMessage,
+                SignalementId = Signalement.SignalementId
             };
             await _decisionService.AddDecision(decision);
-            await _notificationService.CreateNotificationAvertissement(
-                new CreateAvertissementRequestDTO()
-                {
-                    MessageAvertissement = WarningMessage,
-                    UtilisateurId = UtilisateurSignale.UtilisateurId
-                }
-            );
             CloseWarningModal();
             _nav.NavigateTo("/moderation/signalements");
         }
@@ -224,12 +218,12 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         
             var sanction = new SanctionSuspensionPostDTO
             {
+                SignalementId = Signalement.SignalementId,
                 UtilisateurId = UtilisateurSignale.UtilisateurId,
                 DateFinSuspension = DateTime.UtcNow.AddDays(SuspendDays),
                 ElementDecision = elementDecision
             };
             await _decisionService.AddDecision(sanction);
-            await _signalementService.DeleteAsync(Signalement.SignalementId);
             CloseSuspendModal();
             _nav.NavigateTo("/moderation/signalements");
         }
@@ -273,11 +267,11 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
         
             var sanction = new SanctionBannissementPostDTO()
             {
+                SignalementId = Signalement.SignalementId,
                 UtilisateurId = UtilisateurSignale.UtilisateurId,
                 ElementDecision = elementDecision
             };
             await _decisionService.AddDecision(sanction);
-            await _signalementService.DeleteAsync(Signalement.SignalementId);
             _nav.NavigateTo("/moderation/signalements");
             CloseBanModal();
         }
@@ -291,7 +285,15 @@ public class TraitementSignalementViewModel : ModerationViewModel, INotifyProper
     {
         try
         {
-            await _signalementService.DeleteAsync(Signalement.SignalementId);
+            var elementDecision = CreateElementDecision();
+        
+            DecisionIgnorPostDTO decision = new DecisionIgnorPostDTO()
+            {
+                SignalementId = Signalement.SignalementId,
+                UtilisateurId = UtilisateurSignale.UtilisateurId,
+                ElementDecision = elementDecision
+            };
+            await _decisionService.AddDecision(decision);
             _nav.NavigateTo("/moderation/signalements");
         }
         catch (Exception ex)

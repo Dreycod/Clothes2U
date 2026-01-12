@@ -16,6 +16,10 @@ public class MessageManager :  GenericCRUDManager<Message>, IMessageRepository
             .ThenInclude(mt => mt.Photos)
             .Include(m => m.MessageDemande)
             .Include(m => m.MessageEstPayee)
+            .Include(m => m.MessageEnvoieColis)
+            .Include(m => m.MessageEstRecu)
+            .Include(m => m.Conversation)
+            .ThenInclude(c => c.Commandes)
             .AsSplitQuery();
     }
 
@@ -57,6 +61,19 @@ public class MessageDemandeManager : GenericCRUDManager<MessageDemande>, IMessag
 public class MessageEstPayeeManager : GenericCRUDManager<MessageEstPayee>
 {
     public MessageEstPayeeManager(Clothes2UDbContext context) : base(context) {}
+    
+    public override Task<MessageEstPayee?> GetByIdAsync(int id)
+    {
+        return _context.MessageEstPayees
+            .Include(m => m.Message)
+            .ThenInclude(m => m.Conversation)
+            .ThenInclude(c => c.Commandes)
+            .Include(m => m.Message)
+            .ThenInclude(m => m.Conversation)
+            .ThenInclude(c => c.LAnnonce)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(m => m.MessageEstPayeeId == id);
+    }
 }
 
 public class MessageContientImageManager : GenericCRUDManager<MessageContientImage>
