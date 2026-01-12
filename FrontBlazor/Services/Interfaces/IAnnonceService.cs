@@ -3,7 +3,7 @@ using Shared.DTO.Annonce;
 
 namespace FrontBlazor.Services.Interfaces;
 
-public interface IAnnonceService 
+public interface IAnnonceService
 {
     Task<AnnonceDetailDTO?> GetAnnonceDetailById(int id);
     Task<List<AnnonceDTO>?> GetAnnoncesByUserIdAsync(int id);
@@ -12,7 +12,7 @@ public interface IAnnonceService
     Task<List<AnnonceDTO>?> GetByFavorisUtilisateur(int page = 1, int pageSize = 8);
     Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page = 1, int pageSize = 30);
     Task<IEnumerable<AnnonceDTO>> GetAnnoncesByPhotoIDs(IEnumerable<int> PhotoID);
-    Task CreateAnnonce(CreateAnnonceDTO annonce);
+    Task<AnnonceDTO?> CreateAnnonce(CreateAnnonceDTO createAnnonceDto);
     Task UpdateAnnonce(int id, PutAnnonceDTO annonce);
     Task ModificationAnnonce(AnnonceDetailDTO annonce);
     Task VendreAnnonce(int annonceId);

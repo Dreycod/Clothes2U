@@ -26,6 +26,7 @@ public class AnnonceController : ControllerBase
     private readonly ISuggestionService _suggestionService;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IMotInterditService _motInterditService;
 
     public AnnonceController(
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
@@ -35,7 +36,8 @@ public class AnnonceController : ControllerBase
         IllustreAnnonceRepository<Illustre_Annonce, int> illustreAnnonceManager,
         ICurrentUserService currentUserService,
         INotificationService notificationService,
-        ISuggestionService suggestionService
+        ISuggestionService suggestionService,
+        IMotInterditService motInterditService
         )
     {
         _annonceManager = manager;
@@ -45,6 +47,7 @@ public class AnnonceController : ControllerBase
         _notificationService = notificationService;
         _currentUserService = currentUserService;
         _suggestionService = suggestionService;
+        _motInterditService = motInterditService;
         _illustreAnnonceManager = illustreAnnonceManager;
     }
 
@@ -62,7 +65,7 @@ public class AnnonceController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("id/{id}")]
-    [ProducesResponseType(typeof(AnnonceDetailDTO),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AnnonceDetailDTO>> GetById(int id)
@@ -70,7 +73,7 @@ public class AnnonceController : ControllerBase
         var annonce = await _annonceManager.GetByIdAsync(id);
         if (annonce == null)
             return NotFound();
-        
+
         AnnonceDetailDTO annonceDTO = _mapper.Map<AnnonceDetailDTO>(annonce);
         annonceDTO = await _annonceExtensionService.LikeAnnonceDetail(annonceDTO);
         annonceDTO = await _annonceExtensionService.CheckOwnerAnnonceDetail(annonceDTO);
@@ -94,11 +97,11 @@ public class AnnonceController : ControllerBase
 
         int userId = await _currentUserService.GetUserIdOrThrow();
         IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurFavoris((int)userId);
-    
+
         IEnumerable<Annonce> annoncesPaginees = annonces
             .Skip((page - 1) * pageSize)
             .Take(pageSize);
-    
+
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
 
@@ -139,31 +142,23 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
+        var isForbidden = await _motInterditService.ContientMotInterdit(createAnnonceDto.Titre) ||
+                                 await _motInterditService.ContientMotInterdit(createAnnonceDto.Description);
+        if (isForbidden)
+        {
+            return BadRequest("Mot Interdit");
+        }
         int userId = await _currentUserService.GetUserIdOrThrow();
         var annonce = _mapper.Map<Annonce>(createAnnonceDto);
 
         await _annonceManager.AddAsync(annonce);
 
-        if (createAnnonceDto.Couleurs?.Any() == true)
-        {
-            foreach (var couleurId in createAnnonceDto.Couleurs)
-            {
-                var estDeCouleur = new Est_De_Couleur
-                {
-                    AnnonceId = annonce.AnnonceId,
-                    CouleurId = couleurId
-                };
-
-                await _estDeCouleurRepository.AddAsync(estDeCouleur);
-            }
-        }
         var annonceComplete = await _annonceManager.GetByIdAsync(annonce.AnnonceId);
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonceComplete);
 
         // Notification
         await _notificationService.CreateNouvelleAnnonceNotification(annonce.AnnonceId);
-    
+
         return CreatedAtAction(nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
 
@@ -171,7 +166,7 @@ public class AnnonceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteAnnonce(int id) 
+    public async Task<IActionResult> DeleteAnnonce(int id)
     {
         Annonce? annonceToDelete = await _annonceManager.GetByIdAsync(id);
         if (annonceToDelete == null)
@@ -284,7 +279,7 @@ public class AnnonceController : ControllerBase
         }
         IEnumerable<AnnonceDTO> annonces = await _suggestionService.GetRecommandations(page, pageSize);
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        return  Ok(annoncesDTO);
+        return Ok(annoncesDTO);
     }
 
     [HttpPut("Vendu/{annonceId}")]
@@ -297,7 +292,7 @@ public class AnnonceController : ControllerBase
     }
 
     [HttpGet("ByUtilisateurIdPagination/{id}")]
-    public async Task<ActionResult<AnnonceDetailDTO>> GetAnnoncesPaginationByUserId(int id, 
+    public async Task<ActionResult<AnnonceDetailDTO>> GetAnnoncesPaginationByUserId(int id,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 30)
     {
@@ -309,7 +304,7 @@ public class AnnonceController : ControllerBase
         IEnumerable<Annonce> annoncesPaginees = annonces
             .Skip((page - 1) * pageSize)
             .Take(pageSize);
-    
+
         IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
