@@ -36,9 +36,11 @@ namespace API.Models.EntityFramework
         public StatutTicketEnum Status { get; set; } // OPEN | ANSWERED | CLOSED
 
         [ForeignKey(nameof(UtilisateurId))]
-        public Utilisateur Utilisateur { get; set; }
+        [InverseProperty(nameof(Utilisateur.SupportTicketsUtilisateurs))]
+        public Utilisateur UtilisateurTicket { get; set; }
 
         [ForeignKey(nameof(AdminId))]
+        [InverseProperty(nameof(Utilisateur.SupportTicketsAdmins))]
         public Utilisateur? Admin { get; set; }
 
         public int GetId() => SupportTicketId;

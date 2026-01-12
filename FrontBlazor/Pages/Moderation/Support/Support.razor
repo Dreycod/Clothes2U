@@ -1,0 +1,55 @@
+﻿@page "/moderation/support"
+@using FrontBlazor.ViewModel.Moderation.Support
+@layout ModerationLayout
+@inject SupportTicketsViewModel VM
+
+<PageTitle>Support - Modération</PageTitle>
+
+@if (VM.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <h1 class="mod-page-title">Demandes de support</h1>
+
+    <div class="support-list">
+        @foreach (var ticket in VM.Tickets)
+        {
+            <div class="support-card">
+                <h4>@ticket.Subject</h4>
+                <p>@ticket.MessageUtilisateur</p>
+                <small>@ticket.EmailUtilisateur</small>
+
+                <button class="btn btn-sm btn-primary"
+                        @onclick="() => VM.OpenReply(ticket.Id)">
+                    Répondre
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@if (VM.IsReplying)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3>Répondre au ticket</h3>
+
+            <textarea class="form-control"
+                      rows="5"
+                      @bind="VM.ReplyMessage"></textarea>
+
+            <button class="btn btn-success" @onclick="VM.SendReplyAsync">
+                Envoyer
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await VM.LoadAsync();
+    }
+}
