@@ -233,6 +233,7 @@ builder.Services.AddScoped<IllustreAnnonceRepository<Illustre_Annonce, int>, Ill
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
 builder.Services.AddScoped<IMessageRepository, MessageManager>();
+builder.Services.AddScoped<IAdresseRepository, AdresseManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEstPayee, int>, MessageEstPayeeManager>();

@@ -1,6 +1,7 @@
 using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +16,15 @@ namespace API.Controllers;
 [Authorize]
 public class AddressController : ControllerBase
 {
-    private readonly Clothes2UDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IAdresseRepository _addressManager;
     private readonly ILogger<AddressController> _logger;
     private readonly IMapper _mapper;
 
-    public AddressController(Clothes2UDbContext context, ICurrentUserService currentUserService, ILogger<AddressController> logger, IMapper mapper)
+    public AddressController(ICurrentUserService currentUserService, IAdresseRepository addressManager, ILogger<AddressController> logger, IMapper mapper)
     {
-        _context = context;
         _logger = logger;
+        _addressManager = addressManager;
         _currentUserService = currentUserService;
         _mapper = mapper;
     }
@@ -37,12 +38,8 @@ public class AddressController : ControllerBase
     public async Task<ActionResult<List<AdresseDTO>>> GetUserAddresses()
     {
         int userId = await _currentUserService.GetUserIdOrThrow();
-        var addresses = await _context.Adresses
-            .Where(a => a.UtilisateurId == userId)
-            .Select(a => _mapper.Map<AdresseDTO>(a))
-            .ToListAsync();
-
-        return Ok(addresses);
+        var addresses = await _addressManager.GetUserAddressesAsync(userId);
+        return Ok(addresses.Select(a => _mapper.Map<AdresseDTO>(a)).ToList());
     }
 
     /// <summary>
@@ -53,7 +50,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AdresseDTO>> GetAddressById(int id)
     {
-        var address = await _context.Adresses.FindAsync(id);
+        var address = await _addressManager.GetByIdAsync(id);
         
         if (address == null)
         {
@@ -61,7 +58,6 @@ public class AddressController : ControllerBase
         }
 
         var dto = _mapper.Map<AdresseDTO>(address);
-
         return Ok(dto);
     }
 
@@ -73,30 +69,25 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AdresseDTO>> CreateAddress([FromBody] CreateAdresseDTO dto)
     {
-        if (!ModelState.IsValid)
+        try
         {
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var address = _mapper.Map<Adresse>(dto);
+            
+            await _addressManager.CreateAsync(address);
+            
+            var result = _mapper.Map<AdresseDTO>(address);
+            return CreatedAtAction(nameof(GetAddressById), new { id = address.AdresseId }, result);
         }
-
-        // Si c'est la première adresse, la définir par défaut
-        var hasExistingAddresses = await _context.Adresses
-            .AnyAsync(a => a.UtilisateurId == dto.UtilisateurId);
-        
-        
-
-        var address = _mapper.Map<Adresse>(dto);
-
-        if (!hasExistingAddresses)
+        catch (Exception ex)
         {
-            address.IsDefault = true;
+            _logger.LogError(ex, "Error creating address");
+            return BadRequest(new { error = ex.Message });
         }
-
-        _context.Adresses.Add(address);
-        await _context.SaveChangesAsync();
-
-        var result = _mapper.Map<AdresseDTO>(address);
-
-        return CreatedAtAction(nameof(GetAddressById), new { id = address.AdresseId }, result);
     }
 
     /// <summary>
@@ -105,19 +96,35 @@ public class AddressController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateAddress(int id, [FromBody] UpdateAdresseDTO dto)
     {
-        var address = await _context.Adresses.FindAsync(id);
-        
-        if (address == null)
+        try
         {
-            return NotFound();
-        }
-        
-        _mapper.Map(dto, address);
-        await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        return NoContent();
+            // ✅ FIX: Map the DTO and set the ID
+            var address = _mapper.Map<Adresse>(dto);
+            address.AdresseId = id;
+
+            // ✅ FIX: Call UpdateAsync with just the address object
+            await _addressManager.UpdateAsync(address);
+            
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Address not found: {Id}", id);
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating address {Id}", id);
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     /// <summary>
@@ -128,29 +135,21 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetDefaultAddress(int id)
     {
-        var address = await _context.Adresses.FindAsync(id);
-        
-        if (address == null)
+        try
         {
-            return NotFound();
+            await _addressManager.SetDefaultAsync(id);
+            return NoContent();
         }
-
-        // Retirer le défaut de toutes les adresses de l'utilisateur
-        var userAddresses = await _context.Adresses
-            .Where(a => a.UtilisateurId == address.UtilisateurId)
-            .ToListAsync();
-
-        foreach (var addr in userAddresses)
+        catch (KeyNotFoundException ex)
         {
-            addr.IsDefault = false;
+            _logger.LogWarning(ex, "Address not found: {Id}", id);
+            return NotFound(new { error = ex.Message });
         }
-
-        // Définir la nouvelle adresse par défaut
-        address.IsDefault = true;
-
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error setting default address {Id}", id);
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     /// <summary>
@@ -161,29 +160,20 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAddress(int id)
     {
-        var address = await _context.Adresses.FindAsync(id);
-        
-        if (address == null)
+        try
         {
-            return NotFound();
+            await _addressManager.DeleteAsync(id);
+            return NoContent();
         }
-
-        // Si c'était l'adresse par défaut, définir une autre comme par défaut
-        if (address.IsDefault)
+        catch (KeyNotFoundException ex)
         {
-            var anotherAddress = await _context.Adresses
-                .Where(a => a.UtilisateurId == address.UtilisateurId && a.AdresseId != id)
-                .FirstOrDefaultAsync();
-
-            if (anotherAddress != null)
-            {
-                anotherAddress.IsDefault = true;
-            }
+            _logger.LogWarning(ex, "Address not found: {Id}", id);
+            return NotFound(new { error = ex.Message });
         }
-
-        _context.Adresses.Remove(address);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting address {Id}", id);
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }
