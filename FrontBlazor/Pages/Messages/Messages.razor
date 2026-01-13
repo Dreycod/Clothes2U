@@ -20,59 +20,79 @@
                 {
                     <p>Chargement...</p>
                 }
-                else if (VM_Messagerie.Conversations != null && VM_Messagerie.Conversations.Any())
+                else //if (VM_Messagerie.Conversations != null && VM_Messagerie.Conversations.Any())
                 {
-                    @foreach (var conversation in VM_Messagerie.Conversations)
+                    <div class="sidebar-filters">
+                        <select class="status-filter" @bind="VM_Messagerie.StatusFilter">
+                            <option value="Tous">Toutes Les Conversations</option>
+                            @foreach (var status in VM_Messagerie.StatutConversation)
+                            {
+                                <option value="@status.StatutConversationLibelle">@status.StatutConversationLibelle</option>
+                            }
+                        </select>
+                    </div>
+                    
+                    @if (!VM_Messagerie.GetFilterConversation().Any())
                     {
-                        <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "") @(conversation.HasNewMessages ? "has-new-messages" : "")"
-                             @onclick="() => OnSelectConversation(conversation.ConversationId)">
-                            <div class="conversation-avatar">
-                                @if (conversation.PhotoAnnonceId.HasValue && conversation.PhotoAnnonceId.Value != 0)
-                                {
-                                    <img src="@VM_Messagerie._mediaService.GetPhotoUrl(conversation.PhotoAnnonceId.Value)" alt="Photo de l'annonce" />
-                                }
-                                else
-                                {
-                                    <img src="images/placeholder_annonce.png"
-                                         alt="Photo interlocuteur" />
-                                }
-                                @if (conversation.HasNewMessages)
-                                {
-                                    <span class="notification-badge">●</span>
-                                }
-                            </div>
-                            <div class="conversation-info">
-                                <h3 class="conversation-name">
-                                    <span class="conversation-title">@conversation.TitreAnnonce</span>
-                                    <span class="conversation-interlocuteur">@conversation.Interlocuteur</span>
-                                    
-                                    @if (conversation.HasNewMessages)
-                                    {
-                                        <span class="new-indicator">Nouveau</span>
-                                    }
-                                    
-                                </h3>
-                                <p class="conversation-preview @(conversation.HasNewMessages ? "unread" : "")">
-                                    @if (conversation.ListMessages != null && conversation.ListMessages.Any())
-                                    {
-                                        var lastMessage = conversation.ListMessages.Last();
-                                        if (lastMessage.TypeMessage == "Demande")
-                                        {
-                                            <i class="bi bi-tag-fill"></i>
-                                            <span>Nouvelle proposition de prix</span>
-                                        }
-                                    }
-                                    @conversation.LastMessage
-                                </p>
-                                
-                            </div>
+                        <div class="sidebar-empty">
+                           <p>Aucune Conversation</p>
                         </div>
                     }
+                    else
+                    {
+                        @foreach (var conversation in VM_Messagerie.GetFilterConversation())
+                        {
+                            <div class="conversation-item @(VM_Messagerie.SelectedConversationId == conversation.ConversationId ? "active" : "") @(conversation.HasNewMessages ? "has-new-messages" : "")"
+                                 @onclick="() => OnSelectConversation(conversation.ConversationId)">
+                                <div class="conversation-avatar">
+                                    @if (conversation.PhotoAnnonceId.HasValue && conversation.PhotoAnnonceId.Value != 0)
+                                    {
+                                        <img src="@VM_Messagerie._mediaService.GetPhotoUrl(conversation.PhotoAnnonceId.Value)" alt="Photo de l'annonce" />
+                                    }
+                                    else
+                                    {
+                                        <img src="images/placeholder_annonce.png"
+                                             alt="Photo interlocuteur" />
+                                    }
+                                    @if (conversation.HasNewMessages)
+                                    {
+                                        <span class="notification-badge">●</span>
+                                    }
+                                </div>
+                                <div class="conversation-info">
+                                    <h3 class="conversation-name">
+                                        <span class="conversation-title">@conversation.TitreAnnonce</span>
+                                        <span class="conversation-interlocuteur">@conversation.Interlocuteur</span>
+                                        
+                                        @if (conversation.HasNewMessages)
+                                        {
+                                            <span class="new-indicator">Nouveau</span>
+                                        }
+                                        
+                                    </h3>
+                                    <p class="conversation-preview @(conversation.HasNewMessages ? "unread" : "")">
+                                        @if (conversation.ListMessages != null && conversation.ListMessages.Any())
+                                        {
+                                            var lastMessage = conversation.ListMessages.Last();
+                                            if (lastMessage.TypeMessage == "Demande")
+                                            {
+                                                <i class="bi bi-tag-fill"></i>
+                                                <span>Nouvelle proposition de prix</span>
+                                            }
+                                        }
+                                        @conversation.LastMessage
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                        }
+                    }
+                    
                 }
-                else
-                {
-                    <p>Vous n'avez pas de conversations</p>
-                }
+                @* else *@
+                @* { *@
+                @*     <p>Vous n'avez pas de conversations</p> *@
+                @* } *@
             </div>
         </aside>
 

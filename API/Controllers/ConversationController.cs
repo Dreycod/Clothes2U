@@ -7,6 +7,7 @@ using API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO;
 using Shared.DTO.Message;
 
 namespace API.Controllers;
@@ -19,6 +20,7 @@ public class ConversationController : ControllerBase
     private readonly IMessageRepository _messageManager;
     private readonly INotificationRepository _notificationManager;
     private readonly IConversationRepository<Conversation, int> _conversationManager;
+    private readonly IDataRepository<StatutConversation, int> _statutConversationManager;
     private readonly ICurrentUserService _currentUserService;
     private readonly IConversationService _conversationService;
     private readonly INotificationService _notificationService;
@@ -27,6 +29,7 @@ public class ConversationController : ControllerBase
     public ConversationController(
         IConversationRepository<Conversation, int> manager,
         IMessageRepository messageManager,
+        IDataRepository<StatutConversation, int> statutConversationManager,
         INotificationRepository notificationManager,
         ICurrentUserService currentUserService,
         IConversationService conversationService, 
@@ -37,6 +40,7 @@ public class ConversationController : ControllerBase
         _conversationManager = manager;
         _currentUserService = currentUserService;
         _messageManager = messageManager;
+        _statutConversationManager = statutConversationManager;
         _conversationService = conversationService;
         _mapper = mapper;
         _notificationService =  notificationService;
@@ -56,6 +60,15 @@ public class ConversationController : ControllerBase
         });
         await _notificationService.DeleteMessagesNotificationByConversationId(id, userId);
         return Ok(conversationDTO);
+    }
+    
+    [HttpGet("statutConversation")]
+    [Authorize]
+    public async Task<ActionResult<StatutConversationDTO>> GetStatutConversation()
+    {
+        var statutConversation = await _statutConversationManager.GetAllAsync();
+        if (statutConversation == null) return NotFound();
+        return Ok(statutConversation);
     }
     
     [HttpGet("utilisateur/{id}")]

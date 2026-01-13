@@ -3,6 +3,7 @@ using API.Models.EntityFramework;
 using AutoMapper;
 using Shared.DTO.Message;
 using System.Collections.ObjectModel;
+using Shared.DTO;
 
 namespace API.Mapper;
 
@@ -17,6 +18,8 @@ public class ConversationMappingProfile : Profile
                 src.MessageTexte.Photos != null 
                     ? src.MessageTexte.Photos.Select(p => p.PhotoId).ToList() 
                     : new List<int>()));
+
+        CreateMap<StatutConversation, StatutConversationDTO>();
             
         CreateMap<Conversation, ConversationDTO>()
             .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId))
@@ -47,7 +50,7 @@ public class ConversationMappingProfile : Profile
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.LAnnonce.AnnonceId))
             .ForMember(dest => dest.VendeurId, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeurId))
             .ForMember(dest => dest.StatusConversationId, opt => opt.MapFrom(src => src.StatutConversationId))
-            .ForMember(dets => dets.StatusConversation, opt => opt.MapFrom(src => src.StatutConversation.StatutConversationLibelle))
+            .ForMember(dest => dest.StatusConversation, opt => opt.MapFrom(src => src.StatutConversation.StatutConversationLibelle))
             .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
                 src.LAnnonce.Photos.FirstOrDefault() != null
                     ? src.LAnnonce.Photos.First().Photo.PhotoId

@@ -15,6 +15,7 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .ThenInclude(v => v.UtilisateurVendeur)
             .Include(c => c.Acheteur)
             .ThenInclude(a => a.UtilisateurAcheteur)
+            .Include((c => c.StatutConversation))
             .Include(c => c.LAnnonce)
             .ThenInclude(a => a.Photos)
             .ThenInclude(p => p.Photo)
