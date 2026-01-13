@@ -269,20 +269,34 @@ public class MessageController : ControllerBase
         };
         
         await _messageManager.AddAsync(message);
-
-        var order = _orderService.GetOrdersByUserIdAsync(dto.UtilisateurId);
-        if (order == null) return BadRequest("Order introuvable");
         
-        var commande = order.Result.LastOrDefault();
-        if (commande == null) return BadRequest("Commande introuvable");
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+
+        var orders = conversation?.Commandes?.OrderByDescending(c => c.CommandeId);
+        if (orders == null) return BadRequest("Order introuvable");
+        
+        var commande = orders.LastOrDefault();
+        
+        if (commande.MessageEstPayee != null)
+        {
+            return BadRequest("Cette commande a déjà un message de paiement.");
+        }
         
         var messageValidation = new MessageEstPayee()
         {
             MessageId = message.MessageId,
             CommandeId = commande.CommandeId,
         };
-        
-        await _messageValidationManager.AddAsync(messageValidation);
+
+        try
+        {
+
+            await _messageValidationManager.AddAsync(messageValidation);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Erreur lors de l'ajout du message de validation {e.Message}");
+        }
         
         try
         {
