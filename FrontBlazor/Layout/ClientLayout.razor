@@ -164,7 +164,10 @@
         <a href="/terms">Termes et Conditions</a>
         <a href="/privacy">Politique de confidalité</a>
         <a href="/return">Politique de retour</a>
-        <a href="/support">Contact</a>
+        @if (!Vm_NavBar.IsLoadingBase && Vm_NavBar.utilisateur != null)
+        {
+            <a href="/support">Contactez notre support</a>
+        }
     </footer>
     <CookieConsent />
 </div>

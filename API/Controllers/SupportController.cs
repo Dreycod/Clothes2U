@@ -35,7 +35,7 @@ namespace API.Controllers
         // USER
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateTicket(SupportTicketCreateDTO dto)
+        public async Task<IActionResult> CreateTicket([FromBody]SupportTicketCreateDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -58,6 +58,14 @@ namespace API.Controllers
         public async Task<IActionResult> GetTickets()
         {
             IEnumerable<Ticket> tickets = await _ticketManager.GetOpenTicketsAsync();
+            IEnumerable<SupportTicketViewDTO> ticketsDTO = _mapper.Map<IEnumerable<SupportTicketViewDTO>>(tickets);
+            return Ok(ticketsDTO);
+        }
+        [Authorize(Roles = "Admin, Moderateur")]
+        [HttpGet("Pending")]
+        public async Task<IActionResult> GetPendingTickets()
+        {
+            IEnumerable<Ticket> tickets = await _ticketManager.GetPendingTicketsAsync();
             IEnumerable<SupportTicketViewDTO> ticketsDTO = _mapper.Map<IEnumerable<SupportTicketViewDTO>>(tickets);
             return Ok(ticketsDTO);
         }

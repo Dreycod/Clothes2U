@@ -30,6 +30,14 @@ namespace FrontBlazor.ViewModel.Moderation.Support
             _nav = navigationManager;
         }
 
+        public async override Task LoadAsync()
+        {
+            await base.LoadAsync();
+            if (utilisateur == null)
+            {
+                _nav.NavigateTo("/");
+            }
+        }
         public async Task SubmitAsync()
         {
             IsLoading = true;
