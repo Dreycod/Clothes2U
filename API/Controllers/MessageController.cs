@@ -304,6 +304,7 @@ public class MessageController : ControllerBase
                 .SendAsync("ReceivePayment", 
                     dto.ConversationId, 
                     message.MessageId, 
+                    messageValidation.MessageEstPayeeId,
                     dto.UtilisateurId, 
                     message.MessageDate);
         
@@ -336,12 +337,20 @@ public class MessageController : ControllerBase
         await _messageManager.AddAsync(message);
 
         var photo = await _photoService.AddPhotoAsync(dto.Photo);
+        
+        var messagePayee = await _messageValidationManager.GetByIdAsync(dto.MessageEstPayeeId);
+
+        if (messagePayee == null)
+            return BadRequest("Message de paiement introuvable");
+        
+        if (messagePayee.EstAnnule)
+            return BadRequest("Le paiement a été annulé");
 
         var messageEnvoieColis = new MessageEnvoieColis
         {
             MessageId = message.MessageId,
             PhotoId = photo.PhotoId,
-            MessageEstPayeeId = dto.MessageEstPayeeId
+            MessageEstPayeeId = messagePayee.MessageEstPayeeId
         };
         
         await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
@@ -361,7 +370,8 @@ public class MessageController : ControllerBase
             await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
                 .SendAsync("ReceiveColisEnvoye", 
                     dto.ConversationId, 
-                    message.MessageId, 
+                    message.MessageId,
+                    messageEnvoieColis.MessageEnvoieColisId,
                     dto.UtilisateurId, 
                     photo.PhotoId,
                     message.MessageDate,
@@ -434,12 +444,12 @@ public class MessageController : ControllerBase
                 .SendAsync("ReceiveColisRecu", 
                     dto.ConversationId, 
                     message.MessageId, 
+                    messageRecu.MessageEstRecuId,
                     dto.UtilisateurId, 
                     dto.EstConforme,
                     messageRecu.PhotoId != null ? messageRecu.PhotoId : 0,
                     dto.Description,
-                    message.MessageDate,
-                    dto.MessageEstEnvoieId);
+                    message.MessageDate);
         
             Console.WriteLine($"[MessageController] ✅ Colis reçu notification sent for conversation {dto.ConversationId}");
         }
