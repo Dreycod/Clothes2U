@@ -58,19 +58,29 @@ namespace FrontBlazor.Services.WebService
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<SupportTicketDetailViewDTO> GetTicketById(int id)
+        public async Task<TicketDetailViewDTO> GetTicketById(int id)
         {
             try
             {
                 var response = await GetWithCredentialsAsync($"support/id/{id}");
                 response.EnsureSuccessStatusCode();
-                var ticket = await response.Content.ReadFromJsonAsync<SupportTicketDetailViewDTO>();
+                var ticket = await response.Content.ReadFromJsonAsync<TicketDetailViewDTO>();
                 return ticket ?? null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error during GetTicketById : " + ex.Message);
                 return null;
+            }
+        }
+
+        public async Task CloseTicket(int id)
+        {
+            var response = await PutWithCredentialsAsync($"support/closeTicket/{id}");
+    
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Erreur lors de la fermeture du ticket: {response.StatusCode} - {errorContent}");
             }
         }
     }

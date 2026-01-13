@@ -75,11 +75,6 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Utilisateur.UtilisateursSupprimes))]
     public virtual Utilisateur? DeletedByAdminNav { get; set; }
 
-    [InverseProperty(nameof(SupportTicket.UtilisateurTicket))]
-    public virtual ICollection<SupportTicket> SupportTicketsUtilisateurs { get; set; } = new List<SupportTicket>();
-
-    [InverseProperty(nameof(SupportTicket.Admin))]
-    public virtual ICollection<SupportTicket> SupportTicketsAdmins { get; set; } = new List<SupportTicket>();
 
 
     [InverseProperty(nameof(Utilisateur.DeletedByAdminNav))]
@@ -162,8 +157,13 @@ public class Utilisateur : IEntity
     [InverseProperty(nameof(Commande.Vendeur))]
     public virtual ICollection<Commande> CommandesVendues { get; set; } = new List<Commande>();
 
-
+    //Support
+    [InverseProperty(nameof(Ticket.Utilisateur))]
+    public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
     
+    [InverseProperty(nameof(TicketMessage.Utilisateur))]
+    public virtual ICollection<TicketMessage> MessagesSupport { get; set; } = new List<TicketMessage>();
+
     //suggestion : 
     
     [InverseProperty(nameof(AnnoncePreferenceUtilisateur.Utilisateur))]

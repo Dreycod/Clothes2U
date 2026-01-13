@@ -257,7 +257,8 @@ builder.Services.AddScoped<IClusterRepository, ClusterManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
 builder.Services.AddScoped<IEstDeCouleurRepository<Est_De_Couleur, int>, EstDeCouleurManager>();
-builder.Services.AddScoped<IDataRepository<SupportTicket, int>, TicketSupportManager>();
+builder.Services.AddScoped<ITicketRepository, TicketManager>();
+builder.Services.AddScoped<IDataRepository<TicketMessage, int>, TicketMessageManager>();
 
 //services
 builder.Services.AddHttpClient();
