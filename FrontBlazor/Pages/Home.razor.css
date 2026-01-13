@@ -407,19 +407,19 @@
 
 /* Background images with gradient overlays */
 .category-femmes {
-    background: linear-gradient(135deg, rgba(255, 182, 217, 0.6) 0%, rgba(255, 143, 177, 0.6) 100%), url("/images/women_section.jpg");
+    background: linear-gradient( 135deg, rgba(95, 160, 120, 0.6) 0%, rgba(140, 195, 150, 0.6) 100% ), url("/images/women_section.jpg");
     background-size: cover;
     background-position: center;
 }
 
 .category-hommes {
-    background: linear-gradient(135deg, rgba(126, 200, 227, 0.6) 0%, rgba(93, 169, 196, 0.6) 100%), url("/images/men_section.jpg");
+    background: linear-gradient( 135deg, rgba(215, 145, 85, 0.6) 0%, rgba(235, 175, 120, 0.6) 100% ), url("/images/men_section.jpg");
     background-size: cover;
     background-position: center;
 }
 
 .category-uni {
-    background: linear-gradient(135deg, rgba(255, 225, 125, 0.6) 0%, rgba(255, 200, 87, 0.6) 100%), url("/images/uni_section.jpg");
+    background: linear-gradient( 135deg, rgba(155, 145, 170, 0.6) 0%, rgba(190, 180, 205, 0.6) 100% ), url("/images/uni_section.jpg");
     background-size: cover;
     background-position: center;
 }
