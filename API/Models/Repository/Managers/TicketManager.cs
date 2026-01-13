@@ -11,14 +11,8 @@ public class TicketManager : GenericCRUDManager<Ticket>, ITicketRepository
 
     public async Task<IEnumerable<Ticket>> GetOpenTicketsAsync()
     {
-        return _context.Tickets.Where(t => t.Status == (int)StatusTicketEnum.OPEN);
+        return BaseTicketQuery().Where(t => t.Status == (int)StatusTicketEnum.OPEN);
     }
-
-    public async Task<int> GetOpenTicketsCountAsync()
-    {
-        return _context.Tickets.Where(t => t.Status == (int)StatusTicketEnum.OPEN).Count();
-    }
-
     private IQueryable<Ticket> BaseTicketQuery()
     {
         return _context.Tickets
@@ -27,7 +21,10 @@ public class TicketManager : GenericCRUDManager<Ticket>, ITicketRepository
             .ThenInclude(m => m.Utilisateur)
             .AsSplitQuery();
     }
-
+    public async Task<int> GetOpenTicketsCountAsync()
+    {
+        return BaseTicketQuery().Where(t => t.Status == (int)StatusTicketEnum.OPEN).Count();
+    }
     public async override Task<Ticket?> GetByIdAsync(int id)
     {
         return await BaseTicketQuery().FirstOrDefaultAsync(t => t.TicketId == id);

@@ -13,8 +13,7 @@ namespace API.Mapper
                 .ForMember(dest => dest.TicketId, opt => opt.MapFrom(src => src.TicketId))
                 .ForMember(dest => dest.DateLastMessage, opt => opt.MapFrom(src => 
                     src.Messages.Any() ? src.Messages.Max(m => m.DateEnvoi) : src.DateCreation))
-                .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => 
-                    src.Utilisateur != null ? src.Utilisateur.Login : "Utilisateur inconnu"));
+                .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => src.Utilisateur.Login ));
 
             CreateMap<Ticket, TicketDetailViewDTO>()
                 .ForMember(dest => dest.TicketId, opt => opt.MapFrom(src => src.TicketId))

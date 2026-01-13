@@ -280,7 +280,7 @@ builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 builder.Services.AddScoped<PasswordResetService>();
 builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
 builder.Services.AddScoped<ISupportService, SupportService>();
-
+builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<NotificationMessage, int>, NotificationMessageManager>();

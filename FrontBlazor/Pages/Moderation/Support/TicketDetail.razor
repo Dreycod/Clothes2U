@@ -108,8 +108,10 @@ else if (VM.TicketDetail != null)
                         class="response-textarea" 
                         rows="5" 
                         placeholder="Écrivez votre réponse ici..."
-                        @bind="VM.ResponseMessage">
+                        @bind="VM.ResponseMessage"
+                        @bind:event="oninput">
                     </textarea>
+
                     
                     <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                         <button class="btn-cancel" @onclick="GoBack">
@@ -120,7 +122,7 @@ else if (VM.TicketDetail != null)
                             <i class="bi bi-send"></i>
                             Envoyer la réponse
                         </button>
-                        <button class="btn-close-ticket" @onclick="CloseTicket">
+                        <button class="btn-close-ticket" @onclick="VM.CloseTicket">
                             <i class="bi bi-check-circle"></i>
                             Clôturer le ticket
                         </button>
@@ -167,10 +169,5 @@ else
     private void GoBack()
     {
         VM.NavigateToSupport();
-    }
-    
-    private async Task CloseTicket()
-    {
-        await VM.CloseTicket();
     }
 }
