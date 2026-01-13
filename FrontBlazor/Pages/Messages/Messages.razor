@@ -7,7 +7,7 @@
 
 <PageTitle>Messages - Clothes2U</PageTitle>
 
-<NavBar />
+@*<NavBar />*@
 
 <div class="messages-page">
     <div class="messages-container">
@@ -452,7 +452,7 @@
                                                      alt="Preuve d'envoi du colis"
                                                      style="margin-top:10px; max-width:220px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15);" />
                                             }
-                                        </div>
+                                        
                                         @if ((!colis.MessageEstRecuId.HasValue || colis.MessageEstRecuId.Value == 0) && 
                                              VM_Messagerie.utilisateur != null &&
                                              VM_Messagerie.SelectedConversation.VendeurId != null&&
@@ -476,7 +476,7 @@
                                                 </div>
                                             </div>
                                         }
-                                        
+                                        </div>
                                     </div>
                                 }
 
