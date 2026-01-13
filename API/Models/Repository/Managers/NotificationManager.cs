@@ -51,6 +51,13 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
                     .ThenInclude(a => a.Utilisateur)
             .AsSplitQuery();
     }
+
+    public async Task<IEnumerable<Notification>> GetReadNotifications()
+    {
+        return await BaseNotificationQuery().Where(n => n.EstLu).ToListAsync();
+    }
+    
+    
     public async Task<IEnumerable<Notification>> GetByUserId(int userId)
     {
         return await BaseNotificationQuery()

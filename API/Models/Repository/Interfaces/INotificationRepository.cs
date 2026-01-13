@@ -5,6 +5,7 @@ namespace API.Models.Repository;
 public interface INotificationRepository : IDataRepository<Notification, int>
 {
     public Task<IEnumerable<Notification>> GetByUserId(int userId);
+    Task<IEnumerable<Notification>> GetReadNotifications();
     public Task<int> GetNotificationsUnreadCountByUserId(int userId);
     public Task MarkAsRead(int userId);
     public Task CreateNotificationAvertissement(NotificationAvertissement notification);

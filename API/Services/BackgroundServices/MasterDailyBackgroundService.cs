@@ -56,6 +56,17 @@ public class MasterDailyBackgroundService: BackgroundService
                 scope.ServiceProvider.GetRequiredService<ISuspendedUserDailyCheckService>();
 
             await suspendedUserDailyCheckService.CheckSuspensions();
+            
+            
+            var oldPendingTicketService =
+                scope.ServiceProvider.GetRequiredService<ITicketDailyClosingService>();
+
+            await oldPendingTicketService.CloseOldTickets();
+            
+            var deleteOldNotificationService =
+                scope.ServiceProvider.GetRequiredService<IDailyDeleteReadNotificationService>();
+
+            await deleteOldNotificationService.DeleteReadOldNotifications();
         }
         catch (Exception ex)
         {

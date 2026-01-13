@@ -278,6 +278,11 @@ builder.Services.AddHostedService<EmailProcessingBackgroundService>();
 //BackgroundService
 builder.Services.AddHostedService<MasterDailyBackgroundService>();
 builder.Services.AddScoped<ISuspendedUserDailyCheckService,  SuspendedUserDailyCheckService>();
+builder.Services.AddScoped<ITicketDailyClosingService,  TicketDailyClosingService>();
+builder.Services.AddScoped<IDailyDeleteReadNotificationService,DailyDeleteReadNotificationService>();
+
+
+
 
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();
