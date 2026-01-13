@@ -1,60 +1,19 @@
 ﻿@page "/moderation/images"
 @inject ImagesValidationViewModel VM_ImagesValidation
+@layout ModerationLayout
 
 <PageTitle>Validation d'images - Modération</PageTitle>
 
 
+<link href="css/loading.css" rel="stylesheet" />
 <link href="css/Moderation/moderation-shared.css" rel="stylesheet"/>
-
-
-<div class="moderation-page">
-    <div class="moderation-container">
-        <!-- Sidebar -->
-        <aside class="mod-sidebar">
-            <div class="mod-header">
-                <div class="mod-logo">
-                    <i class="bi bi-shield-check"></i>
-                    <div>
-                        <h2>Clothes2U</h2>
-                        <p>Moderation Board</p>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="mod-nav">
-                <a href="/moderation" class="mod-nav-item">
-                    <i class="bi bi-house-door"></i>
-                    <span>Home</span>
-                </a>
-                <a href="/moderation/signalements" class="mod-nav-item">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <span>Signalements</span>
-                </a>
-                <a href="/moderation/images" class="mod-nav-item active">
-                    <i class="bi bi-image"></i>
-                    <span>Images</span>
-                </a>
-                <a href="/moderation/restauration" class="mod-nav-item">
-                    <i class="bi bi-person-check"></i>
-                    <span>Restauration</span>
-                </a>
-                <a href="/moderation/sanctions" class="mod-nav-item">
-                    <i class="bi bi-person-x"></i>
-                    <span>Sanctions</span>
-                </a>
-                <a href="/moderation/mots-interdits" class="mod-nav-item">
-                    <i class="bi bi-chat-square-text"></i>
-                    <span>Mots interdits</span>
-                </a>
-                <a href="/moderation/support" class="mod-nav-item">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Support</span>
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="mod-content">
+@if (VM_ImagesValidation.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <main class="mod-content">
             <h1 class="mod-page-title">Validation d'images</h1>
 
             @if (VM_ImagesValidation._ValidationMessage.Any())
@@ -110,8 +69,8 @@
 
 
         </main>
-    </div>
-</div>
+}
+
 
 @code {
     protected override async Task OnInitializedAsync()
