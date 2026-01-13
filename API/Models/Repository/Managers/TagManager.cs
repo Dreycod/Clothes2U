@@ -43,5 +43,17 @@ namespace API.Models.Repository.Managers
                 .OrderBy(t => t.LibelleTag)
                 .ToListAsync();
         }
+
+        public async Task<bool> DeleteTagsAnnonceAsync(int annonceId)
+        {
+            var tagsToRemove = await _context.Tags
+                .Where(t => t.Annonces.Any(ta => ta.AnnonceId == annonceId))
+                .ToListAsync();
+            if (tagsToRemove.Count == 0)
+                return false;
+            _context.Tags.RemoveRange(tagsToRemove);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

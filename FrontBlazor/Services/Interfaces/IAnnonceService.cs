@@ -13,7 +13,7 @@ public interface IAnnonceService
     Task<List<AnnonceDTO>?> GetSimilarAnnonces(int annonceId, int page = 1, int pageSize = 30);
     Task<IEnumerable<AnnonceDTO>> GetAnnoncesByPhotoIDs(IEnumerable<int> PhotoID);
     Task<AnnonceDTO?> CreateAnnonce(CreateAnnonceDTO createAnnonceDto);
-    Task UpdateAnnonce(int id, PutAnnonceDTO annonce);
+    Task<AnnonceDTO?> UpdateAnnonce(int id, PutAnnonceDTO annonce);
     Task ModificationAnnonce(AnnonceDetailDTO annonce);
     Task VendreAnnonce(int annonceId);
     Task<List<AnnonceDTO>> GetRecommendedAnnonces(int page = 1, int pageSize = 30);

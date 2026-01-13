@@ -17,5 +17,5 @@ public interface IPhotoService
     Task<PhotoResponseDTO> SaveComptePhotoAsync(int compteId, PhotoUploadDTO photoDto);
     Task<PhotoResponseDTO> UploadMessagePhotoAsync(PhotoUploadDTO photoDto);
     Task<bool> DeletePhotoAsync(int id);
-    //Task<Photo> UploadMessagePhotoAsync(PhotoUploadDTO photoDto, int messageId);
+    Task<bool> DeletePhotosAnnonceAsync(int AnnonceID);
 }

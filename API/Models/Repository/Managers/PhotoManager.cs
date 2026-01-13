@@ -54,4 +54,11 @@ public class PhotoManager : GenericCRUDManager<Photo>, IPhotoRepository
 
         return returnPhoto;
     }
+
+    public Task<List<Photo>> GetAllPhotosByAnnonceID(int AnnonceID)
+    {
+        return _context.Photos
+            .Where(p => p.Annonces.Any(a => a.AnnonceId == AnnonceID))
+            .ToListAsync();
+    }
 }
