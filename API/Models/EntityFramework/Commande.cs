@@ -65,7 +65,7 @@ public class Commande : IEntity
     public virtual Conversation Conversation { get; set; }
     
     [InverseProperty(nameof(MessageEstPayee.Commande))]
-    public virtual MessageEstPayee MessageEstPayee { get; set; }
+    public virtual MessageEstPayee? MessageEstPayee { get; set; }
     
     [ForeignKey(nameof(AcheteurId))]
     [InverseProperty(nameof(Utilisateur.CommandesAchetees))]
