@@ -18,6 +18,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using API.Controllers;
 using API.Models.Repository.Interfaces;
+using API.Services.BackgroundServices;
 using Shared.DTO.Photo;
 using Shared.DTO.Tag;
 using API.Services.Interfaces;
@@ -272,6 +273,11 @@ builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IDetectionService, DetectionService>();
 builder.Services.AddScoped<IEmailReceiverService, EmailReceiverService>();
 builder.Services.AddHostedService<EmailProcessingBackgroundService>();
+
+
+//BackgroundService
+builder.Services.AddHostedService<MasterDailyBackgroundService>();
+builder.Services.AddScoped<ISuspendedUserDailyCheckService,  SuspendedUserDailyCheckService>();
 
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();

@@ -83,114 +83,133 @@ public class DecisionController : ControllerBase
         };
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin,Moderateur")]
-    public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
+[HttpPost]
+[Authorize(Roles = "Admin,Moderateur")]
+public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
+{
+    try
     {
-        try
-        {
-            Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
-            int userId = await _currentUserService.GetUserIdOrThrow();
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (decisionDTO is DecisionIgnorPostDTO)
-            {
-                await _signalementManager.DeleteAsync(signalement);
-                return decisionDTO;
-            }
-
-            Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
-            var decision = new Decision
-            {
-                ElementDecision = await CreateElementDecision(decisionDTO.ElementDecision),
-                ModerateurId = userId,
-                UtilisateurId = decisionDTO.UtilisateurId,
-                DecisionDate = DateTime.UtcNow
-            };
-            switch (decisionDTO)
-            {
-                case DecisionAvertissementPostDTO avertissement:
-                    await _notificationService.CreateNotificationAvertissement(avertissement.UtilisateurId,
-                        avertissement.MessageModerateur);
-                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-                    decision = await CreateAvertissement(decision); 
-                    break;
-
-                case SanctionSuspensionPostDTO suspension:
-                    await _utilisateurRepository.SuspendUser(decisionDTO.UtilisateurId);
-                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-                    decision = await CreateSanctionSuspension(decision, suspension);
-                    await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
-                    break;
-
-                case SanctionBannissementPostDTO bannissement:
-                    await _utilisateurRepository.BanUser(decisionDTO.UtilisateurId);
-                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-                    decision = await CreateSanctionBannissement(decision, bannissement);
-                    await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
-                    break;
-                default:
-                    return BadRequest("Type de décision non reconnu");
-            }
-            await _signalementManager.DeleteAsync(signalement);
-            var createdDecision = await _decisionManager.AddAsync(decision);
-            var resultDTO = _mapper.Map<DecisionPostDTO>(createdDecision);
-            return CreatedAtAction(nameof(GetAllDecisionsByModerateurId), 
-                new { id = userId }, resultDTO);
+        Console.WriteLine("=== CreateDecision START ===");
+        Console.WriteLine($"Type reçu: {decisionDTO?.GetType().Name}");
         
-        }
-        catch (Exception e)
+        Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
+        
+        if (signalement == null)
         {
-            var innerException = e.InnerException?.Message ?? "Pas d'exception interne";
-            return BadRequest(new { 
-                error = e.Message,
-                innerError = innerException,
-                stackTrace = e.StackTrace
+            Console.WriteLine("❌ Signalement introuvable");
+            return NotFound("Signalement introuvable");
+        }
+        Console.WriteLine($"✅ Signalement: {signalement.SignalementId}");
+
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        Console.WriteLine($"✅ UserId: {userId}");
+        
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
+        if (utilisateurSanctionne == null)
+        {
+            Console.WriteLine("❌ Utilisateur introuvable");
+            return NotFound("Utilisateur introuvable");
+        }
+        Console.WriteLine($"✅ Utilisateur: {utilisateurSanctionne.Login}");
+        
+        Console.WriteLine("🔨 CreateElementDecision...");
+        var elementDecision = await CreateElementDecision(decisionDTO.ElementDecision);
+        Console.WriteLine($"✅ ElementDecision créé");
+        
+        var decision = new Decision
+        {
+            ElementDecision = elementDecision,
+            ModerateurId = userId,
+            UtilisateurId = decisionDTO.UtilisateurId,
+            DecisionDate = DateTime.UtcNow
+        };
+        Console.WriteLine("✅ Decision objet créé");
+        
+        switch (decisionDTO)
+        {
+            case DecisionAvertissementPostDTO avertissement:
+                Console.WriteLine("➡️ DecisionAvertissementPostDTO");
+                decision.DecisionAvertissement = new DecisionAvertissement();
+                await _notificationService.CreateNotificationAvertissement(
+                    avertissement.UtilisateurId,
+                    avertissement.MessageModerateur);
+                break;
+
+            case SanctionSuspensionPostDTO suspension:
+                Console.WriteLine("➡️ SanctionSuspensionPostDTO");
+                decision.DecisionSanction = new DecisionSanction
+                {
+                    EstEnCours = true,
+                    SanctionSuspension = new SanctionSuspension
+                    {
+                        DateFinSuspension = suspension.DateFinSuspension
+                    }
+                };
+                
+                await _utilisateurRepository.SuspendUser(decisionDTO.UtilisateurId);
+                await _mailService.NotifyUserStatusChangedAsync(
+                    utilisateurSanctionne, 
+                    utilisateurSanctionne.StatutId);
+                break;
+
+            case SanctionBannissementPostDTO bannissement:
+                Console.WriteLine("➡️ SanctionBannissementPostDTO");
+                decision.DecisionSanction = new DecisionSanction
+                {
+                    EstEnCours = true,
+                    SanctionBannissement = new SanctionBannissement()
+                };
+                
+                await _utilisateurRepository.BanUser(decisionDTO.UtilisateurId);
+                await _mailService.NotifyUserStatusChangedAsync(
+                    utilisateurSanctionne, 
+                    utilisateurSanctionne.StatutId);
+                break;
+
+            default:
+                Console.WriteLine($"❌ DEFAULT CASE! Type: {decisionDTO.GetType().Name}");
+                return BadRequest("Type de décision non reconnu");
+        }
+        
+        // ✅✅✅ SAUVEGARDER LA DECISION D'ABORD ✅✅✅
+        Console.WriteLine("💾 APPEL AddAsync...");
+        var createdDecision = await _decisionManager.AddAsync(decision);
+        Console.WriteLine($"✅✅✅ DECISION CRÉÉE ! ID: {createdDecision.DecisionId}");
+        
+        // ✅✅✅ PUIS SUPPRIMER LES SIGNALEMENTS ✅✅✅
+        Console.WriteLine("🗑️ Suppression signalements...");
+        await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
+        await _signalementManager.DeleteAsync(signalement);
+        Console.WriteLine("✅ Signalements supprimés");
+        
+        return CreatedAtAction(nameof(GetDecisionById), 
+            new { id = createdDecision.DecisionId }, 
+            new
+            {
+                decisionId = createdDecision.DecisionId,
+                utilisateurId = createdDecision.UtilisateurId,
+                dateDecision = createdDecision.DecisionDate,
+                message = "Décision créée avec succès"
             });
-        }
     }
-
-    private async Task<Decision> CreateAvertissement(Decision decision)
+    catch (Exception e)
     {
-        decision.DecisionAvertissement = new DecisionAvertissement();
-
-        return decision;
+        Console.WriteLine($"❌❌❌ EXCEPTION CreateDecision: {e.Message}");
+        Console.WriteLine($"Inner: {e.InnerException?.Message}");
+        return BadRequest(new { 
+            error = e.Message,
+            innerError = e.InnerException?.Message ?? "Pas d'exception interne",
+            stackTrace = e.StackTrace,
+            type = e.GetType().Name
+        });
     }
+}
 
-    private async Task<Decision> CreateSanctionSuspension(Decision decision, SanctionSuspensionPostDTO dto)
-    {
-        var sanction = new DecisionSanction
-        {
-            EstEnCours = true,
-        };
-
-        sanction.SanctionSuspension = new SanctionSuspension
-        {
-            DateFinSuspension = dto.DateFinSuspension,
-            DecisionSanction = sanction
-        };
-        decision.DecisionSanction = sanction;
-
-        return decision;
-    }
-
-    private async Task<Decision> CreateSanctionBannissement(Decision decision, SanctionBannissementPostDTO dto)
-    {
-        var sanction = new DecisionSanction
-        {
-            EstEnCours = true,
-        };
-
-        sanction.SanctionBannissement = new SanctionBannissement
-        {
-            DecisionSanction = sanction
-        };
-        decision.DecisionSanction = sanction;
-        return decision;
-    }
     private async Task<ElementDecision> CreateElementDecision(ElementDecisionDTO dto)
     {
         var elementDecision = new ElementDecision();
