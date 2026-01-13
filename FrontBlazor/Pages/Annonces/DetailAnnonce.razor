@@ -2,12 +2,10 @@
 @layout ClientLayout
 @using Shared.DTO.Recense
 @using Shared.DTO.Utilisateur
-@inject IJSRuntime JS
-@implements IAsyncDisposable
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
-<div class="product-detail-page">
+<div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
     {
         <div class="loading-container">
@@ -52,7 +50,7 @@
         string produit = "AnnonceDetail";
 
         <div class="product-container">
-            
+
             <div class="product-image-section">
                 <div class="main-image-wrapper">
                     <div class="main-image">
@@ -62,7 +60,7 @@
                         }
                     </div>
                 </div>
-        
+
                 @if (annonce.Photos != null && annonce.Photos.Count() > 1)
                 {
                     <div class="image-thumbnails">
@@ -81,16 +79,16 @@
             <div class="product-info-section">
                 <div class="category-badge-row">
                     <div class="category-badge">@annonce.Categorie</div>
-        
+
                     @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                     {
-                        <div class="product-actions-dropdown-container">
+                        <div class="product-actions-dropdown-container" @onclick:stopPropagation="true">
                             <button class="btn-dropdown-toggle"
                                     title="Actions"
                                     @onclick="VM_DetailAnnonce.ToggleActionsDropdown">
                                 <i class="bi bi-three-dots"></i>
                             </button>
-                
+
                             @if (VM_DetailAnnonce.ShowActionsDropdown)
                             {
                                 <div class="product-dropdown">
@@ -129,10 +127,9 @@
                 <div class="actions-row">
                     @if (!VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                     {
-
                         <button class="btn-action"
-                        @onclick:stopPropagation="true"
-                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
+                                @onclick:stopPropagation="true"
+                                @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
                             <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                         </button>
                         <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
@@ -172,10 +169,6 @@
                     <p class="description-text">
                         @(annonce.Description ?? "Aucune description disponible.")
                     </p>
-                    @foreach (string couleur in annonce.Couleurs)
-                    {
-                        <p>@couleur</p>
-                    }
                 </div>
 
                 <div class="tags-section">
@@ -197,7 +190,7 @@
 
                 <div class="product-stats">
                     <span><i class="bi bi-calendar"></i> Publié le @(annonce.DateAnnonce.ToString("dd/MM/yyyy"))</span>
-                    <span><i class="bi bi@(annonce.IsLikedByCurrentUser ? "-heart-fill" : "-heart")"></i> @(annonce.NombreLikes) likes</span>
+                    <span><i class="bi@(annonce.IsLikedByCurrentUser ? "-heart-fill" : "-heart")"></i> @(annonce.NombreLikes) likes</span>
                     <span><i class="bi bi-eye"></i> @(annonce.NombreVues) vues </span>
                 </div>
 
@@ -230,24 +223,18 @@
 
         <div class="similar-section">
             <div class="similar-container">
-
                 <div class="similar-header">
                     <h2 class="similar-title">Annonces similaires</h2>
-
                     <div class="carousel-controls">
-                        <button class="carousel-btn"
-                                @onclick="VM_DetailAnnonce.PreviousSimilar">
+                        <button class="carousel-btn" @onclick="VM_DetailAnnonce.PreviousSimilar">
                             <i class="bi bi-chevron-left"></i>
                         </button>
-
-                        <button class="carousel-btn"
-                                @onclick="VM_DetailAnnonce.NextSimilar">
+                        <button class="carousel-btn" @onclick="VM_DetailAnnonce.NextSimilar">
                             <i class="bi bi-chevron-right"></i>
                         </button>
-
                     </div>
                 </div>
-                
+
                 <div class="similar-grid">
                     @if (VM_DetailAnnonce.IsLoadingSimilar)
                     {
@@ -256,14 +243,13 @@
                             <p>Chargement des annonces similaires...</p>
                         </div>
                     }
-                    else if(VM_DetailAnnonce.similarAnnonces != null && VM_DetailAnnonce.similarAnnonces.Any())
+                    else if (VM_DetailAnnonce.similarAnnonces != null && VM_DetailAnnonce.similarAnnonces.Any())
                     {
                         @foreach (AnnonceDTO similairAnnonce in VM_DetailAnnonce.similarAnnonces)
                         {
-
                             <AnnonceCard annonceComponent="similairAnnonce"
-                                         OnToggleFavorite="(a) => VM_DetailAnnonce.ToggleFavorite(a)"    
-                                         OnClickAnnonce="(a) => VM_DetailAnnonce.NavigateToProduct(a.AnnonceId)"/>
+                                         OnToggleFavorite="(a) => VM_DetailAnnonce.ToggleFavorite(a)"
+                                         OnClickAnnonce="(a) => VM_DetailAnnonce.NavigateToProduct(a.AnnonceId)" />
                         }
                     }
                     else
@@ -425,31 +411,18 @@
             </div>
         </div>
     </div>
-
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
 
-    private DotNetObjectReference<DetailAnnonce>? objRef;
-
     protected override async Task OnInitializedAsync()
     {
         await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("setupProductActionsClickOutside", objRef);
-        }
-    }
-
-    [JSInvokable]
-    public void CloseProductActionsDropdown()
+    private void HandlePageClick()
     {
         if (VM_DetailAnnonce.ShowActionsDropdown)
         {
@@ -458,19 +431,8 @@
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public void Dispose()
     {
         VM_DetailAnnonce.CancelVisualisation();
-        
-        if (objRef != null)
-        {
-            try
-            {
-                await JS.InvokeVoidAsync("removeProductActionsClickOutside");
-            }
-            catch { }
-            
-            objRef.Dispose();
-        }
     }
 }
