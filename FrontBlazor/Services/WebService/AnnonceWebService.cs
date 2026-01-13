@@ -68,6 +68,7 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 
         AddListToQuery(queryParams, "Genre", filterDto.Genre);
         AddListToQuery(queryParams, "Etats", filterDto.Etats);
+        AddListToQuery(queryParams, "Couleurs", filterDto.Couleurs);
 
         if (!string.IsNullOrWhiteSpace(filterDto.Tailles))
             queryParams.Add(new("Tailles", filterDto.Tailles));

@@ -25,6 +25,7 @@ public class FilterDTO
     public string? Tailles { get; set; }
     public List<string>? Etats { get; set; }
     public List<string>? Genre { get; set; }
+    public List<string>? Couleurs { get; set; }
     
     // Plage de prix
     public double? PrixMin { get; set; }

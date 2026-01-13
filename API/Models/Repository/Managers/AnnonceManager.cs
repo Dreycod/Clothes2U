@@ -143,6 +143,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         query = query.Where(p => filterDto.Tailles.Contains(p.Taille.Libelletaille));
     }
     
+    if (filterDto.Couleurs != null && filterDto.Couleurs.Any())
+    {
+        query = query.Where(p => p.Couleurs.Any(c => filterDto.Couleurs.Contains(c.Couleur.Nom)));
+    }
+
     if (filterDto.Genre != null && filterDto.Genre.Any())
     {
         query = query.Where(p => filterDto.Genre.Contains(p.GenreAnnonce.NomGenre));
