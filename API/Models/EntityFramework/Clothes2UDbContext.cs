@@ -66,9 +66,10 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<StatutAnnonce> StatutAnnonces { get; set; }
     public DbSet<StatutConversation> StatutConversations { get; set; }
     public DbSet<StatutUtilisateur> StatutUtilisateurs { get; set; }
-    public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Taille> Tailles { get; set; }
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<TicketMessage> TicketMessages { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<TypeSignalement> TypeSignalements { get; set; }
     public DbSet<Utilisateur> Utilisateurs { get; set; }
@@ -1316,32 +1317,6 @@ public partial class Clothes2UDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        modelBuilder.Entity<SupportTicket>(entity =>
-        {
-            entity.HasKey(e => e.SupportTicketId);
-
-            entity.Property(e => e.Subject)
-                .IsRequired()
-                .HasMaxLength(150);
-
-            entity.Property(e => e.MessageUtilisateur)
-                .IsRequired();
-
-            entity.Property(e => e.Status)
-                .IsRequired();
-
-            entity.HasOne(e => e.UtilisateurTicket)
-                .WithMany(u => u.SupportTicketsUtilisateurs)
-                .HasForeignKey(e => e.UtilisateurId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.Admin)
-                .WithMany(u => u.SupportTicketsAdmins)
-                .HasForeignKey(e => e.AdminId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-
         modelBuilder.Entity<Tag>(entity =>
         {
             entity.HasKey(e => e.TagId);
@@ -1361,6 +1336,35 @@ public partial class Clothes2UDbContext : DbContext
                 .HasForeignKey(e => e.TailleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             
+        });
+        modelBuilder.Entity<Ticket>(entity =>
+        {
+            entity.HasKey(e => e.TicketId);
+            
+            entity.HasMany(e => e.Messages)
+                .WithOne(a => a.Ticket)
+                .HasForeignKey(e => e.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Utilisateur)
+                .WithMany(u => u.Tickets)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+        });
+        modelBuilder.Entity<TicketMessage>(entity =>
+        {
+            entity.HasKey(e => e.TicketMessageId);
+            
+            
+            entity.HasOne(e => e.Utilisateur)
+                .WithMany(u => u.MessagesSupport)
+                .HasForeignKey(e => e.UtilisateurId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
+            entity.HasOne(e => e.Ticket)
+                .WithMany(t => t.Messages )
+                .HasForeignKey(e => e.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
         
         modelBuilder.Entity<Transaction>(entity =>
@@ -1485,6 +1489,15 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasIndex(e => e.Login)
                 .IsUnique();
                 
+            //support
+            entity.HasMany(u => u.Tickets)
+                .WithOne(t => t.Utilisateur)
+                .HasForeignKey(t => t.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(u => u.MessagesSupport)
+                .WithOne(m => m.Utilisateur)
+                .HasForeignKey(m => m.UtilisateurId)
+                .OnDelete(DeleteBehavior.Cascade);
             
             //moderation
             

@@ -6,14 +6,22 @@ using System.Threading.Tasks;
 
 namespace Shared.DTO.SupportTicket
 {
-    public class SupportTicketDetailViewDTO
+    public class TicketDetailViewDTO
     {
-        public int Id { get; set; }
+        public int TicketId { get; set; }
+        public int UtilisateurId { get; set; }
         public string Subject { get; set; }
-        public string MessageUtilisateur { get; set; }
-        public string? MessageAdmin { get; set; }
-        public string EmailUtilisateur { get; set; }
-        public bool EmailVerifie { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime DateCreation { get; set; }
+        public List<TicketMessageViewDTO>  Messages { get; set; }
+        public string UtilisateurLogin { get; set; }
+    }
+
+    public class TicketMessageViewDTO
+    {
+        public int TicketMessageId { get; set; }
+        public string Content { get; set; }
+        public DateTime DateCreation { get; set; }
+        public string UtilisateurLogin { get; set; }
+        public int UtilisateurId { get; set; }
     }
 }

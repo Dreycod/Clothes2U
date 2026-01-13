@@ -66,7 +66,7 @@ builder.Services.AddScoped<ITagService<TagDTO>, TagWebService>();
 builder.Services.AddScoped<PasswordResetWebService>();
 builder.Services.AddScoped<SignalRHandlerWebService>();
 builder.Services.AddScoped<SupportWebService>();
-
+builder.Services.AddScoped<ISupportService, SupportWebService>();
 
 
 //caracteristiques
