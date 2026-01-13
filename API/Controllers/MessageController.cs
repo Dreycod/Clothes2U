@@ -365,6 +365,10 @@ public class MessageController : ControllerBase
         
         await _orderService.UpdateOrderStatusAsync(commande.CommandeId, 2);
         
+        messagePayee.EstEnvoye = true;
+        
+        await _messageValidationManager.UpdateAsync(messagePayee);
+        
         try
         {
             await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
