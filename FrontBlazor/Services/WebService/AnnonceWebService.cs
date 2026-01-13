@@ -243,12 +243,12 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         return annonces ?? new List<AnnonceDTO>();
     }
 
-    public async Task UpdateAnnonce(int id, PutAnnonceDTO annonce)
+    public async Task<AnnonceDTO?> UpdateAnnonce(int id, PutAnnonceDTO annonce)
     {
         var body = JsonContent.Create(annonce);
         var response = await PutWithCredentialsAsync($"Annonce/id/{id}", body);
         response.EnsureSuccessStatusCode();
-        return;
+        return response.Content.ReadFromJsonAsync<AnnonceDTO>().Result ?? new AnnonceDTO();
     }
 
     public async Task ReprendreAnnonce(int annonceId)

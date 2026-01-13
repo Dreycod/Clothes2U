@@ -127,7 +127,6 @@ public class MediasController : ControllerBase
         {
             return BadRequest("Le fichier doit être une image");
         }
-
         try
         {
             // Convertir IFormFile en PhotoUploadDTO
@@ -308,8 +307,6 @@ public class MediasController : ControllerBase
             // Convertir IFormFile en PhotoUploadDTO
             var photoDto = await ConvertFormFileToDTO(file);
             
-            
-
             // Sauvegarder via le service
             var savedPhoto = await _photoService.UploadMessagePhotoAsync(photoDto);
             
@@ -348,8 +345,6 @@ public class MediasController : ControllerBase
                 return NotFound($"Photo {id} introuvable");
             }
             
-            
-
             return NoContent();
         }
         catch (Exception ex)
