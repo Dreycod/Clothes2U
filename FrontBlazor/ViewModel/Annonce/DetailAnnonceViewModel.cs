@@ -52,6 +52,8 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     public bool ShowPauseResumeModal { get; set; } = false;
     public bool IsSubmittingPauseResume { get; set; } = false;
 
+    public bool Show3DViewer { get; set; } = false;
+    public bool Has3DModel { get; set; } = false;
     public DetailAnnonceViewModel(
         IAnnonceService annonceService,
         IFavorisService<FavorisDTO> favorisService, 
@@ -110,6 +112,12 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 IsUserSuspended = true;
                 return;
             }
+
+            if (AnnonceDetail.SousCategorie == "T-shirt")
+            {
+                Has3DModel = true;
+            }
+
         }
         catch (Exception ex)
         {
@@ -403,5 +411,9 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             ImagePreview = _mediaService.GetPhotoUrl((int)photoId);
             ShowImagePreview = true;
         }
+    }
+    public void Toggle3DViewer()
+    {
+        Show3DViewer = !Show3DViewer;
     }
 }

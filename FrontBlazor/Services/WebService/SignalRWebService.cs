@@ -19,9 +19,9 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
     public event Action<int, int, string>? OnUserTyping;
     public event Action<int, int>? OnMessagesRead;
     public event Action<int, int, int, decimal, DateTime>? OnPriceProposalReceived;
-    public event Action<int, int, int, DateTime>? OnPaymentReceived;
-    public event Action<int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
-    public event Action<int, int, int, bool, int?, string?, DateTime, int>? OnColisRecuReceived;
+    public event Action<int, int, int, int, DateTime>? OnPaymentReceived;
+    public event Action<int, int, int, int, int, DateTime, int>? OnColisEnvoyeReceived;
+    public event Action<int, int, int, int, bool, int?, string?, DateTime>? OnColisRecuReceived;
     public event Action<int, int, int>? OnPaymentCancelled;
 
 
@@ -126,40 +126,35 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
                     OnProposalResponse?.Invoke(conversationId, messageId, accepted);
                 });
 
-            _chatHubConnection.On<int, int, int, DateTime>(
+            _chatHubConnection.On<int, int, int, int, DateTime>(
                 "ReceivePayment",
-                (conversationId, messageId, senderId, date) =>
+                (conversationId, messageId, messagePayeeId, senderId, date) =>
                 {
                     Console.WriteLine($"[SignalR] 💰 ReceivePayment event received:");
                     Console.WriteLine($"  - ConversationId: {conversationId}");
                     Console.WriteLine($"  - MessageId: {messageId}");
                     Console.WriteLine($"  - SenderId: {senderId}");
                 
-                    OnPaymentReceived?.Invoke(conversationId, messageId, senderId, date);
+                    OnPaymentReceived?.Invoke(conversationId, messageId, messagePayeeId, senderId, date);
                 });
         
-            _chatHubConnection.On<int, int, int, int, DateTime, int>(
+            _chatHubConnection.On<int, int, int, int, int, DateTime, int>(
                 "ReceiveColisEnvoye",
-                (conversationId, messageId, senderId, photoId, date, messagePayeeId) =>
+                (conversationId, messageId, messageEnvoyeId, senderId, photoId, date, messagePayeeId) =>
                 {
                     Console.WriteLine($"[SignalR] 📦 ReceiveColisEnvoye event received:");
                     Console.WriteLine($"  - ConversationId: {conversationId}");
                     Console.WriteLine($"  - MessageId: {messageId}");
                     Console.WriteLine($"  - PhotoId: {photoId}");
                 
-                    OnColisEnvoyeReceived?.Invoke(conversationId, messageId, senderId, photoId, date, messagePayeeId);
+                    OnColisEnvoyeReceived?.Invoke(conversationId, messageId, messageEnvoyeId, senderId, photoId, date, messagePayeeId);
                 });
-        
-            _chatHubConnection.On<int, int, int, bool, int?, string?, DateTime, int>(
-                "ReceiveColisRecu",
-                (conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId) =>
+            
+            
+            _chatHubConnection.On<int, int, int, int, bool, int?, string?, DateTime>("ReceiveColisRecu",
+                (conversationId, messageId, messageRecuId, senderId, estConforme, photoId, description, date) =>
                 {
-                    Console.WriteLine($"[SignalR] 📬 ReceiveColisRecu event received:");
-                    Console.WriteLine($"  - ConversationId: {conversationId}");
-                    Console.WriteLine($"  - MessageId: {messageId}");
-                    Console.WriteLine($"  - EstConforme: {estConforme}");
-                
-                    OnColisRecuReceived?.Invoke(conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId);
+                    OnColisRecuReceived?.Invoke(conversationId, messageId, messageRecuId, senderId, estConforme, photoId, description, date);
                 });
 
             _chatHubConnection.On<int, int, int>(

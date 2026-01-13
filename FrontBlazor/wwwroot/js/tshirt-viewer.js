@@ -1,125 +1,86 @@
-﻿import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/GLTFLoader.js';
+﻿import * as THREE from 'three';
+import { GLTFLoader } from 'jsm/loaders/GLTFLoader.js';
 
-class TShirtViewer {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        if (!this.container) throw new Error(`Container with id "${containerId}" not found`);
+window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
+    const container = document.getElementById(containerId);
 
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.model = null;
-        this.animationId = null;
-
-        this.rotationSpeed = 0.005;
-
-        this.init();
+    if (!container) {
+        console.error(`Container ${containerId} not found`);
+        return;
     }
 
-    init() {
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xf8f9fa);
-
-        const width = this.container.clientWidth;
-        const height = this.container.clientHeight;
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-        this.camera.position.set(0, 0, 3);
-
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(width, height);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.container.appendChild(this.renderer.domElement);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        this.scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 10, 5);
-        this.scene.add(directionalLight);
-
-        this._onResize = () => this.onWindowResize();
-        window.addEventListener('resize', this._onResize);
-
-        this.animate();
+    if (!textureUrl || textureUrl === "0" || textureUrl.includes("/0")) {
+        container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 1.1rem;">Aucune photo disponible pour la visualisation 3D</div>';
+        return;
     }
 
-    loadModel(modelUrl) {
-        const loader = new GLTFLoader();
+    const w = container.clientWidth;
+    const h = container.clientHeight;
 
-        return new Promise((resolve, reject) => {
-            loader.load(
-                modelUrl,
-                (gltf) => {
-                    this.model = gltf.scene;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(w, h);
+    container.appendChild(renderer.domElement);
 
-                    const box = new THREE.Box3().setFromObject(this.model);
-                    const center = box.getCenter(new THREE.Vector3());
-                    this.model.position.sub(center);
+    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+    camera.position.set(0, 0, 3);
 
-                    this.scene.add(this.model);
-                    resolve(this.model);
-                },
-                undefined,
-                (error) => {
-                    console.error('Error loading model:', error);
-                    reject(error);
-                }
-            );
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf0f0f0);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 10, 5);
+    scene.add(directionalLight);
+
+    // Load texture
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(textureUrl);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.flipY = false;
+
+    const loader = new GLTFLoader();
+    let model;
+
+    loader.load(modelUrl, (gltf) => {
+        model = gltf.scene;
+
+        model.traverse((child) => {
+            if (child.isMesh) {
+                child.material.map = texture;
+                child.material.needsUpdate = true;
+            }
         });
-    }
 
-    onWindowResize() {
-        const width = this.container.clientWidth;
-        const height = this.container.clientHeight;
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center);
 
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(width, height);
-    }
+        scene.add(model);
+    });
 
-    animate() {
-        this.animationId = requestAnimationFrame(() => this.animate());
-
-        if (this.model) {
-            this.model.rotation.y += this.rotationSpeed;
+    const onResize = () => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+    };
+    window.addEventListener('resize', onResize);
+    function animate() {
+        requestAnimationFrame(animate);
+        if (model) {
+            model.rotation.y += 0.005;
         }
-
-        this.renderer.render(this.scene, this.camera);
+        renderer.render(scene, camera);
     }
-
-    dispose() {
-        if (this.animationId) cancelAnimationFrame(this.animationId);
-
-        if (this.renderer) {
-            this.renderer.dispose();
-            this.container.removeChild(this.renderer.domElement);
-        }
-
-        if (this.model) this.scene.remove(this.model);
-
-        window.removeEventListener('resize', this._onResize);
-    }
-}
-
-window.TShirtViewerInstances = window.TShirtViewerInstances || {};
-
-window.initTShirtViewer = async (containerId, modelUrl) => {
-    const viewer = new TShirtViewer(containerId);
-    window.TShirtViewerInstances[containerId] = viewer;
-
-    try {
-        await viewer.loadModel(modelUrl);
-        return true;
-    } catch {
-        return false;
-    }
+    animate();
 };
 
-window.disposeTShirtViewer = (containerId) => {
-    const viewer = window.TShirtViewerInstances[containerId];
-    if (viewer) {
-        viewer.dispose();
-        delete window.TShirtViewerInstances[containerId];
+window.clearCanvas = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = '';
     }
 };
