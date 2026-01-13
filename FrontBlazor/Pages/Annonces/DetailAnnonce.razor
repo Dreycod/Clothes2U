@@ -2,6 +2,8 @@
 @layout ClientLayout
 @using Shared.DTO.Recense
 @using Shared.DTO.Utilisateur
+@inject IJSRuntime JS
+
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
@@ -21,7 +23,6 @@
 </body>
 
 <div class="product-detail-page">
-<div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
     {
         <div class="loading-container">
