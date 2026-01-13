@@ -14,14 +14,16 @@ public class ModerationDashboardService : IModerationDashboardService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISignalementRepository _signalementManager;
     private readonly IDemandeRestaurationRepository<DemandeRestauration, int> _demandeRestaurationManager;
-    private readonly ITicketRepository _ticketRepository;
-    private readonly IMapper _mapper; 
+    private readonly IMapper _mapper;
+    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
+    private readonly ITicketRepository _ticketManager;
 
     public ModerationDashboardService(
         IServiceScopeFactory scopeFactory,
         ISignalementRepository signalementManager,
         IMapper mapper,
-        ITicketRepository supportService,
+        IAnnonceRepository<Annonce, int, FilterDTO>  annonceManager,
+        ITicketRepository  ticketManager,
         IDemandeRestaurationRepository<DemandeRestauration, int> demandeRestaurationManager
         )
     {
@@ -29,7 +31,8 @@ public class ModerationDashboardService : IModerationDashboardService
         _mapper = mapper;
         _signalementManager = signalementManager;
         _demandeRestaurationManager = demandeRestaurationManager;
-        _ticketRepository = supportService;
+        _annonceManager = annonceManager;
+        _ticketManager = ticketManager;
     }
     
 
@@ -49,11 +52,11 @@ public class ModerationDashboardService : IModerationDashboardService
             return await repo.GetOpenTicketsCountAsync();
         });
 
-        var suspendTask = Task.Run(async () =>
+        var analysesTask = Task.Run(async () =>
         {
             using var scope = _scopeFactory.CreateScope();
-            var repo = scope.ServiceProvider.GetRequiredService<IUtilisateurRepository>();
-            return await repo.GetSuspendUserCount();
+            var repo = scope.ServiceProvider.GetRequiredService<IAnnonceRepository<Annonce, int, FilterDTO>>();
+            return await repo.GetAnalyseCountAsync();
         });
 
         var restaurationTask = Task.Run(async () =>
@@ -109,14 +112,14 @@ public class ModerationDashboardService : IModerationDashboardService
         });
 
 
-        await Task.WhenAll(signalementsTask, suspendTask, restaurationTask, decisionsStatsTask, supportsTask); 
+        await Task.WhenAll(signalementsTask, analysesTask, restaurationTask, decisionsStatsTask, supportsTask); 
         
         var decisionsStats = decisionsStatsTask.Result;
         
         return new DashBoardStatistics
         {
             SignalementsEnAttented = await signalementsTask,
-            CompteSuspendus = await suspendTask,
+            AnalysesEnAttente = await analysesTask,
             ResaurationEnAttente = await restaurationTask,
             DemandeSupport = await supportsTask,
             DecisionsAujourdhui = new DecisionStatistics
@@ -144,12 +147,21 @@ public class ModerationDashboardService : IModerationDashboardService
     {
         IEnumerable<DemandeRestauration> demandes = await _demandeRestaurationManager.GetAllAsync();
         List<ActivityRestauration> activityRestaurations = _mapper.Map<List<ActivityRestauration>>(demandes);
+
+        IEnumerable<Annonce> annoncesAnalyse = await _annonceManager.GetAllAnalyseAsync();
+        List<ActivityDemandeAnalyse> activityDemandeAnalyse = _mapper.Map<List<ActivityDemandeAnalyse>>(annoncesAnalyse);
+
+        IEnumerable<Ticket> tickets = await _ticketManager.GetOpenTicketsAsync();
+        List<ActivityTicket> activityTickets = _mapper.Map<List<ActivityTicket>>(tickets);
+        
         
         IEnumerable<Signalement> signalements = await _signalementManager.GetAllAsync();
         List<ActivitySignalement> activitySignalements = _mapper.Map<List<ActivitySignalement>>(signalements);
         var activities = activityRestaurations
             .Cast<ActivityDTO>()
             .Concat(activitySignalements)
+            .Concat(activityDemandeAnalyse)
+            .Concat(activityTickets)
             .OrderByDescending(a => a.Date)
             .Take(5)                     
             .ToList();

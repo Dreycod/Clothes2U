@@ -1,16 +1,3 @@
-@{
-    var elapsed = DateTime.UtcNow - Activity.Date;
-    string text;
-
-    if (elapsed.TotalMinutes < 1)
-        text = "quelques secondes";
-    else if (elapsed.TotalHours < 1)
-        text = $"{(int)elapsed.TotalMinutes} minute(s)";
-    else if (elapsed.TotalDays < 1)
-        text = $"{(int)elapsed.TotalHours} heure(s)";
-    else
-        text = $"{(int)elapsed.TotalDays} jour(s)";
-}
 @switch (Activity)
 {
     case ActivityRestauration activityRestauration:
@@ -21,7 +8,7 @@
             </div>
             <div class="activity-content">
                 <p><strong>Demande de restauration</strong> @activityRestauration.LoginUser</p>
-                <span class="activity-time">Il y a @text</span>
+                <span class="activity-time">@activityRestauration.Date.ToLocalTime()</span>
 
             </div>
             <button class="activity-action" @onclick="() => VM_Board.NavigateToRestauration(activityRestauration.RestaurationId)">
@@ -36,14 +23,40 @@
             </div>
             <div class="activity-content">
                 <p><strong>Nouveau signalement</strong> @activitySignalement.LoginUser a signalé @activitySignalement.UtiliseurSignaleLogin</p>
-                <span class="activity-time">Il y a @text</span>
+                <span class="activity-time">@activitySignalement.Date.ToLocalTime()</span>
             </div>
             <button class="activity-action" @onclick="() => VM_Board.NavigateToSignalement(activitySignalement.SignalementId)">
                 Voir
             </button>
         </div>
-
-
+        break;
+    case ActivityDemandeAnalyse activityDemandeAnalyse:
+        <div class="activity-item">
+            <div class="activity-icon red">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <div class="activity-content">
+                <p><strong>Demande d'analyse d'image</strong> @activityDemandeAnalyse.LoginUser a demandé d'analyser son annonce.</p>
+                <span class="activity-time">@activityDemandeAnalyse.Date.ToLocalTime()</span>
+            </div>
+            <button class="activity-action" @onclick="() => VM_Board.NavigateToDemandeAnalyse(activityDemandeAnalyse.AnnonceId)">
+                Traiter
+            </button>
+        </div>
+        break;
+    case ActivityTicket activityTicket:
+        <div class="activity-item">
+            <div class="activity-icon red">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <div class="activity-content">
+                <p><strong>Ticket en cours</strong> @activityTicket.LoginUser a besoin de l'assistance d'un modérateur</p>
+                <span class="activity-time">@activityTicket.Date.ToLocalTime()</span>
+            </div>
+            <button class="activity-action" @onclick="() => VM_Board.NavigateToTicket(activityTicket.TicketId)">
+                Traiter
+            </button>
+        </div>
         break;
 }
 

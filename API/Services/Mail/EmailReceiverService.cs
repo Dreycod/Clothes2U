@@ -34,7 +34,6 @@ namespace API.Services
         {
             try
             {
-                // Vérifier que toutes les configurations sont présentes
                 var imapServer = _config["Email:ImapServer"];
                 var imapPortStr = _config["Email:ImapPort"];
                 var username = _config["Email:Username"];

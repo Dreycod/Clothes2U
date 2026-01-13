@@ -169,5 +169,18 @@ public class ModerationMappingProfile : Profile
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
             .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => src.Decision.Utilisateur.Login))
             .ForMember(dest => dest.RestaurationId, opt => opt.MapFrom(src => src.DemandeRestaurationId));
+        CreateMap<Annonce, ActivityDemandeAnalyse>()
+            .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => src.Utilisateur.Login))
+            .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.DateAnnonce));
+        
+        CreateMap<Ticket, ActivityTicket>()
+            .ForMember(dest => dest.LoginUser, opt => opt.MapFrom(src => src.Utilisateur.Login != null ?  src.Utilisateur.Login : "Login introuvable"))
+            .ForMember(dest => dest.TicketId, opt => opt.MapFrom(src => src.TicketId))
+            .ForMember(dest => dest.TicketSubject, opt => opt.MapFrom(src => src.TicketSubject))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.DateCreation));
+
+        
+        
     }
 }

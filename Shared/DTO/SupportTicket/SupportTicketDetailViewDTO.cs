@@ -8,6 +8,8 @@ namespace Shared.DTO.SupportTicket
 {
     public class TicketDetailViewDTO
     {
+        
+        public int Status { get; set; }
         public int TicketId { get; set; }
         public int UtilisateurId { get; set; }
         public string Subject { get; set; }

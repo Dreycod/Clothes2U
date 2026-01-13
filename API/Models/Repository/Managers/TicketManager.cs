@@ -27,10 +27,14 @@ public class TicketManager : GenericCRUDManager<Ticket>, ITicketRepository
     }
     public async Task<IEnumerable<Ticket>> GetPendingTicketsAsync()
     {
-        return BaseTicketQuery().Where(t => t.Status == (int)StatusTicketEnum.ANSWERED);
+        return BaseTicketQuery().Where(t => t.Status == (int)StatusTicketEnum.PENDING);
     }
     public async override Task<Ticket?> GetByIdAsync(int id)
     {
         return await BaseTicketQuery().FirstOrDefaultAsync(t => t.TicketId == id);
+    }
+    public async Task<IEnumerable<Ticket>> GetClosedTicketsAsync()
+    {
+        return BaseTicketQuery().Where(t => t.Status == (int)StatusTicketEnum.CLOSED);
     }
 }

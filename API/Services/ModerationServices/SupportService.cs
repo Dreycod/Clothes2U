@@ -101,7 +101,7 @@ namespace API.Services
                 mail
             );
             
-            ticket.Status = (int)StatusTicketEnum.ANSWERED;
+            ticket.Status = (int)StatusTicketEnum.PENDING;
             await _ticketManager.UpdateAsync(ticket);
         }
     }
