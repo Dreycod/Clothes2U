@@ -75,18 +75,9 @@
     max-width: 100px;
 }
 
-.status-1 { /* annonce active */
+.status-5 {
     background: #888;
 }
-
-.status-2 { /* suspendu */
-    background: #F44336;
-}
-
-.status-4 { /* vendu */
-    background: #9E9E9E;
-}
-
 
 .wishlist-btn {
     position: absolute;

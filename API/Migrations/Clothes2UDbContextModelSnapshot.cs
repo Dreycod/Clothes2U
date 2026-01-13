@@ -1910,6 +1910,74 @@ namespace API.Migrations
                     b.ToTable("t_e_taille_tai", "sae_clothes2u");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Ticket", b =>
+                {
+                    b.Property<int>("TicketId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("tic_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketId"));
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("tic_date_creation");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("tic_status");
+
+                    b.Property<string>("TicketSubject")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tic_subject");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tic_utilisateur_id");
+
+                    b.HasKey("TicketId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("t_e_ticket_tic", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.TicketMessage", b =>
+                {
+                    b.Property<int>("TicketMessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ticmes_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketMessageId"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ticmes_content");
+
+                    b.Property<DateTime>("DateEnvoi")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ticmes_date_envoi");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ticmes_ticket_id");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ticmes_utilisateur_id");
+
+                    b.HasKey("TicketMessageId");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("t_e_ticket_message_ticmes", "sae_clothes2u");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
                 {
                     b.Property<int>("TransactionId")
@@ -2923,6 +2991,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.EntityFramework.Annonce", "Annonce")
                         .WithMany("Tags")
                         .HasForeignKey("AnnonceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API.Models.EntityFramework.Tag", "Tag")
@@ -3063,6 +3132,35 @@ namespace API.Migrations
                     b.Navigation("Categorie");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Ticket", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
+                        .WithMany("Tickets")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Utilisateur");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.TicketMessage", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Ticket", "Ticket")
+                        .WithMany("Messages")
+                        .HasForeignKey("TicketId")
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
+                        .WithMany("MessagesSupport")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("Utilisateur");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Conversation", "Conversation")
@@ -3196,8 +3294,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
                 {
-                    b.Navigation("MessageEstPayee")
-                        .IsRequired();
+                    b.Navigation("MessageEstPayee");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>
@@ -3402,6 +3499,11 @@ namespace API.Migrations
                     b.Navigation("Mesures");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Ticket", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.TypeSignalement", b =>
                 {
                     b.Navigation("Signalements");
@@ -3439,6 +3541,8 @@ namespace API.Migrations
 
                     b.Navigation("Messages");
 
+                    b.Navigation("MessagesSupport");
+
                     b.Navigation("NotesAuteur");
 
                     b.Navigation("NotesCible");
@@ -3450,6 +3554,8 @@ namespace API.Migrations
                     b.Navigation("Signalements");
 
                     b.Navigation("SignalementsUtilisateurs");
+
+                    b.Navigation("Tickets");
 
                     b.Navigation("UtilisateursBloques");
 

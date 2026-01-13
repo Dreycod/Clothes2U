@@ -2,10 +2,27 @@
 @layout ClientLayout
 @using Shared.DTO.Recense
 @using Shared.DTO.Utilisateur
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
-<div class="product-detail-page">
+<head>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>   
+    <script type="module" src="js/tshirt-viewer.js"></script>
+</body>
+
+<div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
     {
         <div class="loading-container">
@@ -47,7 +64,6 @@
     {
         AnnonceDetailDTO annonce = VM_DetailAnnonce.AnnonceDetail;
         UtilisateurViewDTO utilisateur = VM_DetailAnnonce.utilisateurAnnonce;
-        string produit = "AnnonceDetail";
 
         <div class="product-container">
             
@@ -67,7 +83,7 @@
                         @foreach (var photo in annonce.Photos.Skip(1))
                         {
                             <button class="preview-btn" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(photo)">
-                                <div class="thumbnail-item" @onclick="() => VM_DetailAnnonce.GetPhoto(photo)">
+                                <div class="thumbnail-item">
                                     <img src="@VM_DetailAnnonce.GetPhoto(photo)" alt="Thumbnail" />
                                 </div>
                             </button>
@@ -77,8 +93,46 @@
             </div>
 
             <div class="product-info-section">
-                <div class="category-badge">@annonce.Categorie</div>
-
+                <div class="category-badge-row">
+                    <div class="category-badge">@annonce.Categorie</div>
+    
+                    <div class="product-actions-buttons">
+                        @if (VM_DetailAnnonce.Has3DModel)
+                        {
+                            <button class="btn-3d-viewer" 
+                                    title="Voir en 3D"
+                                    @onclick="VM_DetailAnnonce.Toggle3DViewer">
+                                <i class="bi bi-badge-3d"></i>
+                            </button>
+                        }
+        
+                        @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
+                        {
+                            <div class="product-actions-dropdown-container" @onclick:stopPropagation="true">
+                                <button class="btn-dropdown-toggle"
+                                        title="Actions"
+                                        @onclick="VM_DetailAnnonce.ToggleActionsDropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                
+                                @if (VM_DetailAnnonce.ShowActionsDropdown)
+                                {
+                                    <div class="product-dropdown">
+                                        <button class="dropdown-item" @onclick="VM_DetailAnnonce.ModifierAnnonce">
+                                            <i class="bi bi-pencil"></i>
+                                            <span>Modifier</span>
+                                        </button>
+                                        <button class="dropdown-item" @onclick="VM_DetailAnnonce.TogglePauseResumeModal">
+                                            <i class="bi bi-@(annonce.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
+                                            <span>@(annonce.StatutAnnonceId == 5 ? "Reprendre l'annonce" : "Mettre en pause")</span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+                
                 <h1 class="product-title">@annonce.Title</h1>
 
                 <div class="brand-price-row">
@@ -98,12 +152,11 @@
                 </div>
 
                 <div class="actions-row">
-                    @if (!VM_DetailAnnonce.IsSameUser)
+                    @if (!VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                     {
-
                         <button class="btn-action"
-                        @onclick:stopPropagation="true"
-                        @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
+                                @onclick:stopPropagation="true"
+                                @onclick="() => VM_DetailAnnonce.ToggleFavorite(annonce)">
                             <i class="bi bi-heart@(annonce.IsLikedByCurrentUser ? "-fill" : "")"></i>
                         </button>
                         <button class="btn-action" @onclick="VM_DetailAnnonce.ToggleSignalerModal">
@@ -143,10 +196,6 @@
                     <p class="description-text">
                         @(annonce.Description ?? "Aucune description disponible.")
                     </p>
-                    @foreach (string couleur in annonce.Couleurs)
-                    {
-                        <p>@couleur</p>
-                    }
                 </div>
 
                 <div class="tags-section">
@@ -201,21 +250,15 @@
 
         <div class="similar-section">
             <div class="similar-container">
-
                 <div class="similar-header">
                     <h2 class="similar-title">Annonces similaires</h2>
-
                     <div class="carousel-controls">
-                        <button class="carousel-btn"
-                                @onclick="VM_DetailAnnonce.PreviousSimilar">
+                        <button class="carousel-btn" @onclick="VM_DetailAnnonce.PreviousSimilar">
                             <i class="bi bi-chevron-left"></i>
                         </button>
-
-                        <button class="carousel-btn"
-                                @onclick="VM_DetailAnnonce.NextSimilar">
+                        <button class="carousel-btn" @onclick="VM_DetailAnnonce.NextSimilar">
                             <i class="bi bi-chevron-right"></i>
                         </button>
-
                     </div>
                 </div>
                 
@@ -231,7 +274,6 @@
                     {
                         @foreach (AnnonceDTO similairAnnonce in VM_DetailAnnonce.similarAnnonces)
                         {
-
                             <AnnonceCard annonceComponent="similairAnnonce"
                                          OnToggleFavorite="(a) => VM_DetailAnnonce.ToggleFavorite(a)"    
                                          OnClickAnnonce="(a) => VM_DetailAnnonce.NavigateToProduct(a.AnnonceId)"/>
@@ -257,7 +299,6 @@
                     <i class="bi bi-x"></i>
                 </button>
             </div>
-
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">Raison</label>
@@ -268,7 +309,6 @@
                               rows="6"></textarea>
                 </div>
             </div>
-
             <div class="modal-actions">
                 <button class="btn-secondary" @onclick="VM_DetailAnnonce.ToggleSignalerModal">Annuler</button>
                 <button class="btn-primary" @onclick="VM_DetailAnnonce.SubmitReport" disabled="@VM_DetailAnnonce.IsSubmittingReport">
@@ -323,6 +363,67 @@
     </div>
 }
 
+@if (VM_DetailAnnonce.ShowPauseResumeModal)
+{
+    <div class="modal-overlay" @onclick="() => VM_DetailAnnonce.TogglePauseResumeModal()">
+        <div class="modal-content review-modal delete-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>
+                    @if (VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5)
+                    {
+                        <span>Reprendre l'annonce</span>
+                    }
+                    else
+                    {
+                        <span>Mettre l'annonce en pause</span>
+                    }
+                </h3>
+                <button class="modal-close" @onclick="() => VM_DetailAnnonce.TogglePauseResumeModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-@(VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
+                    @if (VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5)
+                    {
+                        <span>Êtes-vous sûr de vouloir reprendre cette annonce ? Elle sera visible par tous les utilisateurs.</span>
+                    }
+                    else
+                    {
+                        <span>Êtes-vous sûr de vouloir mettre cette annonce en pause ? Elle ne sera plus visible par les autres utilisateurs.</span>
+                    }
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="() => VM_DetailAnnonce.TogglePauseResumeModal()">
+                    Annuler
+                </button>
+                <button class="@(VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5 ? "btn-primary" : "btn-pause")"
+                        @onclick="async () => await VM_DetailAnnonce.PauserReprendreAnnonce()"
+                        disabled="@VM_DetailAnnonce.IsSubmittingPauseResume">
+                    @if (VM_DetailAnnonce.IsSubmittingPauseResume)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>En cours...</span>
+                    }
+                    else
+                    {
+                        @if (VM_DetailAnnonce.AnnonceDetail.StatutAnnonceId == 5)
+                        {
+                            <span>Reprendre l'annonce</span>
+                        }
+                        else
+                        {
+                            <span>Mettre en pause</span>
+                        }
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @if (VM_DetailAnnonce.ShowImagePreview)
 {
     <div class="image-preview-overlay" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
@@ -330,24 +431,72 @@
             <button class="modal-close" @onclick="() => VM_DetailAnnonce.ToggleImagePreview(0)">
                 <i class="bi bi-x"></i>
             </button>
-            <div class="image-preview-container">
+            <div class="image-preview-content">
                 <img src="@VM_DetailAnnonce.ImagePreview" alt="Image Preview" />
             </div>
         </div>
     </div>
+}
 
+@if (VM_DetailAnnonce.Show3DViewer)
+{
+    <div class="modal-overlay" @onclick="VM_DetailAnnonce.Toggle3DViewer">
+        <div class="modal-content viewer-3d-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Visualisation 3D</h3>
+                <button class="modal-close" @onclick="VM_DetailAnnonce.Toggle3DViewer">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="viewer-3d-container">
+                <div id="tshirt-canvas-detail"></div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
 
+    private bool _3dViewerInitialized = false;
+
     protected override async Task OnInitializedAsync()
     {
         await VM_DetailAnnonce.LoadAnnonceDetailAsync(Id);
     }
 
-    public void Dispose()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (VM_DetailAnnonce.Show3DViewer && !_3dViewerInitialized && VM_DetailAnnonce.AnnonceDetail != null)
+        {
+            _3dViewerInitialized = true;
+            
+            await Task.Delay(100);
+            
+            var modelUrl = $"/assets/{VM_DetailAnnonce.AnnonceDetail.SousCategorie}.gltf";
+            var firstPhotoId = VM_DetailAnnonce.AnnonceDetail.Photos.FirstOrDefault();
+            var textureUrl = VM_DetailAnnonce.GetPhoto(firstPhotoId);
+            
+            await JS.InvokeVoidAsync("initAndApplyTexture", "tshirt-canvas-detail", modelUrl, textureUrl);
+        }
+        
+        if (!VM_DetailAnnonce.Show3DViewer)
+        {
+            _3dViewerInitialized = false;
+        }
+    }
+
+    private void HandlePageClick()
+    {
+        if (VM_DetailAnnonce.ShowActionsDropdown)
+        {
+            VM_DetailAnnonce.ShowActionsDropdown = false;
+            StateHasChanged();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
     {
         VM_DetailAnnonce.CancelVisualisation();
     }

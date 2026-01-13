@@ -9,11 +9,9 @@ namespace FrontBlazor.ViewModel.Moderation.Support
     public class SupportTicketsViewModel : ModerationViewModel
     {
         private readonly SupportWebService _service;
+        private readonly NavigationManager _nav;
 
         public List<SupportTicketViewDTO> Tickets { get; private set; } = new();
-        public bool IsReplying { get; private set; }
-        public string ReplyMessage { get; set; } = "";
-        public int CurrentTicketId { get; private set; }
 
         public SupportTicketsViewModel(
             SupportWebService service,
@@ -21,32 +19,32 @@ namespace FrontBlazor.ViewModel.Moderation.Support
             NavigationManager nav)
             : base(authService, nav)
         {
+            _nav = nav;
             _service = service;
         }
 
         public override async Task LoadAsync()
         {
+            IsLoading = true;
             await base.LoadAsync();
             Tickets = await _service.GetOpenTicketsAsync();
-        }
-
-        public void OpenReply(int ticketId)
-        {
-            CurrentTicketId = ticketId;
-            ReplyMessage = "";
-            IsReplying = true;
-        }
-
-        public async Task SendReplyAsync()
-        {
-            await _service.ReplyAsync(new()
+            IsLoading = false;
+            foreach (var supportTicketViewDto in Tickets)
             {
-                TicketId = CurrentTicketId,
-                Message = ReplyMessage
-            });
-
-            IsReplying = false;
-            Tickets = await _service.GetOpenTicketsAsync();
+                Console.WriteLine(supportTicketViewDto.Title);
+            }
         }
+
+        public async Task LoadPendingTickets()
+        {
+            Tickets = await _service.GetPendingTicketsAsync();
+        }
+
+        public async Task OpenDetails(int ticketId)
+        {
+            _nav.NavigateTo($"/moderation/TicketDetails/{ticketId}");
+        }
+
+        
     }
 }

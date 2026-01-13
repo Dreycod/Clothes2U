@@ -13,12 +13,16 @@
         {
             <img src="images/placeholder_main.jpg" alt="Photo interlocuteur" />
         }
-        <div class="status-badge status-@annonceComponent.StatutAnnonceId">
-            <span class="status-icon">
-                <i class="bi @GetStatusIcon()"></i>
-            </span>
-            <span class="status-text">@annonceComponent.StatutAnnonce</span>
-        </div>
+        @if (annonceComponent.StatutAnnonceId == 5)
+        {
+            <div class="status-badge status-@annonceComponent.StatutAnnonceId">
+                <span class="status-icon">
+                    <i class="bi bi-pause-circle-fill"></i>
+                </span>
+                <span class="status-text">@annonceComponent.StatutAnnonce</span>
+            </div>
+        }
+
         @if (!annonceComponent.IsOwnerAnnonce)
         {
             <button class="wishlist-btn"
@@ -43,7 +47,7 @@
                @onclick:preventDefault="true"
                @onclick:stopPropagation="true">
                 <div class="product-seller">
-                    <img class="seller-avatar" src="@SellerPhotoUrl" alt="@annonceComponent.NomAuteur" />
+                    <img class="seller-avatar" src="@SellerPhotoUrl" alt=""/>
                     <span class="seller-name">@(annonceComponent.NomAuteur ?? "Vendeur")</span>
                 </div>
             </a>
@@ -73,12 +77,4 @@
     {
         await OnClickAnnonce.InvokeAsync(annonceComponent);
     }
-
-    private string GetStatusIcon() => annonceComponent.StatutAnnonceId switch
-    {
-        1 => "bi-check-circle-fill",
-        2 => "bi-pause-circle-fill",
-        3 => "bi-bag-check-fill",
-        _ => "bi-question-circle"
-    };
 }

@@ -45,5 +45,41 @@ namespace API.Services.VerificationSrvceV2
             }
         }
 
+        public async Task SendHtmlAsync(string to, string subject, string htmlBody, string replyTo = null)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(MailboxAddress.Parse(_config["Email:From"]));
+                message.To.Add(MailboxAddress.Parse(to));
+                if (!string.IsNullOrEmpty(replyTo))
+                {
+                    message.ReplyTo.Add(MailboxAddress.Parse(replyTo));
+                }
+                
+                message.Subject = subject;
+                message.Body = new TextPart("html") { Text = htmlBody };
+
+                using var client = new SmtpClient();
+                await client.ConnectAsync(
+                    _config["Email:SmtpServer"],
+                    int.Parse(_config["Email:Port"]),
+                    MailKit.Security.SecureSocketOptions.StartTls
+                );
+
+                await client.AuthenticateAsync(
+                    _config["Email:Username"],
+                    _config["Email:Password"]
+                );
+
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EMAIL ERROR (HTML) : " + ex.Message);
+                throw;
+            }
+        }
     }
 }

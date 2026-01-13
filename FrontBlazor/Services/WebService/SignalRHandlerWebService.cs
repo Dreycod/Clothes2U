@@ -354,34 +354,36 @@ public class SignalRHandlerWebService : IDisposable
 private void OnPaymentReceivedFromSignalR(
         int conversationId,
         int messageId,
+        int messagePayeeId,
         int senderId,
         DateTime date)
     {
-        HandlePaymentReceived(conversationId, messageId, senderId, date);
+        HandlePaymentReceived(conversationId, messageId, messagePayeeId, senderId, date);
     }
 
     private void OnColisEnvoyeReceivedFromSignalR(
         int conversationId,
         int messageId,
+        int messageEnvoieId,
         int senderId,
         int photoId,
         DateTime date,
         int messagePayeeId)
     {
-        HandleColisEnvoyeReceived(conversationId, messageId, senderId, photoId, date, messagePayeeId);
+        HandleColisEnvoyeReceived(conversationId, messageId, messageEnvoieId, senderId, photoId, date, messagePayeeId);
     }
 
     private void OnColisRecuReceivedFromSignalR(
         int conversationId,
         int messageId,
+        int messageRecuId,
         int senderId,
         bool estConforme,
         int? photoId,
         string? description,
-        DateTime date,
-        int messageEnvoieId)
+        DateTime date)
     {
-        HandleColisRecuReceived(conversationId, messageId, senderId, estConforme, photoId, description, date, messageEnvoieId);
+        HandleColisRecuReceived(conversationId, messageId, messageRecuId, senderId, estConforme, photoId, description, date);
     }
 
     #endregion
@@ -446,6 +448,7 @@ private void OnPaymentReceivedFromSignalR(
     private void HandlePaymentReceived(
         int conversationId,
         int messageId,
+        int messagePayeeId,
         int senderId,
         DateTime date)
     {
@@ -457,6 +460,7 @@ private void OnPaymentReceivedFromSignalR(
             {
                 var newPayment = new MessageEstPayeeDTO
                 {
+                    MessageEstPayeeId = messagePayeeId,
                     MessageId = messageId,
                     ConversationId = conversationId,
                     SenderId = senderId,
@@ -496,6 +500,7 @@ private void OnPaymentReceivedFromSignalR(
     private void HandleColisEnvoyeReceived(
         int conversationId,
         int messageId,
+        int messageEnvoieId,
         int senderId,
         int photoId,
         DateTime date,
@@ -509,6 +514,7 @@ private void OnPaymentReceivedFromSignalR(
             {
                 var newColis = new MessageEnvoieColisDTO
                 {
+                    MessageEnvoieColisId = messageEnvoieId,
                     MessageId = messageId,
                     ConversationId = conversationId,
                     SenderId = senderId,
@@ -523,7 +529,7 @@ private void OnPaymentReceivedFromSignalR(
                 // Mettre à jour le message payee correspondant
                 var messagePayee = _selectedConversation.ListMessages?
                     .OfType<MessageEstPayeeDTO>()
-                    .FirstOrDefault(m => m.MessageId == messagePayeeId);
+                    .LastOrDefault(m => m.MessageEstPayeeId == messagePayeeId);
                 
                 if (messagePayee != null)
                 {
@@ -560,12 +566,12 @@ private void OnPaymentReceivedFromSignalR(
     private void HandleColisRecuReceived(
         int conversationId,
         int messageId,
+        int messageRecuId,
         int senderId,
         bool estConforme,
         int? photoId,
         string? description,
-        DateTime date,
-        int messageEnvoieId)
+        DateTime date)
     {
         if (_selectedConversation?.ConversationId == conversationId)
         {
@@ -575,6 +581,7 @@ private void OnPaymentReceivedFromSignalR(
             {
                 var newRecu = new MessageEstRecuDTO
                 {
+                    MessageEstRecuId = messageRecuId,
                     MessageId = messageId,
                     ConversationId = conversationId,
                     SenderId = senderId,

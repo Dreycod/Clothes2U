@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace API.Models.EntityFramework;
 
 [Table("t_e_statut_conversation_sta")]
-public class StatutConversation
+public class StatutConversation : IEntity
 {
     [Key]
     [Column("sta_id")]
@@ -17,4 +17,6 @@ public class StatutConversation
     // lien avec la table conversation
     [InverseProperty(nameof(Conversation.StatutConversation))]
     public virtual ICollection<Conversation> Conversations { get; set; } = new List<Conversation>();
+    
+    public int GetId() => StatutConversationId;
 }

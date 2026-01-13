@@ -8,4 +8,5 @@ public interface IAnnonceExtensionService
     Task<AnnonceDetailDTO> LikeAnnonceDetail(AnnonceDetailDTO annonceDetailDTO);
     Task<IEnumerable<AnnonceDTO>> CheckOwnerAnnonce(IEnumerable<AnnonceDTO> annoncesDTO);
     Task<AnnonceDetailDTO> CheckOwnerAnnonceDetail(AnnonceDetailDTO annonceDetailDTO);
+    Task<IEnumerable<AnnonceDTO>> GetAnnoncesByUserId(int userId);
 }

@@ -66,7 +66,7 @@ builder.Services.AddScoped<ITagService<TagDTO>, TagWebService>();
 builder.Services.AddScoped<PasswordResetWebService>();
 builder.Services.AddScoped<SignalRHandlerWebService>();
 builder.Services.AddScoped<SupportWebService>();
-
+builder.Services.AddScoped<ISupportService, SupportWebService>();
 
 
 //caracteristiques
@@ -113,6 +113,7 @@ builder.Services.AddScoped<ForgotPasswordViewModel>();
 builder.Services.AddScoped<ResetPasswordViewModel>();
 builder.Services.AddScoped<OrderViewModel>();
 builder.Services.AddScoped<CreateSupportTicketViewModel>();
+builder.Services.AddScoped<TicketDetailViewModel>();
 builder.Services.AddScoped<SupportTicketsViewModel>();
 
 // AuthService doit déjà être enregistré

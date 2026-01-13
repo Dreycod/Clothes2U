@@ -10,7 +10,7 @@ public abstract class ModerationViewModel
     private readonly IAuthService _authService;
     private readonly NavigationManager _nav;
     public bool IsModerator { get; set; }
-    
+    public CurrentUtilisateurDTO Utilisateur { get; set; }
     public bool IsLoading { get; set; }
 
     public ModerationViewModel( IAuthService authService,  NavigationManager nav)
@@ -23,8 +23,8 @@ public abstract class ModerationViewModel
     {
         IsLoading = true;
         IsModerator = false;
-        CurrentUtilisateurDTO user = (CurrentUtilisateurDTO)await _authService.GetCurrentUserAsync();
-        if (user != null && (user.RoleUtilisateur == "Admin" || user.RoleUtilisateur == "Moderateur"))
+        Utilisateur = (CurrentUtilisateurDTO)await _authService.GetCurrentUserAsync();
+        if (Utilisateur != null && (Utilisateur.RoleUtilisateur == "Admin" || Utilisateur.RoleUtilisateur == "Moderateur"))
         {
             IsModerator = true;
             IsLoading = false;
@@ -32,6 +32,7 @@ public abstract class ModerationViewModel
         else
         {
             _nav.NavigateTo("/");
+            return;
         }
     }
 }

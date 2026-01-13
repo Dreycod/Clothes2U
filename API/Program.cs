@@ -218,6 +218,7 @@ builder.Services.AddScoped<ICaracteristiquesRepository<Genre>, GenreManager>();
 builder.Services.AddScoped<ICaracteristiquesRepository<Couleur>, CouleurManager>();
 builder.Services.AddScoped<IDataRepository<SousCategorie, int>, SousCategorieManager>();
 builder.Services.AddScoped<IDataRepository<StatutAnnonce, int>, StatutAnnonceManager>();
+builder.Services.AddScoped<IDataRepository<StatutConversation, int>, StatutConversationManager>();
 builder.Services.AddScoped<IFavorisRepository, FavorisManager>();
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurManager>();
 builder.Services.AddScoped<IPhotoRepository, PhotoManager>();
@@ -256,7 +257,8 @@ builder.Services.AddScoped<IClusterRepository, ClusterManager>();
 builder.Services.AddScoped<IMarqueRepository, MarqueManager>();
 builder.Services.AddScoped<ITagRepository<Tag, int>, TagManager>();
 builder.Services.AddScoped<IEstDeCouleurRepository<Est_De_Couleur, int>, EstDeCouleurManager>();
-
+builder.Services.AddScoped<ITicketRepository, TicketManager>();
+builder.Services.AddScoped<IDataRepository<TicketMessage, int>, TicketMessageManager>();
 
 //services
 builder.Services.AddHttpClient();
@@ -268,6 +270,8 @@ builder.Services.AddScoped<IMotInterditService,  MotInterditService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IDetectionService, DetectionService>();
+builder.Services.AddScoped<IEmailReceiverService, EmailReceiverService>();
+builder.Services.AddHostedService<EmailProcessingBackgroundService>();
 
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();
@@ -278,7 +282,7 @@ builder.Services.AddScoped<INotificationMailService, NotificationMailService>();
 builder.Services.AddScoped<PasswordResetService>();
 builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
 builder.Services.AddScoped<ISupportService, SupportService>();
-
+builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 //notification
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<NotificationMessage, int>, NotificationMessageManager>();

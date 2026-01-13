@@ -52,11 +52,21 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     }
 
 
-    public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int id)
+    public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int userId, int? currentUserId)
     {
-        return await BaseAnnonceQuery()
-            .Where(a => a.UtilisateurId == id)
-            .ToListAsync();
+        var query = BaseAnnonceQuery()
+            .Where(a => a.UtilisateurId == userId);
+        if (currentUserId.HasValue && currentUserId.Value == userId)
+        {
+            query = query.Where(a => 
+                a.StatutAnnonceId == (int)AnnonceStatut.EnLigne || 
+                a.StatutAnnonceId == (int)AnnonceStatut.Pause);
+        }
+        else
+        {
+            query = query.Where(a => a.StatutAnnonceId == (int)AnnonceStatut.EnLigne);
+        }
+        return await query.ToListAsync();
     }
     public async Task<IEnumerable<Annonce>> GetActiveAnnonces()
     {
@@ -80,8 +90,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
     public async Task<IEnumerable<Annonce>> FilterAsync(FilterDTO filterDto, int page, int pageSize, int? currentUserId = null)
 {
     var query = BaseAnnonceQuery();
-    
-    // ✅ Charger les IDs des utilisateurs bloqués AVANT la requête principale
     List<int> blockedUserIds = new List<int>();
     if (currentUserId.HasValue)
     {
@@ -89,8 +97,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Where(b => b.UtilisateurBloqueurId == currentUserId.Value)
             .Select(b => b.UtilisateurBloqueId)
             .ToListAsync();
-        
-        // ✅ Filtrer avec la liste en mémoire
         if (blockedUserIds.Any())
         {
             query = query.Where(a => !blockedUserIds.Contains(a.UtilisateurId));
@@ -137,6 +143,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         query = query.Where(p => filterDto.Tailles.Contains(p.Taille.Libelletaille));
     }
     
+    if (filterDto.Couleurs != null && filterDto.Couleurs.Any())
+    {
+        query = query.Where(p => p.Couleurs.Any(c => filterDto.Couleurs.Contains(c.Couleur.Nom)));
+    }
+
     if (filterDto.Genre != null && filterDto.Genre.Any())
     {
         query = query.Where(p => filterDto.Genre.Contains(p.GenreAnnonce.NomGenre));

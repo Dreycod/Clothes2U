@@ -269,20 +269,34 @@ public class MessageController : ControllerBase
         };
         
         await _messageManager.AddAsync(message);
-
-        var order = _orderService.GetOrdersByUserIdAsync(dto.UtilisateurId);
-        if (order == null) return BadRequest("Order introuvable");
         
-        var commande = order.Result.LastOrDefault();
-        if (commande == null) return BadRequest("Commande introuvable");
+        var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+
+        var orders = conversation?.Commandes?.OrderByDescending(c => c.CommandeId);
+        if (orders == null) return BadRequest("Order introuvable");
+        
+        var commande = orders.LastOrDefault();
+        
+        if (commande.MessageEstPayee != null)
+        {
+            return BadRequest("Cette commande a déjà un message de paiement.");
+        }
         
         var messageValidation = new MessageEstPayee()
         {
             MessageId = message.MessageId,
             CommandeId = commande.CommandeId,
         };
-        
-        await _messageValidationManager.AddAsync(messageValidation);
+
+        try
+        {
+
+            await _messageValidationManager.AddAsync(messageValidation);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Erreur lors de l'ajout du message de validation {e.Message}");
+        }
         
         try
         {
@@ -290,6 +304,7 @@ public class MessageController : ControllerBase
                 .SendAsync("ReceivePayment", 
                     dto.ConversationId, 
                     message.MessageId, 
+                    messageValidation.MessageEstPayeeId,
                     dto.UtilisateurId, 
                     message.MessageDate);
         
@@ -322,12 +337,20 @@ public class MessageController : ControllerBase
         await _messageManager.AddAsync(message);
 
         var photo = await _photoService.AddPhotoAsync(dto.Photo);
+        
+        var messagePayee = await _messageValidationManager.GetByIdAsync(dto.MessageEstPayeeId);
+
+        if (messagePayee == null)
+            return BadRequest("Message de paiement introuvable");
+        
+        if (messagePayee.EstAnnule)
+            return BadRequest("Le paiement a été annulé");
 
         var messageEnvoieColis = new MessageEnvoieColis
         {
             MessageId = message.MessageId,
             PhotoId = photo.PhotoId,
-            MessageEstPayeeId = dto.MessageEstPayeeId
+            MessageEstPayeeId = messagePayee.MessageEstPayeeId
         };
         
         await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
@@ -342,12 +365,17 @@ public class MessageController : ControllerBase
         
         await _orderService.UpdateOrderStatusAsync(commande.CommandeId, 2);
         
+        messagePayee.EstEnvoye = true;
+        
+        await _messageValidationManager.UpdateAsync(messagePayee);
+        
         try
         {
             await _hubContext.Clients.Group($"conversation_{dto.ConversationId}")
                 .SendAsync("ReceiveColisEnvoye", 
                     dto.ConversationId, 
-                    message.MessageId, 
+                    message.MessageId,
+                    messageEnvoieColis.MessageEnvoieColisId,
                     dto.UtilisateurId, 
                     photo.PhotoId,
                     message.MessageDate,
@@ -420,12 +448,12 @@ public class MessageController : ControllerBase
                 .SendAsync("ReceiveColisRecu", 
                     dto.ConversationId, 
                     message.MessageId, 
+                    messageRecu.MessageEstRecuId,
                     dto.UtilisateurId, 
                     dto.EstConforme,
                     messageRecu.PhotoId != null ? messageRecu.PhotoId : 0,
                     dto.Description,
-                    message.MessageDate,
-                    dto.MessageEstEnvoieId);
+                    message.MessageDate);
         
             Console.WriteLine($"[MessageController] ✅ Colis reçu notification sent for conversation {dto.ConversationId}");
         }

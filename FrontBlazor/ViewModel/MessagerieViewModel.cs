@@ -33,6 +33,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     //public UtilisateurDTO? CurrentUser { get; private set; }
     public IBrowserFile? ColisPhoto { get; private set; }
     public string? ColisPhotoPreviewBase64 { get; private set; }
+    public List<StatutConversationDTO>? StatutConversation { get; private set; } = new();
 
     public bool IsSendingColis { get; private set; }
     public string? ColisError { get; private set; }
@@ -69,6 +70,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     public string? ReceptionError { get; set; }
     public int? CurrentMessageEnvoieColisId { get; set; }
     public bool ColisDejaRecu { get; private set; }
+    public string StatusFilter { get; set; } = "Tous";
 
     public MessagerieViewModel(
         IConversationService<ConversationDTO> conversationService,
@@ -125,6 +127,12 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
             NotifyStateChanged();
             return;
         }
+
+        StatutConversation = await _conversationService.GetStatutConversation();
+        // if (StatutConversation == null)
+        // {
+        //     
+        // }
 
         var data = await _conversationService.GetConversationsByUserId(utilisateur.UtilisateurId);
         
@@ -800,8 +808,8 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     NotifyStateChanged();
 }
 
-    public async Task ConfirmerReceptionColisAsync()
-    {
+public async Task ConfirmerReceptionColisAsync()
+{
     if (SelectedConversation == null || utilisateur == null || CurrentMessageEnvoieColisId == null)
         return;
 
@@ -859,17 +867,28 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
         ColisDejaRecu = true;
         
         FermerModalReception();
-    }
-    catch (Exception ex)
-    {
-        ReceptionError = "Erreur lors de la confirmation de réception";
-        Console.WriteLine($"[VM] ❌ Error confirming reception: {ex.Message}");
-    }
-    finally
-    {
-        IsSendingReception = false;
-        NotifyStateChanged();
+        }
+        catch (Exception ex)
+        {
+            ReceptionError = "Erreur lors de la confirmation de réception";
+            Console.WriteLine($"[VM] ❌ Error confirming reception: {ex.Message}");
+        }
+        finally
+        {
+            IsSendingReception = false;
+            NotifyStateChanged();
+        }
+
     }
 
-}
+    public List<ConversationDTO> GetFilterConversation()
+    {
+        var conversations = Conversations.ToList();
+        if (StatusFilter != "Tous")
+        {
+            conversations = Conversations.Where(c => c.StatusConversation == StatusFilter).ToList();
+        }
+
+        return conversations.OrderByDescending(c => c.LastMessageDate).ToList();
+    }
 }

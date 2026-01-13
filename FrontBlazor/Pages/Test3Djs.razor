@@ -1,0 +1,32 @@
+﻿@page "/tshirt-viewer"
+
+<h3>T-Shirt Viewer</h3>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="tshirt-canvas"></div>
+    <script type="module" src="js/tshirt-viewer.js"></script>
+</body>
+
+
+@code {
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}

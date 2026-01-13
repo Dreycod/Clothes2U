@@ -1,6 +1,8 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
+using API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.DTO;
@@ -12,12 +14,14 @@ public class ModerationDashboardService : IModerationDashboardService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISignalementRepository _signalementManager;
     private readonly IDemandeRestaurationRepository<DemandeRestauration, int> _demandeRestaurationManager;
+    private readonly ITicketRepository _ticketRepository;
     private readonly IMapper _mapper; 
 
     public ModerationDashboardService(
         IServiceScopeFactory scopeFactory,
         ISignalementRepository signalementManager,
         IMapper mapper,
+        ITicketRepository supportService,
         IDemandeRestaurationRepository<DemandeRestauration, int> demandeRestaurationManager
         )
     {
@@ -25,6 +29,7 @@ public class ModerationDashboardService : IModerationDashboardService
         _mapper = mapper;
         _signalementManager = signalementManager;
         _demandeRestaurationManager = demandeRestaurationManager;
+        _ticketRepository = supportService;
     }
     
 
@@ -35,6 +40,13 @@ public class ModerationDashboardService : IModerationDashboardService
             using var scope = _scopeFactory.CreateScope();
             var repo = scope.ServiceProvider.GetRequiredService<ISignalementRepository>();
             return await repo.GetSignalementCount();
+        });
+        
+        var supportsTask = Task.Run(async () =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var repo = scope.ServiceProvider.GetRequiredService<ITicketRepository>();
+            return await repo.GetOpenTicketsCountAsync();
         });
 
         var suspendTask = Task.Run(async () =>
@@ -97,7 +109,7 @@ public class ModerationDashboardService : IModerationDashboardService
         });
 
 
-        await Task.WhenAll(signalementsTask, suspendTask, restaurationTask, decisionsStatsTask);
+        await Task.WhenAll(signalementsTask, suspendTask, restaurationTask, decisionsStatsTask, supportsTask); 
         
         var decisionsStats = decisionsStatsTask.Result;
         
@@ -106,6 +118,7 @@ public class ModerationDashboardService : IModerationDashboardService
             SignalementsEnAttented = await signalementsTask,
             CompteSuspendus = await suspendTask,
             ResaurationEnAttente = await restaurationTask,
+            DemandeSupport = await supportsTask,
             DecisionsAujourdhui = new DecisionStatistics
             {
                 SignalementsTraites = decisionsStatsTask.Result.Decisions.Count24h,

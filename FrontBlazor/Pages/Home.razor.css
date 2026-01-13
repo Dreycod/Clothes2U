@@ -379,7 +379,8 @@
     color: #888;
 }
 
-/* Categories Section */
+/* Categories Section with Background Images */
+
 .categories-section {
     max-width: 1400px;
     margin: 3rem auto;
@@ -396,26 +397,31 @@
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.3s;
+    background-size: cover;
+    background-position: center;
 }
 
     .category-card:hover {
         transform: scale(1.02);
     }
 
+/* Background images with gradient overlays */
 .category-femmes {
-    background: linear-gradient(135deg, #FFB6D9 0%, #FF8FB1 100%);
+    background: linear-gradient( 135deg, rgba(95, 160, 120, 0.6) 0%, rgba(140, 195, 150, 0.6) 100% ), url("/images/women_section.jpg");
+    background-size: cover;
+    background-position: center;
 }
 
 .category-hommes {
-    background: linear-gradient(135deg, #7EC8E3 0%, #5DA9C4 100%);
+    background: linear-gradient( 135deg, rgba(215, 145, 85, 0.6) 0%, rgba(235, 175, 120, 0.6) 100% ), url("/images/men_section.jpg");
+    background-size: cover;
+    background-position: center;
 }
 
-.category-enfants {
-    background: linear-gradient(135deg, #FFE17D 0%, #FFC857 100%);
-}
-
-.category-accessoires {
-    background: linear-gradient(135deg, #D4C5A9 0%, #B8A386 100%);
+.category-uni {
+    background: linear-gradient( 135deg, rgba(155, 145, 170, 0.6) 0%, rgba(190, 180, 205, 0.6) 100% ), url("/images/uni_section.jpg");
+    background-size: cover;
+    background-position: center;
 }
 
 .category-overlay {
@@ -432,7 +438,7 @@
 }
 
 .category-card:hover .category-overlay {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .category-title {
@@ -440,7 +446,32 @@
     font-weight: 600;
     color: white;
     text-transform: capitalize;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+    .categories-section {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .category-card {
+        height: 120px;
+    }
+
+    .category-title {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .categories-section {
+        grid-template-columns: 1fr;
+    }
+
+    .category-card {
+        height: 140px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -466,16 +497,6 @@
     .section-title {
         font-size: 1.1rem;
     }
-
-    .categories-section {
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .category-card {
-        height: 120px;
-    }
-
     .category-title {
         font-size: 1.25rem;
     }

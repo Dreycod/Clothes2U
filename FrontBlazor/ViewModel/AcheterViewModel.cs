@@ -220,8 +220,14 @@ public class AcheterViewModel : ClientBaseViewModel, IDisposable
                     UtilisateurId = utilisateur.UtilisateurId,
                     
                 };
-
-                _messageService.PostMessagePayee(messagePayeeDTO);
+                try
+                {
+                    _messageService.PostMessagePayee(messagePayeeDTO);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("jeiwhfiewhfihwu :"+ex.Message);
+                }
                 
                 return true;
             }

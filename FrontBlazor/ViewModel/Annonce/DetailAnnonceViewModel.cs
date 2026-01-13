@@ -11,6 +11,7 @@ using FrontBlazor.ViewModel.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Shared.DTO.Recense;
+using System.Runtime.CompilerServices;
 
 namespace FrontBlazor.ViewModel;
 
@@ -18,7 +19,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 {
     private readonly IAnnonceService _annonceService;
     private readonly IFavorisService<FavorisDTO> _favorisService;
-    private readonly IAuthService _authService;
     private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly IUtilisateurService _utilisateurService;
     private readonly NavigationManager _navigationManager;
@@ -26,7 +26,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     private readonly IMediasService _mediaService;
     private readonly IVisualisationService _visualisationService;
     private readonly ISignalementService _signalementService;
-    private readonly IRecenseService<RecenseDetailDTO> _recenseWebService;
 
     private CancellationTokenSource? _viewTimerCts;
 
@@ -49,17 +48,24 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public bool ShowImagePreview { get; set; } = false;
     public string ImagePreview { get; set; } = string.Empty;
-    
-    public DetailAnnonceViewModel(IAnnonceService annonceService,
-        IFavorisService<FavorisDTO> favorisService, IAuthService authService,
+    public bool ShowActionsDropdown { get; set; } = false;
+    public bool ShowPauseResumeModal { get; set; } = false;
+    public bool IsSubmittingPauseResume { get; set; } = false;
+
+    public bool Show3DViewer { get; set; } = false;
+    public bool Has3DModel { get; set; } = false;
+    public DetailAnnonceViewModel(
+        IAnnonceService annonceService,
+        IFavorisService<FavorisDTO> favorisService, 
+        IAuthService authService,
         IUtilisateurService utilisateurService,
         IConversationService<ConversationDTO> conversationService,
-        ClipboardService clipboardService, NavigationManager navigationManager, 
+        ClipboardService clipboardService,
+        NavigationManager navigationManager, 
         IMediasService mediasService,
         IVisualisationService visualisationService, 
         ISignalementService signalementService,
         INotificationService notificationService,
-        IRecenseService<RecenseDetailDTO> recenseWebService,
         ISignalRService notificationHubService
         )
         : base(navigationManager, authService, notificationHubService, notificationService)
@@ -67,7 +73,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     {
         _annonceService = annonceService;
         _favorisService = favorisService;
-        _authService = authService;
         _utilisateurService = utilisateurService;
         _conversationService = conversationService;
         _mediaService = mediasService;
@@ -75,8 +80,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         _clipboardService = clipboardService;
         _visualisationService = visualisationService;
         _signalementService = signalementService;
-        _recenseWebService = recenseWebService;
-
     }
 
     public async Task LoadAnnonceDetailAsync(int id)
@@ -109,6 +112,12 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
                 IsUserSuspended = true;
                 return;
             }
+
+            if (AnnonceDetail.SousCategorie == "T-shirt")
+            {
+                Has3DModel = true;
+            }
+
         }
         catch (Exception ex)
         {
@@ -296,10 +305,78 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
         }
     }
+
+    public void ToggleActionsDropdown()
+    {
+        ShowActionsDropdown = !ShowActionsDropdown;
+        NotifyStateChanged();
+    }
+    public void TogglePauseResumeModal()
+    {
+        if (utilisateur == null)
+        {
+            _navigationManager.NavigateTo("/login");
+            return;
+        }
+        ShowPauseResumeModal = !ShowPauseResumeModal;
+        ShowActionsDropdown = false;
+        NotifyStateChanged();
+    }
+    public void ModifierAnnonce()
+    {
+        ShowActionsDropdown = false;
+        NotifyStateChanged();
+        _navigationManager.NavigateTo($"/update-article/{AnnonceDetail.AnnonceId}");
+    }
+
+    public async Task PauserReprendreAnnonce()
+    {
+        ShowActionsDropdown = false;
+        NotifyStateChanged();
+        string action = "";
+
+        if (AnnonceDetail.StatutAnnonceId == 5)
+            action = "reprendre";
+        else if (AnnonceDetail.StatutAnnonceId == 1)
+            action = "pauser";
+
+        try
+        {
+            switch (action)
+            {
+                case "reprendre":
+                    await _annonceService.ReprendreAnnonce(AnnonceDetail.AnnonceId);
+                    break;
+                case "pauser":
+                    await _annonceService.PauseAnnonce(AnnonceDetail.AnnonceId);
+                    break;
+                default:
+                    throw new InvalidOperationException("Action inconnue pour l'annonce.");
+            }
+            AnnonceDetail.StatutAnnonceId = action == "pauser" ? 5 : 1;
+            NotifyStateChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la pause de l'annonce : {ex.Message}");
+        }
+        finally
+        {
+            IsSubmittingPauseResume = false;
+            ShowPauseResumeModal = false;
+            NotifyStateChanged();
+        }
+    }
+
+    private async Task PauserAnnonce()
+    {
+        throw new NotImplementedException();
+    }
+
     public event Action? OnChange;
 
     private void NotifyStateChanged() => OnChange?.Invoke();
-    
+
     public int PageNumber { get; set; }
     public async Task PreviousSimilar()
     {
@@ -314,7 +391,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
     {
         if (similarAnnonces.Count == 4)
         {
-            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId,PageNumber + 1,4 );
+            List<AnnonceDTO> newAnnonces = await _annonceService.GetSimilarAnnonces(AnnonceDetail.AnnonceId, PageNumber + 1, 4);
             if (newAnnonces.Count > 0)
             {
                 PageNumber++;
@@ -323,7 +400,6 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             }
         }
     }
-
     public async Task ToggleImagePreview(int? photoId = 0)
     {
         if (photoId == 0)
@@ -335,5 +411,9 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             ImagePreview = _mediaService.GetPhotoUrl((int)photoId);
             ShowImagePreview = true;
         }
+    }
+    public void Toggle3DViewer()
+    {
+        Show3DViewer = !Show3DViewer;
     }
 }

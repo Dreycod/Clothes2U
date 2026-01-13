@@ -178,7 +178,6 @@
     align-items: center;
 }
 
-/* 🆕 Bouton "Ajouter un article" dans le header */
 .btn-add-article-header {
     padding: 0.5rem 1.5rem;
     border: none;
@@ -203,7 +202,6 @@
         font-size: 1rem;
     }
 
-/* Responsive: masquer le texte sur mobile */
 @media (max-width: 768px) {
     .btn-add-article-header span {
         display: none;

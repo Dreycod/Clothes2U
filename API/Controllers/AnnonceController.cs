@@ -60,16 +60,12 @@ public class AnnonceController : ControllerBase
         _tagManager = tagManager;
         _couleurRepository = couleurRepository;
     }
-
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetAllByUtilisateurId(int utilisateurId)
     {
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(utilisateurId);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
-        annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
-        annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
+        IEnumerable<AnnonceDTO> annoncesDTO = await _annonceExtensionService.GetAnnoncesByUserId(utilisateurId);
         return Ok(annoncesDTO);
     }
 
@@ -325,15 +321,49 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
-        IEnumerable<Annonce> annonces = await _annonceManager.GetByUtilisateurId(id);
-        IEnumerable<Annonce> annoncesPaginees = annonces
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize);
+        IEnumerable<AnnonceDTO> annonces = await _annonceExtensionService.GetAnnoncesByUserId(id);
 
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
+    [HttpPatch("PauseAnnonce/{id}")]
+    public async Task<IActionResult> PauserAnnonce(int id)
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        if (userId == null)
+            return Unauthorized("Utilisateur non connecté.");
+
+        Annonce annonceToPause = await _annonceManager.GetByIdAsync(id);
+        if (annonceToPause == null)
+            return NotFound("Annonce non trouvée.");
+
+        if (annonceToPause.UtilisateurId != userId)
+            return Forbid("Vous n'êtes pas le propriétaire de cette annonce.");
+
+        annonceToPause.StatutAnnonceId = 5;
+        await _annonceManager.UpdateAsync(annonceToPause);
+        return NoContent();
+    }
+
+    [HttpPatch("ReprendreAnnonce/{id}")]
+    public async Task<IActionResult> ReprendreAnnonce(int id)
+    {
+        int userId = await _currentUserService.GetUserIdOrThrow();
+        if (userId == null)
+            return Unauthorized("Utilisateur non connecté.");
+
+        Annonce annonceToPause = await _annonceManager.GetByIdAsync(id);
+        if (annonceToPause == null)
+            return NotFound("Annonce non trouvée.");
+
+        if (annonceToPause.UtilisateurId != userId)
+            return Forbid("Vous n'êtes pas le propriétaire de cette annonce.");
+
+        annonceToPause.StatutAnnonceId = 1;
+        await _annonceManager.UpdateAsync(annonceToPause);
+        return NoContent();
+    }
 }

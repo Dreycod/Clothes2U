@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using FrontBlazor.Services;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
@@ -7,12 +6,15 @@ using Microsoft.AspNetCore.WebUtilities;
 using Shared.DTO;
 using Shared.DTO.Annonce;
 using Shared.DTO.Categorie;
+using Shared.DTO.Couleur;
 using Shared.DTO.EtatArticle;
 using Shared.DTO.Favoris;
 using Shared.DTO.Marque;
 using Shared.DTO.SousCategorie;
 using Shared.DTO.Taille;
 using Shared.DTO.Utilisateur;
+using System.Collections.ObjectModel;
+using System.Data;
 
 namespace FrontBlazor.ViewModel
 {
@@ -32,9 +34,9 @@ namespace FrontBlazor.ViewModel
         public List<MarqueDTO> Marques { get; set; }
         public List<TailleDTO> Tailles { get; set; }
         public List<EtatArticleDTO> Etats { get; set; }
+        public List<CouleurDTO> Couleurs { get; set; } = new();
         public NavigationManager NavigationManager { get; set; }
         public LoginViewModel VM_Login { get; set; }
-        public string marqueSearch { get; set; }
         #endregion
 
         #region services
@@ -44,6 +46,7 @@ namespace FrontBlazor.ViewModel
         private readonly ICaracteristiqueService<EtatArticleDTO> _etatService;
         private readonly ICaracteristiqueService<GenreDTO> _genreService;
         private readonly ICaracteristiqueService<TailleDTO> _tailleService;
+        private readonly ICouleurService<CouleurDTO> _couleurService;
         #endregion
 
         #region Properties
@@ -56,6 +59,16 @@ namespace FrontBlazor.ViewModel
         public List<string> SelectedGenres { get; set; } = new();
         public List<string> SelectedEtats { get; set; } = new();
         public HashSet<int> ExpandedCategories { get; set; } = new();
+        public string marqueSearch { get; set; }
+        public bool IsGenreExpanded { get; set; } = false;
+        public bool IsCategoryExpanded { get; set; } = false;
+        public bool IsSubCategoryExpanded { get; set; } = false;
+        public bool IsSizeExpanded { get; set; } = false;
+        public bool IsMarqueExpanded { get; set; } = false;
+        public bool IsCouleurExpanded { get; set; } = false;
+        public bool IsPriceExpanded { get; set; } = false;
+        public bool IsEtatExpanded { get; set; } = false;
+        public List<string> SelectedCouleurs { get; set; } = new();
 
         public int SliderMax { get; set; } = 500;
         public int SelectedMaxPrice { get; set; } = 250;
@@ -76,6 +89,7 @@ namespace FrontBlazor.ViewModel
             ICaracteristiqueService<EtatArticleDTO> etatService,
             ICaracteristiqueService<GenreDTO> genreService,
             ICaracteristiqueService<TailleDTO> tailleService,
+            ICouleurService<CouleurDTO> couleurService,
             NavigationManager navManager,
             INotificationService notificationPopUpService,
             NavigationManager navigationManager,
@@ -92,7 +106,7 @@ namespace FrontBlazor.ViewModel
             _etatService = etatService;
             _genreService = genreService;
             _tailleService = tailleService;
-
+            _couleurService = couleurService;
             NavigationManager = navManager;
             _notificationPopUpService = notificationPopUpService;
             VM_Login = vM_Login;
@@ -138,6 +152,7 @@ namespace FrontBlazor.ViewModel
             Tailles = await _tailleService.GetAllAsync();
             Etats = await _etatService.GetAllAsync();
             Marques = await _marqueService.GetAllAsync();
+            Couleurs = await _couleurService.GetAllAsync();
             await ApplyFilters();
 
             IsLoading = false;
@@ -206,6 +221,7 @@ namespace FrontBlazor.ViewModel
             SelectedMarques.Clear();
             SelectedTaille = null;
             SelectedGenres.Clear();
+            SelectedCouleurs.Clear();
             ExpandedCategories.Clear();
             CurrentPage = 1;
             SelectedMaxPrice = SliderMax / 2;
@@ -259,6 +275,7 @@ namespace FrontBlazor.ViewModel
                 Marques = SelectedMarques,
                 Tailles = SelectedTaille?.Libelletaille,
                 Genre = SelectedGenres,
+                Couleurs = SelectedCouleurs,
                 PrixMax = SelectedMaxPrice,
                 PrixMin = SelectedMinPrice,
                 SortOrder = SelectedSortOrder,
@@ -429,6 +446,17 @@ namespace FrontBlazor.ViewModel
                 return false;
 
             return annonce.IdAuteur == utilisateur.UtilisateurId;
+        }
+
+        public void ToggleFilterExpand(string filterName)
+        {
+            var property = GetType().GetProperty(filterName);
+            if (property != null && property.PropertyType == typeof(bool))
+            {
+                var currentValue = (bool)property.GetValue(this);
+                property.SetValue(this, !currentValue);
+                OnStateChange?.Invoke();
+            }
         }
     }
 }

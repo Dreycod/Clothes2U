@@ -19,7 +19,6 @@ public class MotsInterditWebService : BaseGenericService, IMotsInterditsService
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Erreur {response.StatusCode}: {errorContent}");
                 return new List<MotInterditDTO>();
             }
             

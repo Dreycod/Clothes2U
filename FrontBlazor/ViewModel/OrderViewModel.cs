@@ -58,11 +58,6 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
         
         try
         {
-            // await Task.WhenAll(purchasesTask, salesTask, purchaseStatsTask);
-            //
-            // var purchases = await purchasesTask;
-            // var sales = await salesTask;
-            // var purchaseStats = await purchaseStatsTask;
 
             PurchasedOrders = await _orderService.GetUserOrdersAsync();
             SoldOrders = await _orderService.GetSellerOrdersAsync();

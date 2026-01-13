@@ -4,52 +4,118 @@
 @inject SupportTicketsViewModel VM
 
 <PageTitle>Support - Modération</PageTitle>
+<link rel="stylesheet" href="/css/moderation-shared.css" />
 
 @if (VM.IsLoading)
 {
-    <div class="loader"></div>
+    <div class="empty-state">
+        <i class="bi bi-hourglass-split"></i>
+        <p>Chargement des tickets...</p>
+    </div>
 }
 else
 {
-    <h1 class="mod-page-title">Demandes de support</h1>
-
-    <div class="support-list">
-        @foreach (var ticket in VM.Tickets)
+    <div class="mod-header">
+        <h1 class="mod-page-title">
+            <i class="bi bi-headset"></i>
+            Demandes de support
+        </h1>
+        @if (VM.Tickets.Any())
         {
-            <div class="support-card">
-                <h4>@ticket.Subject</h4>
-                <p>@ticket.MessageUtilisateur</p>
-                <small>@ticket.EmailUtilisateur</small>
-
-                <button class="btn btn-sm btn-primary"
-                        @onclick="() => VM.OpenReply(ticket.Id)">
-                    Répondre
-                </button>
+            <div class="mod-stats">
+                <span class="stat-badge">
+                    <i class="bi bi-ticket-perforated"></i>
+                    @VM.Tickets.Count ticket@(VM.Tickets.Count > 1 ? "s" : "")
+                </span>
             </div>
         }
     </div>
-}
 
-@if (VM.IsReplying)
-{
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <h3>Répondre au ticket</h3>
-
-            <textarea class="form-control"
-                      rows="5"
-                      @bind="VM.ReplyMessage"></textarea>
-
-            <button class="btn btn-success" @onclick="VM.SendReplyAsync">
-                Envoyer
-            </button>
-        </div>
+    <div class="filter-buttons" style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
+        <button class="btn-filter @(currentFilter == TicketFilter.Open ? "active" : "")"
+                @onclick="LoadOpenTickets">
+            <i class="bi bi-envelope-open"></i>
+            En attente de réponse
+        </button>
+        <button class="btn-filter @(currentFilter == TicketFilter.Pending ? "active" : "")"
+                @onclick="LoadPendingTickets">
+            <i class="bi bi-clock-history"></i>
+            En attente utilisateur
+        </button>
     </div>
+
+    @if (!VM.Tickets.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h3>Aucune demande de support</h3>
+            <p>Il n'y a actuellement aucun ticket @(currentFilter == TicketFilter.Open ? "en attente de réponse" : "en attente de l'utilisateur").</p>
+        </div>
+    }
+    else
+    {
+        <div class="support-list">
+            @foreach (var ticket in VM.Tickets)
+            {
+                <div class="support-card">
+                    <div class="support-card-header">
+                        <div class="support-card-info">
+                            <h3 class="support-card-title">@ticket.Title</h3>
+                            <div class="support-card-meta">
+                                <span class="meta-item">
+                                    <i class="bi bi-person"></i>
+                                    @ticket.LoginUser
+                                </span>
+                                <span class="meta-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    @ticket.DateLastMessage.ToLocalTime().ToString("dd/MM/yyyy à HH:mm")
+                                </span>
+                            </div>
+                        </div>
+                        <span class="support-status pending">
+                            <i class="bi bi-clock-history"></i>
+                            @(currentFilter == TicketFilter.Open ? "En attente" : "En attente utilisateur")
+                        </span>
+                    </div>
+
+                    <div class="support-card-actions">
+                        <button class="btn-action btn-primary"
+                                @onclick="() => VM.OpenDetails(ticket.TicketId)">
+                            <i class="bi bi-reply"></i>
+                            Répondre
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 }
 
 @code {
+    private enum TicketFilter { Open, Pending }
+    private TicketFilter currentFilter = TicketFilter.Open;
+
     protected override async Task OnInitializedAsync()
     {
         await VM.LoadAsync();
+    }
+
+    private async Task LoadOpenTickets()
+    {
+        currentFilter = TicketFilter.Open;
+        VM.IsLoading = true;
+        StateHasChanged();
+        await VM.LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadPendingTickets()
+    {
+        currentFilter = TicketFilter.Pending;
+        VM.IsLoading = true;
+        StateHasChanged();
+        await VM.LoadPendingTickets();
+        VM.IsLoading = false;
+        StateHasChanged();
     }
 }
