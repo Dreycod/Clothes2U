@@ -31,7 +31,7 @@ else if (VM.TicketDetail != null)
                     <div>
                         <h1 class="mod-page-title" style="margin: 0 0 0.5rem 0;">@VM.TicketDetail.Subject</h1>
                         <p class="support-date">
-                            Créé le @VM.TicketDetail.DateCreation.ToString("dd/MM/yyyy à HH:mm") 
+                            Créé le @VM.TicketDetail.DateCreation.ToLocalTime().ToString("dd/MM/yyyy à HH:mm") 
                             par <strong>@VM.TicketDetail.UtilisateurLogin</strong>
                         </p>
                     </div>
@@ -89,7 +89,7 @@ else if (VM.TicketDetail != null)
                                 <p style="margin: 0 0 0.5rem 0; line-height: 1.6;">@message.Content</p>
                                 
                                 <div class="message-time">
-                                    @message.DateCreation.ToString("dd/MM/yyyy à HH:mm")
+                                    @message.DateCreation.ToLocalTime().ToString("dd/MM/yyyy à HH:mm")
                                 </div>
                             </div>
                         </div>

@@ -35,6 +35,11 @@ namespace FrontBlazor.ViewModel.Moderation.Support
             }
         }
 
+        public async Task LoadPendingTickets()
+        {
+            Tickets = await _service.GetPendingTicketsAsync();
+        }
+
         public async Task OpenDetails(int ticketId)
         {
             _nav.NavigateTo($"/moderation/TicketDetails/{ticketId}");

@@ -49,6 +49,12 @@ namespace FrontBlazor.Services.WebService
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<SupportTicketViewDTO>>();
         }
+        public async Task<List<SupportTicketViewDTO>> GetPendingTicketsAsync()
+        {
+            var response = await GetWithCredentialsAsync("support/Pending");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<SupportTicketViewDTO>>();
+        }
 
         public async Task ReplyAsync(SupportTicketReplyDTO dto)
         {
