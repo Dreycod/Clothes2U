@@ -22,7 +22,7 @@
     <script type="module" src="js/tshirt-viewer.js"></script>
 </body>
 
-<div class="product-detail-page">
+<div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
     {
         <div class="loading-container">
@@ -108,25 +108,27 @@
         
                         @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                         {
-                            <button class="btn-dropdown-toggle"
-                                    title="Actions"
-                                    @onclick="VM_DetailAnnonce.ToggleActionsDropdown">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-            
-                            @if (VM_DetailAnnonce.ShowActionsDropdown)
-                            {
-                                <div class="product-dropdown">
-                                    <button class="dropdown-item" @onclick="VM_DetailAnnonce.ModifierAnnonce">
-                                        <i class="bi bi-pencil"></i>
-                                        <span>Modifier</span>
-                                    </button>
-                                    <button class="dropdown-item" @onclick="VM_DetailAnnonce.TogglePauseResumeModal">
-                                        <i class="bi bi-@(annonce.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
-                                        <span>@(annonce.StatutAnnonceId == 5 ? "Reprendre l'annonce" : "Mettre en pause")</span>
-                                    </button>
-                                </div>
-                            }
+                            <div class="product-actions-dropdown-container" @onclick:stopPropagation="true">
+                                <button class="btn-dropdown-toggle"
+                                        title="Actions"
+                                        @onclick="VM_DetailAnnonce.ToggleActionsDropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                
+                                @if (VM_DetailAnnonce.ShowActionsDropdown)
+                                {
+                                    <div class="product-dropdown">
+                                        <button class="dropdown-item" @onclick="VM_DetailAnnonce.ModifierAnnonce">
+                                            <i class="bi bi-pencil"></i>
+                                            <span>Modifier</span>
+                                        </button>
+                                        <button class="dropdown-item" @onclick="VM_DetailAnnonce.TogglePauseResumeModal">
+                                            <i class="bi bi-@(annonce.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
+                                            <span>@(annonce.StatutAnnonceId == 5 ? "Reprendre l'annonce" : "Mettre en pause")</span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
                         }
                     </div>
                 </div>
@@ -194,10 +196,6 @@
                     <p class="description-text">
                         @(annonce.Description ?? "Aucune description disponible.")
                     </p>
-                    @foreach (string couleur in annonce.Couleurs)
-                    {
-                        <p>@couleur</p>
-                    }
                 </div>
 
                 <div class="tags-section">
@@ -461,7 +459,6 @@
     [Parameter]
     public int Id { get; set; }
 
-    private DotNetObjectReference<DetailAnnonce>? objRef;
     private bool _3dViewerInitialized = false;
 
     protected override async Task OnInitializedAsync()
@@ -471,33 +468,26 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("setupProductActionsClickOutside", objRef);
-        }
-
         if (VM_DetailAnnonce.Show3DViewer && !_3dViewerInitialized && VM_DetailAnnonce.AnnonceDetail != null)
         {
             _3dViewerInitialized = true;
-
+            
             await Task.Delay(100);
-
+            
             var modelUrl = $"/assets/{VM_DetailAnnonce.AnnonceDetail.SousCategorie}.gltf";
             var firstPhotoId = VM_DetailAnnonce.AnnonceDetail.Photos.FirstOrDefault();
             var textureUrl = VM_DetailAnnonce.GetPhoto(firstPhotoId);
-
+            
             await JS.InvokeVoidAsync("initAndApplyTexture", "tshirt-canvas-detail", modelUrl, textureUrl);
         }
-
+        
         if (!VM_DetailAnnonce.Show3DViewer)
         {
             _3dViewerInitialized = false;
         }
     }
 
-    [JSInvokable]
-    public void CloseProductActionsDropdown()
+    private void HandlePageClick()
     {
         if (VM_DetailAnnonce.ShowActionsDropdown)
         {
@@ -507,22 +497,6 @@
     }
 
     public async ValueTask DisposeAsync()
-    {
-        VM_DetailAnnonce.CancelVisualisation();
-
-        if (objRef != null)
-        {
-            try
-            {
-                await JS.InvokeVoidAsync("removeProductActionsClickOutside");
-            }
-            catch { }
-
-            objRef.Dispose();
-        }
-    }
-
-    public void Dispose()
     {
         VM_DetailAnnonce.CancelVisualisation();
     }
