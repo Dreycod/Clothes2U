@@ -45,13 +45,18 @@ namespace API.Services.VerificationSrvceV2
             }
         }
 
-        public async Task SendHtmlAsync(string to, string subject, string htmlBody)
+        public async Task SendHtmlAsync(string to, string subject, string htmlBody, string replyTo = null)
         {
             try
             {
                 var message = new MimeMessage();
                 message.From.Add(MailboxAddress.Parse(_config["Email:From"]));
                 message.To.Add(MailboxAddress.Parse(to));
+                if (!string.IsNullOrEmpty(replyTo))
+                {
+                    message.ReplyTo.Add(MailboxAddress.Parse(replyTo));
+                }
+                
                 message.Subject = subject;
                 message.Body = new TextPart("html") { Text = htmlBody };
 
