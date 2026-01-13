@@ -22,6 +22,7 @@ using API.Services.BackgroundServices;
 using Shared.DTO.Photo;
 using Shared.DTO.Tag;
 using API.Services.Interfaces;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -205,12 +206,17 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazorDev", policy =>
-        policy.WithOrigins("http://localhost:5281") // URL exacte de votre Blazor
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials()); // ✅ Pas de SetIsOriginAllowed avec AllowCredentials
+    options.AddPolicy("AllowBlazor", policy =>
+        policy.WithOrigins(
+            "http://localhost:5281",
+            "https://blazorsae-dmgze0a4fnhjejcz.francecentral-01.azurewebsites.net"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+    );
 });
+
 builder.Services.AddAutoMapper(cfg => {
     cfg.AllowNullCollections = true;
 }, Assembly.GetExecutingAssembly());
@@ -313,6 +319,11 @@ builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Str
 
 var app = builder.Build();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments("/api/Login/google-callback"))
@@ -333,16 +344,16 @@ app.Use(async (context, next) =>
 
 
 
-// 1. Middleware de diagnostic (le vôtre)
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"\n🌐 ========== NOUVELLE REQUÊTE ==========");
-    Console.WriteLine($"🎯 {context.Request.Method} {context.Request.Path}");
-    // ... vos logs
-    await next();
-    Console.WriteLine($"📤 Réponse: {context.Response.StatusCode}");
-    Console.WriteLine($"==========================================\n");
-});
+//// 1. Middleware de diagnostic (le vôtre)
+//app.Use(async (context, next) =>
+//{
+//    Console.WriteLine($"\n🌐 ========== NOUVELLE REQUÊTE ==========");
+//    Console.WriteLine($"🎯 {context.Request.Method} {context.Request.Path}");
+//    // ... vos logs
+//    await next();
+//    Console.WriteLine($"📤 Réponse: {context.Response.StatusCode}");
+//    Console.WriteLine($"==========================================\n");
+//});
 
 
 // Middleware de diagnostic
@@ -366,13 +377,18 @@ app.Use(async (context, next) =>
 });
 
 // CORS AVANT Authentication
-app.UseCors("AllowBlazorDev");
+app.UseCors("AllowBlazor");
 
-if (app.Environment.IsDevelopment())
+app.UseStaticFiles();
+
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Clothes2U API v1");
+    c.RoutePrefix = "swagger";
+});
+
 
 // Ordre CRITIQUE des middlewares
 app.UseRouting();
