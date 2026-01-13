@@ -9,6 +9,6 @@ namespace API.Services.VerificationSrvceV2
         Task NotifyAnnonceUpdatedAsync(Annonce annonce, string userMail);
         Task NotifyUserStatusChangedAsync(Utilisateur utilisateur, int oldStatutId);
         Task SendPasswordResetEmailAsync(Utilisateur utilisateur, string resetLink);
-        Task SendSupportMailAsync(string userMail, MailDTO mail);
+        Task SendSupportMailAsync(string userMail, string userName, int ticketId, MailDTO mail);
     }
 }

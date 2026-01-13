@@ -98,17 +98,18 @@ namespace API.Services
             );
         }
 
-        public async Task SendSupportMailAsync(string userMail, MailDTO mail)
+        public async Task SendSupportMailAsync(string userMail, string userName, int ticketId, MailDTO mail)
         {
             var htmlContent = _templateService.GetSupportResponseTemplate(
-                "Utilisateur",
+                userName,
                 mail.MailObject,
-                mail.MailContent
+                mail.MailContent,
+                ticketId
             );
-
+            var subject = $"[Ticket #{ticketId}] {mail.MailObject}";
             await _emailService.SendHtmlAsync(
                 userMail,
-                mail.MailObject,
+                subject,
                 htmlContent
             );
         }

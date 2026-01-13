@@ -7,12 +7,12 @@ namespace API.Services
         string GetAccountBannedTemplate(string userName);
         string GetNewAnnonceTemplate(string userName, string vendeurName, string annonceTitle, string annonceUrl);
         string GetAnnonceUpdatedTemplate(string userName, string annonceTitle, string annonceUrl);
-        string GetSupportResponseTemplate(string userName, string subject, string content);
+        string GetSupportResponseTemplate(string userName, string subject, string content, int ticketId);
     }
 
     public class EmailTemplateService : IEmailTemplateService
     {
-        private string GetBaseTemplate(string title, string content)
+        private string GetBaseTemplate(string title, string content, string replyTo = null)
         {
             return $@"
 <!DOCTYPE html>
@@ -192,15 +192,22 @@ namespace API.Services
             return GetBaseTemplate("Annonce mise à jour", content);
         }
 
-        public string GetSupportResponseTemplate(string userName, string subject, string content)
+        public string GetSupportResponseTemplate(string userName, string subject, string content, int ticketId)
         {
             var htmlContent = $@"
-                <p>Bonjour <strong>{userName}</strong>,</p>
-                <div style='background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                    {content.Replace("\n", "<br>")}
-                </div>
-            ";
-            return GetBaseTemplate("Réponse du support", htmlContent);
+        <p>Bonjour <strong>{userName}</strong>,</p>
+        <p>Vous avez reçu une réponse à votre ticket de support :</p>
+        <div style='background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
+            {content.Replace("\n", "<br>")}
+        </div>
+        <p style='color: #6b7280; font-size: 14px; margin-top: 30px;'>
+            <strong>💡 Astuce :</strong> Vous pouvez répondre directement à cet email pour continuer la conversation.
+        </p>
+        <p style='color: #9ca3af; font-size: 12px;'>
+            Référence du ticket : #{ticketId}
+        </p>
+    ";
+            return GetBaseTemplate($"[Ticket #{ticketId}] {subject}", htmlContent);
         }
     }
 }
