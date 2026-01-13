@@ -89,21 +89,13 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
 {
     try
     {
-        Console.WriteLine("=== CreateDecision START ===");
-        Console.WriteLine($"Type reçu: {decisionDTO?.GetType().Name}");
-        
         Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
         
         if (signalement == null)
         {
-            Console.WriteLine("❌ Signalement introuvable");
             return NotFound("Signalement introuvable");
         }
-        Console.WriteLine($"✅ Signalement: {signalement.SignalementId}");
-
         int userId = await _currentUserService.GetUserIdOrThrow();
-        Console.WriteLine($"✅ UserId: {userId}");
-        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -112,15 +104,9 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
         Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
         if (utilisateurSanctionne == null)
         {
-            Console.WriteLine("❌ Utilisateur introuvable");
             return NotFound("Utilisateur introuvable");
         }
-        Console.WriteLine($"✅ Utilisateur: {utilisateurSanctionne.Login}");
-        
-        Console.WriteLine("🔨 CreateElementDecision...");
         var elementDecision = await CreateElementDecision(decisionDTO.ElementDecision);
-        Console.WriteLine($"✅ ElementDecision créé");
-        
         var decision = new Decision
         {
             ElementDecision = elementDecision,
@@ -128,12 +114,9 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
             UtilisateurId = decisionDTO.UtilisateurId,
             DecisionDate = DateTime.UtcNow
         };
-        Console.WriteLine("✅ Decision objet créé");
-        
         switch (decisionDTO)
         {
             case DecisionAvertissementPostDTO avertissement:
-                Console.WriteLine("➡️ DecisionAvertissementPostDTO");
                 decision.DecisionAvertissement = new DecisionAvertissement();
                 await _notificationService.CreateNotificationAvertissement(
                     avertissement.UtilisateurId,
@@ -141,7 +124,6 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
                 break;
 
             case SanctionSuspensionPostDTO suspension:
-                Console.WriteLine("➡️ SanctionSuspensionPostDTO");
                 decision.DecisionSanction = new DecisionSanction
                 {
                     EstEnCours = true,
@@ -158,7 +140,6 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
                 break;
 
             case SanctionBannissementPostDTO bannissement:
-                Console.WriteLine("➡️ SanctionBannissementPostDTO");
                 decision.DecisionSanction = new DecisionSanction
                 {
                     EstEnCours = true,
@@ -172,21 +153,11 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
                 break;
 
             default:
-                Console.WriteLine($"❌ DEFAULT CASE! Type: {decisionDTO.GetType().Name}");
                 return BadRequest("Type de décision non reconnu");
         }
-        
-        // ✅✅✅ SAUVEGARDER LA DECISION D'ABORD ✅✅✅
-        Console.WriteLine("💾 APPEL AddAsync...");
         var createdDecision = await _decisionManager.AddAsync(decision);
-        Console.WriteLine($"✅✅✅ DECISION CRÉÉE ! ID: {createdDecision.DecisionId}");
-        
-        // ✅✅✅ PUIS SUPPRIMER LES SIGNALEMENTS ✅✅✅
-        Console.WriteLine("🗑️ Suppression signalements...");
         await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
         await _signalementManager.DeleteAsync(signalement);
-        Console.WriteLine("✅ Signalements supprimés");
-        
         return CreatedAtAction(nameof(GetDecisionById), 
             new { id = createdDecision.DecisionId }, 
             new
@@ -199,8 +170,6 @@ public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] Decis
     }
     catch (Exception e)
     {
-        Console.WriteLine($"❌❌❌ EXCEPTION CreateDecision: {e.Message}");
-        Console.WriteLine($"Inner: {e.InnerException?.Message}");
         return BadRequest(new { 
             error = e.Message,
             innerError = e.InnerException?.Message ?? "Pas d'exception interne",

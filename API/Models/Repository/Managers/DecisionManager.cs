@@ -39,44 +39,9 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
     }
     public async Task<Decision> AddAsync(Decision decision)
     {
-        try
-        {
-            Console.WriteLine("=== AddAsync DÉBUT ===");
-            Console.WriteLine($"Decision - ModerateurId: {decision.ModerateurId}, UtilisateurId: {decision.UtilisateurId}");
-            Console.WriteLine($"ElementDecision: {decision.ElementDecision != null}");
-            Console.WriteLine($"DecisionAvertissement: {decision.DecisionAvertissement != null}");
-            Console.WriteLine($"DecisionSanction: {decision.DecisionSanction != null}");
-        
-            if (decision.DecisionSanction != null)
-            {
-                Console.WriteLine($"  - EstEnCours: {decision.DecisionSanction.EstEnCours}");
-                Console.WriteLine($"  - SanctionSuspension: {decision.DecisionSanction.SanctionSuspension != null}");
-                Console.WriteLine($"  - SanctionBannissement: {decision.DecisionSanction.SanctionBannissement != null}");
-            }
-        
-            Console.WriteLine("📝 Appel de _context.Decisions.Add...");
-            _context.Decisions.Add(decision);
-        
-            Console.WriteLine("💾 Entités trackées AVANT SaveChanges:");
-            foreach (var entry in _context.ChangeTracker.Entries())
-            {
-                Console.WriteLine($"  - {entry.Entity.GetType().Name} : {entry.State}");
-            }
-        
-            Console.WriteLine("💾 Appel de SaveChangesAsync...");
-            int savedCount = await _context.SaveChangesAsync();
-            Console.WriteLine($"✅ SaveChangesAsync terminé - {savedCount} entités sauvegardées");
-            Console.WriteLine($"DecisionId généré: {decision.DecisionId}");
-        
-            return decision;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌❌❌ EXCEPTION dans AddAsync: {ex.Message}");
-            Console.WriteLine($"InnerException: {ex.InnerException?.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-            throw;
-        }
+        _context.Decisions.Add(decision);
+        await _context.SaveChangesAsync();
+        return decision;
     }
 
     public async override Task<Decision> GetByIdAsync(int id)

@@ -21,14 +21,12 @@ public class SuspendedUserDailyCheckService : ISuspendedUserDailyCheckService
 
     public async Task CheckSuspensions()
     {
-        Console.WriteLine("TRAITEMENT DES SUSPENSIONS ----------------------------------------------------------------------------------");
         List<Decision> decisions = await _decisionManager.GetCurrentDecisionSuspensions();
         foreach (Decision decision in decisions)
         {
             Console.WriteLine(decision.DecisionId);
             if (DateTime.UtcNow >= decision.DecisionSanction.SanctionSuspension.DateFinSuspension)
             {
-                Console.WriteLine("Restauration du compte : " + decision.UtilisateurId);
                 Utilisateur user = decision.Utilisateur;
                 user.StatutId = (int)UtilisateurStatut.Actif;
                 await  _utilisateurManager.UpdateAsync(user);

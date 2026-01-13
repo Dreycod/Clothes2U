@@ -52,7 +52,6 @@ public class MasterDailyBackgroundService: BackgroundService
         
         try
         {
-            Console.WriteLine("LANCEMENT DU SERVICE DE TRAITEMENT AUTO DES DONNÉES ----------------------------------------------------------------------------------------------------------------------");
             var suspendedUserDailyCheckService =
                 scope.ServiceProvider.GetRequiredService<ISuspendedUserDailyCheckService>();
 
