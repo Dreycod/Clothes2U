@@ -7,6 +7,7 @@ namespace FrontBlazor.Services.Interfaces
     {
         Task<APIResponse<SupportTicketCreateDTO>> CreateTicketAsync(SupportTicketCreateDTO dto);
         Task<List<SupportTicketViewDTO>> GetOpenTicketsAsync();
+        Task<List<SupportTicketViewDTO>> GetPendingTicketsAsync();
         Task ReplyAsync(SupportTicketReplyDTO dto);
         Task CloseTicket(int id);
         Task<TicketDetailViewDTO> GetTicketById(int id);

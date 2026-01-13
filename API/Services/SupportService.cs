@@ -67,14 +67,17 @@ namespace API.Services
             {
                 throw new KeyNotFoundException($"Le ticket avec l'ID {supportTicketReplyDTO.TicketId} n'existe pas.");
             }
-            if (ticket.Status == (int)StatusTicketEnum.CLOSED)            {
+            if (ticket.Status == (int)StatusTicketEnum.CLOSED)
+            {
                 throw new InvalidOperationException("Impossible de répondre à un ticket clôturé.");
             }
+            
             Utilisateur utilisateur = await _utilisateurManager.GetByIdAsync(ticket.UtilisateurId);
             if (utilisateur == null)
             {
                 throw new KeyNotFoundException($"L'utilisateur avec l'ID {ticket.UtilisateurId} n'existe pas.");
             }
+            
             TicketMessage messageToInsert = new TicketMessage()
             {
                 DateEnvoi = DateTime.UtcNow,
@@ -83,12 +86,21 @@ namespace API.Services
                 TicketId = supportTicketReplyDTO.TicketId
             };
             await _ticketMessageManager.AddAsync(messageToInsert);
+            
             MailDTO mail = new MailDTO()
             {
-                MailObject = ticket.TicketSubject + " Support Clothes2u",
+                MailObject = ticket.TicketSubject,
                 MailContent = supportTicketReplyDTO.Message,
             };
-            await _emailService.SendSupportMailAsync(utilisateur.Email, mail);
+            
+            // Passer le nom de l'utilisateur et l'ID du ticket
+            await _emailService.SendSupportMailAsync(
+                utilisateur.Email, 
+                utilisateur.Login, 
+                ticket.TicketId, 
+                mail
+            );
+            
             ticket.Status = (int)StatusTicketEnum.ANSWERED;
             await _ticketManager.UpdateAsync(ticket);
         }

@@ -3294,8 +3294,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EntityFramework.Commande", b =>
                 {
-                    b.Navigation("MessageEstPayee")
-                        .IsRequired();
+                    b.Navigation("MessageEstPayee");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Conversation", b =>

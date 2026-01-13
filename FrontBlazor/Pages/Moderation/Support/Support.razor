@@ -31,12 +31,25 @@ else
         }
     </div>
 
+    <div class="filter-buttons" style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
+        <button class="btn-filter @(currentFilter == TicketFilter.Open ? "active" : "")"
+                @onclick="LoadOpenTickets">
+            <i class="bi bi-envelope-open"></i>
+            En attente de réponse
+        </button>
+        <button class="btn-filter @(currentFilter == TicketFilter.Pending ? "active" : "")"
+                @onclick="LoadPendingTickets">
+            <i class="bi bi-clock-history"></i>
+            En attente utilisateur
+        </button>
+    </div>
+
     @if (!VM.Tickets.Any())
     {
         <div class="empty-state">
             <i class="bi bi-inbox"></i>
             <h3>Aucune demande de support</h3>
-            <p>Il n'y a actuellement aucun ticket en attente de traitement.</p>
+            <p>Il n'y a actuellement aucun ticket @(currentFilter == TicketFilter.Open ? "en attente de réponse" : "en attente de l'utilisateur").</p>
         </div>
     }
     else
@@ -55,13 +68,13 @@ else
                                 </span>
                                 <span class="meta-item">
                                     <i class="bi bi-calendar3"></i>
-                                    @ticket.DateLastMessage.ToString("dd/MM/yyyy à HH:mm")
+                                    @ticket.DateLastMessage.ToLocalTime().ToString("dd/MM/yyyy à HH:mm")
                                 </span>
                             </div>
                         </div>
                         <span class="support-status pending">
                             <i class="bi bi-clock-history"></i>
-                            En attente
+                            @(currentFilter == TicketFilter.Open ? "En attente" : "En attente utilisateur")
                         </span>
                     </div>
 
@@ -79,8 +92,30 @@ else
 }
 
 @code {
+    private enum TicketFilter { Open, Pending }
+    private TicketFilter currentFilter = TicketFilter.Open;
+
     protected override async Task OnInitializedAsync()
     {
         await VM.LoadAsync();
+    }
+
+    private async Task LoadOpenTickets()
+    {
+        currentFilter = TicketFilter.Open;
+        VM.IsLoading = true;
+        StateHasChanged();
+        await VM.LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadPendingTickets()
+    {
+        currentFilter = TicketFilter.Pending;
+        VM.IsLoading = true;
+        StateHasChanged();
+        await VM.LoadPendingTickets();
+        VM.IsLoading = false;
+        StateHasChanged();
     }
 }
