@@ -32,7 +32,6 @@ public class MessageEstPayee : IEntity
     [InverseProperty(nameof(Commande.MessageEstPayee))]
     public virtual Commande Commande { get; set; }
     
-    
     [InverseProperty(nameof(MessageEnvoieColis.MessageEstPayee))]
     public virtual MessageEnvoieColis? MessageEnvoieColis { get; set; }
 
