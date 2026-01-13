@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared.Enums
 {
-    public enum StatutTicketEnum
+    public enum StatusTicketEnum
     {
         OPEN = 1,
         ANSWERED = 2,

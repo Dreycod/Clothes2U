@@ -1872,59 +1872,6 @@ namespace API.Migrations
                     b.ToTable("t_e_statut_stauti", "sae_clothes2u");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.SupportTicket", b =>
-                {
-                    b.Property<int>("SupportTicketId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("sup_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SupportTicketId"));
-
-                    b.Property<int?>("AdminId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sup_admin_id");
-
-                    b.Property<DateTime?>("AnsweredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sup_answered_at");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sup_created_at");
-
-                    b.Property<string>("MessageAdmin")
-                        .HasColumnType("text")
-                        .HasColumnName("sup_message_admin");
-
-                    b.Property<string>("MessageUtilisateur")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("sup_message_user");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("sup_status");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)")
-                        .HasColumnName("sup_subject");
-
-                    b.Property<int>("UtilisateurId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sup_utilisateur_id");
-
-                    b.HasKey("SupportTicketId");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("UtilisateurId");
-
-                    b.ToTable("t_e_support_ticket_sup", "sae_clothes2u");
-                });
-
             modelBuilder.Entity("API.Models.EntityFramework.Tag", b =>
                 {
                     b.Property<int>("TagId")
@@ -1961,6 +1908,74 @@ namespace API.Migrations
                     b.HasKey("TailleId");
 
                     b.ToTable("t_e_taille_tai", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.Ticket", b =>
+                {
+                    b.Property<int>("TicketId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("tic_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketId"));
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("tic_date_creation");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("tic_status");
+
+                    b.Property<string>("TicketSubject")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tic_subject");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tic_utilisateur_id");
+
+                    b.HasKey("TicketId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("t_e_ticket_tic", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.TicketMessage", b =>
+                {
+                    b.Property<int>("TicketMessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ticmes_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketMessageId"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ticmes_content");
+
+                    b.Property<DateTime>("DateEnvoi")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ticmes_date_envoi");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ticmes_ticket_id");
+
+                    b.Property<int>("UtilisateurId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ticmes_utilisateur_id");
+
+                    b.HasKey("TicketMessageId");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("t_e_ticket_message_ticmes", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
@@ -3117,22 +3132,33 @@ namespace API.Migrations
                     b.Navigation("Categorie");
                 });
 
-            modelBuilder.Entity("API.Models.EntityFramework.SupportTicket", b =>
+            modelBuilder.Entity("API.Models.EntityFramework.Ticket", b =>
                 {
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Admin")
-                        .WithMany("SupportTicketsAdmins")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("API.Models.EntityFramework.Utilisateur", "UtilisateurTicket")
-                        .WithMany("SupportTicketsUtilisateurs")
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
+                        .WithMany("Tickets")
                         .HasForeignKey("UtilisateurId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Admin");
+                    b.Navigation("Utilisateur");
+                });
 
-                    b.Navigation("UtilisateurTicket");
+            modelBuilder.Entity("API.Models.EntityFramework.TicketMessage", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Ticket", "Ticket")
+                        .WithMany("Messages")
+                        .HasForeignKey("TicketId")
+                        .IsRequired();
+
+                    b.HasOne("API.Models.EntityFramework.Utilisateur", "Utilisateur")
+                        .WithMany("MessagesSupport")
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("Utilisateur");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.Transaction", b =>
@@ -3474,6 +3500,11 @@ namespace API.Migrations
                     b.Navigation("Mesures");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.Ticket", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.TypeSignalement", b =>
                 {
                     b.Navigation("Signalements");
@@ -3511,6 +3542,8 @@ namespace API.Migrations
 
                     b.Navigation("Messages");
 
+                    b.Navigation("MessagesSupport");
+
                     b.Navigation("NotesAuteur");
 
                     b.Navigation("NotesCible");
@@ -3523,9 +3556,7 @@ namespace API.Migrations
 
                     b.Navigation("SignalementsUtilisateurs");
 
-                    b.Navigation("SupportTicketsAdmins");
-
-                    b.Navigation("SupportTicketsUtilisateurs");
+                    b.Navigation("Tickets");
 
                     b.Navigation("UtilisateursBloques");
 

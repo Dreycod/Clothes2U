@@ -1,29 +1,173 @@
 @page "/moderation/TicketDetails/{Id:int}"
 @layout ModerationLayout
 @inject TicketDetailViewModel VM
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Support - Modération</PageTitle>
+<PageTitle>Ticket de support - Modération</PageTitle>
 <link rel="stylesheet" href="/css/moderation-shared.css" />
-<link href="css/Moderation/moderation-shared.css" rel="stylesheet"/>
 
 @if (VM.IsLoading)
 {
-    <p>Chargement</p>
+    <div class="empty-state">
+        <i class="bi bi-hourglass-split"></i>
+        <p>Chargement du ticket...</p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(VM.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        <h4>Erreur</h4>
+        <p>@VM.ErrorMessage</p>
+        <button class="btn btn-primary" @onclick="Reload">Réessayer</button>
+    </div>
+}
+else if (VM.TicketDetail != null)
+{
+    <div class="ticket-detail-wrapper">
+        <div class="ticket-detail-container">
+            <!-- En-tête du ticket -->
+            <div class="support-card" style="margin-bottom: 2rem;">
+                <div class="support-header">
+                    <div>
+                        <h1 class="mod-page-title" style="margin: 0 0 0.5rem 0;">@VM.TicketDetail.Subject</h1>
+                        <p class="support-date">
+                            Créé le @VM.TicketDetail.DateCreation.ToString("dd/MM/yyyy à HH:mm") 
+                            par <strong>@VM.TicketDetail.UtilisateurLogin</strong>
+                        </p>
+                    </div>
+                    <span class="support-status pending">
+                        <i class="bi bi-clock-history"></i> En attente
+                    </span>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(VM.ErrorMessage))
+            {
+                <div class="alert alert-danger" style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0 0 0.5rem 0;">
+                                <i class="bi bi-exclamation-triangle"></i> Erreur
+                            </h4>
+                            <p style="margin: 0;">@VM.ErrorMessage</p>
+                        </div>
+                        <button class="btn btn-sm" @onclick="() => VM.ErrorMessage = null" 
+                                style="background: transparent; border: none; font-size: 1.5rem; cursor: pointer;">
+                            ×
+                        </button>
+                    </div>
+                </div>
+            }
+            <div class="messages-section">
+                <h3 class="section-title">
+                    <i class="bi bi-chat-dots"></i> 
+                    Conversation (@VM.TicketDetail.Messages.Count message@(VM.TicketDetail.Messages.Count > 1 ? "s" : ""))
+                </h3>
+                
+                <div class="message-thread">
+                    @foreach (var message in VM.TicketDetail.Messages.OrderBy(m => m.DateCreation))
+                    {
+                        var isCurrentUser = message.UtilisateurId == VM.Utilisateur?.UtilisateurId;
+                        
+                        <div class="message-wrapper @(isCurrentUser ? "message-wrapper-sent" : "message-wrapper-received")">
+                            <div class="@(isCurrentUser ? "message sent" : "message received")">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    @if (!isCurrentUser)
+                                    {
+                                        <div class="user-avatar-small"></div>
+                                    }
+                                    <strong style="font-size: 0.9rem;">
+                                        @(isCurrentUser ? "Vous" : message.UtilisateurLogin)
+                                    </strong>
+                                    @if (isCurrentUser)
+                                    {
+                                        <span class="sanction-badge avertissement" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                            Modérateur
+                                        </span>
+                                    }
+                                </div>
+                                
+                                <p style="margin: 0 0 0.5rem 0; line-height: 1.6;">@message.Content</p>
+                                
+                                <div class="message-time">
+                                    @message.DateCreation.ToString("dd/MM/yyyy à HH:mm")
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Section de réponse -->
+            <div class="messages-section" style="margin-top: 1.5rem;">
+                <h3 class="section-title">
+                    <i class="bi bi-reply"></i> Répondre au ticket
+                </h3>
+                
+                <div class="response-form">
+                    <textarea 
+                        class="response-textarea" 
+                        rows="5" 
+                        placeholder="Écrivez votre réponse ici..."
+                        @bind="VM.ResponseMessage"
+                        @bind:event="oninput">
+                    </textarea>
+
+                    
+                    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                        <button class="btn-cancel" @onclick="GoBack">
+                            <i class="bi bi-arrow-left"></i>
+                            Retour
+                        </button>
+                        <button class="btn-respond" @onclick="VM.SendResponse" disabled="@string.IsNullOrWhiteSpace(VM.ResponseMessage)">
+                            <i class="bi bi-send"></i>
+                            Envoyer la réponse
+                        </button>
+                        <button class="btn-close-ticket" @onclick="VM.CloseTicket">
+                            <i class="bi bi-check-circle"></i>
+                            Clôturer le ticket
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 else
 {
-    <p>@VM.TicketDetail.MessageUtilisateur</p>
+    <div class="empty-state">
+        <i class="bi bi-exclamation-circle"></i>
+        <p>Ticket non trouvé</p>
+    </div>
 }
-
-
-
 
 @code {
     [Parameter]
     public int Id { get; set; }
+    private ElementReference messageThreadRef;
+    
     protected override async Task OnInitializedAsync()
     {
         VM.Id = Id;
         await VM.LoadAsync();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || VM.TicketDetail?.Messages != null)
+        {
+            await JSRuntime.InvokeAsync<object>("scrollToBottom", new object[] { "messageThread" });
+        }
+    }
+    
+    private async Task Reload()
+    {
+        await VM.LoadAsync();
+        StateHasChanged();
+        await JSRuntime.InvokeAsync<object>("scrollToBottom", new object[] { "messageThread" });
+    }
+    
+    private void GoBack()
+    {
+        VM.NavigateToSupport();
     }
 }

@@ -1,8 +1,13 @@
 ﻿using API.Models;
 using API.Models.EntityFramework;
+using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Services.Interfaces;
 using API.Services.VerificationSrvceV2;
+using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Shared.DTO.Mail;
 using Shared.DTO.SupportTicket;
 using Shared.Enums;
 
@@ -10,68 +15,82 @@ namespace API.Services
 {
     public class SupportService : ISupportService
     {
-        private readonly Clothes2UDbContext _db;
-        private readonly IEmailService _emailService;
+        private readonly IMapper _mapper;
+        private readonly ITicketRepository _ticketManager;
+        private readonly IDataRepository<TicketMessage, int> _ticketMessageManager;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly INotificationMailService _emailService;
+        private readonly IUtilisateurRepository _utilisateurManager;
 
-        public SupportService(Clothes2UDbContext db, IEmailService emailService)
+        public SupportService(
+            IMapper mapper,
+            ITicketRepository ticketManager,
+            IDataRepository<TicketMessage, int> ticketMessageManager,
+            IUtilisateurRepository utilisateurManager,
+            INotificationMailService emailService,
+            ICurrentUserService currentUserService)
         {
-            _db = db;
+            _mapper = mapper;
+            _ticketManager = ticketManager;
+            _ticketMessageManager = ticketMessageManager;
+            _utilisateurManager = utilisateurManager;
             _emailService = emailService;
+            _currentUserService = currentUserService;
         }
 
-        public async Task CreateTicketAsync(int userId, SupportTicketCreateDTO dto)
+        public async Task CreateTicket(SupportTicketCreateDTO supportTicketCreateDTO)
         {
-            var ticket = new SupportTicket
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            Ticket ticketToInsert = new Ticket()
             {
+                TicketSubject = supportTicketCreateDTO.Subject,
                 UtilisateurId = userId,
-                Subject = dto.Subject,
-                MessageUtilisateur = dto.Message,
-                CreatedAt = DateTime.UtcNow,
-                Status = StatutTicketEnum.OPEN
+                Status = (int)StatusTicketEnum.OPEN,
+                DateCreation = DateTime.UtcNow
             };
-
-            _db.SupportTickets.Add(ticket);
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task<List<SupportTicket>> GetOpenTicketsAsync()
-        {
-            return await _db.SupportTickets
-                .Include(t => t.UtilisateurTicket)
-                .Where(t => t.Status == StatutTicketEnum.OPEN)
-                .ToListAsync();
-        }
-
-        public async Task ReplyAsync(int adminId, SupportTicketReplyDTO dto)
-        {
-            var ticket = await _db.SupportTickets
-                .Include(t => t.UtilisateurTicket)
-                .FirstOrDefaultAsync(t => t.SupportTicketId == dto.TicketId);
-
-            if (ticket == null)
-                throw new Exception("Ticket introuvable");
-
-            ticket.MessageAdmin = dto.Message;
-            ticket.AdminId = adminId;
-            ticket.AnsweredAt = DateTime.UtcNow;
-            ticket.Status = StatutTicketEnum.ANSWERED;
-
-            await _db.SaveChangesAsync();
-
-            // 📧 ENVOI MAIL SI EMAIL VÉRIFIÉ
-            if (ticket.UtilisateurTicket.ValidEmail)
+            await _ticketManager.AddAsync(ticketToInsert);
+            TicketMessage messageToInsert = new TicketMessage()
             {
-                await _emailService.SendAsync(
-                    ticket.UtilisateurTicket.Email,
-                    $"Support Clothes2U – {ticket.Subject}",
-                    dto.Message
-                );
-            }
+                DateEnvoi = DateTime.UtcNow,
+                UtilisateurId = userId,
+                Content = supportTicketCreateDTO.Message,
+                TicketId = ticketToInsert.TicketId
+            };
+            await _ticketMessageManager.AddAsync(messageToInsert);
         }
 
-        public async Task<int> GetTicketsCountAsync()
+        public async Task Reply(SupportTicketReplyDTO supportTicketReplyDTO)
         {
-            return _db.SupportTickets.Where(t => t.Status == StatutTicketEnum.OPEN).Count();
+            int userId = await _currentUserService.GetUserIdOrThrow();
+            Ticket ticket = await _ticketManager.GetByIdAsync(supportTicketReplyDTO.TicketId);
+            if (ticket == null)
+            {
+                throw new KeyNotFoundException($"Le ticket avec l'ID {supportTicketReplyDTO.TicketId} n'existe pas.");
+            }
+            if (ticket.Status == (int)StatusTicketEnum.CLOSED)            {
+                throw new InvalidOperationException("Impossible de répondre à un ticket clôturé.");
+            }
+            Utilisateur utilisateur = await _utilisateurManager.GetByIdAsync(ticket.UtilisateurId);
+            if (utilisateur == null)
+            {
+                throw new KeyNotFoundException($"L'utilisateur avec l'ID {ticket.UtilisateurId} n'existe pas.");
+            }
+            TicketMessage messageToInsert = new TicketMessage()
+            {
+                DateEnvoi = DateTime.UtcNow,
+                UtilisateurId = userId,
+                Content = supportTicketReplyDTO.Message,
+                TicketId = supportTicketReplyDTO.TicketId
+            };
+            await _ticketMessageManager.AddAsync(messageToInsert);
+            MailDTO mail = new MailDTO()
+            {
+                MailObject = ticket.TicketSubject + " Support Clothes2u",
+                MailContent = supportTicketReplyDTO.Message,
+            };
+            await _emailService.SendSupportMailAsync(utilisateur.Email, mail);
+            ticket.Status = (int)StatusTicketEnum.ANSWERED;
+            await _ticketManager.UpdateAsync(ticket);
         }
     }
 }

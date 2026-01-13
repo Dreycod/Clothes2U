@@ -50,6 +50,22 @@ public class ConversationWebService: WritableService<ConversationDTO>, IConversa
         }
     }
 
+    public async Task<List<StatutConversationDTO>> GetStatutConversation()
+    {
+        try
+        {
+            var response = await GetWithCredentialsAsync("Conversation/statutConversation");
+            response.EnsureSuccessStatusCode();
+            
+            var statuts = await response.Content.ReadFromJsonAsync<List<StatutConversationDTO>?>();
+            return statuts ?? new List<StatutConversationDTO?>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<MessageSignalementDTO> GetMessageById(int id)
     {
         try
