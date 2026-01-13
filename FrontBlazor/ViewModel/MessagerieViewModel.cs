@@ -33,7 +33,7 @@ public class MessagerieViewModel : ClientBaseViewModel, IDisposable
     //public UtilisateurDTO? CurrentUser { get; private set; }
     public IBrowserFile? ColisPhoto { get; private set; }
     public string? ColisPhotoPreviewBase64 { get; private set; }
-    public List<StatutConversationDTO>? StatutConversation { get; private set; }
+    public List<StatutConversationDTO>? StatutConversation { get; private set; } = new();
 
     public bool IsSendingColis { get; private set; }
     public string? ColisError { get; private set; }
