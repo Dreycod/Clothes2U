@@ -7,6 +7,21 @@
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
+<head>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>   
+    <script type="module" src="js/tshirt-viewer.js"></script>
+</body>
+
 <div class="product-detail-page">
     @if (VM_DetailAnnonce.IsLoading)
     {
@@ -81,16 +96,25 @@
             <div class="product-info-section">
                 <div class="category-badge-row">
                     <div class="category-badge">@annonce.Categorie</div>
+    
+                    <div class="product-actions-buttons">
+                        @if (VM_DetailAnnonce.Has3DModel)
+                        {
+                            <button class="btn-3d-viewer" 
+                                    title="Voir en 3D"
+                                    @onclick="VM_DetailAnnonce.Toggle3DViewer">
+                                <i class="bi bi-badge-3d"></i>
+                            </button>
+                        }
         
-                    @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
-                    {
-                        <div class="product-actions-dropdown-container">
+                        @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
+                        {
                             <button class="btn-dropdown-toggle"
                                     title="Actions"
                                     @onclick="VM_DetailAnnonce.ToggleActionsDropdown">
                                 <i class="bi bi-three-dots"></i>
                             </button>
-                
+            
                             @if (VM_DetailAnnonce.ShowActionsDropdown)
                             {
                                 <div class="product-dropdown">
@@ -104,10 +128,9 @@
                                     </button>
                                 </div>
                             }
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
-
                 <h1 class="product-title">@annonce.Title</h1>
 
                 <div class="brand-price-row">
@@ -425,7 +448,24 @@
             </div>
         </div>
     </div>
+}
 
+@if (VM_DetailAnnonce.Show3DViewer)
+{
+    <div class="modal-overlay" @onclick="VM_DetailAnnonce.Toggle3DViewer">
+        <div class="modal-content viewer-3d-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Visualisation 3D</h3>
+                <button class="modal-close" @onclick="VM_DetailAnnonce.Toggle3DViewer">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            
+            <div class="viewer-3d-container">
+                <div id="tshirt-canvas-detail"></div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
@@ -433,6 +473,7 @@
     public int Id { get; set; }
 
     private DotNetObjectReference<DetailAnnonce>? objRef;
+    private bool _3dViewerInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -445,6 +486,24 @@
         {
             objRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("setupProductActionsClickOutside", objRef);
+        }
+        
+        if (VM_DetailAnnonce.Show3DViewer && !_3dViewerInitialized && VM_DetailAnnonce.AnnonceDetail != null)
+        {
+            _3dViewerInitialized = true;
+            
+            await Task.Delay(100);
+            
+            var modelUrl = $"/assets/{VM_DetailAnnonce.AnnonceDetail.SousCategorie}.gltf";
+            var firstPhotoId = VM_DetailAnnonce.AnnonceDetail.Photos.FirstOrDefault();
+            var textureUrl = VM_DetailAnnonce.GetPhoto(firstPhotoId);
+            
+            await JS.InvokeVoidAsync("initAndApplyTexture", "tshirt-canvas-detail", modelUrl, textureUrl);
+        }
+        
+        if (!VM_DetailAnnonce.Show3DViewer)
+        {
+            _3dViewerInitialized = false;
         }
     }
 

@@ -271,6 +271,84 @@
     flex-shrink: 0;
 }
 
+.product-actions-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-3d-viewer {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .btn-3d-viewer:hover {
+        background: #7a9d8e;
+        border-color: #7a9d8e;
+    }
+
+        .btn-3d-viewer:hover i {
+            color: white;
+        }
+
+    .btn-3d-viewer i {
+        font-size: 1.25rem;
+        color: #7a9d8e;
+        transition: color 0.2s;
+    }
+
+.viewer-3d-modal {
+    max-width: 90vw;
+    width: 1200px;
+    max-height: 90vh;
+}
+
+.viewer-3d-container {
+    width: 100%;
+    height: 70vh;
+    background: #f0f0f0;
+    position: relative;
+}
+
+#tshirt-canvas-detail {
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .btn-3d-viewer {
+        width: 44px;
+        height: 44px;
+    }
+
+        .btn-3d-viewer i {
+            font-size: 1.1rem;
+        }
+
+    .viewer-3d-modal {
+        max-width: 95vw;
+    }
+
+    .viewer-3d-container {
+        height: 60vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-3d-viewer {
+        width: 40px;
+        height: 40px;
+    }
+}
+
 .btn-dropdown-toggle {
     width: 48px;
     height: 48px;
