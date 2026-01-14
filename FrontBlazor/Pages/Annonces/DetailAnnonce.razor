@@ -1,4 +1,4 @@
-﻿@page "/product/{Id:int}"
+@page "/product/{Id:int}"
 @layout ClientLayout
 @using Shared.DTO.Recense
 @using Shared.DTO.Utilisateur
@@ -24,6 +24,16 @@
 
 <div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
+﻿@page "/product/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>@(VM_Annonces.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
+
+<!-- Navigation Bar -->
+<NavBar />
+
+<div class="product-detail-page">
+    @if (VM_Annonces.IsLoading)
     {
         <div class="loading-container">
             <div class="spinner-large"></div>
