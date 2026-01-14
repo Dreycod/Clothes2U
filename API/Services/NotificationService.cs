@@ -15,7 +15,9 @@ public class  NotificationService : INotificationService
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationManager;
     private readonly IFavorisRepository _favorisManager;
+    private readonly IUtilisateurRepository _utilisateurRepository;
     private readonly IDataRepository<NotificationAvertissement, int> _notificationAvertissementManager;
+    private readonly IDataRepository<NotificationCommercial, int> _notificationCommercialManager;
     private readonly IDataRepository<NotificationProposition, int> _notificationPropositionManager;
     private readonly IDataRepository<NotificationMessage, int> _notificationMessageManager;
     private readonly IDataRepository<NotificationNouvelleAnnonce, int> _notificationNouvelleAnnonceManager;
@@ -26,13 +28,15 @@ public class  NotificationService : INotificationService
     private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotificationHubService _hubService;
-    
+
 
     public NotificationService(
         IMapper mapper,
         INotificationRepository notificationManager,
         IFavorisRepository favorisManager,
+        IUtilisateurRepository utilisateurRepository,
         IDataRepository<NotificationAvertissement, int> notificationAvertissementManager,
+        IDataRepository<NotificationCommercial, int> notificationCommercialManager,
         IDataRepository<NotificationProposition, int> notificationPropositionManager,
         IDataRepository<NotificationMessage, int> notificationMessageManager,
         IDataRepository<NotificationNouvelleAnnonce, int>  notificationNouvelleAnnonceManager,
@@ -49,6 +53,7 @@ public class  NotificationService : INotificationService
         _notificationManager = notificationManager;
         _favorisManager = favorisManager;
         _notificationAvertissementManager = notificationAvertissementManager;
+        _notificationCommercialManager = notificationCommercialManager; 
         _notificationPropositionManager = notificationPropositionManager;
         _notificationMessageManager = notificationMessageManager;
         _notificationNouvelleAnnonceManager = notificationNouvelleAnnonceManager;
@@ -59,6 +64,7 @@ public class  NotificationService : INotificationService
         _annonceRepository = annonceRepository;
         _abonnementRepo = abonnementRepo;
         _currentUserService = currentUserService;
+        _utilisateurRepository = utilisateurRepository;
     }
 
     public async Task CreateNotification(NotificationCreateDTO notificationDTO)
@@ -83,6 +89,10 @@ public class  NotificationService : INotificationService
             case NotificationAvertissementCreateDTO notificationAvertissementCreateDTO:
                 NotificationAvertissement notificationAvertissement =  _mapper.Map<NotificationAvertissement>(notificationAvertissementCreateDTO);
                 await _notificationAvertissementManager.AddAsync(notificationAvertissement);
+                break;
+            case NotificationCommercialCreateDTO notificationCommercialCreateDTO:
+                NotificationCommercial notificationCommercial = _mapper.Map<NotificationCommercial>(notificationCommercialCreateDTO);
+                await _notificationCommercialManager.AddAsync(notificationCommercial);
                 break;
             case NotificationNouvelleAnnonceCreateDTO notificationNouvelleAnnonceCreateDTO:
                 NotificationNouvelleAnnonce notificationNouvelleAnnonce =
@@ -188,5 +198,20 @@ public class  NotificationService : INotificationService
             TypeId = (int)TypeNotification.Avertissement
         };
         await CreateNotification(notification);
+    }
+    public async Task CreateNotificationCommercial(NotificationCommercialCreateDTO notificationCommercialCreate)
+    {
+        var utilisateurs = await _utilisateurRepository.GetAllAsync();
+
+        foreach (var user in utilisateurs)
+        {
+            NotificationCommercialCreateDTO newNotification = new();
+            newNotification.CommercialTitle = notificationCommercialCreate.CommercialTitle;
+            newNotification.CommercialText = notificationCommercialCreate.CommercialText;
+            newNotification.TypeId = (int)TypeNotification.Commercial;
+            newNotification.UtilisateurId = user.UtilisateurId;
+
+            await CreateNotification(newNotification);
+        }
     }
 }

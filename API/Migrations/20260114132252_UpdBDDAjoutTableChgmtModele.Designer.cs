@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(Clothes2UDbContext))]
-    [Migration("20260114083837_UpdBDDAjoutTableChgmtModele")]
+    [Migration("20260114132252_UpdBDDAjoutTableChgmtModele")]
     partial class UpdBDDAjoutTableChgmtModele
     {
         /// <inheritdoc />
@@ -1331,6 +1331,37 @@ namespace API.Migrations
                         .IsUnique();
 
                     b.ToTable("t_e_notification_avertissement_notave", "sae_clothes2u");
+                });
+
+            modelBuilder.Entity("API.Models.EntityFramework.NotificationCommercial", b =>
+                {
+                    b.Property<int>("NotificationCommercialId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("notcom_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationCommercialId"));
+
+                    b.Property<string>("CommercialText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("notcom_com_text");
+
+                    b.Property<string>("CommercialTitle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("notcom_com_title");
+
+                    b.Property<int>("NotificationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notcom_notification_id");
+
+                    b.HasKey("NotificationCommercialId");
+
+                    b.HasIndex("NotificationId")
+                        .IsUnique();
+
+                    b.ToTable("t_e_notification_com_notcom", "sae_clothes2u");
                 });
 
             modelBuilder.Entity("API.Models.EntityFramework.NotificationMessage", b =>
@@ -2903,6 +2934,17 @@ namespace API.Migrations
                     b.Navigation("LaNotification");
                 });
 
+            modelBuilder.Entity("API.Models.EntityFramework.NotificationCommercial", b =>
+                {
+                    b.HasOne("API.Models.EntityFramework.Notification", "LaNotification")
+                        .WithOne("NotificationCommercials")
+                        .HasForeignKey("API.Models.EntityFramework.NotificationCommercial", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LaNotification");
+                });
+
             modelBuilder.Entity("API.Models.EntityFramework.NotificationMessage", b =>
                 {
                     b.HasOne("API.Models.EntityFramework.Message", "Message")
@@ -3418,6 +3460,8 @@ namespace API.Migrations
                     b.Navigation("NotificationAdmins");
 
                     b.Navigation("NotificationAvertissements");
+
+                    b.Navigation("NotificationCommercials");
 
                     b.Navigation("NotificationMessages");
 

@@ -407,6 +407,9 @@ private void OnPaymentReceivedFromSignalR(
             var messagePayee = _selectedConversation.ListMessages?
                 .OfType<MessageEstPayeeDTO>()
                 .FirstOrDefault(m => m.MessageId == messagePayeeId);
+            
+            _selectedConversation.AnnonceStatut = "En Ligne";
+            _selectedConversation.StatusConversation = "En négociation";
 
             if (messagePayee != null)
             {
@@ -425,8 +428,10 @@ private void OnPaymentReceivedFromSignalR(
             var conv = _conversations.FirstOrDefault(c => c.ConversationId == conversationId);
             if (conv != null)
             {
+                conv.StatusConversation = "En négociation";
                 conv.LastMessage = "Paiement annulé";
                 conv.HasNewMessages = true;
+                conv.AnnonceStatut = "En Ligne";
 
                 try
                 {
@@ -468,6 +473,8 @@ private void OnPaymentReceivedFromSignalR(
                     SentByCurrentUser = senderId == _currentUserId,
                     EstEnvoye = false
                 };
+
+                _selectedConversation.StatusConversation = "Acceptation";
             
                 _selectedConversation.ListMessages?.Add(newPayment);
                 NotifyStateChanged();
@@ -481,6 +488,7 @@ private void OnPaymentReceivedFromSignalR(
             {
                 conv.LastMessage = "Paiement effectué";
                 conv.HasNewMessages = true;
+                conv.StatusConversation = "Acceptation";
 
                 try
                 {
@@ -523,6 +531,8 @@ private void OnPaymentReceivedFromSignalR(
                     PhotoId = photoId,
                     MessageEstPayeeId = messagePayeeId
                 };
+                
+                _selectedConversation.StatusConversation = "Terminée";
             
                 _selectedConversation.ListMessages?.Add(newColis);
                 
@@ -547,6 +557,7 @@ private void OnPaymentReceivedFromSignalR(
             {
                 conv.LastMessage = "Colis envoyé";
                 conv.HasNewMessages = true;
+                conv.StatusConversation = "Terminée";
 
                 try
                 {
@@ -592,7 +603,6 @@ private void OnPaymentReceivedFromSignalR(
                     Description = description,
                     //essageEnvoieColisId = messageEnvoieId
                 };
-            
                 _selectedConversation.ListMessages?.Add(newRecu);
                 NotifyStateChanged();
                 OnMessageReceivedUI?.Invoke();

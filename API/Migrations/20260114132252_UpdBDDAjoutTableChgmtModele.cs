@@ -1106,6 +1106,29 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "t_e_notification_com_notcom",
+                schema: "sae_clothes2u",
+                columns: table => new
+                {
+                    notcom_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    notcom_com_text = table.Column<string>(type: "text", nullable: false),
+                    notcom_com_title = table.Column<string>(type: "text", nullable: false),
+                    notcom_notification_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_e_notification_com_notcom", x => x.notcom_id);
+                    table.ForeignKey(
+                        name: "FK_t_e_notification_com_notcom_t_e_notification_not_notcom_not~",
+                        column: x => x.notcom_notification_id,
+                        principalSchema: "sae_clothes2u",
+                        principalTable: "t_e_notification_not",
+                        principalColumn: "not_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "t_e_notification_modifiaction_notmod",
                 schema: "sae_clothes2u",
                 columns: table => new
@@ -2237,6 +2260,13 @@ namespace API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_e_notification_com_notcom_notcom_notification_id",
+                schema: "sae_clothes2u",
+                table: "t_e_notification_com_notcom",
+                column: "notcom_notification_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_e_notification_message_notmes_notmes_message_id",
                 schema: "sae_clothes2u",
                 table: "t_e_notification_message_notmes",
@@ -2698,6 +2728,10 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "t_e_notification_avertissement_notave",
+                schema: "sae_clothes2u");
+
+            migrationBuilder.DropTable(
+                name: "t_e_notification_com_notcom",
                 schema: "sae_clothes2u");
 
             migrationBuilder.DropTable(

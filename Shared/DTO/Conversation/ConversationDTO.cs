@@ -23,6 +23,7 @@ public class ConversationDTO : IEntity, INotifyPropertyChanged
         }
     }
     public DateTime? LastMessageDate { get; set; }
+    public string AnnonceStatut { get; set; }
     public int StatusConversationId { get; set; }
     public string? StatusConversation { get; set; }
     public int VendeurId { get; set; }

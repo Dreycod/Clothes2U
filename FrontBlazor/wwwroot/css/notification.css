@@ -515,3 +515,17 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     line-height: 1 !important;
 }
+.notif-icon.commercial {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.notif-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.notif-message {
+    font-size: 0.9rem;
+    color: #555;
+}

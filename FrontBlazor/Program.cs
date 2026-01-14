@@ -88,6 +88,7 @@ builder.Services.AddScoped<DetailAnnonceViewModel>();
 builder.Services.AddScoped<CommercialCategoriesViewModel>();
 builder.Services.AddScoped<CommercialCouleursViewModel>();
 builder.Services.AddScoped<CommercialMarquesViewModel>();
+builder.Services.AddScoped<CommercialMessagesViewModel>();
 builder.Services.AddScoped<CommercialSousCategoriesViewModel>();
 builder.Services.AddScoped<CommercialTaillesViewModel>();
 builder.Services.AddScoped<CommercialViewModel>();

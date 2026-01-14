@@ -273,6 +273,9 @@ public class MessageController : ControllerBase
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
         if (conversation != null)
         {
+            await _conversationManager.ChangeAllStatutConversation(conversation.AnnonceId, conversation.ConversationId,
+                3, 2);
+            
             int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
             if (targetUserId != null)
             {
@@ -368,6 +371,10 @@ public class MessageController : ControllerBase
         
         if (conversation != null)
         {
+            
+            conversation.StatutConversationId = 3;
+            await _conversationManager.UpdateAsync(conversation);
+            
             int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
             if (targetUserId != null)
             {
@@ -534,13 +541,17 @@ public class MessageController : ControllerBase
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
-        var conversation = messagePayee.Message?.Conversation;
+        var conversation = await _conversationManager
+            .GetByIdAsync(messagePayee.Message.ConversationId);
         
         if (conversation != null)
         {
             int? targetUserId = await _conversationManager.GetOtherUser(messagePayee.Message.UtilisateurId, conversation);
             if (targetUserId != null)
             {
+                await _conversationManager.ChangeAllStatutConversation(conversation.AnnonceId, conversation.ConversationId, 1, 1);
+                
+                
                 NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
                 {
                     TypeId = 1,
@@ -569,7 +580,7 @@ public class MessageController : ControllerBase
                     await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
                         .SendAsync("ReceivePaymentCancelled", 
                             messagePayee.Message.ConversationId, 
-                            messagePayee.MessageEstPayeeId,
+                            messagePayee.MessageId,
                             messagePayee.Message.UtilisateurId);
                 }
                 catch (Exception ex)
