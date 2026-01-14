@@ -39,7 +39,6 @@ builder.Services.AddScoped<INotificationService, NotificationWebService>();
 builder.Services.AddScoped<ActivityService>();
 builder.Services.AddScoped<ISignalementService, SignalementWebService>();
 builder.Services.AddScoped<IBloqueService, BloqueWebService>();
-builder.Services.AddScoped<ICategorieService<CategorieDTO>, CategorieWebService>();
 builder.Services.AddScoped<IConversationService<ConversationDTO>, ConversationWebService>();
 builder.Services.AddScoped<IMessageService, MessageWebService>();
 builder.Services.AddScoped<ICouleurService<CouleurDTO>, CouleurWebService>();

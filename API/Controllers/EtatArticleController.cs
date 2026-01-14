@@ -20,7 +20,12 @@ public class EtatArticleController: ControllerBase
         _etatManager = manager;
         _mapper = mapper;
     }
-
+    /// <summary>
+    /// Récupère la liste de tous les états d'articles disponibles.
+    /// </summary>
+    /// <returns>Une collection d'états d'articles.</returns>
+    /// <response code="200">Retourne la liste des états d'articles.</response>
+    /// <response code="500">Erreur serveur interne.</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<EtatArticleDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

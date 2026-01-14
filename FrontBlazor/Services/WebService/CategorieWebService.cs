@@ -5,7 +5,7 @@ using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 
 namespace FrontBlazor.Services
-{
+{/*
     public class CategorieWebService : ReadableService<CategorieDTO>, ICategorieService<CategorieDTO>
     {
         private readonly HttpClient _httpClient;
@@ -46,5 +46,5 @@ namespace FrontBlazor.Services
         {
             throw new NotImplementedException();
         }
-    }
+    }*/
 }

@@ -121,24 +121,6 @@ public class UtilisateurController :  ControllerBase
         await _utilisateurManager.UpdateAsync(user);
         return NoContent();
     }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUtilisateur(int id)
-    {
-        int userId = await _currentUserService.GetUserIdOrThrow();
-        if (await _utilisateurManager.GetByIdAsync(id) == null)
-        {
-            return NotFound();
-        }
-        if (userId != id)
-        {
-            return Forbid();
-        }
-
-        await _userDeletionService.DeleteUtilisateurAsync(id);
-        return NoContent();
-    }
-
     [HttpDelete("suppressionCompte")]
     public async Task<IActionResult> SuppressionCompte([FromBody] AccountDeletionDTO accountDeletionDTO)
     {
