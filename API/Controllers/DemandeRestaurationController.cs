@@ -33,18 +33,39 @@ public class DemandeRestaurationController : ControllerBase
         _currentUserService = currentUserService;
         _mapper = mapper;
     }
-
+    /// <summary>
+    /// Récupère la liste de toutes les demandes de restauration.
+    /// </summary>
+    /// <returns>Une collection de demandes de restauration.</returns>
+    /// <response code="200">Retourne la liste des demandes de restauration.</response>
+    /// <response code="401">Non autorisé - authentification requise.</response>
+    /// <response code="403">Accès refusé - rôle Admin ou Moderateur requis.</response>
     [HttpGet]
     [Authorize(Roles = "Admin,Moderateur")]
+    [ProducesResponseType(typeof(IEnumerable<DemandeRestaurationDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IEnumerable<DemandeRestaurationDTO>>> GetAllDemandes()
     {
         IEnumerable<DemandeRestauration> demandes = await _demandeRestaurationManager.GetAllAsync();
         IEnumerable<DemandeRestaurationDTO> demandesDTO = _mapper.Map<IEnumerable<DemandeRestaurationDTO>>(demandes);
         return Ok(demandesDTO);
     }
-
+    /// <summary>
+    /// Récupère les détails d'une demande de restauration spécifique.
+    /// </summary>
+    /// <param name="id">L'identifiant de la demande de restauration.</param>
+    /// <returns>Les détails de la demande de restauration.</returns>
+    /// <response code="200">Retourne les détails de la demande.</response>
+    /// <response code="401">Non autorisé - authentification requise.</response>
+    /// <response code="403">Accès refusé - rôle Admin ou Moderateur requis.</response>
+    /// <response code="404">Demande de restauration introuvable.</response>
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Moderateur")]
+    [ProducesResponseType(typeof(DemandeRestaurationDetailDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DemandeRestaurationDetailDTO>> GetDemandeRestauration(int id)
     {
         DemandeRestauration demande = await _demandeRestaurationManager.GetByIdAsync(id);
@@ -55,9 +76,19 @@ public class DemandeRestaurationController : ControllerBase
         DemandeRestaurationDetailDTO demandeDTO = _mapper.Map<DemandeRestaurationDetailDTO>(demande);
         return Ok(demandeDTO);
     }
-
+    /// <summary>
+    /// Crée une nouvelle demande de restauration pour l'utilisateur connecté.
+    /// </summary>
+    /// <param name="messageDemandeRestauration">Le message de justification de la demande.</param>
+    /// <returns>Les détails de la demande créée.</returns>
+    /// <response code="201">Demande de restauration créée avec succès.</response>
+    /// <response code="400">Requête invalide - demande déjà en cours, refusée ou aucune sanction active.</response>
+    /// <response code="401">Non autorisé - authentification requise.</response>
     [HttpPost]
     [Authorize]
+    [ProducesResponseType(typeof(DemandeRestaurationDetailDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<DemandeRestaurationDetailDTO>> CreateDemandeRestauration(
         [FromBody] string messageDemandeRestauration)
     {
@@ -97,9 +128,25 @@ public class DemandeRestaurationController : ControllerBase
     
         return CreatedAtAction(nameof(GetDemandeRestauration), new { id = userId }, result);
     }
-    
+    /// <summary>
+    /// Traite une demande de restauration en l'acceptant ou la refusant.
+    /// </summary>
+    /// <param name="decisionDemandeRestauration">Les informations de la décision (acceptation ou refus).</param>
+    /// <returns>Aucun contenu en cas de succès.</returns>
+    /// <response code="204">Décision traitée avec succès.</response>
+    /// <response code="400">Requête invalide - demande déjà traitée.</response>
+    /// <response code="401">Non autorisé - authentification requise.</response>
+    /// <response code="403">Accès refusé - rôle Admin ou Moderateur requis.</response>
+    /// <response code="404">Demande de restauration ou utilisateur introuvable.</response>
+    /// <response code="500">Erreur serveur interne.</response>
     [HttpPost("decisionDemandeRestauration")]
     [Authorize(Roles = "Admin,Moderateur")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SubmitDecisionDemande([FromBody] DecisionDemandeRestaurationDTO decisionDemandeRestauration)
     {
         var demande = await _demandeRestaurationManager.GetByIdAsync(decisionDemandeRestauration.DemandeId);

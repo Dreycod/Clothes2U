@@ -19,6 +19,8 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
             .Include(c => c.LAnnonce)
             .ThenInclude(a => a.Photos)
             .ThenInclude(p => p.Photo)
+            .Include(c => c.LAnnonce)
+            .ThenInclude(a => a.Statut)
             .Include(c => c.Commandes)
             .Include(c => c.Messages)
             .ThenInclude(m => m.Utilisateur)
@@ -85,6 +87,22 @@ public class ConversationManager : GenericCRUDManager<Conversation>, IConversati
                 (c.Acheteur.UtilisateurAcheteurId == userId ||
                  c.Vendeur.UtilisateurVendeurId == userId))
             .FirstOrDefaultAsync();
+    }
+
+    public async Task ChangeAllStatutConversation(int annonceId, int conversationId, int statutId, int conversationStatutId)
+    {
+        var conversations = BaseConversationQuery()
+            .Where(c => c.AnnonceId == annonceId && c.ConversationId != conversationId);
+
+        foreach (var conversation in conversations)
+        {
+            conversation.StatutConversationId = statutId;
+        }
+        
+        var conversationToUpdate = BaseConversationQuery().Where(c => c.ConversationId == conversationId).FirstOrDefault();
+        conversationToUpdate.StatutConversationId = conversationStatutId;
+        
+        await _context.SaveChangesAsync();
     }
     
     public async Task SuspendElement(int id)
