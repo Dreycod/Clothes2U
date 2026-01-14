@@ -1,8 +1,9 @@
-﻿using Shared.DTO.Couleur;
-using API.Models.EntityFramework;
+﻿using API.Models.EntityFramework;
 using API.Models.Repository;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Shared.DTO.Couleur;
 
 namespace API.Controllers
 {

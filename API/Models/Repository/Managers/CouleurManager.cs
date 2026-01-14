@@ -1,9 +1,10 @@
 using API.Models.EntityFramework;
+using API.Models.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Models.Repository.Managers;
 
-public class CouleurManager : GenericCRUDManager<Couleur>, ICaracteristiquesRepository<Couleur>
+public class CouleurManager : GenericCRUDManager<Couleur>,  ICaracteristiquesRepository<Couleur>
 {
     public CouleurManager(Clothes2UDbContext context) : base(context) { }
 
