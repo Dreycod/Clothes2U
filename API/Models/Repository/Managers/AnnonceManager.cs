@@ -60,7 +60,7 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         {
             query = query.Where(a => 
                 a.StatutAnnonceId == (int)AnnonceStatut.EnLigne || 
-                a.StatutAnnonceId == (int)AnnonceStatut.Pause);
+                a.StatutAnnonceId == (int)AnnonceStatut.Pause).OrderBy(a => a.DateAnnonce);
         }
         else
         {

@@ -84,9 +84,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
 
     public async Task LoadAnnonceDetailAsync(int id)
     {
-        if (AnnonceDetail != null && AnnonceDetail.AnnonceId == id)
-            return;
-
+        AnnonceDetail = null;
         IsLoading = true;
         ErrorMessage = null;
         IsLoadingSimilar = true;
@@ -335,20 +333,15 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         NotifyStateChanged();
         string action = "";
 
-        if (AnnonceDetail.StatutAnnonceId == 5)
-            action = "reprendre";
-        else if (AnnonceDetail.StatutAnnonceId == 1)
-            action = "pauser";
-
         try
         {
-            switch (action)
+            switch (AnnonceDetail.StatutAnnonceId)
             {
-                case "reprendre":
-                    await _annonceService.ReprendreAnnonce(AnnonceDetail.AnnonceId);
+                case 5:
+                    await _annonceService.ChangeEtatAnnonce(AnnonceDetail.AnnonceId, 1);
                     break;
-                case "pauser":
-                    await _annonceService.PauseAnnonce(AnnonceDetail.AnnonceId);
+                case 1:
+                    await _annonceService.ChangeEtatAnnonce(AnnonceDetail.AnnonceId, 5);
                     break;
                 default:
                     throw new InvalidOperationException("Action inconnue pour l'annonce.");
@@ -364,13 +357,9 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
         {
             IsSubmittingPauseResume = false;
             ShowPauseResumeModal = false;
+            _navigationManager.Refresh();
             NotifyStateChanged();
         }
-    }
-
-    private async Task PauserAnnonce()
-    {
-        throw new NotImplementedException();
     }
 
     public event Action? OnChange;

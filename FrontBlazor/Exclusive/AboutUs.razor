@@ -1,0 +1,198 @@
+﻿@page "/aboutus"
+@using FrontBlazor.ViewModel.Generic
+@inject NavigationManager NavigationManager
+@layout ClientLayout
+@inject ClientBaseViewModel Vm_ClientBase
+<PageTitle>À propos de nous - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/aboutus.css" />
+
+<div class="aboutus-page">
+    <div class="aboutus-container">
+        <div class="aboutus-content">
+
+            <h1>À propos de Clothes2U</h1>
+
+            <p class="intro-date">Dernière mise à jour : 14 janvier 2026</p>
+
+            <div class="aboutus-section">
+                <h2>Notre Mission</h2>
+                <p>
+                    <strong>Clothes2U</strong> est une application dédiée à donner une seconde vie à vos vêtements.
+                    Notre objectif est d'offrir une plateforme où vous pouvez facilement vendre et acheter des vêtements
+                    d'occasion en toute confiance, tout en encourageant une consommation plus responsable et durable.
+                </p>
+            </div>
+
+            <div class="aboutus-section">
+                <h2>Ce que nous offrons</h2>
+                <p>
+                    Chez Clothes2U, nous donnont la liberté de choix à nos utilisateurs.
+                    Que vous souhaitiez vendre vos vêtements ou simplement acheter, notre plateforme est conçue pour vous.
+                </p>
+
+                <h3>Pour les vendeurs</h3>
+                <ul>
+                    <li>
+                        <strong>Liberté totale de vente :</strong> Vous décidez quand et comment vendre vos vêtements.
+                        Publiez vos articles en quelques clics avec photos et descriptions détaillées.
+                    </li>
+                    <li>
+                        <strong>Gestion simplifiée :</strong> Suivez vos ventes, gérez vos annonces et communiquez
+                        avec les acheteurs directement depuis l'application.
+                    </li>
+                    <li>
+                        <strong>Valorisez votre garde-robe :</strong> Donnez une seconde vie à vos vêtements tout
+                        en gagnant de l'argent.
+                    </li>
+                </ul>
+
+                <h3>Pour les acheteurs</h3>
+                <ul>
+                    <li>
+                        <strong>Achat en toute sécurité :</strong> Notre système de paiement sécurisé et notre
+                        service de médiation garantissent des transactions sans souci.
+                    </li>
+                    <li>
+                        <strong>Large sélection :</strong> Explorez une vaste gamme de vêtements d'occasion,
+                        triés par marque, catégorie, taille, couleur, et plus.
+                    </li>
+                    <li>
+                        <strong>Recherche facilitée :</strong> Utilisez nos filtres avancés pour trouver exactement
+                        ce que vous cherchez rapidement.
+                    </li>
+                    <li>
+                        <strong>Avis et évaluations :</strong> Consultez les avis d'autres acheteurs et laissez
+                        vos propres commentaires pour aider la communauté.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="aboutus-section">
+                <h2>Nos fonctionnalités principales</h2>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h4>Transactions sécurisées</h4>
+                        <p>Système de paiement protégé et service de médiation pour garantir la confiance entre vendeurs et acheteurs.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <h4>Système d'avis</h4>
+                        <p>Laissez des commentaires et des notes sur vos achats pour partager votre expérience avec la communauté.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h4>Recherche avancée</h4>
+                        <p>Filtrez par marque, catégorie, taille, couleur et prix pour trouver l'article parfait en quelques secondes.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <h4>Messagerie intégrée</h4>
+                        <p>Communiquez directement avec les vendeurs pour poser vos questions avant d'acheter.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-heart"></i>
+                        </div>
+                        <h4>Liste de souhaits</h4>
+                        <p>Sauvegardez vos articles préférés et recevez des notifications sur les articles.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <h4>Suivi de livraison</h4>
+                        <p>Suivez vos commandes en temps réel depuis l'expédition jusqu'à la réception.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aboutus-section">
+                <h2>Notre engagement</h2>
+                <p>
+                    Chez Clothes2U, nous croyons en une mode plus responsable et accessible.
+                    En facilitant l'achat et la vente de vêtements d'occasion, nous contribuons à :
+                </p>
+                <ul>
+                    <li>Réduire le gaspillage textile et l'impact environnemental de la fast fashion</li>
+                    <li>Rendre la mode de qualité accessible à tous</li>
+                    <li>Créer une communauté basée sur la confiance et le partage</li>
+                    <li>Offrir une plateforme simple, sécurisée et conviviale</li>
+                </ul>
+            </div>
+
+            <div class="aboutus-section">
+                <h2>Comment ça marche ?</h2>
+
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h4>Créez votre compte</h4>
+                        <p>Inscrivez-vous gratuitement en quelques minutes</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h4>Explorez ou vendez</h4>
+                        <p>Parcourez les articles ou publiez vos propres annonces</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h4>Achetez en confiance</h4>
+                        <p>Transactions sécurisées et protection des acheteurs</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h4>Partagez votre avis</h4>
+                        <p>Laissez un commentaire pour aider la communauté</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aboutus-section contact-section">
+                <h2>Nous contacter</h2>
+                <p>Vous avez des questions ou des suggestions ? Notre équipe est là pour vous aider !</p>
+                <ul class="contact-list">
+                    <li>
+                        <i class="bi bi-envelope"></i>
+                        <span>Par email : <a href="mailto:sae@clothes2u.fr">sae@clothes2u.fr</a></span>
+                    </li>
+                    <li>
+                        <i class="bi bi-headset"></i>
+                        <span>Via notre page : <a href="/support">Support client</a></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="aboutus-footer">
+                <p>Rejoignez la communauté Clothes2U et donnez une nouvelle vie à la mode !</p>
+                <p class="footer-date">Dernière mise à jour : 14 janvier 2026</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await Vm_ClientBase.LoadAsync();
+        StateHasChanged();
+    }
+}

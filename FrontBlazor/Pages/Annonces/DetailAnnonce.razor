@@ -16,11 +16,8 @@
             }
         }
     </script>
+    <script type="module" src="js/3DViewer.js"></script>
 </head>
-
-<body>   
-    <script type="module" src="js/tshirt-viewer.js"></script>
-</body>
 
 <div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
@@ -105,7 +102,6 @@
                                 <i class="bi bi-badge-3d"></i>
                             </button>
                         }
-        
                         @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                         {
                             <div class="product-actions-dropdown-container" @onclick:stopPropagation="true">
@@ -125,6 +121,10 @@
                                         <button class="dropdown-item" @onclick="VM_DetailAnnonce.TogglePauseResumeModal">
                                             <i class="bi bi-@(annonce.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
                                             <span>@(annonce.StatutAnnonceId == 5 ? "Reprendre l'annonce" : "Mettre en pause")</span>
+                                        </button>
+                                        <button class="dropdown-item " @onclick="VM_DetailAnnonce.ToggleDeleteProductModal">
+                                            <i class="bi bi-x">Supprimer l'article</i>
+
                                         </button>
                                     </div>
                                 }
@@ -186,8 +186,24 @@
                         <div class="detail-value">@(annonce.EtatArticle)</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Catégorie</div>
+                        <div class="detail-label">Sous Catégorie</div>
                         <div class="detail-value">@(annonce.SousCategorie)</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Couleur@(annonce.Couleurs?.Count > 1 ? "s" : "")</div>
+                        <div class="couleurs-container">
+                            @if (annonce.Couleurs != null && annonce.Couleurs.Any())
+                            {
+                                @foreach (var couleur in annonce.Couleurs)
+                                {
+                                    <CouleurBadge Couleur="@couleur" />
+                                }
+                            }
+                            else
+                            {
+                                <span class="detail-value">Non spécifié</span>
+                            }
+                        </div>
                     </div>
                 </div>
 
@@ -237,12 +253,6 @@
 
                     <button class="btn-primary" @onclick="VM_DetailAnnonce.BuyProduct">
                         Acheter l'article
-                    </button>
-                }
-                else
-                {
-                    <button class="btn-danger" @onclick="VM_DetailAnnonce.ToggleDeleteProductModal">
-                        Supprimer votre article
                     </button>
                 }
             </div>
@@ -449,7 +459,7 @@
                 </button>
             </div>
             <div class="viewer-3d-container">
-                <div id="tshirt-canvas-detail"></div>
+                <div id="3d-canvas-detail"></div>
             </div>
         </div>
     </div>
@@ -478,7 +488,7 @@
             var firstPhotoId = VM_DetailAnnonce.AnnonceDetail.Photos.FirstOrDefault();
             var textureUrl = VM_DetailAnnonce.GetPhoto(firstPhotoId);
             
-            await JS.InvokeVoidAsync("initAndApplyTexture", "tshirt-canvas-detail", modelUrl, textureUrl);
+            await JS.InvokeVoidAsync("initAndApplyTexture", "3d-canvas-detail", modelUrl, textureUrl);
         }
         
         if (!VM_DetailAnnonce.Show3DViewer)

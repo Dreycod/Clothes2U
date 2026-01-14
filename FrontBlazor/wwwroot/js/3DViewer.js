@@ -1,5 +1,6 @@
 ﻿import * as THREE from 'three';
 import { GLTFLoader } from 'jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'jsm/controls/OrbitControls.js';
 
 window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     const container = document.getElementById(containerId);
@@ -10,7 +11,7 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     }
 
     if (!textureUrl || textureUrl === "0" || textureUrl.includes("/0")) {
-        container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 1.1rem;">Aucune photo disponible pour la visualisation 3D</div>';
+        container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 1.1rem;">Aucune photo ou modèle disponible pour la visualisation 3D</div>';
         return;
     }
 
@@ -22,10 +23,18 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     container.appendChild(renderer.domElement);
 
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
-    camera.position.set(0, 0, 3);
+    camera.position.set(0, 0, 7);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f0f0);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 1.5;
+    controls.maxDistance = 5;
+    controls.target.set(0, 0, 0);
+    controls.update();
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
@@ -34,7 +43,6 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     directionalLight.position.set(5, 10, 5);
     scene.add(directionalLight);
 
-    // Load texture
     const textureLoader = new THREE.TextureLoader();
     const texture = textureLoader.load(textureUrl);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -42,6 +50,10 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
 
     const loader = new GLTFLoader();
     let model;
+    let autoRotate = true;
+    let userInteracting = false;
+    let interactionTimeout;
+    let isZooming = false;
 
     loader.load(modelUrl, (gltf) => {
         model = gltf.scene;
@@ -58,6 +70,49 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
         model.position.sub(center);
 
         scene.add(model);
+
+        setTimeout(() => {
+            animateCameraZoom();
+        }, 100);
+    });
+
+    function animateCameraZoom() {
+        isZooming = true;
+        const startPos = camera.position.clone();
+        const endPos = new THREE.Vector3(0, 0, 2.5);
+        const duration = 1500;
+        const startTime = performance.now();
+
+        function updateZoom() {
+            const elapsed = performance.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            const eased = 1 - Math.pow(1 - progress, 3);
+
+            camera.position.lerpVectors(startPos, endPos, eased);
+            controls.update();
+
+            if (progress < 1) {
+                requestAnimationFrame(updateZoom);
+            } else {
+                isZooming = false;
+            }
+        }
+
+        updateZoom();
+    }
+
+    controls.addEventListener('start', () => {
+        userInteracting = true;
+        autoRotate = false;
+        clearTimeout(interactionTimeout);
+    });
+
+    controls.addEventListener('end', () => {
+        userInteracting = false;
+        interactionTimeout = setTimeout(() => {
+            autoRotate = true;
+        }, 2000);
     });
 
     const onResize = () => {
@@ -68,11 +123,16 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
         renderer.setSize(w, h);
     };
     window.addEventListener('resize', onResize);
+
     function animate() {
         requestAnimationFrame(animate);
-        if (model) {
-            model.rotation.y += 0.005;
+
+        controls.update();
+
+        if (model && autoRotate && !userInteracting && !isZooming) {
+            model.rotation.y -= 0.005;
         }
+
         renderer.render(scene, camera);
     }
     animate();

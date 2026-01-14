@@ -47,13 +47,14 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Statut, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
             .ForMember(dest => dest.RoleUtilisateur, opt => opt.MapFrom(src => src.Role.RoleUtilisateurLibelle));
-            
+
         CreateMap<Utilisateur, UtilisateurSettingsDTO>()
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
-            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoId));
+            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoId))
+            .ForMember(dest => dest.PreferenceNotifMail, opt => opt.MapFrom(src => src.PreferenceNotifMail));
                 CreateMap<UtilisateurSettingsDTO, Utilisateur>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
