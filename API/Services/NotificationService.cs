@@ -33,6 +33,7 @@ public class  NotificationService : INotificationService
     public NotificationService(
         IMapper mapper,
         INotificationRepository notificationManager,
+        IFavorisRepository favorisManager,
         IUtilisateurRepository utilisateurRepository,
         IDataRepository<NotificationAvertissement, int> notificationAvertissementManager,
         IDataRepository<NotificationCommercial, int> notificationCommercialManager,
