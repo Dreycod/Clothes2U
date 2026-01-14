@@ -151,24 +151,28 @@
                                     </span>
                                 }
                             </div>
-                            
-                            @if (VM_Messagerie.utilisateur != null && 
-                                 VM_Messagerie.SelectedConversation.VendeurId != null &&
-                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                            @if (VM_Messagerie.SelectedConversation.AnnonceStatut == "En Ligne")
                             {
-                                <NavLink class="buy-button"
-                                         href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
-                                    <i class="bi bi-bag-check-fill"></i>
-                                    Acheter
-                                </NavLink>
-                            }
+                                @if (VM_Messagerie.utilisateur != null && 
+                                     VM_Messagerie.SelectedConversation.VendeurId != null &&
+                                     VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                {
+                                    <NavLink class="buy-button"
+                                             href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
+                                        <i class="bi bi-bag-check-fill"></i>
+                                        Acheter
+                                    </NavLink>
+                                }
 
-                            @if (VM_Messagerie.SelectedConversation.Negociable)
-                            {
-                                <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
-                                    Proposer un prix
-                                </button>
+                                @if (VM_Messagerie.SelectedConversation.Negociable)
+                                {
+                                    <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
+                                        Proposer un prix
+                                    </button>
+                                }
                             }
+                            
+                            
                         </div>
                     </div>
                 </div>
