@@ -271,6 +271,23 @@ public class MessageController : ControllerBase
         await _messageManager.AddAsync(message);
         
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = $"Vous avez reçu un nouveau message de paiement."
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+
 
         var orders = conversation?.Commandes?.OrderByDescending(c => c.CommandeId);
         if (orders == null) return BadRequest("Order introuvable");
@@ -287,16 +304,8 @@ public class MessageController : ControllerBase
             MessageId = message.MessageId,
             CommandeId = commande.CommandeId,
         };
-
-        try
-        {
-
-            await _messageValidationManager.AddAsync(messageValidation);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Erreur lors de l'ajout du message de validation {e.Message}");
-        }
+        
+        await _messageValidationManager.AddAsync(messageValidation);
         
         try
         {
@@ -356,8 +365,28 @@ public class MessageController : ControllerBase
         await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
         
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
-        if (conversation == null)
+        
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = $"Votre colis est en route."
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+        else
+        {
+            
             return BadRequest("Conversation introuvable");
+        }
 
         var commande = conversation.Commandes?.LastOrDefault();
         if (commande == null)
@@ -432,8 +461,27 @@ public class MessageController : ControllerBase
         await _messageEstRecuManager.AddAsync(messageRecu);
         
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
-        if (conversation == null)
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = $"Votre commande est arrivé a destination"
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+        else
+        {
+            
             return BadRequest("Conversation introuvable");
+        }
 
         var commande = conversation.Commandes?.LastOrDefault();
         if (commande == null)
@@ -486,8 +534,29 @@ public class MessageController : ControllerBase
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
-        if (messagePayee.Message?.Conversation == null)
+        var conversation = messagePayee.Message?.Conversation;
+        
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(messagePayee.Message.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = messagePayee.MessageId,
+                    MessagePreview = $"La Commande a été annulé"
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+        else
+        {
+            
             return BadRequest("Conversation introuvable");
+        }
         
         var annonce = messagePayee.Message.Conversation.LAnnonce;
         

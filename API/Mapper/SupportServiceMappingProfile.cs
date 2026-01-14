@@ -20,6 +20,7 @@ namespace API.Mapper
                 .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
                 .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.TicketSubject))
                 .ForMember(dest => dest.DateCreation, opt => opt.MapFrom(src => src.DateCreation))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.UtilisateurLogin, opt => opt.MapFrom(src => src.Utilisateur != null ? src.Utilisateur.Login : string.Empty))
                 .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages));
             CreateMap<TicketMessage, TicketMessageViewDTO>()

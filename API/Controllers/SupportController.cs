@@ -69,6 +69,14 @@ namespace API.Controllers
             IEnumerable<SupportTicketViewDTO> ticketsDTO = _mapper.Map<IEnumerable<SupportTicketViewDTO>>(tickets);
             return Ok(ticketsDTO);
         }
+        [Authorize(Roles = "Admin, Moderateur")]
+        [HttpGet("Closed")]
+        public async Task<IActionResult> GetClosedTickets()
+        {
+            IEnumerable<Ticket> tickets = await _ticketManager.GetClosedTicketsAsync();
+            IEnumerable<SupportTicketViewDTO> ticketsDTO = _mapper.Map<IEnumerable<SupportTicketViewDTO>>(tickets);
+            return Ok(ticketsDTO);
+        }
         
         [Authorize(Roles = "Admin, Moderateur")]
         [HttpPost("reply")]

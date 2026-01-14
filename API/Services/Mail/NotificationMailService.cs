@@ -7,19 +7,13 @@ namespace API.Services
 {
     public class NotificationMailService : INotificationMailService
     {
-        private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
-        private readonly IUtilisateurRepository _utilisateurRepo;
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateService _templateService;
 
         public NotificationMailService(
-            IAbonnementRepository<Abonnement, int> abonnementRepo,
-            IUtilisateurRepository utilisateurRepo,
             IEmailService emailService,
             IEmailTemplateService templateService)
         {
-            _abonnementRepo = abonnementRepo;
-            _utilisateurRepo = utilisateurRepo;
             _emailService = emailService;
             _templateService = templateService;
         }
@@ -107,6 +101,19 @@ namespace API.Services
                 ticketId
             );
             var subject = $"[Ticket #{ticketId}] {mail.MailObject}";
+            await _emailService.SendHtmlAsync(
+                userMail,
+                subject,
+                htmlContent
+            );
+        }
+
+        public async Task SendErrorTicketClosed(string userMail, string userName)
+        {
+            var htmlContent = _templateService.GetClosedTicketTemplate(
+                userName
+            );
+            var subject = $"Erreur d'envoie";
             await _emailService.SendHtmlAsync(
                 userMail,
                 subject,

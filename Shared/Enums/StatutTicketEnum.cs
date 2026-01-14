@@ -9,7 +9,7 @@ namespace Shared.Enums
     public enum StatusTicketEnum
     {
         OPEN = 1,
-        ANSWERED = 2,
+        PENDING = 2,
         CLOSED = 3
     }
 }

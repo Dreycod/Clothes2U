@@ -55,6 +55,12 @@ namespace FrontBlazor.Services.WebService
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<SupportTicketViewDTO>>();
         }
+        public async Task<List<SupportTicketViewDTO>> GetClosedTicketsAsync()
+        {
+            var response = await GetWithCredentialsAsync("support/Closed");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<SupportTicketViewDTO>>();
+        }
 
         public async Task ReplyAsync(SupportTicketReplyDTO dto)
         {

@@ -9,29 +9,27 @@ using Shared.DTO.Utilisateur;
 
 namespace FrontBlazor.ViewModel
 {
-    public class HomeViewModel :  ClientBaseViewModel
+    public class HomeViewModel : ClientBaseViewModel
     {
         private readonly IAnnonceService _annonceService;
         private readonly IFavorisService<FavorisDTO> _favorisService;
         private readonly NavigationManager _navigationManager;
         private SearchAnnonceViewModel? _searchViewModel;
 
-
         #region recommandation 
         public bool IsLoadingNextRecommendation { get; set; } = false;
         public bool IsLoadingPreviousRecommendation { get; set; } = false;
         public int PageRecommandation { get; set; } = 1;
         public int PageSizeRecommandation { get; set; } = 15;
-        public List<AnnonceDTO> AnnoncesRecommended { get; set; }
+        public List<AnnonceDTO>? AnnoncesRecommended { get; set; }
         #endregion
-
 
         #region recents
         public bool IsLoadingNextRecents { get; set; } = false;
         public bool IsLoadingPreviousRecents { get; set; } = false;
         public int PageRecents { get; set; } = 1;
         public int PageSizeRecents { get; set; } = 10;
-        public List<AnnonceDTO> AnnoncesRecents { get; set; }
+        public List<AnnonceDTO>? AnnoncesRecents { get; set; }
         #endregion
 
         #region populaires
@@ -39,8 +37,9 @@ namespace FrontBlazor.ViewModel
         public bool IsLoadingPreviousPopulaires { get; set; } = false;
         public int PagePopulaires { get; set; } = 1;
         public int PageSizePopulaires { get; set; } = 10;
-        public List<AnnonceDTO> AnnoncesPopulaires { get; set; }
+        public List<AnnonceDTO>? AnnoncesPopulaires { get; set; }
         #endregion
+
         public string? ErrorMessage { get; set; }
         public string SuccessMessage { get; set; } = string.Empty;
 
@@ -52,7 +51,7 @@ namespace FrontBlazor.ViewModel
             ISignalRService notificationHubService,
             INotificationService notificationService
             )
-        : base(navigationManager, authService,notificationHubService, notificationService)
+        : base(navigationManager, authService, notificationHubService, notificationService)
         {
             _annonceService = annonceService;
             _favorisService = favorisService;
@@ -72,6 +71,7 @@ namespace FrontBlazor.ViewModel
                 return null;
             }
         }
+
         public async Task SetSearchViewModel(SearchAnnonceViewModel searchViewModel)
         {
             _searchViewModel = searchViewModel;
@@ -79,7 +79,7 @@ namespace FrontBlazor.ViewModel
 
         public override async Task LoadAsync()
         {
-            await  base.LoadAsync();
+            await base.LoadAsync();
             ErrorMessage = SuccessMessage = string.Empty;
             PageRecommandation = 1;
             await LoadRecentAnnonces();
@@ -91,108 +91,162 @@ namespace FrontBlazor.ViewModel
             IsLoading = false;
         }
 
-        public async Task PreviousRecommandation()
+        private async Task NavigateCarousel(
+            int currentPage,
+            int pageSize,
+            List<AnnonceDTO>? currentList,
+            Func<int, int, Task<List<AnnonceDTO>>> loadDataFunc,
+            Action<bool> setLoadingState,
+            Action<int> updatePage,
+            Action<List<AnnonceDTO>?> updateList,
+            bool isNext)
         {
-            if (PageRecommandation > 1)
+            if (isNext)
             {
-                IsLoadingPreviousRecommendation = true;
-                NotifyStateChanged();
-                PageRecommandation--;
-                AnnoncesRecommended = await _annonceService.GetRecommendedAnnonces(PageRecommandation, PageSizeRecommandation);
-                IsLoadingPreviousRecommendation = false;
+                // Pour aller plus loin, vérifier qu'on a une page complète
+                if (currentList == null || currentList.Count < pageSize)
+                    return;
+            }
+            else
+            {
+                // Pour revenir en arrière, vérifier qu'on n'est pas déjà à la page 1
+                if (currentPage <= 1)
+                    return;
+            }
+
+            // Activer l'état de chargement
+            setLoadingState(true);
+
+            // Effacer la liste actuelle pour montrer le spinner
+            updateList(null);
+            NotifyStateChanged();
+
+            try
+            {
+                // Calculer la nouvelle page
+                int newPage = isNext ? currentPage + 1 : currentPage - 1;
+
+                // Charger les nouvelles données
+                List<AnnonceDTO> newAnnonces = await loadDataFunc(newPage, pageSize);
+
+                // Si on a des résultats (ou si on revient en arrière), mettre à jour
+                if (newAnnonces.Count > 0 || !isNext)
+                {
+                    updatePage(newPage);
+                    updateList(newAnnonces);
+                }
+                else
+                {
+                    // Si pas de résultats, restaurer la liste précédente
+                    updateList(currentList);
+                }
+            }
+            finally
+            {
+                // Désactiver l'état de chargement
+                setLoadingState(false);
                 NotifyStateChanged();
             }
+        }
+
+        public async Task PreviousRecommandation()
+        {
+            await NavigateCarousel(
+                PageRecommandation,
+                PageSizeRecommandation,
+                AnnoncesRecommended,
+                async (page, size) => await _annonceService.GetRecommendedAnnonces(page, size),
+                isLoading => IsLoadingPreviousRecommendation = isLoading,
+                page => PageRecommandation = page,
+                list => AnnoncesRecommended = list,
+                isNext: false
+            );
         }
 
         public async Task NextRecommandation()
         {
-            if (AnnoncesRecommended.Count == PageSizeRecommandation)
-            {
-                IsLoadingNextRecommendation = true;
-                List<AnnonceDTO> NewAnnoncesRecommended = await _annonceService.GetRecommendedAnnonces(PageRecommandation + 1, PageSizeRecommandation);
-                if (NewAnnoncesRecommended.Count > 0)
-                {
-                    PageRecommandation++;
-                    AnnoncesRecommended = NewAnnoncesRecommended;
-                    IsLoadingNextRecommendation = false;
-                    NotifyStateChanged();
-                }
-            }
+            await NavigateCarousel(
+                PageRecommandation,
+                PageSizeRecommandation,
+                AnnoncesRecommended,
+                async (page, size) => await _annonceService.GetRecommendedAnnonces(page, size),
+                isLoading => IsLoadingNextRecommendation = isLoading,
+                page => PageRecommandation = page,
+                list => AnnoncesRecommended = list,
+                isNext: true
+            );
         }
 
         public async Task NextRecents()
         {
-            if (AnnoncesRecents.Count == PageSizeRecents)
-            {
-                IsLoadingNextRecents = true;
-                NotifyStateChanged();
-                List<AnnonceDTO> NewAnnoncesRecents = await _annonceService.GetAnnonceByFilter(new FilterDTO
+            await NavigateCarousel(
+                PageRecents,
+                PageSizeRecents,
+                AnnoncesRecents,
+                async (page, size) => await _annonceService.GetAnnonceByFilter(new FilterDTO
                 {
                     SortBy = SortField.DateAnnonce,
                     SortOrder = SortOrder.Descending,
-                }, PageRecents + 1, PageSizeRecents);
-                if (NewAnnoncesRecents.Count > 0)
-                {
-                    PageRecents++;
-                    AnnoncesRecents = NewAnnoncesRecents;
-                    IsLoadingNextRecents = false;
-                    NotifyStateChanged();
-                }
-            }
+                }, page, size),
+                isLoading => IsLoadingNextRecents = isLoading,
+                page => PageRecents = page,
+                list => AnnoncesRecents = list,
+                isNext: true
+            );
         }
+
         public async Task PreviousRecents()
         {
-            if (PageRecents > 1)
-            {
-                IsLoadingPreviousRecents = true;
-                NotifyStateChanged();
-                PageRecents--;
-                AnnoncesRecents = await _annonceService.GetAnnonceByFilter(new FilterDTO
+            await NavigateCarousel(
+                PageRecents,
+                PageSizeRecents,
+                AnnoncesRecents,
+                async (page, size) => await _annonceService.GetAnnonceByFilter(new FilterDTO
                 {
                     SortBy = SortField.DateAnnonce,
                     SortOrder = SortOrder.Descending,
-                }, PageRecents, PageSizeRecents);
-                IsLoadingPreviousRecents = false;
-                NotifyStateChanged();
-            }
+                }, page, size),
+                isLoading => IsLoadingPreviousRecents = isLoading,
+                page => PageRecents = page,
+                list => AnnoncesRecents = list,
+                isNext: false
+            );
         }
 
         public async Task NextPopulaires()
         {
-            if (AnnoncesPopulaires.Count == PageSizePopulaires)
-            {
-                IsLoadingNextPopulaires = true;
-                NotifyStateChanged();
-                List<AnnonceDTO> NewAnnoncesPopulaires = await _annonceService.GetAnnonceByFilter(new FilterDTO
+            await NavigateCarousel(
+                PagePopulaires,
+                PageSizePopulaires,
+                AnnoncesPopulaires,
+                async (page, size) => await _annonceService.GetAnnonceByFilter(new FilterDTO
                 {
                     SortBy = SortField.NombreFavoris,
                     SortOrder = SortOrder.Descending,
-                }, PagePopulaires + 1, PageSizePopulaires);
-                if (NewAnnoncesPopulaires.Count > 0)
-                {
-                    PagePopulaires++;
-                    AnnoncesPopulaires = NewAnnoncesPopulaires;
-                    IsLoadingNextPopulaires = false;
-                    NotifyStateChanged();
-                }
-            }
-
+                }, page, size),
+                isLoading => IsLoadingNextPopulaires = isLoading,
+                page => PagePopulaires = page,
+                list => AnnoncesPopulaires = list,
+                isNext: true
+            );
         }
+
         public async Task PreviousPopulaires()
         {
-            if (PagePopulaires > 1)
-            {
-                IsLoadingPreviousPopulaires = true;
-                NotifyStateChanged();
-                PagePopulaires--;
-                AnnoncesPopulaires = await _annonceService.GetAnnonceByFilter(new FilterDTO
+            await NavigateCarousel(
+                PagePopulaires,
+                PageSizePopulaires,
+                AnnoncesPopulaires,
+                async (page, size) => await _annonceService.GetAnnonceByFilter(new FilterDTO
                 {
                     SortBy = SortField.NombreFavoris,
                     SortOrder = SortOrder.Descending,
-                }, PagePopulaires, PageSizePopulaires);
-                IsLoadingPreviousPopulaires = false;
-                NotifyStateChanged();
-            }
+                }, page, size),
+                isLoading => IsLoadingPreviousPopulaires = isLoading,
+                page => PagePopulaires = page,
+                list => AnnoncesPopulaires = list,
+                isNext: false
+            );
         }
 
         public async Task LoadRecentAnnonces()
@@ -274,7 +328,8 @@ namespace FrontBlazor.ViewModel
                 return;
             }
 
-            var annonce = AnnoncesRecents.FirstOrDefault(a => a.AnnonceId == annonceId) ?? AnnoncesPopulaires.FirstOrDefault(a => a.AnnonceId == annonceId);
+            var annonce = AnnoncesRecents?.FirstOrDefault(a => a.AnnonceId == annonceId)
+                ?? AnnoncesPopulaires?.FirstOrDefault(a => a.AnnonceId == annonceId);
             if (annonce == null) return;
 
             await ToggleFavorite(annonce.IsLikedByCurrentUser, annonceId);
@@ -294,6 +349,7 @@ namespace FrontBlazor.ViewModel
         {
             _navigationManager.NavigateTo($"/search?genre={Uri.EscapeDataString(genre)}");
         }
+
         public async Task<bool> CheckIfOwnerAnnonce(AnnonceDTO annonce)
         {
             if (utilisateur == null)

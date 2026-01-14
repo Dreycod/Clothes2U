@@ -8,6 +8,7 @@ namespace API.Services
         string GetNewAnnonceTemplate(string userName, string vendeurName, string annonceTitle, string annonceUrl);
         string GetAnnonceUpdatedTemplate(string userName, string annonceTitle, string annonceUrl);
         string GetSupportResponseTemplate(string userName, string subject, string content, int ticketId);
+        string GetClosedTicketTemplate(string name);
     }
 
     public class EmailTemplateService : IEmailTemplateService
@@ -104,11 +105,23 @@ namespace API.Services
         </div>
         <div class='footer'>
             <p>© 2025 Clothes2U - Tous droits réservés</p>
-            <p>Si vous avez des questions, contactez notre <a href='mailto:support@clothes2u.com' style='color: #667eea;'>support</a></p>
         </div>
     </div>
 </body>
 </html>";
+        }
+
+        public string GetClosedTicketTemplate(string name)
+        {
+            var content = $@"
+                <p>Bonjour {name}</p>
+                <p>Vous venez de tenter de répondre à un ticket qui est clos.</p>
+                <p>Merci d'en créer de vouloir créer un nouveau ticket si vous voulez joindre un modérateur.</p>
+                </br>
+                <p>Cordialement</p>
+                <p>L'équipe <strong>Clothes2U</strong></p>
+            ";
+            return GetBaseTemplate("Ticket fermé", content);
         }
 
         public string GetPasswordResetTemplate(string userName, string resetLink)

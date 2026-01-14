@@ -51,6 +51,12 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();                      
     }
 
+    public async Task<IEnumerable<Annonce>> GetAllAnalyseAsync()
+    {
+        return await BaseAnnonceQuery().Where(a => a.StatutAnnonceId == (int)AnnonceStatut.Analyse)
+            .ToListAsync();
+    }
+
 
     public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int userId, int? currentUserId)
     {
@@ -283,7 +289,10 @@ public async Task<IEnumerable<Annonce>> GetSimilarAsync(int annonceId, int page,
         };
     }
 
-   
+    public async Task<int> GetAnalyseCountAsync()
+    {
+        return _context.Annonces.Where(a => a.StatutAnnonceId == (int)AnnonceStatut.Analyse).Count();
+    }
 
     public async Task SuspendElement(int id)
     {

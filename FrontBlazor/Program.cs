@@ -120,6 +120,17 @@ builder.Services.AddScoped<SupportTicketsViewModel>();
 // (il contient les méthodes pour les adresses)
 
 // HttpClient AVEC CREDENTIALS (cookies)
-builder.Services.AddScoped(sp => { return new HttpClient { BaseAddress = new Uri("http://localhost:5096/api/") }; });
+builder.Services.AddScoped(sp =>
+{
+    var baseAddress =
+        builder.HostEnvironment.IsDevelopment()
+            ? "http://localhost:5096/api/"
+            : "https://apisae-anfegsddaabjavaa.francecentral-01.azurewebsites.net/api/";
+
+    return new HttpClient
+    {
+        BaseAddress = new Uri(baseAddress)
+    };
+});
 
 await builder.Build().RunAsync();

@@ -3,6 +3,7 @@ using FrontBlazor.Services.Interfaces;
 using FrontBlazor.Services.WebService;
 using Microsoft.AspNetCore.Components;
 using Shared.DTO.SupportTicket;
+using Shared.Enums;
 
 namespace FrontBlazor.ViewModel.Moderation.Support;
 
@@ -10,6 +11,7 @@ public class TicketDetailViewModel : ModerationViewModel
 {
     private readonly ISupportService _service;
     private readonly NavigationManager _nav;
+    private readonly IAuthService _authService;
     
     public TicketDetailViewDTO TicketDetail { get; set; }
     public string ResponseMessage { get; set; }
@@ -24,8 +26,10 @@ public class TicketDetailViewModel : ModerationViewModel
     {
         _nav = nav;
         _service = service;
+        _authService = authService;
     }
     
+    public StatusTicketEnum StatusTicket { get; set; }
     public override async Task LoadAsync()
     {
         IsLoading = true;
@@ -43,6 +47,7 @@ public class TicketDetailViewModel : ModerationViewModel
         }
         finally
         {
+            StatusTicket = (StatusTicketEnum)TicketDetail.Status;
             IsLoading = false;
         }
     }
@@ -66,9 +71,10 @@ public class TicketDetailViewModel : ModerationViewModel
             await LoadAsync();
             Console.WriteLine("Envoie de la réponse : " + reply.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
-            ErrorMessage = $"Erreur lors de l'envoi de la réponse: {ex.Message}";
+            await _authService.LogoutAsync();
+            _nav.NavigateTo("/login", true);
         }
         finally
         {
@@ -98,6 +104,11 @@ public class TicketDetailViewModel : ModerationViewModel
             Console.WriteLine($"Erreur: {ex}");
             IsLoading = false;
         }
+    }
+
+    public void NavigateToUserAccount(string login)
+    {
+        _nav.NavigateTo($"/profile/{login}");
     }
 }
 

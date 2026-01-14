@@ -1,6 +1,7 @@
 ﻿@page "/moderation/support"
 @layout ModerationLayout
 @using FrontBlazor.ViewModel.Moderation.Support
+@using Shared.Enums
 @inject SupportTicketsViewModel VM
 
 <PageTitle>Support - Modération</PageTitle>
@@ -32,15 +33,21 @@ else
     </div>
 
     <div class="filter-buttons" style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
-        <button class="btn-filter @(currentFilter == TicketFilter.Open ? "active" : "")"
+        <button class="btn-filter @(VM.StatusTicket == StatusTicketEnum.OPEN ? "active" : "")"
                 @onclick="LoadOpenTickets">
             <i class="bi bi-envelope-open"></i>
             En attente de réponse
         </button>
-        <button class="btn-filter @(currentFilter == TicketFilter.Pending ? "active" : "")"
+        <button class="btn-filter @(VM.StatusTicket == StatusTicketEnum.PENDING ? "active" : "")"
                 @onclick="LoadPendingTickets">
             <i class="bi bi-clock-history"></i>
             En attente utilisateur
+        </button>
+        
+        <button class="btn-filter @(VM.StatusTicket == StatusTicketEnum.CLOSED ? "active" : "")"
+                @onclick="LoadClosedTickets">
+            <i class="bi bi-lock"></i>
+            Tickets fermés
         </button>
     </div>
 
@@ -49,7 +56,7 @@ else
         <div class="empty-state">
             <i class="bi bi-inbox"></i>
             <h3>Aucune demande de support</h3>
-            <p>Il n'y a actuellement aucun ticket @(currentFilter == TicketFilter.Open ? "en attente de réponse" : "en attente de l'utilisateur").</p>
+            <p>Il n'y a actuellement aucun ticket @(VM.StatusTicket == StatusTicketEnum.OPEN ? "en attente de réponse" : "en attente de l'utilisateur").</p>
         </div>
     }
     else
@@ -72,18 +79,44 @@ else
                                 </span>
                             </div>
                         </div>
-                        <span class="support-status pending">
-                            <i class="bi bi-clock-history"></i>
-                            @(currentFilter == TicketFilter.Open ? "En attente" : "En attente utilisateur")
+                        <span class="support-status @(VM.StatusTicket == StatusTicketEnum.CLOSED ? "closed" : "pending")">
+                            @if (VM.StatusTicket == StatusTicketEnum.CLOSED)
+                            {
+                                <i class="bi bi-lock"></i>
+                                <span>Fermé</span>
+                            }
+                            else if (VM.StatusTicket == StatusTicketEnum.OPEN)
+                            {
+                                <i class="bi bi-clock-history"></i>
+                                <span>En attente d'une réponse modérateur</span>
+                            }
+                            else if (VM.StatusTicket == StatusTicketEnum.PENDING)
+                            {
+                                <i class="bi bi-clock-history"></i>
+                                <span>En attente utilisateur</span>
+                            }
                         </span>
+
                     </div>
 
                     <div class="support-card-actions">
                         <button class="btn-action btn-primary"
                                 @onclick="() => VM.OpenDetails(ticket.TicketId)">
                             <i class="bi bi-reply"></i>
-                            Répondre
+                            @if (VM.StatusTicket == StatusTicketEnum.OPEN)
+                            {
+                                <span>Répondre</span>
+                            }
+                            else if (VM.StatusTicket == StatusTicketEnum.PENDING)
+                            {
+                                <span>Relancer</span>
+                            }
+                            else if (VM.StatusTicket == StatusTicketEnum.CLOSED)
+                            {
+                                <span>Consulter</span>
+                            }
                         </button>
+
                     </div>
                 </div>
             }
@@ -92,8 +125,6 @@ else
 }
 
 @code {
-    private enum TicketFilter { Open, Pending }
-    private TicketFilter currentFilter = TicketFilter.Open;
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,20 +133,22 @@ else
 
     private async Task LoadOpenTickets()
     {
-        currentFilter = TicketFilter.Open;
-        VM.IsLoading = true;
         StateHasChanged();
-        await VM.LoadAsync();
+        await VM.LoadOpenTickets();
+        StateHasChanged();
+    }
+
+    private async Task LoadClosedTickets()
+    {
+        StateHasChanged();
+        await VM.LoadClosedTickets();
         StateHasChanged();
     }
 
     private async Task LoadPendingTickets()
     {
-        currentFilter = TicketFilter.Pending;
-        VM.IsLoading = true;
         StateHasChanged();
         await VM.LoadPendingTickets();
-        VM.IsLoading = false;
         StateHasChanged();
     }
 }

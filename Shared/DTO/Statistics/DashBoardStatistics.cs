@@ -3,7 +3,7 @@ namespace Shared.DTO;
 public class DashBoardStatistics
 {
     public int SignalementsEnAttented { get; set; }
-    public int CompteSuspendus { get; set; }
+    public int AnalysesEnAttente { get; set; }
     public int ResaurationEnAttente { get; set; }
     public int DemandeSupport { get; set; }
     

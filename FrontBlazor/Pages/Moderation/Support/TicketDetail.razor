@@ -1,4 +1,5 @@
 @page "/moderation/TicketDetails/{Id:int}"
+@using Shared.Enums
 @layout ModerationLayout
 @inject TicketDetailViewModel VM
 @inject IJSRuntime JSRuntime
@@ -35,9 +36,24 @@ else if (VM.TicketDetail != null)
                             par <strong>@VM.TicketDetail.UtilisateurLogin</strong>
                         </p>
                     </div>
-                    <span class="support-status pending">
-                        <i class="bi bi-clock-history"></i> En attente
+                    <span class="support-status @(VM.StatusTicket == StatusTicketEnum.CLOSED ? "closed" : "pending")">
+                        @if (VM.StatusTicket == StatusTicketEnum.CLOSED)
+                        {
+                            <i class="bi bi-lock"></i>
+                            <span>Fermé</span>
+                        }
+                        else if (VM.StatusTicket == StatusTicketEnum.OPEN)
+                        {
+                            <i class="bi bi-clock-history"></i>
+                            <span>En attente d'une réponse modérateur</span>
+                        }
+                        else if (VM.StatusTicket == StatusTicketEnum.PENDING)
+                        {
+                            <i class="bi bi-clock-history"></i>
+                            <span>En attente utilisateur</span>
+                        }
                     </span>
+
                 </div>
             </div>
             @if (!string.IsNullOrEmpty(VM.ErrorMessage))
@@ -73,11 +89,18 @@ else if (VM.TicketDetail != null)
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                                     @if (!isCurrentUser)
                                     {
-                                        <div class="user-avatar-small"></div>
+                                        <strong class="clickable-user"
+                                                @onclick="() => VM.NavigateToUserAccount(message.UtilisateurLogin)">
+                                            @message.UtilisateurLogin
+                                        </strong>
+
                                     }
-                                    <strong style="font-size: 0.9rem;">
-                                        @(isCurrentUser ? "Vous" : message.UtilisateurLogin)
-                                    </strong>
+                                    else
+                                    {
+                                        <strong style="font-size: 0.9rem;">
+                                            Vous
+                                        </strong>
+                                    }
                                     @if (isCurrentUser)
                                     {
                                         <span class="sanction-badge avertissement" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
@@ -96,15 +119,16 @@ else if (VM.TicketDetail != null)
                     }
                 </div>
             </div>
-
-            <!-- Section de réponse -->
-            <div class="messages-section" style="margin-top: 1.5rem;">
-                <h3 class="section-title">
-                    <i class="bi bi-reply"></i> Répondre au ticket
-                </h3>
+            @if (!(VM.TicketDetail.Status == (int)StatusTicketEnum.CLOSED))
+            {
+                <!-- Section de réponse -->
+                <div class="messages-section" style="margin-top: 1.5rem;">
+                    <h3 class="section-title">
+                        <i class="bi bi-reply"></i> Répondre au ticket
+                    </h3>
                 
-                <div class="response-form">
-                    <textarea 
+                    <div class="response-form">
+                        <textarea 
                         class="response-textarea" 
                         rows="5" 
                         placeholder="Écrivez votre réponse ici..."
@@ -113,24 +137,34 @@ else if (VM.TicketDetail != null)
                     </textarea>
 
                     
-                    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-                        <button class="btn-cancel" @onclick="GoBack">
-                            <i class="bi bi-arrow-left"></i>
-                            Retour
-                        </button>
-                        <button class="btn-respond" @onclick="VM.SendResponse" disabled="@string.IsNullOrWhiteSpace(VM.ResponseMessage)">
-                            <i class="bi bi-send"></i>
-                            Envoyer la réponse
-                        </button>
-                        <button class="btn-close-ticket" @onclick="VM.CloseTicket">
-                            <i class="bi bi-check-circle"></i>
-                            Clôturer le ticket
-                        </button>
+                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                            <button class="btn-cancel" @onclick="GoBack">
+                                <i class="bi bi-arrow-left"></i>
+                                Retour
+                            </button>
+                            <button class="btn-respond" @onclick="VM.SendResponse" disabled="@string.IsNullOrWhiteSpace(VM.ResponseMessage)">
+                                <i class="bi bi-send"></i>
+                                Envoyer la réponse
+                            </button>
+                            <button class="btn-close-ticket" @onclick="VM.CloseTicket">
+                                <i class="bi bi-check-circle"></i>
+                                Clôturer le ticket
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button class="btn-cancel" @onclick="GoBack">
+                        <i class="bi bi-arrow-left"></i>
+                        Retour
+                    </button>
+                </div>
+            }
         </div>
-    </div>
+    </div> 
 }
 else
 {
@@ -144,6 +178,7 @@ else
     [Parameter]
     public int Id { get; set; }
     private ElementReference messageThreadRef;
+
     
     protected override async Task OnInitializedAsync()
     {

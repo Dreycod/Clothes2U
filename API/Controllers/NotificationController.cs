@@ -40,7 +40,7 @@ public class NotificationController : ControllerBase
         int userId = await _currentUserService.GetUserIdOrThrow();
         var notifications = await _notificationManager.GetByUserId((int)userId);
         var notificationDtos = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
-        await _notificationManager.MarkAsRead((int)userId);
+        await _notificationManager.MarkAsRead(userId);
         return Ok(notificationDtos);
     }
     [HttpDelete("{id}")]
