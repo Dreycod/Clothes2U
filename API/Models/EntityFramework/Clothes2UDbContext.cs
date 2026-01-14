@@ -561,7 +561,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Photo)
                 .WithMany(p => p.Annonces)
                 .HasForeignKey(e => e.PhotoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
     
             entity.HasIndex(e => new { e.AnnonceId, e.PhotoId })
                 .IsUnique();
@@ -1046,7 +1046,7 @@ public partial class Clothes2UDbContext : DbContext
     modelBuilder.Entity<Photo>(entity =>
     {
         entity.HasKey(e => e.PhotoId);
-    
+
     });
     modelBuilder.Entity<Recense>(entity =>
     {
