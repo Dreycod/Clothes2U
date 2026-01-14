@@ -52,9 +52,20 @@ public class DecisionController : ControllerBase
         _mailService = mailService;
         _notificationService = notificationService;
     }
-
+    /// <summary>
+    /// Récupère toutes les décisions prises par le modérateur connecté.
+    /// </summary>
+    /// <returns>La liste des décisions du modérateur.</returns>
+    /// <response code="200">Retourne la liste des décisions.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="403">L'utilisateur n'a pas les droits nécessaires (Admin ou Modérateur requis).</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpGet]
     [Authorize(Roles = "Admin,Moderateur")]
+    [ProducesResponseType(typeof(IEnumerable<DecisionDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ActionResult<DecisionDTO>>> GetAllDecisionsByModerateurId()
     {
         int userId = await _currentUserService.GetUserIdOrThrow();
@@ -62,11 +73,23 @@ public class DecisionController : ControllerBase
         IEnumerable<DecisionDTO> decisionsDTO = _mapper.Map<IEnumerable<DecisionDTO>>(decisions);
         return Ok(decisionsDTO);
     }
-
+    /// <summary>
+    /// Récupère les détails d'une décision spécifique par son identifiant.
+    /// Le type de retour varie selon le type de décision (avertissement, suspension ou bannissement).
+    /// </summary>
+    /// <param name="id">L'identifiant de la décision.</param>
+    /// <returns>Les détails de la décision (peut être un avertissement, une suspension ou un bannissement).</returns>
+    /// <response code="200">Retourne les détails de la décision.</response>
+    /// <response code="404">La décision n'existe pas.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="403">L'utilisateur n'a pas les droits nécessaires (Admin ou Modérateur requis).</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(DecisionSuspensionDetailDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(DecisionBannissementDetailDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(DecisionDetailDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult> GetDecisionById(int id)
     {
@@ -82,30 +105,57 @@ public class DecisionController : ControllerBase
             DeclaredType = typeof(DecisionDetailDTO)
         };
     }
-
+    /// <summary>
+    /// Crée une nouvelle décision de modération suite à un signalement.
+    /// Peut être un avertissement, une suspension ou un bannissement.
+    /// La décision entraîne automatiquement les actions suivantes :
+    /// - Avertissement : envoi d'une notification à l'utilisateur
+    /// - Suspension : suspension temporaire du compte et envoi d'un email
+    /// - Bannissement : bannissement définitif du compte et envoi d'un email
+    /// Les éléments concernés (annonce, message, avis) sont également suspendus.
+    /// Le signalement est supprimé après la création de la décision.
+    /// </summary>
+    /// <param name="decisionDTO">Les données de la décision à créer (type variant selon l'action : avertissement, suspension ou bannissement).</param>
+    /// <returns>La décision créée avec son identifiant.</returns>
+    /// <response code="201">La décision a été créée avec succès.</response>
+    /// <response code="400">Les données sont invalides ou le type de décision n'est pas reconnu.</response>
+    /// <response code="404">Le signalement ou l'utilisateur n'existe pas.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="403">L'utilisateur n'a pas les droits nécessaires (Admin ou Modérateur requis).</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpPost]
     [Authorize(Roles = "Admin,Moderateur")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
     {
         try
         {
             Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
+            
+            if (signalement == null)
+            {
+                return NotFound("Signalement introuvable");
+            }
             int userId = await _currentUserService.GetUserIdOrThrow();
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            if (decisionDTO is DecisionIgnorPostDTO)
-            {
-                await _signalementManager.DeleteAsync(signalement);
-                return decisionDTO;
-            }
-
+            
             Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
+            if (utilisateurSanctionne == null)
+            {
+                return NotFound("Utilisateur introuvable");
+            }
+            var elementDecision = await CreateElementDecision(decisionDTO.ElementDecision);
             var decision = new Decision
             {
-                ElementDecision = await CreateElementDecision(decisionDTO.ElementDecision),
+                ElementDecision = elementDecision,
                 ModerateurId = userId,
                 UtilisateurId = decisionDTO.UtilisateurId,
                 DecisionDate = DateTime.UtcNow
@@ -113,84 +163,68 @@ public class DecisionController : ControllerBase
             switch (decisionDTO)
             {
                 case DecisionAvertissementPostDTO avertissement:
-                    await _notificationService.CreateNotificationAvertissement(avertissement.UtilisateurId,
+                    decision.DecisionAvertissement = new DecisionAvertissement();
+                    await _notificationService.CreateNotificationAvertissement(
+                        avertissement.UtilisateurId,
                         avertissement.MessageModerateur);
-                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-                    decision = await CreateAvertissement(decision); 
                     break;
 
                 case SanctionSuspensionPostDTO suspension:
+                    decision.DecisionSanction = new DecisionSanction
+                    {
+                        EstEnCours = true,
+                        SanctionSuspension = new SanctionSuspension
+                        {
+                            DateFinSuspension = suspension.DateFinSuspension
+                        }
+                    };
+                    
                     await _utilisateurRepository.SuspendUser(decisionDTO.UtilisateurId);
-                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-                    decision = await CreateSanctionSuspension(decision, suspension);
-                    await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
+                    await _mailService.NotifyUserStatusChangedAsync(
+                        utilisateurSanctionne, 
+                        utilisateurSanctionne.StatutId);
                     break;
 
                 case SanctionBannissementPostDTO bannissement:
+                    decision.DecisionSanction = new DecisionSanction
+                    {
+                        EstEnCours = true,
+                        SanctionBannissement = new SanctionBannissement()
+                    };
+                    
                     await _utilisateurRepository.BanUser(decisionDTO.UtilisateurId);
-                    await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-                    decision = await CreateSanctionBannissement(decision, bannissement);
-                    await _mailService.NotifyUserStatusChangedAsync(utilisateurSanctionne, utilisateurSanctionne.StatutId);
+                    await _mailService.NotifyUserStatusChangedAsync(
+                        utilisateurSanctionne, 
+                        utilisateurSanctionne.StatutId);
                     break;
+
                 default:
                     return BadRequest("Type de décision non reconnu");
             }
-            await _signalementManager.DeleteAsync(signalement);
             var createdDecision = await _decisionManager.AddAsync(decision);
-            var resultDTO = _mapper.Map<DecisionPostDTO>(createdDecision);
-            return CreatedAtAction(nameof(GetAllDecisionsByModerateurId), 
-                new { id = userId }, resultDTO);
-        
+            await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
+            await _signalementManager.DeleteAsync(signalement);
+            return CreatedAtAction(nameof(GetDecisionById), 
+                new { id = createdDecision.DecisionId }, 
+                new
+                {
+                    decisionId = createdDecision.DecisionId,
+                    utilisateurId = createdDecision.UtilisateurId,
+                    dateDecision = createdDecision.DecisionDate,
+                    message = "Décision créée avec succès"
+                });
         }
         catch (Exception e)
         {
-            var innerException = e.InnerException?.Message ?? "Pas d'exception interne";
             return BadRequest(new { 
                 error = e.Message,
-                innerError = innerException,
-                stackTrace = e.StackTrace
+                innerError = e.InnerException?.Message ?? "Pas d'exception interne",
+                stackTrace = e.StackTrace,
+                type = e.GetType().Name
             });
         }
     }
 
-    private async Task<Decision> CreateAvertissement(Decision decision)
-    {
-        decision.DecisionAvertissement = new DecisionAvertissement();
-
-        return decision;
-    }
-
-    private async Task<Decision> CreateSanctionSuspension(Decision decision, SanctionSuspensionPostDTO dto)
-    {
-        var sanction = new DecisionSanction
-        {
-            EstEnCours = true,
-        };
-
-        sanction.SanctionSuspension = new SanctionSuspension
-        {
-            DateFinSuspension = dto.DateFinSuspension,
-            DecisionSanction = sanction
-        };
-        decision.DecisionSanction = sanction;
-
-        return decision;
-    }
-
-    private async Task<Decision> CreateSanctionBannissement(Decision decision, SanctionBannissementPostDTO dto)
-    {
-        var sanction = new DecisionSanction
-        {
-            EstEnCours = true,
-        };
-
-        sanction.SanctionBannissement = new SanctionBannissement
-        {
-            DecisionSanction = sanction
-        };
-        decision.DecisionSanction = sanction;
-        return decision;
-    }
     private async Task<ElementDecision> CreateElementDecision(ElementDecisionDTO dto)
     {
         var elementDecision = new ElementDecision();

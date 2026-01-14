@@ -196,5 +196,4 @@ public class MediaWebService : WritableService<PhotoResponseDTO>, IMediasService
         var photos = await response.Content.ReadFromJsonAsync<List<PhotoDTO>>();
         return photos ?? new List<PhotoDTO>();
     }
-
 }

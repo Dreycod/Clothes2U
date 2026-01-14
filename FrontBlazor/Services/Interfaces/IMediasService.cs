@@ -15,5 +15,6 @@ namespace FrontBlazor.Services.Interfaces
         Task<PhotoDTO> GetPhotoDTO(int id);
         Task<List<PhotoDTO>> GetAllPhotosValidation();
         string GetPhotoUrl(int id);
+
     }
 }

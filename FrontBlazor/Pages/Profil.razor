@@ -289,13 +289,6 @@
                 {
                     <div class="section-container">
                         <div class="section-header">
-                            @if (!VM_Profil.IsSameUser)
-                            {
-                                <button class="btn-add-review" @onclick="VM_Profil.ShowAddReview">
-                                    <i class="bi bi-plus-circle"></i>
-                                    Ajouter un avis
-                                </button>
-                            }
                             <div class="carousel-controls">
                                 <button class="carousel-btn"
                                         @onclick="VM_Profil.PreviousAvis"
@@ -383,76 +376,6 @@
 
     </div>
 </div>
-
-<!-- Add Review Modal -->
-@if (VM_Profil.ShowAddReviewModal)
-{
-    <div class="modal-overlay" @onclick="VM_Profil.CloseAddReview">
-        <div class="modal-content review-modal" @onclick:stopPropagation>
-            <div class="modal-header">
-                <h3>Ajouter un avis</h3>
-                <button class="modal-close" @onclick="VM_Profil.CloseAddReview">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Note -->
-                <div class="form-group">
-                    <label class="form-label">Note</label>
-                    <div class="star-rating-input">
-                        @for (int i = 1; i <= 5; i++)
-                        {
-                            int starValue = i;
-                            <button type="button"
-                                    class="star-btn @(starValue <= VM_Profil.SelectedRating ? "active" : "")"
-                                    @onclick="() => VM_Profil.SetRating(starValue)">
-                                <i class="bi bi-star-fill"></i>
-                            </button>
-                        }
-                    </div>
-                    @if (VM_Profil.SelectedRating > 0)
-                    {
-                        <span class="rating-text">@VM_Profil.SelectedRating / 5 étoiles</span>
-                    }
-                </div>
-
-                <!-- Commentaire -->
-                <div class="form-group">
-                    <label class="form-label">Commentaire</label>
-                    <textarea class="form-textarea"
-                              placeholder="Partagez votre expérience avec cet utilisateur..."
-                              @bind="VM_Profil.ReviewComment"
-                              @bind:event="oninput"
-                              rows="6"></textarea>
-                </div>
-
-                @if (!string.IsNullOrEmpty(VM_Profil.ReviewErrorMessage))
-                {
-                    <div class="alert alert-error">
-                        <i class="bi bi-exclamation-circle"></i>
-                        <span>@VM_Profil.ReviewErrorMessage</span>
-                    </div>
-                }
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-secondary" @onclick="VM_Profil.CloseAddReview">Annuler</button>
-                <button class="btn-primary" @onclick="VM_Profil.SubmitReview" disabled="@VM_Profil.IsSubmittingReview">
-                    @if (VM_Profil.IsSubmittingReview)
-                    {
-                        <span class="spinner-small-inline"></span>
-                        <span>Envoi...</span>
-                    }
-                    else
-                    {
-                        <span>Publier l'avis</span>
-                    }
-                </button>
-            </div>
-        </div>
-    </div>
-}
 
 <!-- Bloque Modal -->
 @if (VM_Profil.ShowBloqueModal)

@@ -49,7 +49,6 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
     public PutAnnonceDTO NewAnnonce { get; private set; } = new();
 
     // Photos
-    public List<IBrowserFile> SelectedFiles { get; set; } = new();
     public List<(IBrowserFile File, string PreviewBase64, bool IsDangerous, bool IsTextile)> SelectedFilePreviews { get; set; } = new();
     // IDs des couleurs sélectionnées (multi-sélection)
     public List<int> SelectedCouleurIds { get; private set; } = new();
@@ -102,7 +101,6 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
         _genreService = genreService;
         _tailleService = tailleService;
         _tagService = tagService;
-        _tagService = tagService;
     }
 
     #region Initialization
@@ -115,7 +113,6 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
             _nav.NavigateTo("/login");
             return;
         }
-
 
         IsLoading = true;
         AnnonceDetailDTO? annonce = await _annonceService.GetAnnonceDetailById(AnnonceId);
@@ -187,6 +184,7 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
                 .Select(nom => Couleurs.FirstOrDefault(c => c.Nom == nom)?.CouleurId)
                 .Where(id => id != null)
                 .Select(id => id.Value)
+                .Distinct()
                 .ToList();
 
 
@@ -206,7 +204,12 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
 
         // Genre
         NewAnnonce.GenreId = Genres.FirstOrDefault(g => g.NomGenre == annonce.GenreAnnonce)?.GenreId ?? 0;
-        
+
+        // ---------------------------
+        // Chargement
+        // ---------------------------
+
+        // Photos
         List<int> photoIds = annonce.Photos;
         var simulatedFiles = new List<IBrowserFile>();
 
@@ -226,11 +229,16 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
             await AddImageAsync(file, photo.Image, preview);
         }
 
-        // Create the InputFileChangeEventArgs for the simulated files
         var simulatedArgs = new InputFileChangeEventArgs(simulatedFiles);
-
-        // Call the OnImagesSelectedAsync with the simulated args
         await OnImagesSelectedAsync(simulatedArgs);
+        // Tags 
+        var AnnonceTags = annonce.Tags;
+
+        foreach (var tag in AnnonceTags)
+        {
+            AddTag(tag);
+        }
+
     }
 
     private async Task LoadMesuresAsync()
@@ -394,9 +402,6 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
         var removed = SelectedFilePreviews[index];
         SelectedFilePreviews.RemoveAt(index);
 
-        if (SelectedFiles != null && index < SelectedFiles.Count)
-            SelectedFiles.RemoveAt(index);
-
         API_Messages.RemoveAll(m => m.Contains($"{removed.File.Name}"));
 
         Console.WriteLine($"🗑️ Photo supprimée: {removed.File.Name}");
@@ -559,11 +564,11 @@ public class UpdateAnnonceViewModel : ClientBaseViewModel, IDisposable
             Console.WriteLine($"   - Photos: {SelectedFilePreviews.Count}");
             Console.WriteLine($"   - Tags: {string.Join(", ", Tags)}");
 
-            // ✅ TENTATIVE DE CRÉATION - PEUT LEVER UNE EXCEPTION
+            // ✅ TENTATIVE DE UPDATE - PEUT LEVER UNE EXCEPTION
             try
             {
-                await _annonceService.UpdateAnnonce(NewAnnonce.AnnonceId,NewAnnonce);
-
+                createdAnnonce = await _annonceService.UpdateAnnonce(NewAnnonce.AnnonceId,NewAnnonce);
+                 
                 if (createdAnnonce == null)
                 {
                     AddError("Erreur: L'annonce n'a pas pu être créée");

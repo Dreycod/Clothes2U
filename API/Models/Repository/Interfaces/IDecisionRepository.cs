@@ -7,6 +7,7 @@ public interface IDecisionRepository : IDataRepository<Decision, int>
     Task<IEnumerable<Decision>> GetAllDecisionsByModerateurId(int id);
     Task<Decision> GetActiveDecisionByUserId(int id);
     Task<Decision> AddAsync(Decision decision);
+    Task<List<Decision>> GetCurrentDecisionSuspensions();
     
     Task<int> GetDecisionsCountFrom(DateTime date);
     Task<int> GetSuspensionsCountFrom(DateTime date);

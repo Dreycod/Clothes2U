@@ -39,8 +39,11 @@ public class NotificationMappingProfile : Profile
             .ForMember(dest => dest.AdminText, opt => opt.MapFrom(src => src.AdminText))
             .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
 
-        
-        
+        CreateMap<NotificationCommercialCreateDTO, NotificationCommercial>()
+            .ForMember(dest => dest.CommercialText, opt => opt.MapFrom(src => src.CommercialText))
+            .ForMember(dest => dest.CommercialTitle, opt => opt.MapFrom(src => src.CommercialTitle))
+            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+
         CreateMap<Notification, NotificationDTO>()
             .ConvertUsing((src, dest, context) =>
             {
@@ -52,6 +55,17 @@ public class NotificationMappingProfile : Profile
                         DateCreation = src.DateCreation,
                         EstLu = src.EstLu,
                         AdminText = src.NotificationAdmins.AdminText
+                    };
+                }
+                else if (src.NotificationCommercials != null)
+                {
+                    return new NotificationCommercialDTO
+                    {
+                        NotificationId = src.NotificationId,
+                        DateCreation = src.DateCreation,
+                        EstLu = src.EstLu,
+                        CommercialText = src.NotificationCommercials.CommercialText,
+                        CommercialTitle = src.NotificationCommercials.CommercialTitle
                     };
                 }
                 else if (src.NotificationAvertissements != null)

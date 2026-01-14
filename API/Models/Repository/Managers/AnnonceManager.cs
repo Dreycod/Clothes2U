@@ -51,6 +51,12 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .ToListAsync();                      
     }
 
+    public async Task<IEnumerable<Annonce>> GetAllAnalyseAsync()
+    {
+        return await BaseAnnonceQuery().Where(a => a.StatutAnnonceId == (int)AnnonceStatut.Analyse)
+            .ToListAsync();
+    }
+
 
     public async Task<IEnumerable<Annonce>> GetByUtilisateurId(int userId, int? currentUserId)
     {
@@ -143,6 +149,11 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
         query = query.Where(p => filterDto.Tailles.Contains(p.Taille.Libelletaille));
     }
     
+    if (filterDto.Couleurs != null && filterDto.Couleurs.Any())
+    {
+        query = query.Where(p => p.Couleurs.Any(c => filterDto.Couleurs.Contains(c.Couleur.Nom)));
+    }
+
     if (filterDto.Genre != null && filterDto.Genre.Any())
     {
         query = query.Where(p => filterDto.Genre.Contains(p.GenreAnnonce.NomGenre));
@@ -278,7 +289,10 @@ public async Task<IEnumerable<Annonce>> GetSimilarAsync(int annonceId, int page,
         };
     }
 
-   
+    public async Task<int> GetAnalyseCountAsync()
+    {
+        return _context.Annonces.Where(a => a.StatutAnnonceId == (int)AnnonceStatut.Analyse).Count();
+    }
 
     public async Task SuspendElement(int id)
     {

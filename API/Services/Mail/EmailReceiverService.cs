@@ -4,6 +4,7 @@ using MimeKit;
 using API.Models.EntityFramework;
 using API.Models.Repository;
 using API.Models.Repository.Interfaces;
+using API.Services.VerificationSrvceV2;
 using MailKit.Search;
 using Shared.Enums;
 
@@ -19,14 +20,17 @@ namespace API.Services
         private readonly IConfiguration _config;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<EmailReceiverService> _logger;
+        private readonly INotificationMailService  _notificationMailService;
 
         public EmailReceiverService(
             IConfiguration config,
             IServiceScopeFactory scopeFactory,
+            INotificationMailService notificationMailService,
             ILogger<EmailReceiverService> logger)
         {
             _config = config;
             _scopeFactory = scopeFactory;
+            _notificationMailService = notificationMailService;
             _logger = logger;
         }
 
@@ -34,7 +38,6 @@ namespace API.Services
         {
             try
             {
-                // Vérifier que toutes les configurations sont présentes
                 var imapServer = _config["Email:ImapServer"];
                 var imapPortStr = _config["Email:ImapPort"];
                 var username = _config["Email:Username"];
@@ -126,12 +129,7 @@ namespace API.Services
                     return;
                 }
 
-                // Vérifier que le ticket n'est pas fermé
-                if (ticket.Status == (int)StatusTicketEnum.CLOSED)
-                {
-                    _logger.LogWarning($"Tentative de réponse à un ticket fermé #{ticketId}");
-                    return;
-                }
+                
 
                 // Récupérer l'utilisateur du ticket
                 var utilisateur = await utilisateurManager.GetByIdAsync(ticket.UtilisateurId);
@@ -140,7 +138,12 @@ namespace API.Services
                     _logger.LogWarning($"Utilisateur #{ticket.UtilisateurId} introuvable pour le ticket #{ticketId}");
                     return;
                 }
-
+                // Vérifier que le ticket n'est pas fermé
+                if (ticket.Status == (int)StatusTicketEnum.CLOSED)
+                {
+                    await _notificationMailService.SendErrorTicketClosed(utilisateur.Email,utilisateur.Login );
+                    return;
+                }
                 // Vérifier que l'expéditeur correspond bien à l'utilisateur du ticket
                 var senderEmail = (email.From[0] as MailboxAddress)?.Address;
                 if (string.IsNullOrEmpty(senderEmail))

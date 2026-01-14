@@ -38,5 +38,24 @@ public class NotificationWebService : BaseGenericService, INotificationService
     {
         await DeleteWithCredentialsAsync($"Notification/{id}");
     }
+
+    public async Task PostCommercialNotification(NotificationCommercialCreateDTO notification)
+    {
+        var response = await PostWithCredentialsAsync(
+            "Notification/commercial",
+            new StringContent(JsonSerializer.Serialize(notification), Encoding.UTF8, "application/json")
+        );
+        
+        if (response.IsSuccessStatusCode)
+            return;
+
+        var error = await response.Content.ReadAsStringAsync();
+
+        if (string.IsNullOrWhiteSpace(error))
+            error = $"Erreur HTTP {(int)response.StatusCode}";
+
+        throw new Exception(error);
+    }
+
 }
 

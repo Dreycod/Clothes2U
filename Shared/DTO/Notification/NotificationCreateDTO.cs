@@ -17,6 +17,11 @@ public class NotificationAvertissementCreateDTO : NotificationCreateDTO
 {
     public string MessageModerateur { get; set; }
 }
+public class NotificationCommercialCreateDTO : NotificationCreateDTO
+{
+    public string CommercialText { get; set; }
+    public string CommercialTitle { get; set; }
+}
 public class NotificationAdminCreateDTO : NotificationCreateDTO
 {
     public string AdminText{get;set;}

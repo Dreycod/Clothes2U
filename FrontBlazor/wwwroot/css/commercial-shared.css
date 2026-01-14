@@ -775,7 +775,9 @@
     margin-top: 0.25rem;
     display: block;
 }
+/* Styles additionnels pour la page Messages - Ã  ajouter dans commercial-shared.css */
 
+/* Message History Item */
 .message-history-item {
     background: white;
     border: 1px solid #e5e7eb;
@@ -864,16 +866,18 @@
         color: #059669;
     }
 
-.btn-primary-message:disabled,
-.btn-secondary-message:disabled {
+/* Disabled button state */
+.btn-primary:disabled,
+.btn-secondary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-    .btn-primary-message:disabled:hover {
+    .btn-primary:disabled:hover {
         background-color: #10b981;
     }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .message-history-header {
         flex-direction: column;

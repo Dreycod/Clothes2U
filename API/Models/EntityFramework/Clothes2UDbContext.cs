@@ -45,6 +45,7 @@ public partial class Clothes2UDbContext : DbContext
     public DbSet<NotificationAdmin> NotificationAdmins { get; set; }
     public DbSet<NotificationAchatAnnonce>  NotificationAchatAnnonces { get; set; }
     public DbSet<NotificationAvertissement> NotificationAvertissements { get; set; }
+    public DbSet<NotificationCommercial> NotificationCommercials { get; set; }
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
     public DbSet<NotificationModificationAnnonce> NotificationModificationAnnonces { get; set; }
     public DbSet<NotificationNouvelleAnnonce> NotificationNouvelleAnnonces { get; set; }
@@ -561,7 +562,7 @@ public partial class Clothes2UDbContext : DbContext
             entity.HasOne(e => e.Photo)
                 .WithMany(p => p.Annonces)
                 .HasForeignKey(e => e.PhotoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
     
             entity.HasIndex(e => new { e.AnnonceId, e.PhotoId })
                 .IsUnique();
@@ -842,7 +843,12 @@ public partial class Clothes2UDbContext : DbContext
                 .WithOne(na => na.LaNotification)
                 .HasForeignKey<NotificationAvertissement>(na => na.NotificationId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
+            entity.HasOne(n => n.NotificationCommercials)
+                .WithOne(na => na.LaNotification)
+                .HasForeignKey<NotificationCommercial>(na => na.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.HasOne(n => n.NotificationMessages)
                 .WithOne(nm => nm.LaNotification)
                 .HasForeignKey<NotificationMessage>(nm => nm.NotificationId)
@@ -914,9 +920,36 @@ public partial class Clothes2UDbContext : DbContext
         entity.HasIndex(e => e.NotificationId)
             .IsUnique();
     });
-    
-    // Configuration de NotificationAvertissement
-    modelBuilder.Entity<NotificationAvertissement>(entity =>
+
+    // Configuration de NotificationCommercial
+    modelBuilder.Entity<NotificationCommercial>(entity =>
+    {
+        entity.ToTable("t_e_notification_com_notcom");
+
+        entity.HasKey(e => e.NotificationCommercialId);
+
+        entity.Property(e => e.NotificationCommercialId)
+            .HasColumnName("notcom_id")
+            .ValueGeneratedOnAdd();
+
+        entity.Property(e => e.CommercialText)
+            .HasColumnName("notcom_com_text")
+            .IsRequired();
+
+        entity.Property(e => e.CommercialTitle)
+          .HasColumnName("notcom_com_title")
+          .IsRequired();
+
+        entity.Property(e => e.NotificationId)
+            .HasColumnName("notcom_notification_id")
+            .IsRequired();
+
+        // Index unique pour garantir qu'une notification n'a qu'une seule NotificationCommercial
+        entity.HasIndex(e => e.NotificationId)
+            .IsUnique();
+    });
+        // Configuration de NotificationAvertissement
+        modelBuilder.Entity<NotificationAvertissement>(entity =>
     {
         entity.ToTable("t_e_notification_avertissement_notave");
         
@@ -1046,7 +1079,7 @@ public partial class Clothes2UDbContext : DbContext
     modelBuilder.Entity<Photo>(entity =>
     {
         entity.HasKey(e => e.PhotoId);
-    
+
     });
     modelBuilder.Entity<Recense>(entity =>
     {

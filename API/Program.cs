@@ -18,9 +18,11 @@ using System.Text;
 using System.Text.Json.Serialization;
 using API.Controllers;
 using API.Models.Repository.Interfaces;
+using API.Services.BackgroundServices;
 using Shared.DTO.Photo;
 using Shared.DTO.Tag;
 using API.Services.Interfaces;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -204,12 +206,17 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazorDev", policy =>
-        policy.WithOrigins("http://localhost:5281") // URL exacte de votre Blazor
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials()); // ✅ Pas de SetIsOriginAllowed avec AllowCredentials
+    options.AddPolicy("AllowBlazor", policy =>
+        policy.WithOrigins(
+            "http://localhost:5281",
+            "https://blazorsae-dmgze0a4fnhjejcz.francecentral-01.azurewebsites.net"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+    );
 });
+
 builder.Services.AddAutoMapper(cfg => {
     cfg.AllowNullCollections = true;
 }, Assembly.GetExecutingAssembly());
@@ -226,6 +233,7 @@ builder.Services.AddScoped<IllustreAnnonceRepository<Illustre_Annonce, int>, Ill
 builder.Services.AddScoped<IAnnonceRepository<Annonce, int, FilterDTO>, AnnonceManager>();
 builder.Services.AddScoped<IConversationRepository<Conversation, int>, ConversationManager>();
 builder.Services.AddScoped<IMessageRepository, MessageManager>();
+builder.Services.AddScoped<IAdresseRepository, AdresseManager>();
 builder.Services.AddScoped<IDataRepository<MessageTexte, int>, MessageTexteManager>();
 builder.Services.AddScoped<IMessageDemandeRepository, MessageDemandeManager>();
 builder.Services.AddScoped<IDataRepository<MessageEstPayee, int>, MessageEstPayeeManager>();
@@ -273,6 +281,16 @@ builder.Services.AddScoped<IDetectionService, DetectionService>();
 builder.Services.AddScoped<IEmailReceiverService, EmailReceiverService>();
 builder.Services.AddHostedService<EmailProcessingBackgroundService>();
 
+
+//BackgroundService
+builder.Services.AddHostedService<MasterDailyBackgroundService>();
+builder.Services.AddScoped<ISuspendedUserDailyCheckService,  SuspendedUserDailyCheckService>();
+builder.Services.AddScoped<ITicketDailyClosingService,  TicketDailyClosingService>();
+builder.Services.AddScoped<IDailyDeleteReadNotificationService,DailyDeleteReadNotificationService>();
+
+
+
+
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IOrderRepository, OrderManager>();
 builder.Services.AddScoped<IModerationDashboardService, ModerationDashboardService>();
@@ -287,6 +305,7 @@ builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<NotificationMessage, int>, NotificationMessageManager>();
 builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  NotificationAvertissementManager>();
+builder.Services.AddScoped<IDataRepository<NotificationCommercial, int>, NotificationCommercialManager>();
 builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();
@@ -301,6 +320,11 @@ builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Str
 
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.Use(async (context, next) =>
 {
@@ -322,16 +346,16 @@ app.Use(async (context, next) =>
 
 
 
-// 1. Middleware de diagnostic (le vôtre)
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"\n🌐 ========== NOUVELLE REQUÊTE ==========");
-    Console.WriteLine($"🎯 {context.Request.Method} {context.Request.Path}");
-    // ... vos logs
-    await next();
-    Console.WriteLine($"📤 Réponse: {context.Response.StatusCode}");
-    Console.WriteLine($"==========================================\n");
-});
+//// 1. Middleware de diagnostic (le vôtre)
+//app.Use(async (context, next) =>
+//{
+//    Console.WriteLine($"\n🌐 ========== NOUVELLE REQUÊTE ==========");
+//    Console.WriteLine($"🎯 {context.Request.Method} {context.Request.Path}");
+//    // ... vos logs
+//    await next();
+//    Console.WriteLine($"📤 Réponse: {context.Response.StatusCode}");
+//    Console.WriteLine($"==========================================\n");
+//});
 
 
 // Middleware de diagnostic
@@ -355,13 +379,18 @@ app.Use(async (context, next) =>
 });
 
 // CORS AVANT Authentication
-app.UseCors("AllowBlazorDev");
+app.UseCors("AllowBlazor");
 
-if (app.Environment.IsDevelopment())
+app.UseStaticFiles();
+
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Clothes2U API v1");
+    c.RoutePrefix = "swagger";
+});
+
 
 // Ordre CRITIQUE des middlewares
 app.UseRouting();

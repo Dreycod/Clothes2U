@@ -252,4 +252,24 @@ public class PhotoService : IPhotoService
 
         return true;
     }
+
+    public async Task<bool> DeletePhotosAnnonceAsync(int AnnonceID)
+    {
+
+        var AnnoncesPhoto = await _photoRepository.GetAllPhotosByAnnonceID(AnnonceID);
+
+        if (AnnoncesPhoto == null)
+        {
+            return false;
+        }
+
+        foreach (var photo in AnnoncesPhoto)
+        {
+            await _photoRepository.DeleteAsync(photo);
+        }
+
+        _logger.LogInformation("Photo {PhotoId} supprimée", AnnonceID);
+
+        return true;
+    }
 }

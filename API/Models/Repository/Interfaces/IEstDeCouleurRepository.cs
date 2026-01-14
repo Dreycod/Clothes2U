@@ -4,5 +4,7 @@
     {
         Task<TEntity?> GetByEstDeCouleurId(TIdentifier id);
         Task<IEnumerable<TEntity>> GetAllWithDetailsAsync();
+        Task<bool?> DeleteCouleurAnnonce(int annonceId);
+
     }
 }

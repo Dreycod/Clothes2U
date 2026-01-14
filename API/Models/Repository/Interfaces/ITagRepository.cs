@@ -1,4 +1,5 @@
-﻿using Shared.DTO.Tag;
+﻿using Microsoft.AspNetCore.Mvc;
+using Shared.DTO.Tag;
 
 namespace API.Models.Repository
 {
@@ -7,5 +8,6 @@ namespace API.Models.Repository
         Task<TEntity?> GetByTagId(TIdentifier id);
         Task<IEnumerable<TEntity>> GetAllTagsAsync();
         Task<IEnumerable<TEntity>> SearchAsync(CreateTagDTO request);
+        Task<bool> DeleteTagsAnnonceAsync(TIdentifier annonceId);
     }
 }

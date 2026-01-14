@@ -35,7 +35,7 @@
                                 }
                                 else if (VM_CreationAnnonce.SelectedFilePreviews[i].IsTextile == false)
                                 {
-                                    <div class="danger-badge">
+                                    <div class="danger-badge warning">
                                         <i class="bi bi-question-circle-fill"></i>
                                     </div>
                                 }
@@ -519,7 +519,7 @@
                 else if (VM_CreationAnnonce.SelectedFilePreviews.Any(p => p.IsDangerous))
                 {
                   <i class="bi bi-check-lg"></i>
-                  <span>Publier l'article en analyse</span>
+                  <span>Publier l'article et demander une analyse</span>
                 }
                 else
                 {

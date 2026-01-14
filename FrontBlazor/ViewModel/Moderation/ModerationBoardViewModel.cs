@@ -41,4 +41,12 @@ public class ModerationBoardViewModel : ModerationViewModel
     {
         _nav.NavigateTo($"moderation/demande-restauration/{id}");
     }
+    public async Task NavigateToDemandeAnalyse(int id)
+    {
+        _nav.NavigateTo($"/moderation/images");
+    }
+    public async Task NavigateToTicket(int id)
+    {
+        _nav.NavigateTo($"moderation/TicketDetails/{id}");
+    }
 }

@@ -28,6 +28,11 @@ public class DecisionManager : GenericCRUDManager<Decision>, IDecisionRepository
             .AsSplitQuery();
     }
 
+    public async Task<List<Decision>> GetCurrentDecisionSuspensions()
+    {
+        return await BaseDecisionQuery().Where(d => d.DecisionSanction != null && d.DecisionSanction.EstEnCours == true).ToListAsync();
+    }
+
     public async Task<IEnumerable<Decision>> GetAllDecisionsByModerateurId(int id)
     {
         return await BaseDecisionQuery().Where(d => d.ModerateurId == id).ToListAsync();

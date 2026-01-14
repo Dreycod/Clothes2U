@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
 using API.Services.VerificationSrvceV2;
@@ -27,6 +28,9 @@ public class AnnonceController : ControllerBase
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMotInterditService _motInterditService;
+    private readonly IPhotoService _photoService;
+    private readonly ITagRepository<Tag, int> _tagManager;
+
 
     public AnnonceController(
         IAnnonceRepository<Annonce, int, FilterDTO> manager,
@@ -36,8 +40,10 @@ public class AnnonceController : ControllerBase
         IllustreAnnonceRepository<Illustre_Annonce, int> illustreAnnonceManager,
         ICurrentUserService currentUserService,
         INotificationService notificationService,
+        IPhotoService photoService,
         ISuggestionService suggestionService,
-        IMotInterditService motInterditService
+        IMotInterditService motInterditService,
+        ITagRepository<Tag, int> tagManager
         )
     {
         _annonceManager = manager;
@@ -49,7 +55,17 @@ public class AnnonceController : ControllerBase
         _suggestionService = suggestionService;
         _motInterditService = motInterditService;
         _illustreAnnonceManager = illustreAnnonceManager;
+        _photoService = photoService;
+        _tagManager = tagManager;
     }
+    
+    /// <summary>
+    /// Récupère toutes les annonces d'un utilisateur spécifique.
+    /// </summary>
+    /// <param name="utilisateurId">L'identifiant de l'utilisateur.</param>
+    /// <returns>La liste des annonces de l'utilisateur.</returns>
+    /// <response code="200">Retourne la liste des annonces.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -58,7 +74,15 @@ public class AnnonceController : ControllerBase
         IEnumerable<AnnonceDTO> annoncesDTO = await _annonceExtensionService.GetAnnoncesByUserId(utilisateurId);
         return Ok(annoncesDTO);
     }
-
+    /// <summary>
+    /// Récupère une annonce spécifique par son identifiant avec tous ses détails.
+    /// Supprime également les notifications liées à cette annonce pour l'utilisateur connecté.
+    /// </summary>
+    /// <param name="id">L'identifiant de l'annonce.</param>
+    /// <returns>Les détails complets de l'annonce.</returns>
+    /// <response code="200">Retourne l'annonce avec ses détails.</response>
+    /// <response code="404">L'annonce n'existe pas.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [AllowAnonymous]
     [HttpGet("id/{id}")]
     [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status200OK)]
@@ -76,6 +100,16 @@ public class AnnonceController : ControllerBase
         await _notificationService.DeleteAnnonceNotificationForUser(id);
         return Ok(annonceDTO);
     }
+    /// <summary>
+    /// Récupère les annonces favorites de l'utilisateur connecté avec pagination.
+    /// </summary>
+    /// <param name="page">Numéro de la page (par défaut : 1).</param>
+    /// <param name="pageSize">Nombre d'éléments par page (par défaut : 30).</param>
+    /// <returns>La liste paginée des annonces favorites.</returns>
+    /// <response code="200">Retourne la liste des annonces favorites.</response>
+    /// <response code="400">Les paramètres de pagination sont invalides.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [Authorize]
     [HttpGet("ByFavorisUtilisateur")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -103,11 +137,24 @@ public class AnnonceController : ControllerBase
 
         return Ok(annoncesDTO);
     }
-
+    /// <summary>
+    /// Met à jour une annonce existante.
+    /// Seul le propriétaire de l'annonce peut la modifier.
+    /// </summary>
+    /// <param name="id">L'identifiant de l'annonce à modifier.</param>
+    /// <param name="annonceDTO">Les nouvelles données de l'annonce.</param>
+    /// <returns>L'annonce mise à jour.</returns>
+    /// <response code="200">L'annonce a été mise à jour avec succès.</response>
+    /// <response code="400">L'identifiant de l'annonce ne correspond pas.</response>
+    /// <response code="404">L'annonce n'existe pas.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [Authorize]
     [HttpPut("id/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(AnnonceDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> PutAnnonce(int id, [FromBody] PutAnnonceDTO annonceDTO)
     {
@@ -121,16 +168,41 @@ public class AnnonceController : ControllerBase
         {
             return NotFound();
         }
-        Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
-        await _annonceManager.UpdateAsync(annonce);
-        await _notificationService.CreateModificationAnnonceNotification(annonce.AnnonceId);
-        return NoContent();
-    }
 
+        Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
+        await _photoService.DeletePhotosAnnonceAsync(annonce.AnnonceId); // éviter dupliqués
+        await _tagManager.DeleteTagsAnnonceAsync(annonce.AnnonceId); // éviter dupliqués
+        await _estDeCouleurRepository.DeleteCouleurAnnonce(annonce.AnnonceId); // éviter dupliqués
+        await _annonceManager.UpdateAsync(annonce);
+
+        var UpdatedAnnonce = _annonceManager.GetByIdAsync(id);
+        
+        if (UpdatedAnnonce == null)
+        {
+            return NotFound();
+        }
+
+        AnnonceDTO updatedAnnonceDTO = _mapper.Map<AnnonceDTO>(UpdatedAnnonce.Result);
+
+        await _notificationService.CreateModificationAnnonceNotification(annonce.AnnonceId);
+
+        return Ok(updatedAnnonceDTO);
+    }
+    /// <summary>
+    /// Crée une nouvelle annonce.
+    /// Vérifie que le titre et la description ne contiennent pas de mots interdits.
+    /// </summary>
+    /// <param name="createAnnonceDto">Les données de l'annonce à créer.</param>
+    /// <returns>L'annonce créée avec tous ses détails.</returns>
+    /// <response code="201">L'annonce a été créée avec succès.</response>
+    /// <response code="400">Les données sont invalides ou contiennent des mots interdits.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(AnnonceDetailDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AnnonceDetailDTO>> AddAnnonce(CreateAnnonceDTO createAnnonceDto)
     {
@@ -157,7 +229,14 @@ public class AnnonceController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
-
+    /// <summary>
+    /// Supprime une annonce existante.
+    /// </summary>
+    /// <param name="id">L'identifiant de l'annonce à supprimer.</param>
+    /// <returns>Aucun contenu en cas de succès.</returns>
+    /// <response code="204">L'annonce a été supprimée avec succès.</response>
+    /// <response code="404">L'annonce n'existe pas.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpDelete("id/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -172,6 +251,16 @@ public class AnnonceController : ControllerBase
         await _annonceManager.DeleteAsync(annonceToDelete);
         return NoContent();
     }
+    /// <summary>
+    /// Recherche des annonces selon des critères de filtrage avec pagination.
+    /// </summary>
+    /// <param name="filterDto">Les critères de filtrage (catégorie, prix, localisation, etc.).</param>
+    /// <param name="page">Numéro de la page (par défaut : 1).</param>
+    /// <param name="pageSize">Nombre d'éléments par page (par défaut : 30).</param>
+    /// <returns>La liste paginée des annonces correspondant aux critères.</returns>
+    /// <response code="200">Retourne la liste des annonces filtrées.</response>
+    /// <response code="400">Les paramètres de pagination sont invalides.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [AllowAnonymous]
     [HttpGet("productByFilter")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -194,6 +283,17 @@ public class AnnonceController : ControllerBase
 
         return Ok(annoncesDTO);
     }
+    /// <summary>
+    /// Récupère les annonces similaires à une annonce donnée avec pagination.
+    /// Basé sur les caractéristiques communes (catégorie, tags, etc.).
+    /// </summary>
+    /// <param name="annonceId">L'identifiant de l'annonce de référence.</param>
+    /// <param name="page">Numéro de la page (par défaut : 1).</param>
+    /// <param name="pageSize">Nombre d'éléments par page (par défaut : 30).</param>
+    /// <returns>La liste paginée des annonces similaires.</returns>
+    /// <response code="200">Retourne la liste des annonces similaires.</response>
+    /// <response code="400">Les paramètres sont invalides.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [AllowAnonymous]
     [HttpGet("similarAnnonces")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -216,10 +316,17 @@ public class AnnonceController : ControllerBase
 
         return Ok(annoncesDTO);
     }
-
+    /// <summary>
+    /// Récupère les annonces associées à une liste d'identifiants de photos.
+    /// </summary>
+    /// <param name="PhotoIDs">Les identifiants des photos.</param>
+    /// <returns>Les annonces correspondantes.</returns>
+    /// <response code="200">Retourne les annonces trouvées.</response>
+    /// <response code="400">Les identifiants sont invalides ou aucune annonce n'a été trouvée.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [AllowAnonymous]
     [HttpGet("GetAnnoncesByPhotoIDs")]
-    [ProducesResponseType(typeof(AnnonceDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AnnonceDTO>> GetAnnoncesByPhotoIDs(
@@ -261,9 +368,23 @@ public class AnnonceController : ControllerBase
 
         return Ok(annonceDTOs);
     }
-
+    /// <summary>
+    /// Récupère les annonces recommandées pour l'utilisateur connecté avec pagination.
+    /// Les recommandations sont basées sur l'historique et les préférences de l'utilisateur.
+    /// </summary>
+    /// <param name="page">Numéro de la page (par défaut : 1).</param>
+    /// <param name="pageSize">Nombre d'éléments par page (par défaut : 30).</param>
+    /// <returns>La liste paginée des annonces recommandées.</returns>
+    /// <response code="200">Retourne la liste des recommandations.</response>
+    /// <response code="400">Les paramètres de pagination sont invalides.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [Authorize]
     [HttpGet("Recommandations")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<AnnonceDTO>>> GetRecommandations(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 30
@@ -277,8 +398,19 @@ public class AnnonceController : ControllerBase
         var annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
         return Ok(annoncesDTO);
     }
-
+    /// <summary>
+    /// Marque une annonce comme vendue.
+    /// Change le statut de l'annonce à "Vendu" (StatutAnnonceId = 4).
+    /// </summary>
+    /// <param name="annonceId">L'identifiant de l'annonce vendue.</param>
+    /// <returns>Aucun contenu en cas de succès.</returns>
+    /// <response code="204">L'annonce a été marquée comme vendue.</response>
+    /// <response code="404">L'annonce n'existe pas.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpPut("Vendu/{annonceId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> PutAnnonce(int annonceId)
     {
         var annonceToSell = _annonceManager.GetByIdAsync(annonceId);
@@ -286,8 +418,20 @@ public class AnnonceController : ControllerBase
         await _annonceManager.UpdateAsync(annonceToSell.Result);
         return NoContent();
     }
-
+    /// <summary>
+    /// Récupère les annonces d'un utilisateur avec pagination.
+    /// </summary>
+    /// <param name="id">L'identifiant de l'utilisateur.</param>
+    /// <param name="page">Numéro de la page (par défaut : 1).</param>
+    /// <param name="pageSize">Nombre d'éléments par page (par défaut : 30).</param>
+    /// <returns>La liste paginée des annonces de l'utilisateur.</returns>
+    /// <response code="200">Retourne la liste des annonces.</response>
+    /// <response code="400">Les paramètres de pagination sont invalides.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
     [HttpGet("ByUtilisateurIdPagination/{id}")]
+    [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AnnonceDetailDTO>> GetAnnoncesPaginationByUserId(int id,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 30)

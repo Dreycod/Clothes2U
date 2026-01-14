@@ -68,6 +68,7 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
 
         AddListToQuery(queryParams, "Genre", filterDto.Genre);
         AddListToQuery(queryParams, "Etats", filterDto.Etats);
+        AddListToQuery(queryParams, "Couleurs", filterDto.Couleurs);
 
         if (!string.IsNullOrWhiteSpace(filterDto.Tailles))
             queryParams.Add(new("Tailles", filterDto.Tailles));
@@ -242,12 +243,12 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         return annonces ?? new List<AnnonceDTO>();
     }
 
-    public async Task UpdateAnnonce(int id, PutAnnonceDTO annonce)
+    public async Task<AnnonceDTO?> UpdateAnnonce(int id, PutAnnonceDTO annonce)
     {
         var body = JsonContent.Create(annonce);
         var response = await PutWithCredentialsAsync($"Annonce/id/{id}", body);
         response.EnsureSuccessStatusCode();
-        return;
+        return response.Content.ReadFromJsonAsync<AnnonceDTO>().Result ?? new AnnonceDTO();
     }
     public async Task ChangeEtatAnnonce(int annonceId, int statutId)
     {

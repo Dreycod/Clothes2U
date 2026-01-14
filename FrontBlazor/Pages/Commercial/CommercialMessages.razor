@@ -1,0 +1,125 @@
+﻿@page "/commercial/messages"
+@inject CommercialMessagesViewModel VM_CommercialMessages
+<PageTitle>Gestion des Messages - Clothes2U</PageTitle>
+
+<link rel="stylesheet" href="/css/commercial-shared.css" />
+
+<div class="commercial-page">
+    <div class="commercial-container">
+        <!-- Sidebar -->
+        <aside class="commercial-sidebar">
+            <div class="commercial-header">
+                <div class="commercial-logo">
+                    <i class="bi bi-shop"></i>
+                    <div>
+                        <h2>Clothes2U</h2>
+                        <p>Équipe Commerciale</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="commercial-nav">
+                <a href="/commercial" class="commercial-nav-item">
+                    <i class="bi bi-house-door"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/commercial/marques" class="commercial-nav-item">
+                    <i class="bi bi-tag"></i>
+                    <span>Marques</span>
+                </a>
+                <a href="/commercial/categories" class="commercial-nav-item">
+                    <i class="bi bi-grid"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="/commercial/sous-categories" class="commercial-nav-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Sous-catégories</span>
+                </a>
+                <a href="/commercial/couleurs" class="commercial-nav-item">
+                    <i class="bi bi-palette"></i>
+                    <span>Couleurs</span>
+                </a>
+                <a href="/commercial/tailles" class="commercial-nav-item">
+                    <i class="bi bi-rulers"></i>
+                    <span>Tailles</span>
+                </a>
+                <a href="/commercial/messages" class="commercial-nav-item active">
+                    <i class="bi bi-megaphone"></i>
+                    <span>Messages</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="commercial-content">
+            <div class="page-header">
+                <h1 class="commercial-page-title">Gestion des Messages</h1>
+            </div>
+
+            @if (!string.IsNullOrEmpty(VM_CommercialMessages.successMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@VM_CommercialMessages.successMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(VM_CommercialMessages.errorMessage))
+            {
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>@VM_CommercialMessages.errorMessage</span>
+                </div>
+            }
+
+            <!-- Message Composer -->
+            <div class="form-container" style="margin-bottom: 2rem;">
+                <h2 class="section-title">
+                    <i class="bi bi-send"></i>
+                    Envoyer un nouveau message
+                </h2>
+
+                <div class="form-group">
+                    <label class="form-label">Titre du message</label>
+                    <input type="text"
+                           class="form-input"
+                           placeholder="Ex: Promotion exceptionnelle, Maintenance programmée..."
+                           @bind="VM_CommercialMessages.notificationCommercial.CommercialTitle" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                        <textarea class="form-textarea"
+                                  rows="6"
+                                  placeholder="Rédigez votre message ici..."
+                                  @bind="VM_CommercialMessages.CommercialText"
+                                  @bind:event="oninput">
+                        </textarea>
+                    <span class="form-hint">
+                        @(VM_CommercialMessages.notificationCommercial.CommercialText?.Length ?? 0) caractères
+                    </span>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn-secondary" @onclick="VM_CommercialMessages.ClearForm">
+                        <i class="bi bi-x-circle"></i>
+                        Annuler
+                    </button>
+                    <button class="btn-primary"
+                            @onclick="VM_CommercialMessages.SendMessage"
+                            disabled="@(string.IsNullOrWhiteSpace(VM_CommercialMessages.notificationCommercial.CommercialTitle) || string.IsNullOrWhiteSpace(VM_CommercialMessages.notificationCommercial.CommercialText))">
+                        <i class="bi bi-send"></i>
+                        Envoyer à tous les utilisateurs
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        VM_CommercialMessages.OnStateChange += StateHasChanged;
+        await VM_CommercialMessages.LoadAsync();
+    }
+}

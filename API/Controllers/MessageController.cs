@@ -271,6 +271,26 @@ public class MessageController : ControllerBase
         await _messageManager.AddAsync(message);
         
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
+        if (conversation != null)
+        {
+            await _conversationManager.ChangeAllStatutConversation(conversation.AnnonceId, conversation.ConversationId,
+                3, 2);
+            
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = $"Vous avez reçu un nouveau message de paiement."
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+
 
         var orders = conversation?.Commandes?.OrderByDescending(c => c.CommandeId);
         if (orders == null) return BadRequest("Order introuvable");
@@ -287,16 +307,8 @@ public class MessageController : ControllerBase
             MessageId = message.MessageId,
             CommandeId = commande.CommandeId,
         };
-
-        try
-        {
-
-            await _messageValidationManager.AddAsync(messageValidation);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Erreur lors de l'ajout du message de validation {e.Message}");
-        }
+        
+        await _messageValidationManager.AddAsync(messageValidation);
         
         try
         {
@@ -356,8 +368,32 @@ public class MessageController : ControllerBase
         await _messageEnvoieColisManager.AddAsync(messageEnvoieColis);
         
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
-        if (conversation == null)
+        
+        if (conversation != null)
+        {
+            
+            conversation.StatutConversationId = 3;
+            await _conversationManager.UpdateAsync(conversation);
+            
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = $"Votre colis est en route."
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+        else
+        {
+            
             return BadRequest("Conversation introuvable");
+        }
 
         var commande = conversation.Commandes?.LastOrDefault();
         if (commande == null)
@@ -432,8 +468,27 @@ public class MessageController : ControllerBase
         await _messageEstRecuManager.AddAsync(messageRecu);
         
         var conversation = await _conversationManager.GetByIdAsync(dto.ConversationId);
-        if (conversation == null)
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(dto.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = message.MessageId,
+                    MessagePreview = $"Votre commande est arrivé a destination"
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+            }
+        }
+        else
+        {
+            
             return BadRequest("Conversation introuvable");
+        }
 
         var commande = conversation.Commandes?.LastOrDefault();
         if (commande == null)
@@ -486,37 +541,62 @@ public class MessageController : ControllerBase
         
         await _messageValidationManager.UpdateAsync(messagePayee);
         
-        if (messagePayee.Message?.Conversation == null)
+        var conversation = await _conversationManager
+            .GetByIdAsync(messagePayee.Message.ConversationId);
+        
+        if (conversation != null)
+        {
+            int? targetUserId = await _conversationManager.GetOtherUser(messagePayee.Message.UtilisateurId, conversation);
+            if (targetUserId != null)
+            {
+                await _conversationManager.ChangeAllStatutConversation(conversation.AnnonceId, conversation.ConversationId, 1, 1);
+                
+                
+                NotificationMessageCreateDTO notification = new NotificationMessageCreateDTO()
+                {
+                    TypeId = 1,
+                    UtilisateurId = (int)targetUserId,
+                    MessageId = messagePayee.MessageId,
+                    MessagePreview = $"La Commande a été annulé"
+                };
+                await _notificationService.CreateNotification(notification);
+                await _messageService.SendMessageCount((int)targetUserId);
+                
+                var annonce = messagePayee.Message.Conversation.LAnnonce;
+                if (annonce == null) return BadRequest("Annonce introuvable");
+        
+                annonce.StatutAnnonceId = 1;
+                await _annonceService.UpdateAsync(annonce);
+        
+                var commande = messagePayee.Message.Conversation.Commandes?.LastOrDefault();
+                if (commande == null)
+                    return BadRequest("Commande introuvable");
+                commande.StatutCommandeId = 4;
+        
+                await _orderService.UpdateAsync(commande);
+                
+                try
+                {
+                    await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
+                        .SendAsync("ReceivePaymentCancelled", 
+                            messagePayee.Message.ConversationId, 
+                            messagePayee.MessageId,
+                            messagePayee.Message.UtilisateurId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
+                }
+            }
+        }
+        else
+        {
             return BadRequest("Conversation introuvable");
-        
-        var annonce = messagePayee.Message.Conversation.LAnnonce;
-        
-        if (annonce == null) return BadRequest("Annonce introuvable");
-        
-        annonce.StatutAnnonceId = 1;
-        await _annonceService.UpdateAsync(annonce);
-        
-        var commande = messagePayee.Message.Conversation.Commandes?.LastOrDefault();
-        if (commande == null)
-            return BadRequest("Commande introuvable");
-        commande.StatutCommandeId = 4;
-        
-        await _orderService.UpdateAsync(commande);
-        
-        try
-        {
-            await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
-                .SendAsync("ReceivePaymentCancelled", 
-                    messagePayee.Message.ConversationId, 
-                    messagePayee.MessageId,
-                    messagePayee.Message.UtilisateurId);
-        
-            Console.WriteLine($"[MessageController] ✅ Payment cancelled notification sent for conversation {messagePayee.Message.ConversationId}");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
-        }
+        
+       
+        
+        
        
         return NoContent();
     }

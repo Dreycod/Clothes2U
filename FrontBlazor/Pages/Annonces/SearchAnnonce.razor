@@ -28,234 +28,392 @@
 
                 <!-- Genre -->
                 <div class="filter-section">
-                    <h4 class="filter-title">Genre</h4>
-                    <div class="filter-options">
-                        @if (VM_Search.IsLoading)
-                        {
-                            <div class="filter-loading">
-                                <div class="spinner-small"></div>
-                                <span>Chargement...</span>
-                            </div>
-                        }
-                        else if (VM_Search.Genres != null && VM_Search.Genres.Any())
-                        {
-                            @foreach (var genre in VM_Search.Genres)
-                            {
-                                <label class="checkbox-label">
-                                    <input type="checkbox"
-                                           checked="@VM_Search.SelectedGenres.Contains(genre.NomGenre)"
-                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedGenres, genre.NomGenre)" />
-                                    <span>@genre.NomGenre</span>
-                                </label>
-                            }
-                        }
-                        else
-                        {
-                            <p class="filter-empty">Aucun genre disponible</p>
-                        }
+                    <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsGenreExpanded))">
+                        <h4 class="filter-title">Genre</h4>
+                        <i class="bi @(VM_Search.IsGenreExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
                     </div>
-                </div>
-                <div class="filter-section">
-                    <h4 class="filter-title">Type de vêtement</h4>
-                    <div class="filter-options">
-                        @if (VM_Search.IsLoading)
-                        {
-                            <div class="filter-loading">
-                                <div class="spinner-small"></div>
-                                <span>Chargement...</span>
-                            </div>
-                        }
-                        else if (VM_Search.Categories != null && VM_Search.Categories.Any())
-                        {
-                            @foreach (var categorie in VM_Search.Categories)
+                    
+                    @if (VM_Search.SelectedGenres.Any())
+                    {
+                        <div class="selected-filters-preview">
+                            @foreach (var genre in VM_Search.SelectedGenres)
                             {
-                                <div class="category-filter-item">
+                                <span class="filter-tag">
+                                    <i class="bi bi-check2"></i>
+                                    @genre
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (VM_Search.IsGenreExpanded)
+                    {
+                        <div class="filter-options">
+                            @if (VM_Search.IsLoading)
+                            {
+                                <div class="filter-loading">
+                                    <div class="spinner-small"></div>
+                                    <span>Chargement...</span>
+                                </div>
+                            }
+                            else if (VM_Search.Genres != null && VM_Search.Genres.Any())
+                            {
+                                @foreach (var genre in VM_Search.Genres)
+                                {
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"
+                                               checked="@VM_Search.SelectedGenres.Contains(genre.NomGenre)"
+                                               @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedGenres, genre.NomGenre)" />
+                                        <span>@genre.NomGenre</span>
+                                    </label>
+                                }
+                            }
+                            else
+                            {
+                                <p class="filter-empty">Aucun genre disponible</p>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Type de vêtement -->
+                <div class="filter-section">
+                    <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsCategoryExpanded))">
+                        <h4 class="filter-title">Type de vêtement</h4>
+                        <i class="bi @(VM_Search.IsCategoryExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
+                    </div>
+
+                    @if (VM_Search.SelectedCategory != null)
+                    {
+                        <div class="selected-filters-preview">
+                            <span class="filter-tag">
+                                <i class="bi bi-check2"></i>
+                                @VM_Search.SelectedCategory.LibelleCategorie
+                            </span>
+                        </div>
+                    }
+
+                    @if (VM_Search.IsCategoryExpanded)
+                    {
+                        <div class="filter-options">
+                            @if (VM_Search.IsLoading)
+                            {
+                                <div class="filter-loading">
+                                    <div class="spinner-small"></div>
+                                    <span>Chargement...</span>
+                                </div>
+                            }
+                            else if (VM_Search.Categories != null && VM_Search.Categories.Any())
+                            {
+                                @foreach (var categorie in VM_Search.Categories)
+                                {
                                     <label class="checkbox-label">
                                         <input type="checkbox"
                                                checked="@(VM_Search.SelectedCategory?.IdCategorie == categorie.IdCategorie)"
                                                @onchange="async () => await VM_Search.ToggleCategory(categorie)" />
                                         <span>@categorie.LibelleCategorie</span>
                                     </label>
-                                </div>
+                                }
                             }
-                        }
-                        else
-                        {
-                            <p class="filter-empty">Aucune catégorie disponible</p>
-                        }
-                    </div>
+                            else
+                            {
+                                <p class="filter-empty">Aucune catégorie disponible</p>
+                            }
+                        </div>
+                    }
                 </div>
+
+                <!-- Sous-catégorie -->
                 @if (VM_Search.SelectedCategory != null)
                 {
                     <div class="filter-section">
-                        <h4 class="filter-title">Sous catégorie</h4>
-                        <div class="filter-options">
-                            @if (VM_Search.SelectedCategory != null)
-                            {
-                                <div class="filter-section">
-                                    <div class="filter-options">
-                                        @if (VM_Search.SelectedCategory.SousCategories != null && VM_Search.SelectedCategory.SousCategories.Any())
-                                        {
-                                            @foreach (var sousCategorie in VM_Search.SelectedCategory.SousCategories)
-                                            {
-                                                <div class="category-filter-item">
-                                                    <label class="checkbox-label">
-                                                        <input type="checkbox"
-                                                               checked="@(VM_Search.SelectedSousCategory?.SousCategorieId == sousCategorie.SousCategorieId)"
-                                                               @onchange="async () => await VM_Search.ToggleSousCategory(sousCategorie)" />
-                                                        <span>@sousCategorie.LibelleSousCategorie</span>
-                                                    </label>
-                                                </div>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <p class="filter-empty">Aucune sous-catégorie disponible</p>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="filter-empty">Aucune sous-catégorie disponible</p>
-                            }
+                        <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsSubCategoryExpanded))">
+                            <h4 class="filter-title">Sous-catégorie</h4>
+                            <i class="bi @(VM_Search.IsSubCategoryExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
                         </div>
+
+                        @if (VM_Search.SelectedSousCategory != null)
+                        {
+                            <div class="selected-filters-preview">
+                                <span class="filter-tag">
+                                    <i class="bi bi-check2"></i>
+                                    @VM_Search.SelectedSousCategory.LibelleSousCategorie
+                                </span>
+                            </div>
+                        }
+
+                        @if (VM_Search.IsSubCategoryExpanded)
+                        {
+                            <div class="filter-options">
+                                @if (VM_Search.SelectedCategory.SousCategories != null && VM_Search.SelectedCategory.SousCategories.Any())
+                                {
+                                    @foreach (var sousCategorie in VM_Search.SelectedCategory.SousCategories)
+                                    {
+                                        <label class="checkbox-label">
+                                            <input type="checkbox"
+                                                   checked="@(VM_Search.SelectedSousCategory?.SousCategorieId == sousCategorie.SousCategorieId)"
+                                                   @onchange="async () => await VM_Search.ToggleSousCategory(sousCategorie)" />
+                                            <span>@sousCategorie.LibelleSousCategorie</span>
+                                        </label>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="filter-empty">Aucune sous-catégorie disponible</p>
+                                }
+                            </div>
+                        }
                     </div>
                 }
+
+                <!-- Taille -->
                 @if (VM_Search.SelectedSousCategory != null)
                 {
                     <div class="filter-section">
-                        <h4 class="filter-title">Taille</h4>
-                        <div class="filter-options">
-                            @if (VM_Search.SelectedCategory != null)
+                        <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsSizeExpanded))">
+                            <h4 class="filter-title">Taille</h4>
+                            <i class="bi @(VM_Search.IsSizeExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
+                        </div>
+
+                        @if (VM_Search.SelectedTaille != null)
+                        {
+                            <div class="selected-filters-preview">
+                                <span class="filter-tag">
+                                    <i class="bi bi-check2"></i>
+                                    @VM_Search.SelectedTaille.Libelletaille
+                                </span>
+                            </div>
+                        }
+
+                        @if (VM_Search.IsSizeExpanded)
+                        {
+                            <div class="filter-options">
+                                @if (VM_Search.TaillesDisponibles != null && VM_Search.TaillesDisponibles.Any())
+                                {
+                                    @foreach (var taille in VM_Search.TaillesDisponibles)
+                                    {
+                                        <label class="checkbox-label">
+                                            <input type="checkbox"
+                                                   checked="@(VM_Search.SelectedTaille?.TailleId == taille.TailleId)"
+                                                   @onchange="async () => await VM_Search.ToggleSelectedTaille(taille)" />
+                                            <span>@taille.Libelletaille</span>
+                                        </label>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="filter-empty">Aucune taille disponible</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Marque -->
+                <div class="filter-section">
+                    <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsMarqueExpanded))">
+                        <h4 class="filter-title">Marque</h4>
+                        <i class="bi @(VM_Search.IsMarqueExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
+                    </div>
+
+                    @if (VM_Search.SelectedMarques.Any())
+                    {
+                        <div class="selected-filters-preview">
+                            @foreach (var marque in VM_Search.SelectedMarques)
                             {
-                                <div class="filter-section">
-                                    <div class="filter-options">
-                                        @if (VM_Search.TaillesDisponibles != null && VM_Search.TaillesDisponibles.Any())
-                                        {
-                                            @foreach (var taille  in VM_Search.TaillesDisponibles)
-                                            {
-                                                <div class="category-filter-item">
-                                                    <label class="checkbox-label">
-                                                        <input type="checkbox"
-                                                               checked="@(VM_Search.SelectedTaille?.TailleId == taille.TailleId)"
-                                                               @onchange="async () => await VM_Search.ToggleSelectedTaille(taille)" />
-                                                        <span>@taille.Libelletaille</span>
-                                                    </label>
-                                                </div>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <p class="filter-empty">Aucune taille disponible</p>
-                                        }
-                                    </div>
+                                <span class="filter-tag">
+                                    <i class="bi bi-check2"></i>
+                                    @marque
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (VM_Search.IsMarqueExpanded)
+                    {
+                        <div class="filter-options">
+                            <div class="search-box">
+                                <input type="text"
+                                       class="search-input"
+                                       placeholder="Rechercher une marque..."
+                                       @bind="VM_Search.marqueSearch"
+                                       @bind:event="oninput"
+                                       @bind:after="@VM_Search.GetFilteredMarques"
+                                       @onkeydown="@VM_Search.GetFilteredMarques" />
+                            </div>
+                            @if (VM_Search.IsLoading)
+                            {
+                                <div class="filter-loading">
+                                    <div class="spinner-small"></div>
+                                    <span>Chargement...</span>
                                 </div>
+                            }
+                            else if (VM_Search.Marques != null && VM_Search.Marques.Any())
+                            {
+                                @foreach (var marque in VM_Search.Marques)
+                                {
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"
+                                               checked="@VM_Search.SelectedMarques.Contains(marque.NomMarque)"
+                                               @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedMarques, marque.NomMarque)" />
+                                        <span>@marque.NomMarque</span>
+                                    </label>
+                                }
                             }
                             else
                             {
-                                <p class="filter-empty">Aucune taille disponible</p>
+                                <p class="filter-empty">Aucune marque disponible</p>
                             }
                         </div>
-                    </div>
-                }
-                <!-- Marque -->
-                <div class="filter-section">
-                    <h4 class="filter-title">Marque</h4>
-                    <div class="filter-options">
-                        <div class="search-box">
-                            <input type="text"
-                                   class="search-input"
-                                   placeholder="Rechercher une marque..."
-                                   @bind="VM_Search.marqueSearch"
-                                   @bind:event="oninput"
-                                   @bind:after="@VM_Search.GetFilteredMarques"
-                                   @onkeydown="@VM_Search.GetFilteredMarques"/>
-                        </div>
-                        @if (VM_Search.IsLoading)
-                        {
-                            <div class="filter-loading">
-                                <div class="spinner-small"></div>
-                                <span>Chargement...</span>
-                            </div>
-                        }
-                        else if (VM_Search.Marques != null && VM_Search.Marques.Any())
-                        {
+                    }
+                </div>
 
-                            @foreach (var marque in VM_Search.Marques)
-                            {
-                                <label class="checkbox-label">
-                                    <input type="checkbox"
-                                           checked="@VM_Search.SelectedMarques.Contains(marque.NomMarque)"
-                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedMarques, marque.NomMarque)"/>
-                                    <span>@marque.NomMarque</span>
-                                </label>
-                            }
-                        }
-                        else
-                        {
-                            <p class="filter-empty">Aucune marque disponible</p>
-                        }
+                <!-- Couleur -->
+                <div class="filter-section">
+                    <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsCouleurExpanded))">
+                        <h4 class="filter-title">Couleur</h4>
+                        <i class="bi @(VM_Search.IsCouleurExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
                     </div>
+
+                    @if (VM_Search.SelectedCouleurs.Any())
+                    {
+                        <div class="selected-filters-preview">
+                            @foreach (var couleur in VM_Search.SelectedCouleurs)
+                            {
+                                <span class="filter-tag">
+                                    <i class="bi bi-check2"></i>
+                                    @couleur
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (VM_Search.IsCouleurExpanded)
+                    {
+                        <div class="filter-options">
+                            @if (VM_Search.IsLoading)
+                            {
+                                <div class="filter-loading">
+                                    <div class="spinner-small"></div>
+                                    <span>Chargement...</span>
+                                </div>
+                            }
+                            else if (VM_Search.Couleurs != null && VM_Search.Couleurs.Any())
+                            {
+                                @foreach (var couleur in VM_Search.Couleurs)
+                                {
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"
+                                               checked="@VM_Search.SelectedCouleurs.Contains(couleur.Nom)"
+                                               @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedCouleurs, couleur.Nom)" />
+                                        <span>@couleur.Nom</span>
+                                    </label>
+                                }
+                            }
+                            else
+                            {
+                                <p class="filter-empty">Aucune couleur disponible</p>
+                            }
+                        </div>
+                    }
                 </div>
 
                 <!-- Prix -->
                 <div class="filter-section">
-                    <h4 class="filter-title">Prix</h4>
-                    <div class="price-range">
-                        <div class="price-inputs">
-                            <span>@VM_Search.SelectedMinPrice€</span>
-                            <span>@VM_Search.SliderMax€</span>
-                        </div>
-                        <input type="range" 
-                               min="@VM_Search.SelectedMinPrice" 
-                               max="@VM_Search.SliderMax" 
-                               @bind="VM_Search.SelectedMaxPrice"
-                               @bind:after="VM_Search.OnPriceChanged"
-                               class="price-slider" />
-                        <div class="price-current">
-                            <span>Maximum Choisi: @VM_Search.SelectedMaxPrice€</span>
-                        </div>
+                    <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsPriceExpanded))">
+                        <h4 class="filter-title">Prix</h4>
+                        <i class="bi @(VM_Search.IsPriceExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
                     </div>
-                    <div class="price-range">
-                        <div class="price-inputs">
-                            <span>0€</span>
-                            <span>@VM_Search.SelectedMaxPrice€</span>
+
+                    @if (VM_Search.SelectedMinPrice > 0 || VM_Search.SelectedMaxPrice < VM_Search.SliderMax)
+                    {
+                        <div class="selected-filters-preview">
+                            <span class="filter-tag">
+                                <i class="bi bi-check2"></i>
+                                @VM_Search.SelectedMinPrice€ - @VM_Search.SelectedMaxPrice€
+                            </span>
                         </div>
-                        <input type="range" 
-                               min="0" 
-                               max="@VM_Search.SelectedMaxPrice" 
-                               @bind="VM_Search.SelectedMinPrice"
-                               @bind:after="VM_Search.OnPriceChanged"
-                               class="price-slider" />
-                        <div class="price-current">
-                            <span>Minimum Choisi: @VM_Search.SelectedMinPrice€</span>
+                    }
+
+                    @if (VM_Search.IsPriceExpanded)
+                    {
+                        <div class="price-range">
+                            <div class="price-inputs">
+                                <span>@VM_Search.SelectedMinPrice€</span>
+                                <span>@VM_Search.SliderMax€</span>
+                            </div>
+                            <input type="range"
+                                   min="@VM_Search.SelectedMinPrice"
+                                   max="@VM_Search.SliderMax"
+                                   @bind="VM_Search.SelectedMaxPrice"
+                                   @bind:after="VM_Search.OnPriceChanged"
+                                   class="price-slider" />
+                            <div class="price-current">
+                                <span>Maximum: @VM_Search.SelectedMaxPrice€</span>
+                            </div>
                         </div>
-                    </div>
+                        <div class="price-range">
+                            <div class="price-inputs">
+                                <span>0€</span>
+                                <span>@VM_Search.SelectedMaxPrice€</span>
+                            </div>
+                            <input type="range"
+                                   min="0"
+                                   max="@VM_Search.SelectedMaxPrice"
+                                   @bind="VM_Search.SelectedMinPrice"
+                                   @bind:after="VM_Search.OnPriceChanged"
+                                   class="price-slider" />
+                            <div class="price-current">
+                                <span>Minimum: @VM_Search.SelectedMinPrice€</span>
+                            </div>
+                        </div>
+                    }
                 </div>
+
                 <!-- État -->
                 <div class="filter-section">
-                    <h4 class="filter-title">État</h4>
-                    <div class="filter-options">
-                        @if (VM_Search.IsLoading)
-                        {
-                            <div class="filter-loading">
-                                <div class="spinner-small"></div>
-                                <span>Chargement...</span>
-                            </div>
-                        }else if(VM_Search.Etats != null && VM_Search.Etats.Any())
-                        {
-                            @foreach (var etat in VM_Search.Etats)
-                            {
-                                <label class="checkbox-label">
-                                    <input type="checkbox"
-                                           checked="@VM_Search.SelectedMarques.Contains(etat.NomEtat)"
-                                           @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedEtats, etat.NomEtat)" />
-                                    <span>@etat.NomEtat</span>
-                                </label>
-                            }
-                        }
+                    <div class="filter-header-expandable" @onclick="() => VM_Search.ToggleFilterExpand(nameof(VM_Search.IsEtatExpanded))">
+                        <h4 class="filter-title">État</h4>
+                        <i class="bi @(VM_Search.IsEtatExpanded ? "bi-chevron-up" : "bi-chevron-down") expand-icon"></i>
                     </div>
+
+                    @if (VM_Search.SelectedEtats.Any())
+                    {
+                        <div class="selected-filters-preview">
+                            @foreach (var etat in VM_Search.SelectedEtats)
+                            {
+                                <span class="filter-tag">
+                                    <i class="bi bi-check2"></i>
+                                    @etat
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (VM_Search.IsEtatExpanded)
+                    {
+                        <div class="filter-options">
+                            @if (VM_Search.IsLoading)
+                            {
+                                <div class="filter-loading">
+                                    <div class="spinner-small"></div>
+                                    <span>Chargement...</span>
+                                </div>
+                            }
+                            else if (VM_Search.Etats != null && VM_Search.Etats.Any())
+                            {
+                                @foreach (var etat in VM_Search.Etats)
+                                {
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"
+                                               checked="@VM_Search.SelectedEtats.Contains(etat.NomEtat)"
+                                               @onchange="() => VM_Search.ToggleFilter(VM_Search.SelectedEtats, etat.NomEtat)" />
+                                        <span>@etat.NomEtat</span>
+                                    </label>
+                                }
+                            }
+                        </div>
+                    }
                 </div>
             </aside>
 
@@ -289,7 +447,7 @@
                         {
                             <AnnonceCard annonceComponent="annonce"
                                          OnToggleFavorite="VM_Profil.ToggleFavorite"
-                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)"/>
+                                         OnClickAnnonce="(a) => VM_Profil.NavigateToProductDetail(a.AnnonceId)" />
                         }
                     </div>
 
@@ -337,38 +495,39 @@
                     }
                 }
             </div>
+
             <aside class="sort-container">
                 <div class="sort-header">
                     <h4 class="sort-title">Trier par</h4>
                 </div>
-                
+
                 <div class="sort-section">
                     <label class="sort-label">Champ</label>
-                    <select class="sort-select" 
+                    <select class="sort-select"
                             @bind="VM_Search.SelectedSortField"
                             @bind:after="VM_Search.OnFilterChanged">
-                        
+
                         <option value="@SortField.DateAnnonce">Date de publication</option>
                         <option value="@SortField.Prix">Prix de publication</option>
                         <option value="@SortField.Titre">Alphabétique</option>
                         <option value="@SortField.NombreFavoris">Nombre de like</option>
-                        
+
                     </select>
                 </div>
-                
+
                 <div class="sort-section">
                     <label class="sort-label">Ordre</label>
-                    <select class="sort-select" 
+                    <select class="sort-select"
                             @bind="VM_Search.SelectedSortOrder"
                             @bind:after="VM_Search.OnFilterChanged">
-                       
+
                         <option value="@SortOrder.Ascending">Croissant</option>
                         <option value="@SortOrder.Descending">Décroissant</option>
-                        
+
                     </select>
                 </div>
             </aside>
-                    
+
         </div>
     </div>
 </div>
@@ -378,7 +537,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await VM_ClientBase.SetSearchViewModel(VM_Search); 
+        await VM_ClientBase.SetSearchViewModel(VM_Search);
         await VM_Search.InitializeFromUrlAsync();
         VM_Search.OnStateChange += StateHasChanged;
     }
@@ -386,6 +545,6 @@
     public void Dispose()
     {
         VM_Search.OnStateChange -= StateHasChanged;
-        VM_ClientBase.SetSearchViewModel(null);  // ✅ Nettoyez la référence
+        VM_ClientBase.SetSearchViewModel(null);
     }
 }

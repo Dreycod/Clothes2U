@@ -7,4 +7,6 @@ public interface IPhotoRepository : IDataRepository<Photo, int>
 {
     Task<Photo?> GetByIdWithRelationsAsync(int id);
     Task<PhotoResponseDTO> AddPhotoAsync(PhotoUploadDTO photoDto);
+    Task<List<Photo>> GetAllPhotosByAnnonceID(int AnnonceID);
+
 }

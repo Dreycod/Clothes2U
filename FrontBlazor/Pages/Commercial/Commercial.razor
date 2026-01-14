@@ -42,6 +42,10 @@
                     <i class="bi bi-rulers"></i>
                     <span>Tailles</span>
                 </a>
+                <a href="/commercial/messages" class="commercial-nav-item">
+                    <i class="bi bi-megaphone"></i>
+                    <span>Messages</span>
+                </a>
             </nav>
         </aside>
 
@@ -99,6 +103,7 @@
                         <p>Tailles disponibles</p>
                     </div>
                 </div>
+
             </div>
 
             <!-- Quick Actions -->
@@ -152,6 +157,15 @@
                         <div class="action-info">
                             <h3>Ajouter une taille</h3>
                             <p>Créer une nouvelle taille</p>
+                        </div>
+                    </button>
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/messages"))">
+                        <div class="action-icon emerald">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Envoyer un message</h3>
+                            <p>Notifier tous les utilisateurs</p>
                         </div>
                     </button>
                 </div>

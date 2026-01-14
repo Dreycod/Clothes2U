@@ -31,10 +31,27 @@ public class FavorisController :  ControllerBase
         _suggestionService =  suggestionService;
         _mapper = mapper;
     }
+    /// <summary>
+    /// Ajoute une annonce aux favoris de l'utilisateur connecté.
+    /// </summary>
+    /// <param name="annonceId">L'identifiant de l'annonce à ajouter aux favoris.</param>
+    /// <returns>Le favori créé.</returns>
+    /// <remarks>
+    /// Cette action déclenche également le recalcul des suggestions personnalisées pour l'utilisateur.
+    /// </remarks>
+    /// <response code="201">Annonce ajoutée aux favoris avec succès.</response>
+    /// <response code="400">Requête invalide.</response>
+    /// <response code="401">Non autorisé - authentification requise.</response>
+    /// <response code="404">L'annonce spécifiée n'existe pas.</response>
+    /// <response code="409">Conflit - l'annonce est déjà dans les favoris.</response>
+    /// <response code="500">Erreur serveur interne.</response>
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(FavorisDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<FavorisDTO>> AddFavoris([FromBody] int annonceId)
     {
@@ -62,8 +79,21 @@ public class FavorisController :  ControllerBase
         return StatusCode(StatusCodes.Status201Created, favorisDto);
 
     }
+    /// <summary>
+    /// Retire une annonce des favoris de l'utilisateur connecté.
+    /// </summary>
+    /// <param name="annonceId">L'identifiant de l'annonce à retirer des favoris.</param>
+    /// <returns>Aucun contenu en cas de succès.</returns>
+    /// <remarks>
+    /// Cette action déclenche également le recalcul des suggestions personnalisées pour l'utilisateur.
+    /// </remarks>
+    /// <response code="204">Annonce retirée des favoris avec succès.</response>
+    /// <response code="401">Non autorisé - authentification requise.</response>
+    /// <response code="404">Favori introuvable - l'annonce n'est pas dans les favoris de l'utilisateur.</response>
+    /// <response code="500">Erreur serveur interne.</response>
     [HttpDelete("id/{annonceId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteFavoris(int annonceId)

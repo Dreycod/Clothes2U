@@ -149,24 +149,28 @@
                                     </span>
                                 }
                             </div>
-                            
-                            @if (VM_Messagerie.utilisateur != null && 
-                                 VM_Messagerie.SelectedConversation.VendeurId != null &&
-                                 VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                            @if (VM_Messagerie.SelectedConversation.AnnonceStatut == "En Ligne")
                             {
-                                <NavLink class="buy-button"
-                                         href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
-                                    <i class="bi bi-bag-check-fill"></i>
-                                    Acheter
-                                </NavLink>
-                            }
+                                @if (VM_Messagerie.utilisateur != null && 
+                                     VM_Messagerie.SelectedConversation.VendeurId != null &&
+                                     VM_Messagerie.utilisateur.UtilisateurId != VM_Messagerie.SelectedConversation.VendeurId)
+                                {
+                                    <NavLink class="buy-button"
+                                             href="@($"/acheter/{VM_Messagerie.SelectedConversationId}")">
+                                        <i class="bi bi-bag-check-fill"></i>
+                                        Acheter
+                                    </NavLink>
+                                }
 
-                            @if (VM_Messagerie.SelectedConversation.Negociable)
-                            {
-                                <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
-                                    Proposer un prix
-                                </button>
+                                @if (VM_Messagerie.SelectedConversation.Negociable)
+                                {
+                                    <button class="price-proposal-btn" @onclick="() => showPriceModal = true">
+                                        Proposer un prix
+                                    </button>
+                                }
                             }
+                            
+                            
                         </div>
                     </div>
                 </div>
@@ -281,14 +285,14 @@
 
                                         <!-- Économie réalisée -->
                                         @{
-                                            var savings = VM_Messagerie.SelectedConversation.Prix - demande.PrixPropose;
+                                            var savings = VM_Messagerie.SelectedConversation.PrixAnnonce - demande.PrixPropose;
                                             var savingsPercent = (savings / VM_Messagerie.SelectedConversation.Prix) * 100;
                                         }
                                         @if (savings > 0)
                                         {
                                             <div class="savings-badge">
                                                 <i class="bi bi-piggy-bank-fill"></i>
-                                                Économie de @string.Format("{0:F2}", savings) € (-@string.Format("{0:F0}", savingsPercent)%)
+                                                Le Prix a baissé @string.Format("{0:F2}", savings) € (-@string.Format("{0:F0}", savingsPercent)%)
                                             </div>
                                         }
 

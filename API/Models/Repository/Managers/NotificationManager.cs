@@ -16,7 +16,16 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
             .Include(n => n.NotificationAvertissements)
             .Include(n => n.NotificationMessages)
                 .ThenInclude(nm => nm.Message)
-                    .ThenInclude(m => m.Conversation)  
+                    .ThenInclude(m => m.Conversation)
+            .Include(n => n.NotificationMessages)
+                .ThenInclude(nm => nm.Message)
+                    .ThenInclude(m => m.MessageEstPayee)
+            .Include(n => n.NotificationMessages)
+                .ThenInclude(nm => nm.Message)
+                    .ThenInclude(m => m.MessageEnvoieColis)
+            .Include(n => n.NotificationMessages)
+                .ThenInclude(nm => nm.Message)
+                    .ThenInclude(m => m.MessageEstRecu)
             .Include(n => n.NotificationMessages)
                 .ThenInclude(nm => nm.Message)
                     .ThenInclude(m => m.Utilisateur)
@@ -49,8 +58,17 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
             .Include(n => n.NotificationAchats)
                 .ThenInclude(nm => nm.Annonce)
                     .ThenInclude(a => a.Utilisateur)
+            .Include( n => n.NotificationCommercials)
+                
             .AsSplitQuery();
     }
+
+    public async Task<IEnumerable<Notification>> GetReadNotifications()
+    {
+        return await BaseNotificationQuery().Where(n => n.EstLu).ToListAsync();
+    }
+    
+    
     public async Task<IEnumerable<Notification>> GetByUserId(int userId)
     {
         return await BaseNotificationQuery()
@@ -84,6 +102,11 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
         await _context.SaveChangesAsync();
     }
 
+    public async Task CreateNotificationCommercial(NotificationCommercial notification)
+    {
+        await _context.NotificationCommercials.AddAsync(notification);
+        await _context.SaveChangesAsync();
+    }
     public async Task DeleteMessageNotificationByConversationId(int id, int userId)
     {
         var notifications = await _context.Notifications.Where(n => 

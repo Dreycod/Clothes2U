@@ -35,9 +35,12 @@ public class LoginController : ControllerBase
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationRepository;
     private readonly IMessageRepository _messageRepository;
+    private readonly IWebHostEnvironment _env;
+
 
     public LoginController(
         IConfiguration config,
+        IWebHostEnvironment env,
         IMapper mapper,
         IUtilisateurRepository dataRepo,
         ILoginService loginService,
@@ -46,6 +49,7 @@ public class LoginController : ControllerBase
         IMessageRepository messageRepository)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
+        _env = env;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _utilisateurManager = dataRepo;
@@ -60,18 +64,18 @@ public class LoginController : ControllerBase
     {
         var utilisateurs = await _utilisateurManager.GetAllAsync();
         var usersList = utilisateurs?.ToList();
-        
+
         if (string.IsNullOrEmpty(request.Login))
         {
             return BadRequest("Email ou login obligatoires.");
         }
 
         var loginOrEmail = request.Login;
-        var auth = _loginService.AuthenticateUtilisateur(loginOrEmail!, request.Password, usersList);;
+        var auth = _loginService.AuthenticateUtilisateur(loginOrEmail!, request.Password, usersList); ;
 
         if (auth.result != AuthResult.Success)
         {
-            if(auth.result == AuthResult.InvalidLoginOrEmail)
+            if (auth.result == AuthResult.InvalidLoginOrEmail)
                 return Unauthorized("Utilisateur inconnu.");
             return Unauthorized("Votre mot de passe est incorrect.");
         }
@@ -82,10 +86,14 @@ public class LoginController : ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = false, 
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTime.Now.AddMinutes(30)
+            Secure = !_env.IsDevelopment(),              // ✅ HTTPS en prod
+            SameSite = _env.IsDevelopment()
+                ? SameSiteMode.Lax
+                : SameSiteMode.None,                     // ✅ Cross-domain Azure
+            Expires = DateTime.UtcNow.AddMinutes(30),
+            Path = "/"
         };
+
         Response.Cookies.Append("authToken", tokenString, cookieOptions);
         return Ok(utilisateur);
     }
@@ -100,10 +108,10 @@ public class LoginController : ControllerBase
         }
 
         var existingUsers = await _utilisateurManager.GetAllAsync();
-        
+
         if (existingUsers.Any(u => u.Email.ToUpper() == request.Email.ToUpper()))
             return BadRequest("Cet email est déjà utilisé.");
-        
+
         if (existingUsers.Any(u => u.Login.ToUpper() == request.Login.ToUpper()))
             return BadRequest("Ce login est déjà utilisé.");
 
@@ -126,18 +134,29 @@ public class LoginController : ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = false, 
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.Now.AddMinutes(30)
+            Secure = !_env.IsDevelopment(),              // ✅ HTTPS en prod
+            SameSite = _env.IsDevelopment()
+                ? SameSiteMode.Lax
+                : SameSiteMode.None,                     // ✅ Cross-domain Azure
+            Expires = DateTime.UtcNow.AddMinutes(30),
+            Path = "/"
         };
+
         Response.Cookies.Append("authToken", tokenString, cookieOptions);
-        return Ok(newUser); 
+        return Ok(newUser);
     }
 
     [HttpPost("logout")]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("authToken");
+        Response.Cookies.Delete("authToken", new CookieOptions
+        {
+            Secure = !_env.IsDevelopment(),
+            SameSite = _env.IsDevelopment()
+        ? SameSiteMode.Lax
+        : SameSiteMode.None,
+            Path = "/"
+        });
         return Ok("Déconnexion réussie");
     }
 
@@ -149,7 +168,7 @@ public class LoginController : ControllerBase
         var utilisateur = await _utilisateurManager.GetByIdAsync(userId);
         if (utilisateur == null)
             return NotFound();
-        
+
         CurrentUtilisateurDTO utilisateurDTO = _mapper.Map<CurrentUtilisateurDTO>(utilisateur);
         utilisateurDTO.MessagesCount = await _messageRepository.GetMessageCountByUserId(userId);
         utilisateurDTO.NotificationsCount = await _notificationRepository.GetNotificationsUnreadCountByUserId(userId);
@@ -278,11 +297,14 @@ public class LoginController : ControllerBase
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, 
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTime.Now.AddMinutes(30),
+                Secure = !_env.IsDevelopment(),              // ✅ HTTPS en prod
+                SameSite = _env.IsDevelopment()
+                    ? SameSiteMode.Lax
+                    : SameSiteMode.None,                     // ✅ Cross-domain Azure
+                Expires = DateTime.UtcNow.AddMinutes(30),
                 Path = "/"
             };
+
             Response.Cookies.Append("authToken", jwtToken, cookieOptions);
             Console.WriteLine($"✅ Cookie authToken créé");
             var returnUrl = string.IsNullOrEmpty(state) ? "/" : state;
