@@ -5,6 +5,9 @@ using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Shared.DTO;
+using Shared.DTO.Conversation;
 
 namespace API.Controllers
 {
@@ -13,13 +16,17 @@ namespace API.Controllers
     public class NoteUtilisateurController : ControllerBase
     {
         private readonly INoteUtilisateurRepository _noteUtilisateurManager;
+        private readonly IOrderRepository _orderManager;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IConversationRepository<Conversation, int> _conversationManager;
         private readonly IMapper _mapper;
 
-        public NoteUtilisateurController(INoteUtilisateurRepository noteUtilisateurRepository, ICurrentUserService currentUserService, IMapper mapper)
+        public NoteUtilisateurController(INoteUtilisateurRepository noteUtilisateurManager, IOrderRepository orderManager, IConversationRepository<Conversation, int> conversationManager, ICurrentUserService currentUserService, IMapper mapper)
         {
-            _noteUtilisateurManager = noteUtilisateurRepository;
+            _noteUtilisateurManager = noteUtilisateurManager;
+            _orderManager = orderManager;
             _currentUserService = currentUserService;
+            _conversationManager = conversationManager;
             _mapper = mapper;
         }
 
@@ -54,16 +61,19 @@ namespace API.Controllers
         [Authorize]
         public async Task<ActionResult<NoteUtilisateurDTO>> AddNote(NoteUtilisateurCreateDTO dto)
         {
-            int? userId = await _currentUserService.GetUserId();
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            int userId = await _currentUserService.GetUserIdOrThrow();
             var entity = _mapper.Map<NoteUtilisateur>(dto);
             entity.AuteurId = (int)userId;
             entity.Statut = true;
             await _noteUtilisateurManager.AddAsync(entity);
-
+            Commande order = await _orderManager.GetOrderWithDetailsAsync(dto.CibleId);
+            Conversation conversation = await _conversationManager.GetByIdAsync(order.ConversationId);
+            int? id = await _conversationManager.GetOtherUser(userId, conversation);
+            if(id == null)
+            {
+                return NotFound();
+            }
+            dto.CibleId = (int)id;
             return CreatedAtAction(nameof(GetById), new { id = entity.NoteUtilisateurId },
                 _mapper.Map<NoteUtilisateurDTO>(entity));
         }

@@ -1,34 +1,40 @@
 {
   "format": 1,
   "restore": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj": {}
+    "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API.Tests\\API.Tests.csproj": {}
   },
   "projects": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj": {
+    "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API.Tests\\API.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj",
+        "projectUniqueName": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API.Tests\\API.Tests.csproj",
         "projectName": "API.Tests",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj",
-        "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/obj/",
+        "projectPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API.Tests\\API.Tests.csproj",
+        "packagesPath": "C:\\Users\\Narcissu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/elioth/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Narcissu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj": {
-                "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj"
+              "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj": {
+                "projectPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj"
               }
             }
           }
@@ -42,7 +48,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -80,39 +87,59 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj": {
+    "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj",
+        "projectUniqueName": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj",
-        "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/obj/",
+        "projectPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API\\API.csproj",
+        "packagesPath": "C:\\Users\\Narcissu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\API\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/elioth/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Narcissu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj": {
-                "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj"
+              "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\Shared\\Shared.csproj": {
+                "projectPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\Shared\\Shared.csproj"
               }
             }
           }
@@ -126,7 +153,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -226,6 +254,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -234,26 +280,32 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj": {
+    "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\Shared\\Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj",
+        "projectUniqueName": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\Shared\\Shared.csproj",
         "projectName": "Shared",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj",
-        "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/obj/",
+        "projectPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\Shared\\Shared.csproj",
+        "packagesPath": "C:\\Users\\Narcissu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Narcissu\\source\\repos\\Dreycod\\Clothes2U\\Shared\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/elioth/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Narcissu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -271,7 +323,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -287,12 +340,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
