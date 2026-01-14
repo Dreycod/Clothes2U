@@ -305,6 +305,7 @@ builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<NotificationMessage, int>, NotificationMessageManager>();
 builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  NotificationAvertissementManager>();
+builder.Services.AddScoped<IDataRepository<NotificationCommercial, int>, NotificationCommercialManager>();
 builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();

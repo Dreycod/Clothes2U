@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Shared.DTO.Notification;
@@ -10,6 +11,7 @@ namespace Shared.DTO.Notification;
 [JsonDerivedType(typeof(NotificationNouvelleAnnonceDTO), "Nouvelle annonce")]
 [JsonDerivedType(typeof(NotificationPropositionDTO), "proposition")]
 [JsonDerivedType(typeof(NotificationAchatDTO), "achat")]
+[JsonDerivedType(typeof(NotificationCommercialDTO), "commercial")]
 public abstract class NotificationDTO
 {
     public int NotificationId { get; set; }
@@ -25,6 +27,11 @@ public class NotificationAdminDTO : NotificationDTO
 public class NotificationAvertissementDTO : NotificationDTO
 {
     public string MessageAvertissement  { get; set; } = null!;
+}
+public class NotificationCommercialDTO : NotificationDTO
+{
+    public string CommercialText { get; set; } = null!;
+    public string CommercialTitle { get; set; } = null!;
 }
 public class NotificationMessageDTO  : NotificationDTO
 {

@@ -227,9 +227,11 @@ public class ClientBaseViewModel : IAsyncDisposable
 
                 case NotificationAdminDTO:
                     break;
-                case NotificationPropositionDTO notifProposition:
-                    _nav.NavigateTo($"/messages?conversationId={notifProposition.ConversationId}");
+                case NotificationCommercialDTO:
                     break;
+                case NotificationPropositionDTO notifProposition:
+                        _nav.NavigateTo($"/messages?conversationId={notifProposition.ConversationId}");
+                        break;
             }
             await DeleteNotification(notification.NotificationId);
         }

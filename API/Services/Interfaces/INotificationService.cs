@@ -12,4 +12,5 @@ public interface INotificationService
     Task DeleteAnnonceNotificationForUser(int annonceId);
     Task DeleteMessagesNotificationByConversationId(int conversationId, int userId);
     Task CreateNotificationAvertissement(int userId, string messageAvertissement);
+    Task CreateNotificationCommercial(NotificationCommercialCreateDTO notificationCommercialCreate);
 }
