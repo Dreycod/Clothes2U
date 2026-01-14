@@ -59,3 +59,7 @@
 /Shared/obj/Shared.csproj.nuget.g.props
 /Shared/obj/Debug/net8.0/Shared.csproj.FileListAbsolute.txt
 /API.Tests/bin/Debug/net8.0/fr
+/API/bin/Release/net8.0
+/API.Tests/bin/Release/net8.0
+/API.Tests/obj/Release/net8.0
+/FrontBlazor/bin/Release/net8.0
