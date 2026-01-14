@@ -288,7 +288,7 @@ public class SignalRHandlerWebService : IDisposable
             {
                 message.EstAcceptee = accepted;
                 message.EstRepondue = true;
-                _selectedConversation.Prix = accepted ? message.PrixPropose : 0;
+                _selectedConversation.Prix = accepted ? message.PrixPropose : _selectedConversation.Prix;
                 NotifyStateChanged();
             }
         }

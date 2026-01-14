@@ -550,42 +550,42 @@ public class MessageController : ControllerBase
                 };
                 await _notificationService.CreateNotification(notification);
                 await _messageService.SendMessageCount((int)targetUserId);
+                
+                var annonce = messagePayee.Message.Conversation.LAnnonce;
+                if (annonce == null) return BadRequest("Annonce introuvable");
+        
+                annonce.StatutAnnonceId = 1;
+                await _annonceService.UpdateAsync(annonce);
+        
+                var commande = messagePayee.Message.Conversation.Commandes?.LastOrDefault();
+                if (commande == null)
+                    return BadRequest("Commande introuvable");
+                commande.StatutCommandeId = 4;
+        
+                await _orderService.UpdateAsync(commande);
+                
+                try
+                {
+                    await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
+                        .SendAsync("ReceivePaymentCancelled", 
+                            messagePayee.Message.ConversationId, 
+                            messagePayee.MessageEstPayeeId,
+                            messagePayee.Message.UtilisateurId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
+                }
             }
         }
         else
         {
-            
             return BadRequest("Conversation introuvable");
         }
         
-        var annonce = messagePayee.Message.Conversation.LAnnonce;
+       
         
-        if (annonce == null) return BadRequest("Annonce introuvable");
         
-        annonce.StatutAnnonceId = 1;
-        await _annonceService.UpdateAsync(annonce);
-        
-        var commande = messagePayee.Message.Conversation.Commandes?.LastOrDefault();
-        if (commande == null)
-            return BadRequest("Commande introuvable");
-        commande.StatutCommandeId = 4;
-        
-        await _orderService.UpdateAsync(commande);
-        
-        try
-        {
-            await _hubContext.Clients.Group($"conversation_{messagePayee.Message.ConversationId}")
-                .SendAsync("ReceivePaymentCancelled", 
-                    messagePayee.Message.ConversationId, 
-                    messagePayee.MessageId,
-                    messagePayee.Message.UtilisateurId);
-        
-            Console.WriteLine($"[MessageController] ✅ Payment cancelled notification sent for conversation {messagePayee.Message.ConversationId}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[MessageController] ❌ Error sending payment cancelled notification: {ex.Message}");
-        }
        
         return NoContent();
     }
