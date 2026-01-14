@@ -1,103 +1,82 @@
-@page "/moderation/images"
-@rendermode InteractiveServer
+﻿@page "/moderation/images"
+@inject ImagesValidationViewModel VM_ImagesValidation
+@layout ModerationLayout
 
 <PageTitle>Validation d'images - Modération</PageTitle>
 
-<link rel="stylesheet" href="/css/moderation-shared.css" />
 
-<div class="moderation-page">
-    <div class="moderation-container">
-        <!-- Sidebar -->
-        <aside class="mod-sidebar">
-            <div class="mod-header">
-                <div class="mod-logo">
-                    <i class="bi bi-shield-check"></i>
-                    <div>
-                        <h2>Clothes2U</h2>
-                        <p>Moderation Board</p>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="mod-nav">
-                <a href="/moderation" class="mod-nav-item">
-                    <i class="bi bi-house-door"></i>
-                    <span>Home</span>
-                </a>
-                <a href="/moderation/signalements" class="mod-nav-item">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <span>Signalements</span>
-                </a>
-                <a href="/moderation/images" class="mod-nav-item active">
-                    <i class="bi bi-image"></i>
-                    <span>Images</span>
-                </a>
-                <a href="/moderation/restauration" class="mod-nav-item">
-                    <i class="bi bi-person-check"></i>
-                    <span>Restauration</span>
-                </a>
-                <a href="/moderation/sanctions" class="mod-nav-item">
-                    <i class="bi bi-person-x"></i>
-                    <span>Sanctions</span>
-                </a>
-                <a href="/moderation/mots-interdits" class="mod-nav-item">
-                    <i class="bi bi-chat-square-text"></i>
-                    <span>Mots interdits</span>
-                </a>
-                <a href="/moderation/support" class="mod-nav-item">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Support</span>
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="mod-content">
+<link href="css/loading.css" rel="stylesheet" />
+<link href="css/Moderation/moderation-shared.css" rel="stylesheet"/>
+@if (VM_ImagesValidation.IsLoading)
+{
+    <div class="loader"></div>
+}
+else
+{
+    <main class="mod-content">
             <h1 class="mod-page-title">Validation d'images</h1>
 
+            @if (VM_ImagesValidation._ValidationMessage.Any())
+            {
+                <div class="validation-messages">
+                    @foreach (var msg in VM_ImagesValidation._ValidationMessage)
+                    {
+                        <div class="validation-message @(VM_ImagesValidation._IsSuccess ? "success" : "error")">
+                            @msg
+                        </div>
+                    }
+                </div>
+            }
             <!-- Images Grid -->
             <div class="images-grid">
-                @for (int i = 0; i < 6; i++)
+                @for (int i = 0; i < VM_ImagesValidation.SelectedFilePreviews.Count; i++)
                 {
-                    <div class="image-card">
-                        <div class="image-preview"></div>
+                    var preview = VM_ImagesValidation.SelectedFilePreviews[i];
+                    var photoId = preview.PhotoID;
+                    var Username = preview.Username;
+                    var AnnonceID = preview.AnnonceID;
+
+                    <div class="uploaded-photo" @key="photoId">
+                        <img src="@preview.PreviewBase64" alt="Photo" />
 
                         <div class="image-info">
                             <div class="image-user">
                                 <div class="user-avatar-small"></div>
-                                <div>
-                                    <h4>User @(i + 1)</h4>
-                                    <p>Il y a @(i + 1) heures</p>
+                                <div class="user-meta">
+                                    <h4>User: @(Username)</h4>
+                                    <p>AnnonceID: @(AnnonceID)</p>
                                 </div>
                             </div>
 
                             <div class="image-actions">
-                                <button class="btn-approve" @onclick="() => ApproveImage(i)">
+                                <button class="btn-approve"
+                                        @onclick="async () => await VM_ImagesValidation.ApproveImage(photoId)">
                                     <i class="bi bi-check-lg"></i>
                                     Approuver
                                 </button>
-                                <button class="btn-reject" @onclick="() => RejectImage(i)">
+
+                                <button class="btn-reject"
+                                        @onclick="async () => await VM_ImagesValidation.RejectImage(photoId)">
                                     <i class="bi bi-x-lg"></i>
                                     Refuser
                                 </button>
+
                             </div>
                         </div>
                     </div>
                 }
             </div>
+
+
         </main>
-    </div>
-</div>
+}
+
 
 @code {
-    private void ApproveImage(int imageId)
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Approve image
+        await VM_ImagesValidation.LoadAsync();
+        VM_ImagesValidation.OnStateChanged += StateHasChanged;
     }
 
-    private void RejectImage(int imageId)
-    {
-        // TODO: Reject image
-    }
-}
 }
