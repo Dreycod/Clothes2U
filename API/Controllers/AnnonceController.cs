@@ -447,6 +447,23 @@ public class AnnonceController : ControllerBase
         return Ok(annoncesDTO);
     }
 
+    /// <summary>
+    /// Met en pause une annonce.
+    /// Seul le propriétaire de l'annonce peut la mettre en pause.
+    /// Change le statut de l'annonce à "En pause" (StatutAnnonceId = 5).
+    /// </summary>
+    /// <param name="id">L'identifiant de l'annonce à mettre en pause.</param>
+    /// <returns>Aucun contenu en cas de succès.</returns>
+    /// <response code="204">L'annonce a été mise en pause.</response>
+    /// <response code="401">L'utilisateur n'est pas authentifié.</response>
+    /// <response code="403">L'utilisateur n'est pas le propriétaire de l'annonce.</response>
+    /// <response code="404">L'annonce n'existe pas.</response>
+    /// <response code="500">Erreur interne du serveur.</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPatch("ChangeEtatAnnonce/{id}")]
     public async Task<IActionResult> ChangerEtatAnnonce(int id, [FromQuery] int StatutId)
     {
