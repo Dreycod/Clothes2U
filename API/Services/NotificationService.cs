@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Managers;
 using API.Services.Interfaces;
 using API.Services.VerificationSrvceV2;
 using AutoMapper;
@@ -13,6 +14,7 @@ public class  NotificationService : INotificationService
 {
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationManager;
+    private readonly IFavorisRepository _favorisManager;
     private readonly IDataRepository<NotificationAvertissement, int> _notificationAvertissementManager;
     private readonly IDataRepository<NotificationProposition, int> _notificationPropositionManager;
     private readonly IDataRepository<NotificationMessage, int> _notificationMessageManager;
@@ -22,7 +24,6 @@ public class  NotificationService : INotificationService
     private readonly INotificationMailService _mailService;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
-    private readonly IAbonnementRepository<Abonnement, int> abonnementRepo;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotificationHubService _hubService;
     
@@ -30,6 +31,7 @@ public class  NotificationService : INotificationService
     public NotificationService(
         IMapper mapper,
         INotificationRepository notificationManager,
+        IFavorisRepository favorisManager,
         IDataRepository<NotificationAvertissement, int> notificationAvertissementManager,
         IDataRepository<NotificationProposition, int> notificationPropositionManager,
         IDataRepository<NotificationMessage, int> notificationMessageManager,
@@ -45,6 +47,7 @@ public class  NotificationService : INotificationService
     {
         _mapper = mapper;
         _notificationManager = notificationManager;
+        _favorisManager = favorisManager;
         _notificationAvertissementManager = notificationAvertissementManager;
         _notificationPropositionManager = notificationPropositionManager;
         _notificationMessageManager = notificationMessageManager;
@@ -98,9 +101,8 @@ public class  NotificationService : INotificationService
     public async Task CreateModificationAnnonceNotification(int annonceId)
     {
         Annonce annonce = await _annonceRepository.GetByIdAsync(annonceId);
-        var users = annonce.UtilisateursFavoris
-            .Select(f => f.Utilisateur);
-        foreach (var user in users)
+        IEnumerable<Utilisateur> utilisateurs = await _favorisManager.GetUtilisateurByAnnonceId(annonceId);
+        foreach (var user in utilisateurs)
         {
             if (user.PreferenceNotifMail)
             {

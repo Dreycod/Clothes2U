@@ -7,6 +7,13 @@ public class FavorisManager : GenericCRUDManager<Favoris>,  IFavorisRepository
 {
     public FavorisManager(Clothes2UDbContext context) :  base(context){}
 
+    private IQueryable<Favoris> BaseFavorisQuery()
+    {
+        return _context.Favorises
+            .Include(f => f.Utilisateur)
+            .AsSplitQuery();
+    }
+
     public async  Task<Favoris> GetFavorisByAnnonceAndUserId(int UtilisateurId, int AnnonceId)
     {
         return await _context.Favorises
@@ -17,5 +24,11 @@ public class FavorisManager : GenericCRUDManager<Favoris>,  IFavorisRepository
     {
         Favoris? postIsLiked = await _context.Favorises.FirstOrDefaultAsync(f => f.UtilisateurId == utilisateurId && f.AnnonceId == annonceId);
         return postIsLiked != null;
+    }
+
+    public async Task<IEnumerable<Utilisateur>> GetUtilisateurByAnnonceId(int annonceId)
+    {
+        return await BaseFavorisQuery()
+            .Where(f => f.AnnonceId == annonceId).Select(f => f.Utilisateur).ToListAsync();
     }
 }

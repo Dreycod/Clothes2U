@@ -83,7 +83,7 @@
                 }
                 break;
         }
-        <div class="notif-time">@GetTimeAgo(Notification.DateCreation)</div>
+        <div class="notif-time">@GetTimeAgo(Notification.DateCreation.ToLocalTime())</div>
     </div>
     
     <button class="notif-delete-btn" 

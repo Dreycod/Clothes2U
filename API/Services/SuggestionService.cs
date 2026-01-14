@@ -55,10 +55,6 @@ public class SuggestionService : ISuggestionService
                 var clusterRepository = scope.ServiceProvider.GetRequiredService<IClusterRepository>();
                 var annonces = await annonceManager.GetByUtilisateurFavoris(userId);
                 var annonceSuggestionDTOs = _mapper.Map<List<AnnonceSuggestionDTO>>(annonces);
-                foreach (var annonce in annonceSuggestionDTOs)
-                {
-                    Console.WriteLine("---------------------------------------------------------------->" + annonce.Couleurs);
-                }
                 var payload = new
                 {
                     userId = userId,
@@ -70,8 +66,6 @@ public class SuggestionService : ISuggestionService
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true 
                 });
-                
-                _logger.LogInformation("📤 JSON envoyé à Python:\n{Json}", json);
                 var client = _httpClientFactory.CreateClient();
                 client.Timeout = TimeSpan.FromSeconds(30);
                 
@@ -81,8 +75,6 @@ public class SuggestionService : ISuggestionService
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    
-                    _logger.LogInformation("📥 Réponse reçue de Python:\n{Response}", responseContent);
                     var clusteringResult = JsonSerializer.Deserialize<ClusteringResponseDTO>(
                         responseContent,
                         new JsonSerializerOptions
@@ -95,17 +87,6 @@ public class SuggestionService : ISuggestionService
                     {
                         await clusterRepository.DeleteByUserId(userId);
                         await clusterRepository.SaveClustersAsync(clusteringResult);
-                        
-                        _logger.LogInformation(
-                            "✅ Clustering terminé et sauvegardé pour l'utilisateur {UserId} " +
-                            "({NbAnnonces} annonces, {NbCategories} catégories)",
-                            userId,
-                            clusteringResult.NbAnnoncesTotal,
-                            clusteringResult.NbCategories);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("⚠️ Le clustering a échoué pour l'utilisateur {UserId}", userId);
                     }
                 }
                 else
