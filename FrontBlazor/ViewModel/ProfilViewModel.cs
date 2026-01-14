@@ -48,11 +48,6 @@ namespace FrontBlazor.ViewModel
         public bool IsBlockedByUser { get; set; } = false;
         public List<UtilisateurCardDTO> Abonnements { get; set; }
 
-        public bool ShowAddReviewModal { get; set; } = false;
-        public int SelectedRating { get; set; } = 0;
-        public string ReviewComment { get; set; } = string.Empty;
-        public string ReviewErrorMessage { get; set; } = string.Empty;
-        public bool IsSubmittingReview { get; set; } = false;
         public bool IsSubmittingBloque { get; set; } = false;
 
         public bool ShowBloqueModal { get; set; } = false;
@@ -276,88 +271,7 @@ namespace FrontBlazor.ViewModel
             }
         }
 
-        public void ShowAddReview()
-        {
-            ShowAddReviewModal = true;
-            SelectedRating = 0;
-            ReviewComment = string.Empty;
-            ReviewErrorMessage = string.Empty;
-            NotifyStateChanged();
-        }
-
-        public void CloseAddReview()
-        {
-            ShowAddReviewModal = false;
-            SelectedRating = 0;
-            ReviewComment = string.Empty;
-            ReviewErrorMessage = string.Empty;
-            NotifyStateChanged();
-        }
-
-        public void SetRating(int rating)
-        {
-            SelectedRating = rating;
-            ReviewErrorMessage = string.Empty;
-            NotifyStateChanged();
-        }
-
-        public async Task SubmitReview()
-        {
-            if (ViewingUser == null) return;
-
-            ReviewErrorMessage = string.Empty;
-
-            if (SelectedRating == 0)
-            {
-                ReviewErrorMessage = "Veuillez s�lectionner une note";
-                NotifyStateChanged();
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(ReviewComment))
-            {
-                ReviewErrorMessage = "Veuillez entrer un commentaire";
-                NotifyStateChanged();
-                return;
-            }
-
-            if (ReviewComment.Length < 10)
-            {
-                ReviewErrorMessage = "Le commentaire doit contenir au moins 10 caract�res";
-                NotifyStateChanged();
-                return;
-            }
-
-            IsSubmittingReview = true;
-            NotifyStateChanged();
-
-            try
-            {
-                NoteUtilisateurCreateDTO newReview = new NoteUtilisateurCreateDTO
-                {
-                    CibleId = ViewingUser.UtilisateurId,
-                    Note = SelectedRating,
-                    Commentaire = ReviewComment
-                };
-
-                var result = await _noteUtilisateurService.AddNoteUtilisateur(newReview);
-                if (result != null)
-                {
-                    Avis = await _noteUtilisateurService.GetNotesByUtilisateurId(ViewingUser.UtilisateurId);
-                    AvisCount = Avis?.Count ?? 0;
-                }
-                CloseAddReview();
-            }
-            catch (Exception ex)
-            {
-                ReviewErrorMessage = $"Erreur lors de la publication de l'avis: {ex.Message}";
-            }
-            finally
-            {
-                IsSubmittingReview = false;
-                NotifyStateChanged();
-            }
-        }
+        
         public void NavigateToProductDetail(int? productId)
         {
             if (productId.HasValue)

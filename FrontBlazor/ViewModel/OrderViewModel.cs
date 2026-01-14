@@ -1,9 +1,13 @@
-using System.Collections.ObjectModel;
-using Microsoft.AspNetCore.Components;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
+using Microsoft.AspNetCore.Components;
 using Shared.DTO;
+using Shared.DTO.Conversation;
+using Shared.DTO.NoteUtilisateur;
+using Shared.DTO.Transaction;
 using Shared.DTO.Utilisateur;
+using Stripe;
+using System.Collections.ObjectModel;
 
 namespace FrontBlazor.ViewModel;
 
@@ -11,6 +15,8 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
 {
     private readonly IOrderService _orderService;
     private readonly IAuthService _authService;
+    private readonly INoteUtilisateurService _noteUtilisateurService;
+    private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly NavigationManager _nav;
 
     public List<OrderDTO> PurchasedOrders { get; private set; } = new();
@@ -32,16 +38,28 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
 
     public event Action? OnChange;
 
+    #region Avis
+    public bool ShowAddReviewModal { get; set; } = false;
+    public int SelectedRating { get; set; } = 0;
+    public string ReviewComment { get; set; } = string.Empty;
+    public string ReviewErrorMessage { get; set; } = string.Empty;
+    public bool IsSubmittingReview { get; set; } = false;
+    #endregion
+
     public OrderViewModel(
         IOrderService orderService,
         IAuthService authService,
         NavigationManager nav,
         INotificationService notificationService,
         NavigationManager navigationManager,
+        INoteUtilisateurService noteUtilisateurService,
+        IConversationService<ConversationDTO> conversationService,
         ISignalRService signalRService) : base(navigationManager, authService,signalRService, notificationService)
     {
         _orderService = orderService;
         _authService = authService;
+        _noteUtilisateurService = noteUtilisateurService;
+        _conversationService = conversationService;
         _nav = nav;
     }
     
@@ -142,6 +160,84 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
             4 => "bi-x-circle-fill",
             _ => "bi-clock-fill"
         };
+    }
+
+    public void ShowAddReview()
+    {
+        ShowAddReviewModal = true;
+        SelectedRating = 0;
+        ReviewComment = string.Empty;
+        ReviewErrorMessage = string.Empty;
+        NotifyStateChanged();
+    }
+
+    public void CloseAddReview()
+    {
+        ShowAddReviewModal = false;
+        SelectedRating = 0;
+        ReviewComment = string.Empty;
+        ReviewErrorMessage = string.Empty;
+        NotifyStateChanged();
+    }
+
+    public void SetRating(int rating)
+    {
+        SelectedRating = rating;
+        ReviewErrorMessage = string.Empty;
+        NotifyStateChanged();
+    }
+
+    public async Task SubmitReview(OrderDTO orderDTO)
+    {
+        if (utilisateur == null) return;
+
+        ReviewErrorMessage = string.Empty;
+
+        if (SelectedRating == 0)
+        {
+            ReviewErrorMessage = "Veuillez sélectionner une note";
+            NotifyStateChanged();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ReviewComment))
+        {
+            ReviewErrorMessage = "Veuillez entrer un commentaire";
+            NotifyStateChanged();
+            return;
+        }
+
+        if (ReviewComment.Length < 10)
+        {
+            ReviewErrorMessage = "Le commentaire doit contenir au moins 10 caract�res";
+            NotifyStateChanged();
+            return;
+        }
+
+        IsSubmittingReview = true;
+        NotifyStateChanged();
+
+        try
+        {   
+            NoteUtilisateurCreateDTO newReview = new NoteUtilisateurCreateDTO
+            {
+                CibleId = orderDTO.CommandeId,
+                Note = SelectedRating,
+                Commentaire = ReviewComment
+            };
+
+            await _noteUtilisateurService.AddNoteUtilisateur(newReview);
+            CloseAddReview();
+        }
+        catch (Exception ex)
+        {
+            ReviewErrorMessage = $"Erreur lors de la publication de l'avis: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmittingReview = false;
+            NotifyStateChanged();
+        }
     }
 
     private void NotifyStateChanged() => OnChange?.Invoke();
