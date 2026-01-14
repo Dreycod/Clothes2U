@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
 using API.Services.VerificationSrvceV2;
@@ -29,7 +30,6 @@ public class AnnonceController : ControllerBase
     private readonly IMotInterditService _motInterditService;
     private readonly IPhotoService _photoService;
     private readonly ITagRepository<Tag, int> _tagManager;
-    private readonly ICaracteristiquesRepository<Couleur> _couleurRepository;
 
 
     public AnnonceController(
@@ -43,8 +43,7 @@ public class AnnonceController : ControllerBase
         IPhotoService photoService,
         ISuggestionService suggestionService,
         IMotInterditService motInterditService,
-        ITagRepository<Tag, int> tagManager,
-        ICaracteristiquesRepository<Couleur> couleurRepository
+        ITagRepository<Tag, int> tagManager
         )
     {
         _annonceManager = manager;
@@ -58,7 +57,6 @@ public class AnnonceController : ControllerBase
         _illustreAnnonceManager = illustreAnnonceManager;
         _photoService = photoService;
         _tagManager = tagManager;
-        _couleurRepository = couleurRepository;
     }
     [HttpGet("ByUtilisateurId/{utilisateurId}")]
     [ProducesResponseType(typeof(IEnumerable<AnnonceDTO>), StatusCodes.Status200OK)]
@@ -135,7 +133,7 @@ public class AnnonceController : ControllerBase
         Annonce annonce = _mapper.Map<Annonce>(annonceDTO);
         await _photoService.DeletePhotosAnnonceAsync(annonce.AnnonceId); // éviter dupliqués
         await _tagManager.DeleteTagsAnnonceAsync(annonce.AnnonceId); // éviter dupliqués
-      //  await _couleurRepository.DeleteAsync
+        await _estDeCouleurRepository.DeleteCouleurAnnonce(annonce.AnnonceId); // éviter dupliqués
         await _annonceManager.UpdateAsync(annonce);
 
         var UpdatedAnnonce = _annonceManager.GetByIdAsync(id);

@@ -592,6 +592,42 @@
         border-color: #7a9d8e;
     }
 
+.danger-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dc3545; /* rouge danger */
+    color: #fff;
+    border-radius: 50%;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    z-index: 10;
+}
+
+    .danger-badge.warning {
+        background-color: #ffecb5; /* jaune warning doux */
+    }
+
+
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
 /* ============================================ */
 /* TAILLES */
 /* ============================================ */

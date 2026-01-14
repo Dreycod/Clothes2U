@@ -1,5 +1,6 @@
 using API.Models.EntityFramework;
 using API.Models.Repository;
+using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +16,10 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class CouleurController : ControllerBase
 {
-    private readonly ICaracteristiquesRepository<Couleur> _couleurManager;
+    private readonly  ICaracteristiquesRepository<Couleur> _couleurManager;
     private readonly IMapper _mapper;
 
-    public CouleurController(ICaracteristiquesRepository<Couleur> couleurManager, IMapper mapper)
+    public CouleurController( ICaracteristiquesRepository<Couleur> couleurManager, IMapper mapper)
     {
         _couleurManager = couleurManager;
         _mapper = mapper;

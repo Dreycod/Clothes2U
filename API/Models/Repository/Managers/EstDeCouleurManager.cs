@@ -24,5 +24,17 @@ namespace API.Models.Repository.Managers
             return await BaseEstDeCouleurQuery()
                 .FirstOrDefaultAsync(e => e.EstDeCouleurId == id);
         }
+        public async Task<bool?> DeleteCouleurAnnonce(int annonceId)
+        {
+            var couleursToDelete = _context.Est_De_Couleurs
+                .Where(e => e.AnnonceId == annonceId);
+            if (!couleursToDelete.Any())
+            {
+                return null; 
+            }
+            _context.Est_De_Couleurs.RemoveRange(couleursToDelete);
+            await _context.SaveChangesAsync();
+            return true; 
+        }
     }
 }
