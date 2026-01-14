@@ -283,14 +283,14 @@
 
                                         <!-- Économie réalisée -->
                                         @{
-                                            var savings = VM_Messagerie.SelectedConversation.Prix - demande.PrixPropose;
+                                            var savings = VM_Messagerie.SelectedConversation.PrixAnnonce - demande.PrixPropose;
                                             var savingsPercent = (savings / VM_Messagerie.SelectedConversation.Prix) * 100;
                                         }
                                         @if (savings > 0)
                                         {
                                             <div class="savings-badge">
                                                 <i class="bi bi-piggy-bank-fill"></i>
-                                                Économie de @string.Format("{0:F2}", savings) € (-@string.Format("{0:F0}", savingsPercent)%)
+                                                Le Prix a baissé @string.Format("{0:F2}", savings) € (-@string.Format("{0:F0}", savingsPercent)%)
                                             </div>
                                         }
 
