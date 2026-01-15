@@ -24,7 +24,6 @@ public class  NotificationService : INotificationService
     private readonly IDataRepository<NotificationModificationAnnonce, int> _notificationModificationAnnonceManager;
     private readonly IDataRepository<NotificationAchatAnnonce, int> _notificationAchatAnnonceManager;
     private readonly INotificationMailService _mailService;
-    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceRepository;
     private readonly IAbonnementRepository<Abonnement, int> _abonnementRepo;
     private readonly ICurrentUserService _currentUserService;
     private readonly INotificationHubService _hubService;
@@ -43,7 +42,6 @@ public class  NotificationService : INotificationService
         IDataRepository<NotificationModificationAnnonce, int> notificationModificationAnnonceManager,
         IDataRepository<NotificationAchatAnnonce, int>  notificationAchatAnnonceManager,
         INotificationMailService mailService,
-        IAnnonceRepository<Annonce, int, FilterDTO> annonceRepository,
         IAbonnementRepository<Abonnement, int> abonnementRepo,
         ICurrentUserService currentUserService,
         INotificationHubService hubService
@@ -61,7 +59,6 @@ public class  NotificationService : INotificationService
         _notificationAchatAnnonceManager = notificationAchatAnnonceManager;
         _mailService = mailService;
         _hubService = hubService;
-        _annonceRepository = annonceRepository;
         _abonnementRepo = abonnementRepo;
         _currentUserService = currentUserService;
         _utilisateurRepository = utilisateurRepository;
@@ -112,7 +109,6 @@ public class  NotificationService : INotificationService
                 await _notificationAvertissementManager.AddAsync(notificationAvertissement);
                 await UpdateNotificationCount(notificationAvertissementCreateDTO.UtilisateurId);
                 break;
-            
             case NotificationModificationAnnonceCreateDTO notificationModificationAnnonceCreateDTO:
                 await CreateModificationAnnonceNotification(notificationModificationAnnonceCreateDTO);
                 break;

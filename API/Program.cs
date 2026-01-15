@@ -280,7 +280,8 @@ builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IDetectionService, DetectionService>();
 builder.Services.AddScoped<IEmailReceiverService, EmailReceiverService>();
 builder.Services.AddHostedService<EmailProcessingBackgroundService>();
-
+builder.Services.AddScoped<IDecisionService, DecisionService>();
+builder.Services.AddScoped<ISignalementService, SignalementService>();
 
 //BackgroundService
 builder.Services.AddHostedService<MasterDailyBackgroundService>();
