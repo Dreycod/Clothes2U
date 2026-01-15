@@ -212,8 +212,7 @@
             if (result == "Success")
             {
                 SuccessMessage = "Inscription réussie.";
-                // Option : basculer en mode connexion automatiquement
-                IsLoginMode = true;
+                navigationManager.NavigateTo("/", forceLoad: true);
             }
             else
             {
