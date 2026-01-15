@@ -26,7 +26,7 @@ public class DetectionService : IDetectionService
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
-        _fastApiBaseUrl = configuration["FastApi:BaseUrl"] ?? "http://localhost:8001";
+        _fastApiBaseUrl = "https://clothes2u-pythonapi-bac8bahsgneyg6gs.francecentral-01.azurewebsites.net";
     }
 
     public async Task<DetectionResultDTO> DetectImageDanger(PhotoUploadDTO Image)

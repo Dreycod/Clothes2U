@@ -41,7 +41,7 @@ public class SuggestionService : ISuggestionService
         _annoncePreferenceManager = annoncePreferenceManager;
         _serviceScopeFactory = serviceScopeFactory;
         _mapper = mapper;
-        _fastApiBaseUrl = configuration["FastApi:BaseUrl"] ?? "http://localhost:8001";
+        _fastApiBaseUrl = "https://clothes2u-pythonapi-bac8bahsgneyg6gs.francecentral-01.azurewebsites.net";
     }
 
     public async Task CalculSuggestion(int userId)
