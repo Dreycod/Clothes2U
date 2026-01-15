@@ -404,10 +404,10 @@
             </div>
 
             <div class="modal-actions">
-                <button class="btn-secondary-review" @onclick="VM.CloseAddReview">
+                <button class="btn-secondary" @onclick="VM.CloseAddReview">
                     Annuler
                 </button>
-                <button class="btn-primary-review" 
+                <button class="btn-primary btn-primary-review" 
                         @onclick="() => VM.SubmitReview(selectedOrder)" 
                         disabled="@VM.IsSubmittingReview">
                     @if (VM.IsSubmittingReview)

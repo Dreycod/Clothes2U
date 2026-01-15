@@ -3,6 +3,7 @@ using Shared.DTO.NoteUtilisateur;
 using FrontBlazor.Services.GenericService;
 using FrontBlazor.Services.Interfaces;
 using System.Net.Http.Json;
+using Shared;
 
 namespace FrontBlazor.Services
 {
@@ -10,16 +11,19 @@ namespace FrontBlazor.Services
     {
         public NoteUtilisateurWebService(HttpClient httpClient) : base(httpClient) {}
 
-        public async Task<HttpResponseMessage> AddNoteUtilisateur(NoteUtilisateurCreateDTO noteUtilisateurCreate)
+        public async Task<APIResponse<object>> AddNoteUtilisateur(NoteUtilisateurCreateDTO noteUtilisateurCreate)
         {
             var body = JsonContent.Create(noteUtilisateurCreate);
 
             var response = await PostWithCredentialsAsync("NoteUtilisateur", body);
-            if (!response.IsSuccessStatusCode)
+            var apiResponse = await response.Content.ReadFromJsonAsync<APIResponse<object>>();
+
+            if (apiResponse == null)
             {
-                return null;
+                return APIResponse<object>.ErrorResponse("Réponse serveur invalide");
             }
-            return response;
+
+            return apiResponse;
         }
 
         public async Task<List<NoteUtilisateurDetailDTO>?> GetNotesByUtilisateurId(int utilisateurId, int page = 1, int pageSize = 5)

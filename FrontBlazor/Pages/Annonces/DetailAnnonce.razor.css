@@ -774,24 +774,6 @@
     }
 }
 
-.viewer-3d-modal {
-    max-width: 90vw;
-    width: 1200px;
-    max-height: 90vh;
-}
-
-.viewer-3d-container {
-    width: 100%;
-    height: 70vh;
-    background: #f0f0f0;
-    position: relative;
-}
-
-#3d-canvas-detail {
-    width: 100%;
-    height: 100%;
-}
-
 .modal-header {
     padding: 1.5rem 2rem;
     border-bottom: 1px solid #e0e0e0;
@@ -891,6 +873,56 @@
     .modal-content.delete-modal .btn-danger {
         flex: 1;
     }
+
+
+.viewer-3d-modal {
+    max-width: 90vw;
+    width: 1200px;
+    max-height: 90vh;
+}
+
+.viewer-3d-container {
+    width: 100%;
+    height: 600px;
+    background: #f0f0f0;
+    position: relative;
+}
+
+#3d-canvas-detail {
+    width: 100%;
+    height: 600px;
+}
+
+.viewer-3d-overlay .viewer-3d-modal {
+    width: 90vw;
+    max-width: 1200px;
+    height: 85vh;
+    max-height: 800px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.viewer-3d-overlay .modal-header {
+    flex-shrink: 0;
+}
+
+.viewer-3d-container {
+    flex: 1;
+    background: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#3d-canvas-detail
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 @media (max-width: 1024px) {
     .product-container {
