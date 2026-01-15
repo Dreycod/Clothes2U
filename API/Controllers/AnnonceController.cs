@@ -264,6 +264,8 @@ public class AnnonceController : ControllerBase
         {
             return NotFound();
         }
+
+        await _photoService.DeletePhotosAnnonceAsync(annonceToDelete.AnnonceId); // Delete Photos
         await _annonceManager.DeleteAsync(annonceToDelete);
         return NoContent();
     }

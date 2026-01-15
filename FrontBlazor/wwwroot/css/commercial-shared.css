@@ -87,6 +87,19 @@
         font-size: 1.25rem;
     }
 
+/* Special back item */
+.nav-back {
+    background-color: #f8fafc;
+    border-left: 4px solid #10b981;
+    color: #374151;
+}
+
+.nav-back:hover {
+    background-color: #ecfdf5;
+    color: #10b981;
+    transform: translateX(-2px);
+}
+
 /* ===== Main Content ===== */
 .commercial-content {
     padding: 2rem;
