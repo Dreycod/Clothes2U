@@ -55,5 +55,12 @@ namespace API.Models.Repository.Managers
             _context.NoteUtilisateurs.Update(noteUtilisateur);
             await _context.SaveChangesAsync();
         }
+        public async Task<NoteUtilisateur?> GetNoteByUserIdAndOtherUserId(int userId, int otherUserId)
+        {
+            var note = await _context.NoteUtilisateurs
+                .FirstOrDefaultAsync(n => n.AuteurId == userId && n.CibleId == otherUserId);
+
+            return note;
+        }
     }
 }

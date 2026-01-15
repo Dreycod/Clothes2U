@@ -4,146 +4,103 @@ using API.Models.Repository;
 using API.Models.Repository.Interfaces;
 using API.Services;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Shared;
 using Shared.DTO;
 using Shared.DTO.ConnexionRequest;
 using Shared.DTO.Utilisateur;
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-namespace API.Controllers;
 
+namespace API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly IUtilisateurRepository _utilisateurManager;
+    private readonly IUtilisateurRepository _utilisateurRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILoginService _loginService;
-    private List<Utilisateur>? _utilisateurs;
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationRepository;
     private readonly IMessageRepository _messageRepository;
     private readonly IWebHostEnvironment _env;
 
-
     public LoginController(
         IConfiguration config,
         IWebHostEnvironment env,
         IMapper mapper,
-        IUtilisateurRepository dataRepo,
+        IUtilisateurRepository utilisateurRepository,
         ILoginService loginService,
         ICurrentUserService currentUserService,
-        INotificationRepository NotificationRepository,
+        INotificationRepository notificationRepository,
         IMessageRepository messageRepository)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _env = env;
         _mapper = mapper;
         _currentUserService = currentUserService;
-        _utilisateurManager = dataRepo;
+        _utilisateurRepository = utilisateurRepository;
         _loginService = loginService;
-        _notificationRepository = NotificationRepository;
+        _notificationRepository = notificationRepository;
         _messageRepository = messageRepository;
     }
 
+    /// <summary>
+    /// AVANT : 2 requêtes DB + logique métier mélangée
+    /// APRÈS : Le contrôleur est un simple coordinateur
+    /// </summary>
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var utilisateurs = await _utilisateurManager.GetAllAsync();
-        var usersList = utilisateurs?.ToList();
-
+        // Validation simple - le contrôleur vérifie juste les données d'entrée
         if (string.IsNullOrEmpty(request.Login))
-        {
             return BadRequest("Email ou login obligatoires.");
+
+        // Délégation au service - toute la logique métier est là-bas
+        var (result, utilisateur) = await _loginService.AuthenticateUtilisateurAsync(
+            request.Login,
+            request.Password);
+
+        // Gestion des erreurs - le contrôleur traduit les résultats métier en réponses HTTP
+        if (result != AuthResult.Success)
+        {
+            return result == AuthResult.InvalidLoginOrEmail
+                ? Unauthorized("Utilisateur inconnu.")
+                : Unauthorized("Votre mot de passe est incorrect.");
         }
 
-        var loginOrEmail = request.Login;
-        var auth = _loginService.AuthenticateUtilisateur(loginOrEmail!, request.Password, usersList); ;
+        // Génération du token et du cookie
+        SetAuthCookie(_loginService.GenerateJwtToken(utilisateur!));
 
-        if (auth.result != AuthResult.Success)
-        {
-            if (auth.result == AuthResult.InvalidLoginOrEmail)
-                return Unauthorized("Utilisateur inconnu.");
-            return Unauthorized("Votre mot de passe est incorrect.");
-        }
-
-        Utilisateur utilisateur = await _utilisateurManager.GetUtilisateurByLogin(auth.user.Login);
-
-        var tokenString = _loginService.GenerateJwtToken(utilisateur);
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = !_env.IsDevelopment(),              // ✅ HTTPS en prod
-            SameSite = _env.IsDevelopment()
-                ? SameSiteMode.Lax
-                : SameSiteMode.None,                     // ✅ Cross-domain Azure
-            Expires = DateTime.UtcNow.AddMinutes(30),
-            Path = "/"
-        };
-
-        Response.Cookies.Append("authToken", tokenString, cookieOptions);
         return Ok(utilisateur);
     }
 
+    /// <summary>
+    /// AVANT : Logique de validation et création dispersée
+    /// APRÈS : Délégation propre au service
+    /// </summary>
     [HttpPost("signup")]
     [AllowAnonymous]
     public async Task<IActionResult> SignUp([FromBody] RegisterRequest request)
     {
         if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
-        }
 
-        var existingUsers = await _utilisateurManager.GetAllAsync();
+        // Le service gère toute la logique métier
+        var (success, errorMessage, utilisateur) = await _loginService.RegisterUtilisateurAsync(
+            request.Email,
+            request.Login,
+            request.Password);
 
-        if (existingUsers.Any(u => u.Email.ToUpper() == request.Email.ToUpper()))
-            return BadRequest("Cet email est déjà utilisé.");
+        if (!success)
+            return BadRequest(errorMessage);
 
-        if (existingUsers.Any(u => u.Login.ToUpper() == request.Login.ToUpper()))
-            return BadRequest("Ce login est déjà utilisé.");
+        var login = await Login(new LoginRequest { Login = request.Login, Password = request.Password });
 
-        var newUser = new Utilisateur
-        {
-            Email = request.Email,
-            Login = request.Login,
-            Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Description = "",
-            StatutId = 1,
-            ValidEmail = false,
-            ValidTelephone = false,
-            Dateinscription = DateTime.UtcNow,
-            RoleId = 1
-        };
-        await _utilisateurManager.AddAsync(newUser);
-        var utilisateurComplet = await _utilisateurManager
-            .GetUtilisateurByLogin(newUser.Login);
-        var tokenString = _loginService.GenerateJwtToken(utilisateurComplet);
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = !_env.IsDevelopment(),              // ✅ HTTPS en prod
-            SameSite = _env.IsDevelopment()
-                ? SameSiteMode.Lax
-                : SameSiteMode.None,                     // ✅ Cross-domain Azure
-            Expires = DateTime.UtcNow.AddMinutes(30),
-            Path = "/"
-        };
-
-        Response.Cookies.Append("authToken", tokenString, cookieOptions);
-        return Ok(newUser);
+        return Ok(utilisateur);
     }
 
     [HttpPost("logout")]
@@ -152,11 +109,10 @@ public class LoginController : ControllerBase
         Response.Cookies.Delete("authToken", new CookieOptions
         {
             Secure = !_env.IsDevelopment(),
-            SameSite = _env.IsDevelopment()
-        ? SameSiteMode.Lax
-        : SameSiteMode.None,
+            SameSite = _env.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.None,
             Path = "/"
         });
+
         return Ok("Déconnexion réussie");
     }
 
@@ -165,13 +121,15 @@ public class LoginController : ControllerBase
     public async Task<ActionResult<CurrentUtilisateurDTO>> GetCurrentUser()
     {
         int userId = await _currentUserService.GetUserIdOrThrow();
-        var utilisateur = await _utilisateurManager.GetByIdAsync(userId);
+        var utilisateur = await _utilisateurRepository.GetByIdAsync(userId);
+
         if (utilisateur == null)
             return NotFound();
 
         CurrentUtilisateurDTO utilisateurDTO = _mapper.Map<CurrentUtilisateurDTO>(utilisateur);
         utilisateurDTO.MessagesCount = await _messageRepository.GetMessageCountByUserId(userId);
         utilisateurDTO.NotificationsCount = await _notificationRepository.GetNotificationsUnreadCountByUserId(userId);
+
         return Ok(utilisateurDTO);
     }
 
@@ -194,64 +152,24 @@ public class LoginController : ControllerBase
         }
 
         int userId = await _currentUserService.GetUserIdOrThrow();
-        Utilisateur user = await _utilisateurManager.GetByIdAsync((int)userId);
+        Utilisateur user = await _utilisateurRepository.GetByIdAsync(userId);
 
         if (user == null)
-        {
             return NotFound(APIResponse<object>.ErrorResponse("Utilisateur introuvable"));
-        }
 
         if (passwordDTO.CurrentPassword == passwordDTO.NewPassword)
-        {
             return BadRequest(APIResponse<object>.ErrorResponse("Le nouveau mot de passe doit être différent de l'ancien"));
-        }
 
         if (!BCrypt.Net.BCrypt.Verify(passwordDTO.CurrentPassword, user.Password))
-        {
             return Unauthorized(APIResponse<object>.ErrorResponse("Mot de passe actuel incorrect."));
-        }
 
-        await _utilisateurManager.UpdatePassword(user, BCrypt.Net.BCrypt.HashPassword(passwordDTO.NewPassword));
+        await _utilisateurRepository.UpdatePassword(
+            user,
+            _loginService.HashPassword(passwordDTO.NewPassword));
+
         return Ok(APIResponse<object>.SuccessResponse(null));
     }
 
-    // private Utilisateur AuthentificateUtilisateur(string loginOrEmail, string password)
-    // {
-    //     return _utilisateurs?.SingleOrDefault(u =>
-    //         (u.Email.ToUpper() == loginOrEmail.ToUpper() || u.Login.ToUpper() == loginOrEmail.ToUpper())
-    //         && BCrypt.Net.BCrypt.Verify(password, u.Password));
-    // }
-
-    // private string GenerateJwtToken(Utilisateur utilisateur)
-    // {
-    //     var key = _config["Jwt:Key"];
-    //     var issuer = _config["Jwt:Issuer"];
-    //     var audience = _config["Jwt:Audience"];
-    //
-    //     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-    //     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-    //
-    //     var claims = new[]
-    //     {
-    //         new Claim(JwtRegisteredClaimNames.Sub, utilisateur.Email),
-    //         new Claim("userId", utilisateur.UtilisateurId.ToString()),
-    //         new Claim("login", utilisateur.Login),
-    //         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    //     };
-    //
-    //     var tokenDescriptor = new SecurityTokenDescriptor
-    //     {
-    //         Subject = new ClaimsIdentity(claims),
-    //         Expires = DateTime.UtcNow.AddMinutes(30),
-    //         Issuer = issuer,
-    //         Audience = audience,
-    //         SigningCredentials = credentials
-    //     };
-    //
-    //     var tokenHandler = new JwtSecurityTokenHandler();
-    //     var token = tokenHandler.CreateToken(tokenDescriptor);
-    //     return tokenHandler.WriteToken(token);
-    // }
     [HttpGet("google-login")]
     [AllowAnonymous]
     public IActionResult GoogleLogin(string returnUrl = "/")
@@ -265,59 +183,60 @@ public class LoginController : ControllerBase
             $"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
             $"response_type=code&" +
             $"scope={Uri.EscapeDataString(scope)}&" +
-            $"state={Uri.EscapeDataString(returnUrl)}"; // On passe le returnUrl dans state
-
-        Console.WriteLine($"🚀 Redirection vers Google : {googleAuthUrl}");
+            $"state={Uri.EscapeDataString(returnUrl)}";
 
         return Redirect(googleAuthUrl);
     }
 
+    /// <summary>
+    /// AVANT : Logique Google mélangée avec la gestion HTTP
+    /// APRÈS : Séparation claire des responsabilités
+    /// </summary>
     [HttpGet("google-callback")]
     [AllowAnonymous]
     public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state)
     {
-        Console.WriteLine($"🔥 Google Callback appelé avec code: {code?.Substring(0, 20)}...");
-
         if (string.IsNullOrEmpty(code))
-        {
-            Console.WriteLine("❌ Code manquant");
             return Redirect($"{_config["FrontendUrl"]}/login?error=no_code");
-        }
 
         try
         {
+            // Étape 1 : Échanger le code contre un token
             var tokenResponse = await ExchangeCodeForToken(code);
-            Console.WriteLine($"✅ Access token obtenu");
-            var userInfo = await GetGoogleUserInfo(tokenResponse.AccessToken);
-            Console.WriteLine($"✅ User info: {userInfo.Email}");
-            var utilisateur = await GetOrCreateUtilisateur(userInfo);
-            Console.WriteLine($"✅ Utilisateur: {utilisateur.Login}");
-            var jwtToken = _loginService.GenerateJwtToken(utilisateur);
-            Console.WriteLine($"✅ JWT généré");
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = !_env.IsDevelopment(),              // ✅ HTTPS en prod
-                SameSite = _env.IsDevelopment()
-                    ? SameSiteMode.Lax
-                    : SameSiteMode.None,                     // ✅ Cross-domain Azure
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                Path = "/"
-            };
 
-            Response.Cookies.Append("authToken", jwtToken, cookieOptions);
-            Console.WriteLine($"✅ Cookie authToken créé");
+            // Étape 2 : Récupérer les infos utilisateur depuis Google
+            var userInfo = await GetGoogleUserInfo(tokenResponse.AccessToken);
+
+            // Étape 3 : Déléguer la logique métier au service
+            var utilisateur = await _loginService.GetOrCreateGoogleUtilisateurAsync(userInfo);
+
+            // Étape 4 : Générer le JWT et le cookie
+            SetAuthCookie(_loginService.GenerateJwtToken(utilisateur));
+
+            // Étape 5 : Rediriger vers le frontend
             var returnUrl = string.IsNullOrEmpty(state) ? "/" : state;
-            var finalUrl = $"{_config["FrontendUrl"]}{returnUrl}";
-            Console.WriteLine($"🔀 Redirection vers: {finalUrl}");
-            return Redirect(finalUrl);
+            return Redirect($"{_config["FrontendUrl"]}{returnUrl}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Erreur: {ex.Message}");
+            Console.WriteLine($"❌ Erreur Google Auth: {ex.Message}");
             return Redirect($"{_config["FrontendUrl"]}/login?error=server_error");
         }
     }
+
+    /// <summary>
+    /// AMÉLIORATION : Méthode helper privée pour éviter la duplication
+    /// Avant : Code copié-collé 3 fois
+    /// Après : Une seule méthode réutilisable
+    /// </summary>
+    private void SetAuthCookie(string token)
+    {
+        var cookieOptions = _loginService.CreateAuthCookieOptions(_env.IsDevelopment());
+        Response.Cookies.Append("authToken", token, cookieOptions);
+    }
+
+    #region Google OAuth Helpers
+
     private async Task<GoogleTokenResponse> ExchangeCodeForToken(string code)
     {
         var clientId = _config["Authentication:Google:ClientId"];
@@ -326,18 +245,16 @@ public class LoginController : ControllerBase
 
         using var httpClient = new HttpClient();
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
-    {
-        { "code", code },
-        { "client_id", clientId },
-        { "client_secret", clientSecret },
-        { "redirect_uri", redirectUri },
-        { "grant_type", "authorization_code" }
-    });
+        {
+            { "code", code },
+            { "client_id", clientId },
+            { "client_secret", clientSecret },
+            { "redirect_uri", redirectUri },
+            { "grant_type", "authorization_code" }
+        });
 
         var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
         var json = await response.Content.ReadAsStringAsync();
-
-        Console.WriteLine($"📝 Token response: {json.Substring(0, Math.Min(100, json.Length))}...");
 
         return JsonSerializer.Deserialize<GoogleTokenResponse>(json);
     }
@@ -354,45 +271,5 @@ public class LoginController : ControllerBase
         return JsonSerializer.Deserialize<GoogleUserInfo>(json);
     }
 
-    private async Task<Utilisateur> GetOrCreateUtilisateur(GoogleUserInfo userInfo)
-    {
-        // Cherche si un utilisateur existe déjà avec cet email
-        var existingUsers = await _utilisateurManager.GetAllAsync();
-        Utilisateur utilisateur = await _utilisateurManager.GetUtilisateurByEmail(userInfo.Email);
-
-        if (utilisateur != null)
-        {
-            return utilisateur;
-        }
-
-        // Créer un nouveau utilisateur
-        var baseLogin = userInfo.Email.Split('@')[0];
-        var login = baseLogin;
-        int counter = 1;
-
-        while (existingUsers.Any(u => u.Login.ToUpper() == login.ToUpper()))
-        {
-            login = $"{baseLogin}{counter}";
-            counter++;
-        }
-
-        utilisateur = new Utilisateur
-        {
-            Email = userInfo.Email,
-            Login = login,
-            Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
-            Description = "",
-            StatutId = 1,
-            ValidEmail = true,
-            ValidTelephone = false,
-            Dateinscription = DateTime.UtcNow,
-            RoleId = 1
-        };
-
-        await _utilisateurManager.AddAsync(utilisateur);
-        Console.WriteLine($"✅ Nouvel utilisateur créé: {login}");
-        utilisateur = await _utilisateurManager.GetUtilisateurByLogin(login);
-
-        return utilisateur;
-    }
+    #endregion
 }

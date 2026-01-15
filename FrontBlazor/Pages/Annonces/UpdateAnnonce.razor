@@ -7,8 +7,6 @@
 
 <PageTitle>Modifier un article - Clothes2U</PageTitle>
 
-<NavBar />
-
 <div class="add-article-page">
     <div class="add-article-container">
 
@@ -486,7 +484,7 @@
         {
             <div class="alert alert-success">
                 <i class="bi bi-check-circle"></i>
-                <p>✅ L'article a été créé avec succès ! Redirection...</p>
+                <p>✅ L'article a été modifié avec succès ! Redirection...</p>
             </div>
         }
 
@@ -533,6 +531,16 @@
 
     </div>
 </div>
+
+@if (VM_UpdateAnnonce.IsLoading)
+{
+    <div class="loading-overlay">
+        <div class="loading-container">
+            <div class="spinner-large"></div>
+            <p class="loading-text">Chargement...</p>
+        </div>
+    </div>
+}
 
 @code {
     private string marqueSearch = "";

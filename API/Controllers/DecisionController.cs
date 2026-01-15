@@ -1,57 +1,26 @@
-using API.Models.EntityFramework;
-using API.Models.Repository;
-using API.Models.Repository.Managers;
 using API.Services;
-using API.Services.VerificationSrvceV2;
-using AutoMapper;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DTO;
 using Shared.DTO.Decision;
 
 namespace API.Controllers;
-
-
-
 
 [ApiController]
 [Route("api/[controller]")]
 public class DecisionController : ControllerBase
 {
-    private readonly IDecisionRepository _decisionManager;
-    private readonly IUtilisateurRepository _utilisateurRepository;
-    private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
-    private readonly ISignalementRepository _signalementManager;
-    private readonly INoteUtilisateurRepository _noteUtilisateurManager;
-    private readonly IConversationRepository<Conversation, int> _conversationManager;
-    private readonly IMapper _mapper;
+    private readonly IDecisionService _decisionService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly INotificationMailService  _mailService;
-    private readonly INotificationService _notificationService;
 
     public DecisionController(
-        IDecisionRepository decisionManager,
-        IUtilisateurRepository utilisateurRepository,
-        ISignalementRepository signalementManager,
-        ICurrentUserService currentUserService,
-        IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
-        INoteUtilisateurRepository noteUtilisateurManager,
-        IConversationRepository<Conversation, int> conversationManager,
-        INotificationMailService mailService,
-        INotificationService notificationService,
-        IMapper mapper)
+        IDecisionService decisionService,
+        ICurrentUserService currentUserService)
     {
-        _currentUserService =  currentUserService;
-        _signalementManager = signalementManager;
-        _utilisateurRepository = utilisateurRepository;
-        _decisionManager = decisionManager;
-        _annonceManager = annonceManager;
-        _noteUtilisateurManager = noteUtilisateurManager;
-        _conversationManager = conversationManager;
-        _mapper = mapper;
-        _mailService = mailService;
-        _notificationService = notificationService;
+        _decisionService = decisionService;
+        _currentUserService = currentUserService;
     }
+
     /// <summary>
     /// Récupère toutes les décisions prises par le modérateur connecté.
     /// </summary>
@@ -66,13 +35,13 @@ public class DecisionController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ActionResult<DecisionDTO>>> GetAllDecisionsByModerateurId()
+    public async Task<ActionResult<IEnumerable<DecisionDTO>>> GetAllDecisionsByModerateurId()
     {
         int userId = await _currentUserService.GetUserIdOrThrow();
-        IEnumerable<Decision> decisions = await _decisionManager.GetAllDecisionsByModerateurId((int)userId);
-        IEnumerable<DecisionDTO> decisionsDTO = _mapper.Map<IEnumerable<DecisionDTO>>(decisions);
+        var decisionsDTO = await _decisionService.GetAllDecisionsByModeratorAsync(userId);
         return Ok(decisionsDTO);
     }
+
     /// <summary>
     /// Récupère les détails d'une décision spécifique par son identifiant.
     /// Le type de retour varie selon le type de décision (avertissement, suspension ou bannissement).
@@ -93,18 +62,20 @@ public class DecisionController : ControllerBase
     [Authorize(Roles = "Admin,Moderateur")]
     public async Task<ActionResult> GetDecisionById(int id)
     {
-        Decision decision = await _decisionManager.GetByIdAsync(id);
-        if (decision == null)
+        var decisionDTO = await _decisionService.GetDecisionByIdAsync(id);
+        
+        if (decisionDTO == null)
         {
             return NotFound();
         }
-        DecisionDetailDTO decisionDTO = _mapper.Map<DecisionDetailDTO>(decision);
+
         return new ObjectResult(decisionDTO)
         {
             StatusCode = StatusCodes.Status200OK,
             DeclaredType = typeof(DecisionDetailDTO)
         };
     }
+
     /// <summary>
     /// Crée une nouvelle décision de modération suite à un signalement.
     /// Peut être un avertissement, une suspension ou un bannissement.
@@ -133,79 +104,19 @@ public class DecisionController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<DecisionPostDTO>> CreateDecision([FromBody] DecisionPostDTO decisionDTO)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
-            Signalement signalement = await _signalementManager.GetByIdAsync(decisionDTO.SignalementId);
-            
-            if (signalement == null)
-            {
-                return NotFound("Signalement introuvable");
-            }
             int userId = await _currentUserService.GetUserIdOrThrow();
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
-            Utilisateur utilisateurSanctionne = await _utilisateurRepository.GetByIdAsync(decisionDTO.UtilisateurId);
-            if (utilisateurSanctionne == null)
-            {
-                return NotFound("Utilisateur introuvable");
-            }
-            var elementDecision = await CreateElementDecision(decisionDTO.ElementDecision);
-            var decision = new Decision
-            {
-                ElementDecision = elementDecision,
-                ModerateurId = userId,
-                UtilisateurId = decisionDTO.UtilisateurId,
-                DecisionDate = DateTime.UtcNow
-            };
-            switch (decisionDTO)
-            {
-                case DecisionAvertissementPostDTO avertissement:
-                    decision.DecisionAvertissement = new DecisionAvertissement();
-                    await _notificationService.CreateNotificationAvertissement(
-                        avertissement.UtilisateurId,
-                        avertissement.MessageModerateur);
-                    break;
+            var createdDecision = await _decisionService.CreateDecisionAsync(decisionDTO, userId);
 
-                case SanctionSuspensionPostDTO suspension:
-                    decision.DecisionSanction = new DecisionSanction
-                    {
-                        EstEnCours = true,
-                        SanctionSuspension = new SanctionSuspension
-                        {
-                            DateFinSuspension = suspension.DateFinSuspension
-                        }
-                    };
-                    
-                    await _utilisateurRepository.SuspendUser(decisionDTO.UtilisateurId);
-                    await _mailService.NotifyUserStatusChangedAsync(
-                        utilisateurSanctionne, 
-                        utilisateurSanctionne.StatutId);
-                    break;
-
-                case SanctionBannissementPostDTO bannissement:
-                    decision.DecisionSanction = new DecisionSanction
-                    {
-                        EstEnCours = true,
-                        SanctionBannissement = new SanctionBannissement()
-                    };
-                    
-                    await _utilisateurRepository.BanUser(decisionDTO.UtilisateurId);
-                    await _mailService.NotifyUserStatusChangedAsync(
-                        utilisateurSanctionne, 
-                        utilisateurSanctionne.StatutId);
-                    break;
-
-                default:
-                    return BadRequest("Type de décision non reconnu");
-            }
-            var createdDecision = await _decisionManager.AddAsync(decision);
-            await _signalementManager.DeleteSignalementByUserId(decisionDTO.UtilisateurId);
-            await _signalementManager.DeleteAsync(signalement);
-            return CreatedAtAction(nameof(GetDecisionById), 
-                new { id = createdDecision.DecisionId }, 
+            return CreatedAtAction(
+                nameof(GetDecisionById),
+                new { id = createdDecision.DecisionId },
                 new
                 {
                     decisionId = createdDecision.DecisionId,
@@ -214,53 +125,23 @@ public class DecisionController : ControllerBase
                     message = "Décision créée avec succès"
                 });
         }
-        catch (Exception e)
+        catch (KeyNotFoundException ex)
         {
-            return BadRequest(new { 
-                error = e.Message,
-                innerError = e.InnerException?.Message ?? "Pas d'exception interne",
-                stackTrace = e.StackTrace,
-                type = e.GetType().Name
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                error = ex.Message,
+                innerError = ex.InnerException?.Message ?? "Pas d'exception interne",
+                stackTrace = ex.StackTrace,
+                type = ex.GetType().Name
             });
         }
-    }
-
-    private async Task<ElementDecision> CreateElementDecision(ElementDecisionDTO dto)
-    {
-        var elementDecision = new ElementDecision();
-        switch (dto)
-        {
-            case ElementDecisionAnnonceDTO annonce:
-                await _annonceManager.SuspendElement(annonce.AnnonceId);
-                elementDecision.ElementDecisionAnnonce = new ElementDecisionAnnonce
-                {
-                    AnnonceId = annonce.AnnonceId
-                };
-                break;
-
-            case ElementDecisionMessageDTO message:
-                await _conversationManager.SuspendElement(message.MessageId);
-                elementDecision.ElementDecisionMessage = new ElementDecisionMessage
-                {
-                    MessageId = message.MessageId
-                };
-                break;
-
-            case ElementAvisDTO avis:
-                await _noteUtilisateurManager.SuspendElement(avis.AvisId);
-                elementDecision.ElementDecisionAvis = new ElementDecisionAvis
-                {
-                    AvisId = avis.AvisId
-                };
-                break;
-
-            case ElementUtilisateurDTO utilisateur:
-                elementDecision.ElementDecisionUtilisateur = new ElementDecisionUtilisateur();
-                break;
-
-            default:
-                throw new ArgumentException("Type d'élément de décision non reconnu");
-        }
-        return elementDecision;
     }
 }

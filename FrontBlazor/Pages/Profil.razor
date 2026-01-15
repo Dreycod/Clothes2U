@@ -4,7 +4,7 @@
 @using System.Globalization
 @inject IJSRuntime JS
 
-<PageTitle>Clothes2U</PageTitle>
+<PageTitle>@VM_Profil?.ViewingUser?.Login - Clothes2U</PageTitle>
 
 <div class="profile-page" @onclick="HandlePageClick">
     <div class="profile-container">
@@ -63,9 +63,8 @@
                     <div class="profile-info">
                         <div class="profile-top-row">
                             <h1 class="profile-name">@VM_Profil.ViewingUser.Login  @if (VM_Profil.ViewingUser.ValidEmail || VM_Profil.ViewingUser.ValidTelephone) {
-                            <i class="bi bi-patch-check"></i>
-                        }
-     </h1>
+                            <i class="bi bi-patch-check"></i>}</h1>
+
                         <div class="profile-actions">
                             @if (VM_Profil.IsSameUser)
                             {
@@ -109,9 +108,8 @@
                         @if (VM_Profil.IsSameUser)
                         {
                             <span class="profile-stat clickable" @onclick="VM_Profil.OpenAbonnementsModal">
-                                @VM_Profil.ViewingUser.Abonnements Abonnements
+                                @VM_Profil.ViewingUser.Abonnements Abonnements,
                             </span>
-                            <span>, </span>
                             <span class="profile-stat clickable">
                                 @VM_Profil.ViewingUser.Abonnes Abonnés
                             </span>
@@ -130,52 +128,8 @@
                             <span>@(VM_Profil.ViewingUser.MoyenneAvis) (@(VM_Profil.AvisCount) avis)</span>
                         </div>
                     </div>
-                    @if (VM_Profil.IsSameUser)
-                    {
-                        <div class="profile-preferences">
 
-                            <button class="btn-toggle"
-                                    @onclick="VM_Profil.ToggleNotifMailPreference"
-                                    disabled="@(!VM_Profil.ViewingUser.ValidEmail || VM_Profil.IsUpdatingNotifMail)">
-
-                                @if (VM_Profil.IsUpdatingNotifMail)
-                                {
-                                    <span class="spinner-small-inline"></span>
-                                    <span> Mise à jour...</span>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-envelope"></i>
-                                    <span>
-                                        Notifications email :
-                                        <strong>
-                                            @(VM_Profil.ViewingUser.PreferenceNotifMail ? "ON" : "OFF")
-                                        </strong>
-                                    </span>
-                                }
-                            </button>
-
-                            @if (!VM_Profil.ViewingUser.ValidEmail)
-                            {
-                                <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    <span>
-                                        Vous devez vérifier votre adresse email pour activer les notifications.
-                                    </span>
-                                </div>
-                            }
-
-                            @if (!string.IsNullOrEmpty(VM_Profil.NotifMailErrorMessage))
-                            {
-                                <div class="alert alert-error">
-                                    <i class="bi bi-x-circle"></i>
-                                    <span>@VM_Profil.NotifMailErrorMessage</span>
-                                </div>
-                            }
-
-                        </div>
-                    }
-
+                    <p>@VM_Profil.ViewingUser.Description</p>
                 </div>
             </div>
 

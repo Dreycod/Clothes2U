@@ -80,10 +80,16 @@ public class NotificationController : ControllerBase
 
             if (string.IsNullOrWhiteSpace(commercialRequest.CommercialTitle) || string.IsNullOrWhiteSpace(commercialRequest.CommercialText))
             {
-                return BadRequest("Le titre et le contenu de la notification commerciale ne peuvent pas être vides.");
+                return BadRequest("Le titre et le contenu de la notification commerciale ne peuvent pas ï¿½tre vides.");
             }
 
-            await _notificationService.CreateNotificationCommercial(commercialRequest);
+            NotificationCommercialCreateDTO notificationAvertissement = new NotificationCommercialCreateDTO()
+            {
+                TypeId = (int)TypeNotification.Commercial,
+                CommercialTitle = commercialRequest.CommercialTitle,
+                CommercialText = commercialRequest.CommercialText,
+            };
+            await _notificationService.CreateNotification(notificationAvertissement);
             return NoContent();
         }
         catch (Exception ex)

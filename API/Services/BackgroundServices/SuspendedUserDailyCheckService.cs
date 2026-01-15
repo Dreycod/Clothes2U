@@ -24,11 +24,12 @@ public class SuspendedUserDailyCheckService : ISuspendedUserDailyCheckService
         List<Decision> decisions = await _decisionManager.GetCurrentDecisionSuspensions();
         foreach (Decision decision in decisions)
         {
-            Console.WriteLine(decision.DecisionId);
             if (DateTime.UtcNow >= decision.DecisionSanction.SanctionSuspension.DateFinSuspension)
             {
                 Utilisateur user = decision.Utilisateur;
                 user.StatutId = (int)UtilisateurStatut.Actif;
+                decision.DecisionSanction.EstEnCours = false;
+                await _decisionManager.UpdateAsync(decision);
                 await  _utilisateurManager.UpdateAsync(user);
                 decision.DecisionSanction.EstEnCours = false;
                 await  _decisionManager.UpdateAsync(decision);

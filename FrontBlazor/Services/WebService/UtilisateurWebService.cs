@@ -79,18 +79,19 @@ public class UtilisateurWebService : ReadableService<UtilisateurViewDTO>, IUtili
         Console.WriteLine($"✅ User found: {result?.Login}");
         return result;
     }
-    public async Task<bool> PatchUpdateUser(UtilisateurSettingsDTO utilisateurSettingsDTO)
+    public async Task<APIResponse<object>> PatchUpdateUser(UtilisateurSettingsDTO utilisateurSettingsDTO)
     {
         var body = JsonContent.Create(utilisateurSettingsDTO);
         var response = await PatchWithCredentialsAsync("Utilisateur/PatchSettings", body);
 
-        if (!response.IsSuccessStatusCode)
+        var apiResponse = await response.Content.ReadFromJsonAsync<APIResponse<object>>();
+
+        if (apiResponse == null)
         {
-            var error = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"❌ PatchUpdateUser failed: {error}");
-            return false;
+            return APIResponse<object>.ErrorResponse("Réponse serveur invalide");
         }
-        return true;
+
+        return apiResponse;
     }
     public async Task UpdateNotifMailPreferenceAsync(int userId, bool preference)
     {

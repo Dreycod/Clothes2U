@@ -18,6 +18,14 @@
 
     <!-- Votre script Stripe personnalisé -->
     <script src="js/stripe.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -46,8 +54,8 @@
     <script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>
     <script src="js/clickOutside.js"></script>
     <script src="js/ScrollSupportHelper.js"></script>
+    <script type="module" src="js/3DViewer.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </body>
 
 </html>

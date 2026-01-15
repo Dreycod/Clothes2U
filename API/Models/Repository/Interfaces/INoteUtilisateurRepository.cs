@@ -5,5 +5,6 @@ namespace API.Models.Repository
     {
         Task<IEnumerable<NoteUtilisateur>> GetByUserIdAsync(int userId, int page, int pageSize);
         Task<double> GetMoyenneNoteAsync(int userId);
+        Task<NoteUtilisateur?> GetNoteByUserIdAndOtherUserId(int userId, int otherUserId);
     }
 }

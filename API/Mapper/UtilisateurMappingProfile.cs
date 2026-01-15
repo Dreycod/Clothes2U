@@ -19,6 +19,11 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
             .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
 
+        CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
+            .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))
+            .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.NoteUtilisateurId, opt => opt.Ignore());
+
         CreateMap<Utilisateur, UtilisateurCardDTO>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.NomUtilisateur, opt => opt.MapFrom(src => src.Login))
@@ -39,7 +44,7 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.NombreAvis, opt => opt.MapFrom(src => src.NotesCible.Count))
             .ForMember(dest => dest.MoyenneAvis, opt => opt.MapFrom(src =>
                 src.NotesCible.Any()
-                    ? src.NotesCible.Average(n => (double)n.Note)
+                    ? Math.Round(src.NotesCible.Average(n => (double)n.Note), 1)
                     : 0.0));
 
         CreateMap<Utilisateur, CurrentUtilisateurDTO>()
@@ -47,13 +52,14 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Statut, opt => opt.MapFrom(src => src.Statut.StatutLibelle))
             .ForMember(dest => dest.RoleUtilisateur, opt => opt.MapFrom(src => src.Role.RoleUtilisateurLibelle));
-            
+
         CreateMap<Utilisateur, UtilisateurSettingsDTO>()
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
-            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoId));
+            .ForMember(dest => dest.PhotoProfilId, opt => opt.MapFrom(src => src.PhotoId))
+            .ForMember(dest => dest.PreferenceNotifMail, opt => opt.MapFrom(src => src.PreferenceNotifMail));
                 CreateMap<UtilisateurSettingsDTO, Utilisateur>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.Ignore())
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
