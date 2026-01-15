@@ -124,7 +124,7 @@ public class  NotificationService : INotificationService
         IEnumerable<Utilisateur> utilisateurs = await _favorisManager.GetUtilisateurByAnnonceId(notificationModificationAnnonceCreateDTO.AnnonceId);
         foreach (var user in utilisateurs)
         {
-            if (user.PreferenceNotifMail)
+            if (user.PreferenceNotifMail && user.ValidEmail)
             {
                 await _mailService.NotifyAnnonceUpdatedAsync(notificationModificationAnnonceCreateDTO.AnnonceTitle, notificationModificationAnnonceCreateDTO.AnnonceId, user.Email);
             }

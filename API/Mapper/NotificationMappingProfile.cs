@@ -21,11 +21,18 @@ public class NotificationMappingProfile : Profile
             .ForMember(dest => dest.NotificationId,
             opt => opt.MapFrom((src, dest, destMember, context) =>
                 (int)context.Items["notificationId"]));
+        
         CreateMap<NotificationAvertissementCreateDTO, NotificationAvertissement>()
-            .ForMember(dest => dest.MessageAvertissement, opt => opt.MapFrom(src => src.MessageModerateur));
+            .ForMember(dest => dest.MessageAvertissement, opt => opt.MapFrom(src => src.MessageModerateur))
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
 
         CreateMap<NotificationPropositionCreateDTO, NotificationProposition>()
-            .ForMember(dest => dest.PropositionId, opt => opt.MapFrom(src => src.PropositionId));
+            .ForMember(dest => dest.PropositionId, opt => opt.MapFrom(src => src.PropositionId))
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
 
         CreateMap<NotificationNouvelleAnnonceCreateDTO, NotificationNouvelleAnnonce>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
