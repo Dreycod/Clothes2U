@@ -37,7 +37,6 @@ public class AnnonceManager : GenericCRUDManager<Annonce>, IAnnonceRepository<An
             .Include(a => a.LesVisualisations)
             .AsSplitQuery(); 
     }
-
     public override async Task<Annonce?> GetByIdAsync(int id)
     {
         return await BaseAnnonceQuery()

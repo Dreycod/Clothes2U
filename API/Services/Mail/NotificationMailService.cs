@@ -17,13 +17,13 @@ namespace API.Services
             _emailService = emailService;
             _templateService = templateService;
         }
-        public async Task NotifyNewAnnonceAsync(Annonce annonce, string userMail)
+        public async Task NotifyNewAnnonceAsync(string annonceTitle, string UtilisateurLogin, int annonceId, string userMail)
         {
             var htmlContent = _templateService.GetNewAnnonceTemplate(
                 "Utilisateur", 
-                annonce.Utilisateur.Login,
-                annonce.Title,
-                $"https://votre-site.com/annonce/{annonce.AnnonceId}"
+                UtilisateurLogin,
+                annonceTitle,
+                $"https://votre-site.com/annonce/{annonceId}"
             );
 
             await _emailService.SendHtmlAsync(
@@ -32,12 +32,12 @@ namespace API.Services
                 htmlContent
             );
         }
-        public async Task NotifyAnnonceUpdatedAsync(Annonce annonce, string userMail)
+        public async Task NotifyAnnonceUpdatedAsync(string annonceTitle, int annonceId, string userMail)
         {
             var htmlContent = _templateService.GetAnnonceUpdatedTemplate(
                 "Utilisateur",
-                annonce.Title,
-                $"https://votre-site.com/annonce/{annonce.AnnonceId}"
+                annonceTitle,
+                $"https://votre-site.com/annonce/{annonceId}"
             );
 
             await _emailService.SendHtmlAsync(

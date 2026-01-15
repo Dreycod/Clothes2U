@@ -12,6 +12,7 @@ using Shared.DTO.Annonce;
 using Shared.DTO.Couleur;
 using Shared.DTO.Notification;
 using Shared.DTO.Photo;
+using Shared.Enums;
 
 namespace API.Controllers;
 
@@ -184,7 +185,13 @@ public class AnnonceController : ControllerBase
 
         AnnonceDTO updatedAnnonceDTO = _mapper.Map<AnnonceDTO>(UpdatedAnnonce.Result);
 
-        await _notificationService.CreateModificationAnnonceNotification(annonce.AnnonceId);
+        NotificationModificationAnnonceCreateDTO notificationModificationAnnonce = new NotificationModificationAnnonceCreateDTO()
+        {
+            AnnonceId = annonce.AnnonceId,
+            AnnonceTitle = annonce.Title,
+            TypeId = (int)TypeNotification.ModificationAnnonce
+        };
+        await _notificationService.CreateNotification(notificationModificationAnnonce);
 
         return Ok(updatedAnnonceDTO);
     }
@@ -216,7 +223,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Mot Interdit");
         }
-        int userId = await _currentUserService.GetUserIdOrThrow();
+        Utilisateur user = await _currentUserService.GetUser();
         var annonce = _mapper.Map<Annonce>(createAnnonceDto);
 
         await _annonceManager.AddAsync(annonce);
@@ -225,7 +232,16 @@ public class AnnonceController : ControllerBase
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonceComplete);
 
         // Notification
-        await _notificationService.CreateNouvelleAnnonceNotification(annonce.AnnonceId);
+        NotificationNouvelleAnnonceCreateDTO notificationNouvelleAnnonce = new NotificationNouvelleAnnonceCreateDTO
+        {
+            UtilisateurIdFollowed = user.UtilisateurId,
+            AnnonceId = annonce.AnnonceId,
+            AnnonceTitle = annonce.Title,
+            UtilisateurLogin = user.Login,
+            TypeId = (int)TypeNotification.NouvelleAnnonce
+            
+        };
+        await _notificationService.CreateNotification(notificationNouvelleAnnonce);
 
         return CreatedAtAction(nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
