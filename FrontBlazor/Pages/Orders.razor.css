@@ -1071,6 +1071,37 @@
         cursor: not-allowed;
     }
 
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+    .alert i {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+.alert-error {
+    background-color: #fee;
+    color: #c33;
+    border: 1px solid #fcc;
+}
+
+.alert-success {
+    background-color: #efe;
+    color: #3a3;
+    border: 1px solid #cfc;
+}
+
+.alert p {
+    margin: 0.25rem 0;
+}
+
+
 /*!* ============================================*/
 /*   ORDERS PAGE STYLES*/
 /*   ============================================ *!*/

@@ -12,6 +12,7 @@ using Shared.DTO.Annonce;
 using Shared.DTO.Couleur;
 using Shared.DTO.Notification;
 using Shared.DTO.Photo;
+using Shared.Enums;
 
 namespace API.Controllers;
 
@@ -184,7 +185,13 @@ public class AnnonceController : ControllerBase
 
         AnnonceDTO updatedAnnonceDTO = _mapper.Map<AnnonceDTO>(UpdatedAnnonce.Result);
 
-        await _notificationService.CreateModificationAnnonceNotification(annonce.AnnonceId);
+        NotificationModificationAnnonceCreateDTO notificationModificationAnnonce = new NotificationModificationAnnonceCreateDTO()
+        {
+            AnnonceId = annonce.AnnonceId,
+            AnnonceTitle = annonce.Title,
+            TypeId = (int)TypeNotification.ModificationAnnonce
+        };
+        await _notificationService.CreateNotification(notificationModificationAnnonce);
 
         return Ok(updatedAnnonceDTO);
     }
@@ -216,7 +223,7 @@ public class AnnonceController : ControllerBase
         {
             return BadRequest("Mot Interdit");
         }
-        int userId = await _currentUserService.GetUserIdOrThrow();
+        Utilisateur user = await _currentUserService.GetUser();
         var annonce = _mapper.Map<Annonce>(createAnnonceDto);
 
         await _annonceManager.AddAsync(annonce);
@@ -225,7 +232,16 @@ public class AnnonceController : ControllerBase
         AnnonceDetailDTO resultDto = _mapper.Map<AnnonceDetailDTO>(annonceComplete);
 
         // Notification
-        await _notificationService.CreateNouvelleAnnonceNotification(annonce.AnnonceId);
+        NotificationNouvelleAnnonceCreateDTO notificationNouvelleAnnonce = new NotificationNouvelleAnnonceCreateDTO
+        {
+            UtilisateurIdFollowed = user.UtilisateurId,
+            AnnonceId = annonce.AnnonceId,
+            AnnonceTitle = annonce.Title,
+            UtilisateurLogin = user.Login,
+            TypeId = (int)TypeNotification.NouvelleAnnonce
+            
+        };
+        await _notificationService.CreateNotification(notificationNouvelleAnnonce);
 
         return CreatedAtAction(nameof(GetById), new { id = annonce.AnnonceId }, resultDto);
     }
@@ -441,20 +457,24 @@ public class AnnonceController : ControllerBase
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
         IEnumerable<AnnonceDTO> annonces = await _annonceExtensionService.GetAnnoncesByUserId(id);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        IEnumerable<AnnonceDTO> annoncesPaginees = annonces
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
     }
 
     /// <summary>
-    /// Met en pause une annonce.
-    /// Seul le propriétaire de l'annonce peut la mettre en pause.
+    /// Changer l'etat d'une annonce.
+    /// Seul le propriétaire de l'annonce peut changer l'etat.
     /// Change le statut de l'annonce à "En pause" (StatutAnnonceId = 5).
     /// </summary>
     /// <param name="id">L'identifiant de l'annonce à mettre en pause.</param>
     /// <returns>Aucun contenu en cas de succès.</returns>
-    /// <response code="204">L'annonce a été mise en pause.</response>
+    /// <response code="204">L'annonce a changé d'etat.</response>
     /// <response code="401">L'utilisateur n'est pas authentifié.</response>
     /// <response code="403">L'utilisateur n'est pas le propriétaire de l'annonce.</response>
     /// <response code="404">L'annonce n'existe pas.</response>

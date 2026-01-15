@@ -19,6 +19,11 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.LoginAuteur, opt => opt.MapFrom(src => src.Auteur.Login))
             .ForMember(dest => dest.LoginCible, opt => opt.MapFrom(src => src.Cible.Login));
 
+        CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
+            .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))
+            .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.NoteUtilisateurId, opt => opt.Ignore());
+
         CreateMap<Utilisateur, UtilisateurCardDTO>()
             .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId))
             .ForMember(dest => dest.NomUtilisateur, opt => opt.MapFrom(src => src.Login))
@@ -39,7 +44,7 @@ public class UtilisateurMappingProfile : Profile
             .ForMember(dest => dest.NombreAvis, opt => opt.MapFrom(src => src.NotesCible.Count))
             .ForMember(dest => dest.MoyenneAvis, opt => opt.MapFrom(src =>
                 src.NotesCible.Any()
-                    ? src.NotesCible.Average(n => (double)n.Note)
+                    ? Math.Round(src.NotesCible.Average(n => (double)n.Note), 1)
                     : 0.0));
 
         CreateMap<Utilisateur, CurrentUtilisateurDTO>()

@@ -9,11 +9,6 @@ public class SignalementMappingProfile : Profile
 {
     public SignalementMappingProfile()
     {
-        CreateMap<NoteUtilisateurCreateDTO, NoteUtilisateur>()
-            .ForMember(dest => dest.CibleId, opt => opt.MapFrom(src => src.CibleId))
-            .ForMember(dest => dest.DatePublication, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.NoteUtilisateurId, opt => opt.Ignore());
-
         CreateMap<Signalement, SignalementDTO>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeSignalement.SignalementTypeLibelle))
             .ForMember(dest => dest.LoginUtilisateurSignale, opt => opt.MapFrom(src =>

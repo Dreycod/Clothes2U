@@ -1,14 +1,49 @@
-﻿import * as THREE from 'three';
+﻿window.waitForElement = (elementId, maxAttempts = 40) => {
+    return new Promise((resolve) => {
+        let attempts = 0;
+
+        const checkElement = () => {
+            const el = document.getElementById(elementId);
+
+            if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+                console.log(`Element ready after ${attempts * 50}ms:`, el.clientWidth, 'x', el.clientHeight);
+                resolve(true);
+                return;
+            }
+
+            attempts++;
+            if (attempts >= maxAttempts) {
+                console.error(`Element ${elementId} not ready after ${maxAttempts * 50}ms`);
+                resolve(false);
+                return;
+            }
+
+            setTimeout(checkElement, 50);
+        };
+
+        checkElement();
+    });
+};
+
+import * as THREE from 'three';
 import { GLTFLoader } from 'jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'jsm/controls/OrbitControls.js';
 
 window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
+    console.log('=== 3D Viewer Initialization ===');
+    console.log('Container ID:', containerId);
+    console.log('Model URL:', modelUrl);
+    console.log('Texture URL:', textureUrl);
+
     const container = document.getElementById(containerId);
 
     if (!container) {
         console.error(`Container ${containerId} not found`);
         return;
     }
+
+    console.log('Container found:', container);
+    console.log('Container dimensions:', container.clientWidth, 'x', container.clientHeight);
 
     if (!textureUrl || textureUrl === "0" || textureUrl.includes("/0")) {
         container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 1.1rem;">Aucune photo ou modèle disponible pour la visualisation 3D</div>';
@@ -18,9 +53,15 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     const w = container.clientWidth;
     const h = container.clientHeight;
 
+    if (w === 0 || h === 0) {
+        console.error('Container has zero dimensions!', w, h);
+        return;
+    }
+
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(w, h);
     container.appendChild(renderer.domElement);
+    console.log('Renderer created and added to container');
 
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
     camera.position.set(0, 0, 7);
@@ -43,11 +84,18 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     directionalLight.position.set(5, 10, 5);
     scene.add(directionalLight);
 
+    console.log('Loading texture from:', textureUrl);
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(textureUrl);
+    const texture = textureLoader.load(
+        textureUrl,
+        () => console.log('Texture loaded successfully'),
+        undefined,
+        (err) => console.error('Texture loading error:', err)
+    );
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.flipY = false;
 
+    console.log('Loading model from:', modelUrl);
     const loader = new GLTFLoader();
     let model;
     let autoRotate = true;
@@ -55,26 +103,38 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
     let interactionTimeout;
     let isZooming = false;
 
-    loader.load(modelUrl, (gltf) => {
-        model = gltf.scene;
+    loader.load(
+        modelUrl,
+        (gltf) => {
+            console.log('Model loaded successfully:', gltf);
+            model = gltf.scene;
 
-        model.traverse((child) => {
-            if (child.isMesh) {
-                child.material.map = texture;
-                child.material.needsUpdate = true;
-            }
-        });
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    console.log('Applying texture to mesh:', child.name);
+                    child.material.map = texture;
+                    child.material.needsUpdate = true;
+                }
+            });
 
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center);
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center);
 
-        scene.add(model);
+            scene.add(model);
+            console.log('Model added to scene');
 
-        setTimeout(() => {
-            animateCameraZoom();
-        }, 100);
-    });
+            setTimeout(() => {
+                animateCameraZoom();
+            }, 100);
+        },
+        (progress) => {
+            console.log('Loading progress:', (progress.loaded / progress.total * 100).toFixed(2) + '%');
+        },
+        (error) => {
+            console.error('Model loading error:', error);
+        }
+    );
 
     function animateCameraZoom() {
         isZooming = true;
@@ -86,7 +146,6 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
         function updateZoom() {
             const elapsed = performance.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
-
             const eased = 1 - Math.pow(1 - progress, 3);
 
             camera.position.lerpVectors(startPos, endPos, eased);
@@ -126,7 +185,6 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
 
     function animate() {
         requestAnimationFrame(animate);
-
         controls.update();
 
         if (model && autoRotate && !userInteracting && !isZooming) {
@@ -136,11 +194,13 @@ window.initAndApplyTexture = (containerId, modelUrl, textureUrl) => {
         renderer.render(scene, camera);
     }
     animate();
+    console.log('Animation loop started');
 };
 
 window.clearCanvas = (containerId) => {
     const container = document.getElementById(containerId);
     if (container) {
+        console.log('Clearing canvas:', containerId);
         container.innerHTML = '';
     }
 };

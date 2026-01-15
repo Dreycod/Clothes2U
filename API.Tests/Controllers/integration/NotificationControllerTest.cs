@@ -8,6 +8,8 @@ using API.Models;
 using API.Models.EntityFramework;
 using API.Models.Repository.Managers;
 using API.Services;
+using API.Services.Interfaces;
+using API.Services.VerificationSrvceV2;
 using AutoMapper;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +19,7 @@ using Moq;
 using Shared.DTO.Notification; 
 
 namespace API.Tests.Controllers.integration;
-/*
+
 [TestClass]
 [TestSubject(typeof(NotificationController))]
 [TestCategory("integration")]
@@ -48,18 +50,59 @@ public class NotificationControllerTest
         _mapper = config.CreateMapper();
 
         var Manager = new NotificationManager(_context);
+        NotificationAvertissementManager notificationAvertissementManager =
+            new NotificationAvertissementManager(_context);
+        FavorisManager favorisManager = new FavorisManager(_context);
+        UtilisateurManager utilisateurManager = new UtilisateurManager(_context);
+        NotificationCommercialManager notificationCommercialManager =
+            new NotificationCommercialManager(_context);
+        NotificationPropositionManager notificationPropositionManager =
+            new NotificationPropositionManager(_context);
+        NotificationMessageManager notificationMessageManager =
+            new NotificationMessageManager(_context);
+        NotificationNouvelleAnnonceManager notificationNouvelleAnnonceManager =
+            new NotificationNouvelleAnnonceManager(_context);
+        NotificationModificationAnnonceManager notificationModificationAnnonceManager =
+            new NotificationModificationAnnonceManager(_context);
+        NotificationAchatManager notificationAchatManager =
+            new NotificationAchatManager(_context);
+        
+        AbonnementManager abonnementManager = new AbonnementManager(_context);
+        
 
         var mockCurrentUserService = new Mock<ICurrentUserService>();
         mockCurrentUserService
             .Setup(s => s.GetUserIdOrThrow())
             .ReturnsAsync(TEST_USER_ID1);
+        
+        var mockNotificationMailService = new Mock<INotificationMailService>();
+        var notificationHubService = new Mock<INotificationHubService>();
+        
+
+        NotificationService notificationService = new NotificationService(
+            _mapper,
+            Manager,
+            favorisManager,
+            utilisateurManager,
+            notificationAvertissementManager,
+            notificationCommercialManager,
+            notificationPropositionManager,
+            notificationMessageManager,
+            notificationNouvelleAnnonceManager,
+            notificationModificationAnnonceManager,
+            notificationAchatManager,
+            mockNotificationMailService.Object,
+            abonnementManager,
+            mockCurrentUserService.Object,
+            notificationHubService.Object
+        );
 
         _controller = new NotificationController(
             Manager,
             _mapper,
-            mockCurrentUserService.Object
+            mockCurrentUserService.Object,
+            notificationService
         );
-        
         InitializeDefaultObjects();
     }
     
@@ -496,4 +539,4 @@ public class NotificationControllerTest
         Assert.IsNotNull(action);
         Assert.IsInstanceOfType(action.Result, typeof(NotFoundResult));
     }
-}*/
+}

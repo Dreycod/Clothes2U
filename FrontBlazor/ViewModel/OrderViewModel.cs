@@ -1,9 +1,11 @@
-using System.Collections.ObjectModel;
-using Microsoft.AspNetCore.Components;
 using FrontBlazor.Services.Interfaces;
 using FrontBlazor.ViewModel.Generic;
+using Microsoft.AspNetCore.Components;
 using Shared.DTO;
+using Shared.DTO.Conversation;
+using Shared.DTO.NoteUtilisateur;
 using Shared.DTO.Utilisateur;
+using System.Collections.ObjectModel;
 
 namespace FrontBlazor.ViewModel;
 
@@ -11,6 +13,8 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
 {
     private readonly IOrderService _orderService;
     private readonly IAuthService _authService;
+    private readonly INoteUtilisateurService _noteUtilisateurService;
+    private readonly IConversationService<ConversationDTO> _conversationService;
     private readonly NavigationManager _nav;
 
     public List<OrderDTO> PurchasedOrders { get; private set; } = new();
@@ -31,15 +35,13 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
     public string StatusFilter { get; set; } = "Tous";
 
     public event Action? OnChange;
-    public bool ShowAddReviewModal { get; set; }
-
-    public string? ReviewErrorMessage { get; set; }
-
-    public int SelectedRating { get; set; }
-
+    #region Avis
+    public bool ShowAddReviewModal { get; set; } = false;
+    public int SelectedRating { get; set; } = 0;
     public string ReviewComment { get; set; } = string.Empty;
-
-    public bool IsSubmittingReview { get; set; }
+    public string ReviewErrorMessage { get; set; } = string.Empty;
+    public bool IsSubmittingReview { get; set; } = false;
+    #endregion
 
     public OrderViewModel(
         IOrderService orderService,
@@ -47,10 +49,13 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
         NavigationManager nav,
         INotificationService notificationService,
         NavigationManager navigationManager,
+        INoteUtilisateurService noteUtilisateurService,
+        IConversationService<ConversationDTO> conversationService,
         ISignalRService signalRService) : base(navigationManager, authService,signalRService, notificationService)
     {
         _orderService = orderService;
         _authService = authService;
+        _noteUtilisateurService = noteUtilisateurService;
         _nav = nav;
     }
     
@@ -163,15 +168,14 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
     public void ShowAddReview()
     {
         ShowAddReviewModal = true;
-        ReviewErrorMessage = null;
+        ReviewErrorMessage = string.Empty;
+        SelectedRating = 0;
+        ReviewComment = string.Empty;
     }
 
     public void CloseAddReview()
     {
         ShowAddReviewModal = false;
-        SelectedRating = 0;
-        ReviewComment = string.Empty;
-        ReviewErrorMessage = null;
     }
 
     public void SetRating(int rating)
@@ -181,6 +185,9 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
 
     public async Task SubmitReview(OrderDTO order)
     {
+
+        if (utilisateur == null) return;
+
         if (SelectedRating <= 0)
         {
             ReviewErrorMessage = "Veuillez sélectionner une note.";
@@ -194,20 +201,37 @@ public class OrderViewModel : ClientBaseViewModel, IDisposable
         }
 
         IsSubmittingReview = true;
-        ReviewErrorMessage = null;
+        ReviewErrorMessage = string.Empty;
 
         try
         {
-            // TODO : appel API avis
-            CloseAddReview();
+            NoteUtilisateurCreateDTO newReview = new NoteUtilisateurCreateDTO
+            {
+                Note = SelectedRating,
+                Commentaire = ReviewComment,
+                CibleId = order.CommandeId
+            };
+
+            var result = await _noteUtilisateurService.AddNoteUtilisateur(newReview);
+            if (result.Success)
+            {
+                CloseAddReview();
+            }
+            else
+            {
+                ReviewErrorMessage = result.ErrorMessage ?? "Erreur lors de l'envoi de l'avis.";
+                NotifyStateChanged();
+            }
         }
         catch
         {
             ReviewErrorMessage = "Erreur lors de l'envoi de l'avis.";
+            NotifyStateChanged();
         }
         finally
         {
             IsSubmittingReview = false;
+            NotifyStateChanged();
         }
     }
 }

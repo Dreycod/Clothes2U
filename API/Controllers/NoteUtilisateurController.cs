@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Shared.DTO;
 using Shared.DTO.Conversation;
+using Shared;
 
 namespace API.Controllers
 {
@@ -62,10 +63,6 @@ namespace API.Controllers
         public async Task<ActionResult<NoteUtilisateurDTO>> AddNote(NoteUtilisateurCreateDTO dto)
         {
             int userId = await _currentUserService.GetUserIdOrThrow();
-            var entity = _mapper.Map<NoteUtilisateur>(dto);
-            entity.AuteurId = (int)userId;
-            entity.Statut = true;
-            await _noteUtilisateurManager.AddAsync(entity);
             Commande order = await _orderManager.GetOrderWithDetailsAsync(dto.CibleId);
             Conversation conversation = await _conversationManager.GetByIdAsync(order.ConversationId);
             int? id = await _conversationManager.GetOtherUser(userId, conversation);
@@ -73,9 +70,20 @@ namespace API.Controllers
             {
                 return NotFound();
             }
+
+            var note = await _noteUtilisateurManager.GetNoteByUserIdAndOtherUserId((int)userId, (int)id);
+            if (note != null)
+            {
+                return BadRequest(APIResponse<object>.ErrorResponse("Vous avez déjà laissé une note pour cet utilisateur."));
+            }
+
             dto.CibleId = (int)id;
-            return CreatedAtAction(nameof(GetById), new { id = entity.NoteUtilisateurId },
-                _mapper.Map<NoteUtilisateurDTO>(entity));
+            var noteUtilisateur = _mapper.Map<NoteUtilisateur>(dto);
+            noteUtilisateur.AuteurId = (int)userId;
+            noteUtilisateur.Statut = true;
+            await _noteUtilisateurManager.AddAsync(noteUtilisateur);
+
+            return Ok(APIResponse<object>.SuccessResponse(null));
         }
 
         [HttpDelete("{id}")]

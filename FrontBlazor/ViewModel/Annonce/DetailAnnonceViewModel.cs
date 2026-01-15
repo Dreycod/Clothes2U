@@ -207,6 +207,7 @@ public class DetailAnnonceViewModel : ClientBaseViewModel
             return;
         }
 
+        ShowActionsDropdown = false;
         ShowDeleteProductModal = !ShowDeleteProductModal;
     }
 
