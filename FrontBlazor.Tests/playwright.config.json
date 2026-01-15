@@ -1,0 +1,32 @@
+{
+  "baseURL": "https://localhost:7001",
+  "timeout": 30000,
+  "expect": {
+    "timeout": 5000
+  },
+  "use": {
+    "trace": "on-first-retry",
+    "screenshot": "only-on-failure",
+    "video": "retain-on-failure"
+  },
+  "projects": [
+    {
+      "name": "chromium",
+      "use": {
+        "browserName": "chromium"
+      }
+    },
+    {
+      "name": "firefox",
+      "use": {
+        "browserName": "firefox"
+      }
+    },
+    {
+      "name": "webkit",
+      "use": {
+        "browserName": "webkit"
+      }
+    }
+  ]
+}
