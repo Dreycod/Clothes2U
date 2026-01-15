@@ -63,3 +63,6 @@
 /API.Tests/bin/Release/net8.0
 /API.Tests/obj/Release/net8.0
 /FrontBlazor/bin/Release/net8.0
+/FrontBlazor/Properties
+/API/Properties/PublishProfiles
+/API/Properties/ServiceDependencies/apisae - Zip Deploy1
