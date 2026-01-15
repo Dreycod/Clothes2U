@@ -116,7 +116,9 @@ public class AuthWebService : BaseGenericService, IAuthService
     public string GetGoogleLoginUrl(string returnUrl = "/")
     {
         var baseUrl = _httpClient.BaseAddress?.ToString().TrimEnd('/');
-        return $"{baseUrl}/Login/google-login?returnUrl={Uri.EscapeDataString(returnUrl)}";
+        returnUrl = returnUrl?.Trim('/') ?? "";
+        var finalReturnUrl = string.IsNullOrEmpty(returnUrl) ? "/" : $"/{returnUrl}";
+        return $"{baseUrl}/Login/google-login?returnUrl={Uri.EscapeDataString(finalReturnUrl)}";
     }
 
     public async Task<APIResponse<object>> ModificationMotDePasse(ChangePasswordDTO passwordDTO)
