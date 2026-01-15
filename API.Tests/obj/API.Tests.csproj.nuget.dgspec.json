@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj": {}
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API.Tests/API.Tests.csproj": {}
   },
   "projects": {
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj": {
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API.Tests/API.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj",
+        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API.Tests/API.Tests.csproj",
         "projectName": "API.Tests",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/API.Tests.csproj",
+        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API.Tests/API.Tests.csproj",
         "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/obj/",
+        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API.Tests/obj/",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
         "configFilePaths": [
@@ -27,8 +27,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj": {
-                "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj"
+              "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API/API.csproj": {
+                "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API/API.csproj"
               }
             }
           }
@@ -52,13 +52,9 @@
               "target": "Package",
               "version": "[2025.2.4, )"
             },
-            "MSTest.TestAdapter": {
-              "target": "Package",
-              "version": "[4.0.2, )"
-            },
             "MSTest.TestFramework": {
               "target": "Package",
-              "version": "[4.0.2, )"
+              "version": "[3.1.1, )"
             },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
@@ -89,14 +85,14 @@
         }
       }
     },
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj": {
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API/API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj",
+        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API/API.csproj",
         "projectName": "API",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/API.csproj",
+        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API/API.csproj",
         "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API/obj/",
+        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/elioth/.nuget/NuGet/NuGet.Config"
@@ -111,8 +107,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj": {
-                "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj"
+              "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/Shared/Shared.csproj": {
+                "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/Shared/Shared.csproj"
               }
             }
           }
@@ -238,14 +234,14 @@
         }
       }
     },
-    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj": {
+    "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/Shared/Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj",
+        "projectUniqueName": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/Shared/Shared.csproj",
         "projectName": "Shared",
-        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/Shared.csproj",
+        "projectPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/Shared/Shared.csproj",
         "packagesPath": "/home/elioth/.nuget/packages/",
-        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/Shared/obj/",
+        "outputPath": "/home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/Shared/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/elioth/.nuget/NuGet/NuGet.Config"

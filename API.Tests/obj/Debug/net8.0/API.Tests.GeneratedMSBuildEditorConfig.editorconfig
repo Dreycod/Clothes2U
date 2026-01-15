@@ -1,5 +1,4 @@
 is_global = true
-build_property.IsMSTestTestAdapterReferenced = true
 build_property.TargetFramework = net8.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
@@ -9,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = API.Tests
-build_property.ProjectDir = /home/elioth/Documents/Cours/Année 3/SAE_S5/CodeLeDernier/API.Tests/
+build_property.ProjectDir = /home/elioth/Documents/Cours/Année 3/SAE_S5/CODELEVRAIDERNIER/API.Tests/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
