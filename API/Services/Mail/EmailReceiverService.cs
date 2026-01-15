@@ -75,7 +75,7 @@ namespace API.Services
                 var inbox = client.Inbox;
                 await inbox.OpenAsync(FolderAccess.ReadWrite);
 
-                // Récupérer uniquement les emails non lus
+// Récupérer uniquement les emails non lus
                 var unreadMessages = await inbox.SearchAsync(SearchQuery.NotSeen);
 
                 _logger.LogInformation($"Nombre d'emails non lus : {unreadMessages.Count}");
@@ -85,9 +85,9 @@ namespace API.Services
                     var message = await inbox.GetMessageAsync(uid);
                     await ProcessEmailAsync(message);
 
-                    // Marquer comme lu après traitement
                     await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true);
                 }
+
 
                 await client.DisconnectAsync(true);
             }
