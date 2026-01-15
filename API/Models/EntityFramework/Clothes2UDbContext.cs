@@ -87,7 +87,7 @@ public partial class Clothes2UDbContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("sae_clothes2u");
+        modelBuilder.HasDefaultSchema("prod_clothes2u");
         
         
         modelBuilder.Entity<Abonnement>(entity =>

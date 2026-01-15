@@ -129,7 +129,7 @@ public class LoginViewModel : ClientBaseViewModel
 
     public async Task OnGoogleClicked()
     {
-        var googleUrl = _authService.GetGoogleLoginUrl("/");
+        var googleUrl = _authService.GetGoogleLoginUrl("");
         _nav.NavigateTo(googleUrl, forceLoad: true);
     }
 
