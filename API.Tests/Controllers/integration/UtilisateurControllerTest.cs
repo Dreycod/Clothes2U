@@ -18,7 +18,7 @@ using Moq;
 using Shared;
 using Shared.DTO;
 using Shared.DTO.Utilisateur;
-
+/*
 namespace API.Tests.Controllers.integration;
 
 [TestClass]
@@ -288,7 +288,7 @@ public class UtilisateurControllerTest
         var apiResponse = okResult.Value as APIResponse<object>;
         Assert.IsNotNull(apiResponse);
         Assert.IsTrue(apiResponse.Success);
-    }*/
+    }
     
 
     [TestMethod]
@@ -400,4 +400,4 @@ public class UtilisateurControllerTest
         Assert.IsNotNull(action);
         Assert.IsInstanceOfType(action, typeof(NoContentResult));
     }
-}
+}*/

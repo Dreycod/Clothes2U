@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTO;
 using Shared.DTO.Decision;
+using Shared.DTO.Notification;
+using Shared.Enums;
 
 namespace API.Controllers;
 
@@ -164,9 +166,13 @@ public class DecisionController : ControllerBase
             {
                 case DecisionAvertissementPostDTO avertissement:
                     decision.DecisionAvertissement = new DecisionAvertissement();
-                    await _notificationService.CreateNotificationAvertissement(
-                        avertissement.UtilisateurId,
-                        avertissement.MessageModerateur);
+                    NotificationAvertissementCreateDTO notificationAvertissement = new NotificationAvertissementCreateDTO()
+                    {
+                        TypeId = (int)TypeNotification.Avertissement,
+                        MessageModerateur = avertissement.MessageModerateur,
+                        UtilisateurId = avertissement.UtilisateurId,
+                    };
+                    await _notificationService.CreateNotification(notificationAvertissement);
                     break;
 
                 case SanctionSuspensionPostDTO suspension:
