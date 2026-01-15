@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 using Shared.DTO.DemandeRestauration;
+using Shared.Enums;
 
 namespace API.Controllers;
 
@@ -94,7 +95,7 @@ public class DemandeRestaurationController : ControllerBase
     {
         int userId = await _currentUserService.GetUserIdOrThrow();
         DemandeRestauration demande = await _demandeRestaurationManager
-            .GetActiveDemandeRestaurationByUserId((int)userId);
+            .GetActiveDemandeRestaurationByUserId(userId);
         if (demande != null)
         {
             if (demande.Status == "En cours")
@@ -120,7 +121,7 @@ public class DemandeRestaurationController : ControllerBase
             Status = "En cours",
             Message = messageDemandeRestauration,
             DecisionId = decision.DecisionId,
-            Date = DateTime.UtcNow
+            Date = DateTime.UtcNow.ToLocalTime()
         };
     
         await _demandeRestaurationManager.AddAsync(demandeRestauration);
@@ -149,7 +150,7 @@ public class DemandeRestaurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SubmitDecisionDemande([FromBody] DecisionDemandeRestaurationDTO decisionDemandeRestauration)
     {
-        var demande = await _demandeRestaurationManager.GetByIdAsync(decisionDemandeRestauration.DemandeId);
+        DemandeRestauration demande = await _demandeRestaurationManager.GetByIdAsync(decisionDemandeRestauration.DemandeId);
         if (demande == null)
         {
             return NotFound($"Demande de restauration {decisionDemandeRestauration.DemandeId} introuvable.");
@@ -167,7 +168,11 @@ public class DemandeRestaurationController : ControllerBase
                 {
                     return NotFound($"Utilisateur {decisionDemandeRestauration.UtilisateurId} introuvable.");
                 }
-                utilisateur.StatutId = 1;
+
+                Decision decision = await _decisionManager.GetByIdAsync(demande.DecisionId);
+                decision.DecisionSanction.EstEnCours = false;
+                await _decisionManager.UpdateAsync(decision);
+                utilisateur.StatutId = (int)UtilisateurStatut.Actif;
                 await _utilisateurManager.UpdateAsync(utilisateur);
                 demande.Status = "Accepté";
                 await _demandeRestaurationManager.UpdateAsync(demande);

@@ -48,6 +48,7 @@ public class SignalementControllerTest
         _mapper = config.CreateMapper();
 
         var Manager = new SignalementManager(_context);
+        SignalementService signalementService = new SignalementService(Manager, _mapper);
 
         var mockCurrentUserService = new Mock<ICurrentUserService>();
         mockCurrentUserService
@@ -56,6 +57,7 @@ public class SignalementControllerTest
 
         _controller = new SignalementController(
             Manager,
+            signalementService,
             _mapper,
             mockCurrentUserService.Object
         );
