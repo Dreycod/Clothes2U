@@ -457,7 +457,11 @@ public class AnnonceController : ControllerBase
             return BadRequest("Page et pageSize doivent être supérieurs à 0");
         }
         IEnumerable<AnnonceDTO> annonces = await _annonceExtensionService.GetAnnoncesByUserId(id);
-        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annonces);
+        IEnumerable<AnnonceDTO> annoncesPaginees = annonces
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        IEnumerable<AnnonceDTO> annoncesDTO = _mapper.Map<IEnumerable<AnnonceDTO>>(annoncesPaginees);
         annoncesDTO = await _annonceExtensionService.LikeAnnonces(annoncesDTO);
         annoncesDTO = await _annonceExtensionService.CheckOwnerAnnonce(annoncesDTO);
         return Ok(annoncesDTO);
