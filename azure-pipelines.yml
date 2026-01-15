@@ -15,20 +15,38 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+# Installer NuGet
 - task: NuGetToolInstaller@1
 
+# Restaurer les packages (IMPORTANT : feedsToUse)
 - task: NuGetCommand@2
   inputs:
+    command: 'restore'
     restoreSolution: '$(solution)'
+    feedsToUse: 'select'
 
+# Build avec Visual Studio (pas dotnet build)
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    msbuildArgs: >
+      /p:DeployOnBuild=true
+      /p:WebPublishMethod=Package
+      /p:PackageAsSingleFile=true
+      /p:SkipInvalidConfigurations=true
+      /p:PackageLocation="$(Build.ArtifactStagingDirectory)"
 
+# Tests unitaires (si presents)
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+# Publier l'artefact
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'

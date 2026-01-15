@@ -35,7 +35,7 @@ namespace FrontBlazor.ViewModel.Moderation.Support
             await base.LoadAsync();
             if (utilisateur == null)
             {
-                _nav.NavigateTo("/");
+                _nav.NavigateTo("/login");
             }
         }
         public async Task SubmitAsync()

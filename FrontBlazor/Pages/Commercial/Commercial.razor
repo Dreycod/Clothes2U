@@ -1,4 +1,5 @@
 @page "/commercial"
+@inject CommercialViewModel VM_Commercial
 <PageTitle>Équipe Commerciale - Clothes2U</PageTitle>
 
 <link rel="stylesheet" href="/css/commercial-shared.css" />
@@ -41,6 +42,14 @@
                 <a href="/commercial/tailles" class="commercial-nav-item">
                     <i class="bi bi-rulers"></i>
                     <span>Tailles</span>
+                </a>
+                <a href="/commercial/messages" class="commercial-nav-item">
+                    <i class="bi bi-megaphone"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="/" class="commercial-nav-item nav-back">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Retour au site</span>
                 </a>
             </nav>
         </aside>
@@ -152,6 +161,15 @@
                         <div class="action-info">
                             <h3>Ajouter une taille</h3>
                             <p>Créer une nouvelle taille</p>
+                        </div>
+                    </button>
+                    <button class="action-card" @onclick="@(() => VM_Commercial.GoToPage("/commercial/messages"))">
+                        <div class="action-icon emerald">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h3>Envoyer un message</h3>
+                            <p>Notifier tous les utilisateurs</p>
                         </div>
                     </button>
                 </div>

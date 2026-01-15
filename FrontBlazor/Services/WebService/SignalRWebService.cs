@@ -34,8 +34,10 @@ public class SignalRWebService : IAsyncDisposable, ISignalRService
 
     public SignalRWebService()
     {
-        _chatHubUrl = "http://localhost:5096/chatHub";
-        _notificationHubUrl = "http://localhost:5096/notificationHub";
+        //_chatHubUrl = "http://localhost:5096/chatHub";
+        _chatHubUrl = "https://apisae-anfegsddaabjavaa.francecentral-01.azurewebsites.net/chatHub";
+        
+        _notificationHubUrl = "https://apisae-anfegsddaabjavaa.francecentral-01.azurewebsites.net/notificationHub";//_notificationHubUrl = "http://localhost:5096/notificationHub";
         Console.WriteLine($"[SignalR] Service initialized");
         Console.WriteLine($"[SignalR] Chat Hub URL: {_chatHubUrl}");
         Console.WriteLine($"[SignalR] Notification Hub URL: {_notificationHubUrl}");

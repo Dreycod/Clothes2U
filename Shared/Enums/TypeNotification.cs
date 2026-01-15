@@ -7,5 +7,6 @@ public enum TypeNotification
     Avertissement = 3,
     ModificationAnnonce = 4,
     NouvelleAnnonce = 5,
-    Achat = 6
+    Achat = 6,
+    Commercial = 7
 }

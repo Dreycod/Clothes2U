@@ -1,0 +1,44 @@
+﻿<span class="couleur-badge" title="@Couleur">
+    <span class="couleur-dot" style="background-color: @GetCouleurCode()"></span>
+    <span class="couleur-label">@Couleur</span>
+</span>
+
+@code {
+    [Parameter]
+    public string Couleur { get; set; } = string.Empty;
+
+    private string GetCouleurCode()
+    {
+        return Couleur?.ToLower() switch
+        {
+            "noir" => "#000000",
+            "blanc" => "#FFFFFF",
+            "gris" => "#808080",
+            "rouge" => "#DC143C",
+            "bleu" => "#1E90FF",
+            "vert" => "#228B22",
+            "jaune" => "#FFD700",
+            "orange" => "#FF8C00",
+            "rose" => "#FF69B4",
+            "violet" => "#8B008B",
+            "marron" => "#8B4513",
+            "beige" => "#F5F5DC",
+            "bordeaux" => "#800020",
+            "marine" => "#000080",
+            "kaki" => "#8B864E",
+            "cyan" => "#00FFFF",
+            "magenta" => "#FF00FF",
+            "turquoise" => "#40E0D0",
+            "lavande" => "#E6E6FA",
+            "corail" => "#FF7F50",
+            "saumon" => "#FA8072",
+            "olive" => "#808000",
+            "crème" => "#FFFDD0",
+            "ivoire" => "#FFFFF0",
+            "argenté" => "#C0C0C0",
+            "doré" => "#FFD700",
+            "bronze" => "#CD7F32",
+            _ => "#999999" // Couleur par défaut si non reconnue
+        };
+    }
+}

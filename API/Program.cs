@@ -280,7 +280,8 @@ builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 builder.Services.AddScoped<IDetectionService, DetectionService>();
 builder.Services.AddScoped<IEmailReceiverService, EmailReceiverService>();
 builder.Services.AddHostedService<EmailProcessingBackgroundService>();
-
+builder.Services.AddScoped<IDecisionService, DecisionService>();
+builder.Services.AddScoped<ISignalementService, SignalementService>();
 
 //BackgroundService
 builder.Services.AddHostedService<MasterDailyBackgroundService>();
@@ -305,6 +306,7 @@ builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<INotificationRepository, NotificationManager>();
 builder.Services.AddScoped<IDataRepository<NotificationMessage, int>, NotificationMessageManager>();
 builder.Services.AddScoped<IDataRepository<NotificationAvertissement, int>,  NotificationAvertissementManager>();
+builder.Services.AddScoped<IDataRepository<NotificationCommercial, int>, NotificationCommercialManager>();
 builder.Services.AddScoped<IDataRepository<NotificationNouvelleAnnonce, int>, NotificationNouvelleAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationModificationAnnonce, int>, NotificationModificationAnnonceManager>();
 builder.Services.AddScoped<IDataRepository<NotificationProposition, int>, NotificationPropositionManager>();

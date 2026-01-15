@@ -127,4 +127,13 @@ public class UtilisateurManager : GenericCRUDManager<Utilisateur>, IUtilisateurR
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<Utilisateur?> GetUtilisateurByEmailOrLogin(string loginOrEmail)
+    {
+        return await _context.Utilisateurs
+            .Include(u => u.Role) // On inclut le role pour le JWT
+            .FirstOrDefaultAsync(u =>
+                u.Email.ToUpper() == loginOrEmail.ToUpper() ||
+                u.Login.ToUpper() == loginOrEmail.ToUpper());
+    }
 }

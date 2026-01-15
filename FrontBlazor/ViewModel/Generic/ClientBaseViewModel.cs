@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Shared.DTO.Notification;
 using Shared.DTO.Utilisateur;
+using Shared.Enums;
 
 namespace FrontBlazor.ViewModel.Generic;
 
@@ -184,6 +185,7 @@ public class ClientBaseViewModel : IAsyncDisposable
 
         public async Task DeleteNotification(int id)
         {
+            NotificationCount--;
             await _notificationService.DeleteNotification(id);
             var notificationToRemove = notifications.FirstOrDefault(n => n?.NotificationId == id);
             if (notificationToRemove != null)
@@ -227,9 +229,11 @@ public class ClientBaseViewModel : IAsyncDisposable
 
                 case NotificationAdminDTO:
                     break;
-                case NotificationPropositionDTO notifProposition:
-                    _nav.NavigateTo($"/messages?conversationId={notifProposition.ConversationId}");
+                case NotificationCommercialDTO:
                     break;
+                case NotificationPropositionDTO notifProposition:
+                        _nav.NavigateTo($"/messages?conversationId={notifProposition.ConversationId}");
+                        break;
             }
             await DeleteNotification(notification.NotificationId);
         }

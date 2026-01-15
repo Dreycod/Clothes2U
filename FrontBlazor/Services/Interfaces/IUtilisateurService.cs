@@ -12,6 +12,6 @@ public interface IUtilisateurService : IReadableService<UtilisateurViewDTO>
     Task UpdateNotifMailPreferenceAsync(int userId, bool preference);
     Task<NewsDTO> GetActivity();
     Task<UtilisateurSettingsDTO> GetUserSettingsById(int id);
-    Task<bool> PatchUpdateUser(UtilisateurSettingsDTO updatedUser);
+    Task<APIResponse<object>> PatchUpdateUser(UtilisateurSettingsDTO updatedUser);
     public Task<APIResponse<object>> SuppressionCompte(AccountDeletionDTO password);
 }

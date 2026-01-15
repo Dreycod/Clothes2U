@@ -10,37 +10,50 @@ public class NotificationMappingProfile : Profile
             .ForMember(dest => dest.DateCreation, opt => opt.MapFrom(_ => DateTime.UtcNow))
             .ForMember(dest => dest.EstLu, opt => opt.MapFrom(_ => false))
             .ForMember(dest => dest.NotificationTypeId, opt => opt.MapFrom(src => src.TypeId))
-            .ForMember(dest => dest.UtilisateurId, opt => opt.MapFrom(src => src.UtilisateurId));
+            .ForMember(dest => dest.UtilisateurId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["utilisateurId"]));
 
 
         CreateMap<NotificationMessageCreateDTO, NotificationMessage>()
             .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
             .ForMember(dest => dest.MessagePreview, opt => opt.MapFrom(src => src.MessagePreview))
-            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+            .ForMember(dest => dest.NotificationId,
+            opt => opt.MapFrom((src, dest, destMember, context) =>
+                (int)context.Items["notificationId"]));
         
         CreateMap<NotificationAvertissementCreateDTO, NotificationAvertissement>()
             .ForMember(dest => dest.MessageAvertissement, opt => opt.MapFrom(src => src.MessageModerateur))
-            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
 
         CreateMap<NotificationPropositionCreateDTO, NotificationProposition>()
             .ForMember(dest => dest.PropositionId, opt => opt.MapFrom(src => src.PropositionId))
-            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
 
         CreateMap<NotificationNouvelleAnnonceCreateDTO, NotificationNouvelleAnnonce>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
-            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
 
         CreateMap<NotificationModificationAnnonceCreateDTO, NotificationModificationAnnonce>()
             .ForMember(dest => dest.AnnonceId, opt => opt.MapFrom(src => src.AnnonceId))
-            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
+        CreateMap<NotificationCommercialCreateDTO, NotificationCommercial>()
+            .ForMember(dest => dest.CommercialText,
+                opt => opt.MapFrom(src => src.CommercialText))
+            .ForMember(dest => dest.CommercialTitle,
+                opt => opt.MapFrom(src => src.CommercialTitle))
+            .ForMember(dest => dest.NotificationId,
+                opt => opt.MapFrom((src, dest, destMember, context) =>
+                    (int)context.Items["notificationId"]));
 
-        
-        CreateMap<NotificationAdminCreateDTO,NotificationAdmin>()
-            .ForMember(dest => dest.AdminText, opt => opt.MapFrom(src => src.AdminText))
-            .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId));
-
-        
-        
         CreateMap<Notification, NotificationDTO>()
             .ConvertUsing((src, dest, context) =>
             {
@@ -52,6 +65,17 @@ public class NotificationMappingProfile : Profile
                         DateCreation = src.DateCreation,
                         EstLu = src.EstLu,
                         AdminText = src.NotificationAdmins.AdminText
+                    };
+                }
+                else if (src.NotificationCommercials != null)
+                {
+                    return new NotificationCommercialDTO
+                    {
+                        NotificationId = src.NotificationId,
+                        DateCreation = src.DateCreation,
+                        EstLu = src.EstLu,
+                        CommercialText = src.NotificationCommercials.CommercialText,
+                        CommercialTitle = src.NotificationCommercials.CommercialTitle
                     };
                 }
                 else if (src.NotificationAvertissements != null)

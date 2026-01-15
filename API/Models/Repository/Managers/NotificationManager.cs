@@ -58,6 +58,8 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
             .Include(n => n.NotificationAchats)
                 .ThenInclude(nm => nm.Annonce)
                     .ThenInclude(a => a.Utilisateur)
+            .Include( n => n.NotificationCommercials)
+                
             .AsSplitQuery();
     }
 
@@ -100,6 +102,11 @@ public class NotificationManager : GenericCRUDManager<Notification>, INotificati
         await _context.SaveChangesAsync();
     }
 
+    public async Task CreateNotificationCommercial(NotificationCommercial notification)
+    {
+        await _context.NotificationCommercials.AddAsync(notification);
+        await _context.SaveChangesAsync();
+    }
     public async Task DeleteMessageNotificationByConversationId(int id, int userId)
     {
         var notifications = await _context.Notifications.Where(n => 

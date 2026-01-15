@@ -27,16 +27,17 @@ namespace FrontBlazor.ViewModel
 
         public string Username { get; set; }
         public string Email { get; set; }
+        public string Description { get; set; }
         public IBrowserFile? Photo { get; set; }
         public bool IsUploadingPhoto { get; set; }
         public byte[]? UploadedPhotoBytes { get; set; }
         public string? UploadedPhotoFileName { get; set; }
         public string? PreviewPhotoUrl { get; set; }
 
-        public bool IsUpdatingUsername { get; set; }
+        public bool IsUpdatingInfoGeneral { get; set; }
         public bool IsUpdatingEmail { get; set; }
-        public string UsernameError { get; set; }
-        public bool UsernameUpdateSuccess { get; set; }
+        public string InfoGeneraleError { get; set; }
+        public bool InfoGeneraleUpdateSuccess { get; set; }
         public string EmailError { get; set; }
         public bool EmailUpdateSuccess { get; set; }
 
@@ -44,7 +45,7 @@ namespace FrontBlazor.ViewModel
         public string PasswordError { get; set; }
         public bool PasswordUpdateSuccess { get; set; }
 
-        public bool EmailNotificationsEnabled { get; set; }
+        public bool? EmailNotificationsEnabled { get; set; }
         public bool IsUpdatingNotifications { get; set; }
         public string NotificationError { get; set; }
         public bool NotificationUpdateSuccess { get; set; }
@@ -96,7 +97,9 @@ namespace FrontBlazor.ViewModel
                     return;
                 }
                 Username = CurrentUser.Login;
+                Description = CurrentUser.Description;
                 Email = CurrentUser.Email;
+                EmailNotificationsEnabled = CurrentUser.PreferenceNotifMail;
             }
             catch (Exception ex)
             {
@@ -218,59 +221,48 @@ namespace FrontBlazor.ViewModel
             NotifyStateChanged();
         }
 
-        public async Task UpdateUsername()
+        public async Task UpdateInfoGeneral()
         {
-            UsernameError = string.Empty;
+            InfoGeneraleError = string.Empty;
+            InfoGeneraleUpdateSuccess = false;
 
             if (string.IsNullOrWhiteSpace(Username))
             {
-                UsernameError = "Le nom d'utilisateur ne peut pas être vide";
+                InfoGeneraleError = "Le nom d'utilisateur ne peut pas être vide";
                 NotifyStateChanged();
                 return;
             }
 
-            if (Username.Length < 3)
-            {
-                UsernameError = "Le nom d'utilisateur doit contenir au moins 3 caractères";
-                NotifyStateChanged();
-                return;
-            }
-
-            if (Username == CurrentUser.Login)
-            {
-                UsernameError = "Veuillez entrer un nouveau nom d'utilisateur";
-                return;
-            }
-
-            IsUpdatingUsername = true;
+            IsUpdatingInfoGeneral = true;
             NotifyStateChanged();
 
             try
             {
                 UtilisateurSettingsDTO utilisateurSettingsDTO = new UtilisateurSettingsDTO
                 {
-                    Login = Username
+                    Login = string.IsNullOrWhiteSpace(Username) ? CurrentUser.Login : Username,
+                    Description = string.IsNullOrWhiteSpace(Description) ? CurrentUser.Description : Description
                 };
 
-                bool success = await _utilisateurService.PatchUpdateUser( utilisateurSettingsDTO);
+                var response = await _utilisateurService.PatchUpdateUser(utilisateurSettingsDTO);
 
-                if (success)
+                if (response.Success)
                 {
-                    CurrentUser.Login = Username;
-                    UsernameUpdateSuccess = true;
+                    InfoGeneraleUpdateSuccess = true;
+                    InfoGeneraleError = null;
                 }
                 else
                 {
-                    UsernameError = "Erreur lors de la mise à jour";
+                    InfoGeneraleError = response.ErrorMessage;
                 }
             }
             catch (Exception ex)
             {
-                UsernameError = $"Erreur: {ex.Message}";
+                InfoGeneraleError = $"Erreur: {ex.Message}";
             }
             finally
             {
-                IsUpdatingUsername = false;
+                IsUpdatingInfoGeneral = false;
                 NotifyStateChanged();
             }
         }
@@ -308,19 +300,20 @@ namespace FrontBlazor.ViewModel
             {
                 UtilisateurSettingsDTO utilisateurSettingsDTO = new UtilisateurSettingsDTO
                 {
+                    Login = CurrentUser.Login,
                     Email = Email
                 };
 
-                bool success = await _utilisateurService.PatchUpdateUser(utilisateurSettingsDTO);
+                var response = await _utilisateurService.PatchUpdateUser(utilisateurSettingsDTO);
 
-                if (success)
+                if (response.Success)
                 {
                     CurrentUser.Email = Email;
                     EmailUpdateSuccess = true;
                 }
                 else
                 {
-                    EmailError = "Erreur lors de la mise à jour";
+                    EmailError = response.ErrorMessage;
                 }
             }
             catch (Exception ex)
@@ -408,7 +401,6 @@ namespace FrontBlazor.ViewModel
                 return "Veuillez entrer votre mot de passe actuel";
             }
 
-            IsUpdatingPassword = true;
             NotifyStateChanged();
 
             try
@@ -423,7 +415,6 @@ namespace FrontBlazor.ViewModel
                 }
                 else
                 {
-                    PasswordUpdateSuccess = true;
                     return "Success";
                 }
             }
@@ -433,14 +424,35 @@ namespace FrontBlazor.ViewModel
             }
             finally
             {
-                IsUpdatingPassword = false;
                 NotifyStateChanged();
             }
         }
 
         public async Task ToggleEmailNotifications()
         {
-            //
+            NotificationError = string.Empty;
+            NotificationUpdateSuccess = false;
+            bool newValue = (bool)!CurrentUser.PreferenceNotifMail;
+
+            try
+            {
+                await _utilisateurService.UpdateNotifMailPreferenceAsync(
+                    CurrentUser.UtilisateurId,
+                    newValue);
+
+                // Mise à jour locale si succès API
+                EmailNotificationsEnabled = newValue;
+                NotificationUpdateSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                NotificationError = "Erreur lors de la mise à jour de la préférence.";
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                NotifyStateChanged();
+            }
         }
 
         private async Task LoadBlockedUsers()

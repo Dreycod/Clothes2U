@@ -250,16 +250,9 @@ public class AnnonceWebService : BaseGenericService, IAnnonceService
         response.EnsureSuccessStatusCode();
         return response.Content.ReadFromJsonAsync<AnnonceDTO>().Result ?? new AnnonceDTO();
     }
-
-    public async Task ReprendreAnnonce(int annonceId)
+    public async Task ChangeEtatAnnonce(int annonceId, int statutId)
     {
-        var response = await PatchWithCredentialsAsync($"Annonce/ReprendreAnnonce/{annonceId}");
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task PauseAnnonce(int annonceId)
-    {
-        var response = await PatchWithCredentialsAsync($"Annonce/PauseAnnonce/{annonceId}");
+        var response = await PatchWithCredentialsAsync($"Annonce/ChangeEtatAnnonce/{annonceId}?StatutId={statutId}");
         response.EnsureSuccessStatusCode();
     }
 }

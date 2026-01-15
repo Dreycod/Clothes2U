@@ -51,6 +51,7 @@ public class ConversationMappingProfile : Profile
             .ForMember(dest => dest.VendeurId, opt => opt.MapFrom(src => src.Vendeur.UtilisateurVendeurId))
             .ForMember(dest => dest.StatusConversationId, opt => opt.MapFrom(src => src.StatutConversationId))
             .ForMember(dest => dest.StatusConversation, opt => opt.MapFrom(src => src.StatutConversation.StatutConversationLibelle))
+            .ForMember(dest => dest.AnnonceStatut, opt => opt.MapFrom(src => src.LAnnonce.Statut.StatutLibelle))
             .ForMember(dest => dest.PhotoAnnonceId, opt => opt.MapFrom(src =>
                 src.LAnnonce.Photos.FirstOrDefault() != null
                     ? src.LAnnonce.Photos.First().Photo.PhotoId

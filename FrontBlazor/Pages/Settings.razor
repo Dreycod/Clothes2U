@@ -5,8 +5,6 @@
 
 <PageTitle>Paramètres - Clothes2U</PageTitle>
 
-<NavBar />
-
 <div class="settings-page">
     <div class="settings-container">
         @if (VM_Settings.IsLoading)
@@ -96,8 +94,9 @@
                         </div>
 
                         <div class="settings-card">
+                            <p>Nom d'utilisateur</p>
                             <div class="card-header">
-                                <h3>Nom d'utilisateur</h3>
+                                <h3>Informations générales</h3>
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
@@ -107,24 +106,33 @@
                                            @bind="VM_Settings.Username"
                                            @bind:event="oninput" />
                                 </div>
-                                @if (!string.IsNullOrEmpty(VM_Settings.UsernameError))
+                                <div class="form-group">
+                                    <p>Description</p>
+                                    <input type="text"
+                                           class="form-input" 
+                                           placeholder="Description"
+                                           @bind="VM_Settings.Description"
+                                           @bind:event="oninput" />
+                                </div>
+                                @if (!string.IsNullOrEmpty(VM_Settings.InfoGeneraleError))
                                 {
                                     <div class="alert alert-error">
                                         <i class="bi bi-exclamation-circle"></i>
-                                        <span>@VM_Settings.UsernameError</span>
+                                        <span>@VM_Settings.InfoGeneraleError</span>
                                     </div>
                                 }
-                                @if (VM_Settings.UsernameUpdateSuccess)
+                                @if (VM_Settings.InfoGeneraleUpdateSuccess)
                                 {
                                     <div class="alert alert-success">
                                         <i class="bi bi-check-circle"></i>
-                                        <span>Pseudo mis à jour avec succès</span>
+                                        <span>Pseudo et description mis à jour avec succès</span>
                                     </div>
                                 }
+
                                 <button class="btn-primary" 
-                                        @onclick="VM_Settings.UpdateUsername"
-                                        disabled="@VM_Settings.IsUpdatingUsername">
-                                    @if (VM_Settings.IsUpdatingUsername)
+                                        @onclick="VM_Settings.UpdateInfoGeneral"
+                                        disabled="@VM_Settings.IsUpdatingInfoGeneral">
+                                    @if (VM_Settings.IsUpdatingInfoGeneral)
                                     {
                                         <span class="spinner-small-inline"></span>
                                         <span>Mise à jour...</span>
@@ -229,6 +237,21 @@
                                     </div>
                                 }
                             </div>
+                        </div>
+                    </div>
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h3>Adresses</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="preference-description">
+                                Gérez vos adresses de livraison et de facturation.
+                            </p>
+                            <button class="btn-primary"
+                                    @onclick='() => NavigationManager.NavigateTo("/addresses")'>
+                                <i class="bi bi-geo-alt"></i>
+                                <span>Gérer mes adresses</span>
+                            </button>
                         </div>
                     </div>
                 }
@@ -422,8 +445,6 @@
         }
     </div>
 </div>
-
-<Footer />
 
 @code {
     public bool ShowCurrentPassword { get; set; } = false;

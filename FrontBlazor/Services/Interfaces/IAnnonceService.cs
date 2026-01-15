@@ -18,7 +18,5 @@ public interface IAnnonceService
     Task VendreAnnonce(int annonceId);
     Task<List<AnnonceDTO>> GetRecommendedAnnonces(int page = 1, int pageSize = 30);
     Task DeleteAnnonce(int annonceId);
-    Task ReprendreAnnonce(int annonceId);
-    Task PauseAnnonce(int annonceId);
-
+    Task ChangeEtatAnnonce(int annonceId, int StatutId);
 }

@@ -112,17 +112,12 @@ public class TailleController : ControllerBase
         {
             return BadRequest();
         }
-
         List<Mesure> Mesures = _mapper.Map<List<Mesure>>(MesuresDTO);                                                                                                      
-
         IEnumerable<Mesure> result = await _tailleManager.PutTailleMesuresAsync(id,Mesures);
-
         if (result == null)
         {
             return NotFound();
         }
-        List<MesureDTO> _mesuresDTO = _mapper.Map<List<MesureDTO>>(result);
-
         return NoContent();
     }
 }

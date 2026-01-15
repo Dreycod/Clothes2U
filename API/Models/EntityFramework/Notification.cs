@@ -33,8 +33,10 @@ public class Notification : IEntity
     public virtual Utilisateur Utilisateur { get; set; } = null!;
     
     [InverseProperty(nameof(NotificationAdmin.LaNotification))]
-    public virtual NotificationAdmin? NotificationAdmins { get; set; } 
-    
+    public virtual NotificationAdmin? NotificationAdmins { get; set; }
+    [InverseProperty(nameof(NotificationCommercial.LaNotification))]
+    public virtual NotificationCommercial? NotificationCommercials { get; set; }
+
     [InverseProperty(nameof(NotificationProposition.Notification))]
     public virtual NotificationProposition NotificationProposition{ get; set; } 
     

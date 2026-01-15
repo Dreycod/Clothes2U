@@ -87,6 +87,19 @@
         font-size: 1.25rem;
     }
 
+/* Special back item */
+.nav-back {
+    background-color: #f8fafc;
+    border-left: 4px solid #10b981;
+    color: #374151;
+}
+
+.nav-back:hover {
+    background-color: #ecfdf5;
+    color: #10b981;
+    transform: translateX(-2px);
+}
+
 /* ===== Main Content ===== */
 .commercial-content {
     padding: 2rem;
@@ -774,4 +787,117 @@
     font-size: 0.85rem;
     margin-top: 0.25rem;
     display: block;
+}
+/* Styles additionnels pour la page Messages - Ã  ajouter dans commercial-shared.css */
+
+/* Message History Item */
+.message-history-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+    .message-history-item:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-color: #10b981;
+    }
+
+.message-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.message-history-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+    .message-history-title h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+.message-history-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.message-history-content {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+    .message-history-content p {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+.message-history-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.message-history-date,
+.message-history-author,
+.message-history-modified {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+    .message-history-date i,
+    .message-history-author i,
+    .message-history-modified i {
+        font-size: 1rem;
+        color: #9ca3af;
+    }
+
+.message-history-modified {
+    color: #059669;
+}
+
+    .message-history-modified i {
+        color: #059669;
+    }
+
+/* Disabled button state */
+.btn-primary:disabled,
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+    .btn-primary:disabled:hover {
+        background-color: #10b981;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .message-history-header {
+        flex-direction: column;
+    }
+
+    .message-history-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 }

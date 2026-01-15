@@ -23,17 +23,18 @@ public class CommercialViewModel: BaseCommercialViewModel
 
     #region ViewModels
     private readonly ICaracteristiqueService<MarqueDTO> _marqueService;
-    private readonly ICategorieService<CategorieDTO> _categorieService;
+    private readonly ICaracteristiqueService<CategorieDTO> _categorieService;
     private readonly ICaracteristiqueService<CouleurDTO> _couleurService;
     private readonly ICaracteristiqueService<TailleDTO> _tailleService;
     
-    public List<CouleurDTO>  Couleurs { get; set; }
-    public List<MarqueDTO> Marques { get; set; }
-    public List<CategorieDTO> Categories { get; set; }
-    public List<TailleDTO> Tailles { get; set; }
+    public List<CouleurDTO> Couleurs { get; set; } = new();
+    public List<MarqueDTO> Marques { get; set; } = new();
+    public List<CategorieDTO> Categories { get; set; } = new();
+    public List<TailleDTO> Tailles { get; set; } = new();
+
     #endregion
     public Action? OnStateChange;
-    public CommercialViewModel(NavigationManager navigationManager, ICaracteristiqueService<CouleurDTO> couleurService, ICaracteristiqueService<MarqueDTO> marqueService, ICategorieService<CategorieDTO> categorieService, ICaracteristiqueService<TailleDTO> tailleService, IAuthService authService, NavigationManager nav) : base(authService, nav)
+    public CommercialViewModel(NavigationManager navigationManager, ICaracteristiqueService<CouleurDTO> couleurService, ICaracteristiqueService<MarqueDTO> marqueService, ICaracteristiqueService<CategorieDTO> categorieService, ICaracteristiqueService<TailleDTO> tailleService, IAuthService authService, NavigationManager nav) : base(authService, nav)
     {
         _navigationManager = navigationManager;
         _couleurService =  couleurService;
@@ -49,7 +50,7 @@ public class CommercialViewModel: BaseCommercialViewModel
         Tailles = await _tailleService.GetAllAsync();
         Couleurs = await _couleurService.GetAllAsync();
         Marques = await _marqueService.GetAllAsync();
-        Categories = await _categorieService.GetAllCategories();
+        Categories = await _categorieService.GetAllAsync();
         CountItems();
         OnStateChange?.Invoke();
 
@@ -59,7 +60,11 @@ public class CommercialViewModel: BaseCommercialViewModel
         totalCouleurs = Couleurs.Count();
         totalMarques = Marques.Count();
         totalCategories = Categories.Count();
-        totalSousCategories = Categories.SelectMany(c => c.SousCategories).Count();
+        totalSousCategories = Categories
+            .Where(c => c.SousCategories != null)
+            .SelectMany(c => c.SousCategories!)
+            .Count();
+
         totalTailles = Tailles.Count();
     }
     public void GoToPage(string page)

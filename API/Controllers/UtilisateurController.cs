@@ -4,14 +4,16 @@ using API.Models.Repository.Interfaces;
 using API.Models.Repository.Managers;
 using API.Services;
 using API.Services.Interfaces;
-using API.Services.VerificationSrvceV2;
 using API.Services.Interfaces;
+using API.Services.VerificationSrvceV2;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 using Shared.DTO;
+using Shared.DTO.Annonce;
 using Shared.DTO.Utilisateur;
+using System.Net.Mail;
 
 
 namespace API.Controllers;
@@ -29,6 +31,7 @@ public class UtilisateurController :  ControllerBase
     private readonly IUserDeletionService _userDeletionService;
     private readonly IAnnonceRepository<Annonce, int, FilterDTO> _annonceManager;
     private readonly IAnnonceExtensionService _annonceExtensionService;
+    private readonly IMotInterditService _motInterditService;
 
     public UtilisateurController(
         IUtilisateurRepository utilisateurManager,
@@ -38,7 +41,8 @@ public class UtilisateurController :  ControllerBase
         IMessageRepository messageRepository,
         IUserDeletionService userDeletionService,
         IAnnonceRepository<Annonce, int, FilterDTO> annonceManager,
-        IAnnonceExtensionService annonceExtensionService
+        IAnnonceExtensionService annonceExtensionService,
+        IMotInterditService motInterditService
         )
     {
         _utilisateurManager = utilisateurManager;
@@ -49,6 +53,7 @@ public class UtilisateurController :  ControllerBase
         _annonceExtensionService =  annonceExtensionService;
         _userDeletionService = userDeletionService;
         _annonceManager = annonceManager;
+        _motInterditService = motInterditService;
     }
     [HttpGet("{id}")]
     public async Task<ActionResult<UtilisateurViewDTO>> GetUtilisateur(int id)
@@ -90,12 +95,64 @@ public class UtilisateurController :  ControllerBase
 
         int userId = await _currentUserService.GetUserIdOrThrow();
         Utilisateur utilisateurToUpdate = await _utilisateurManager.GetByIdAsync(userId);
+
         if (utilisateurToUpdate == null)
-            return NotFound();
-    
+            return NotFound(APIResponse<object>.ErrorResponse("Erreur du serveur, veuillez-vous reconnecter."));
+
+        if (string.IsNullOrWhiteSpace(settingsDTO.Login))
+        {
+            settingsDTO.Login = utilisateurToUpdate.Login;
+        }
+        else if (settingsDTO.Login != utilisateurToUpdate.Login) 
+        {
+            var utilisateurByLogin = await _utilisateurManager.GetUtilisateurByLogin(settingsDTO.Login);
+            if (utilisateurByLogin != null && utilisateurByLogin.UtilisateurId != userId)
+            {
+                return BadRequest(APIResponse<object>.ErrorResponse("Ce pseudo est déjà utilisé par un utilisateur"));
+            }
+        }
+
+        if (String.IsNullOrWhiteSpace(settingsDTO.Description))
+            settingsDTO.Description = utilisateurToUpdate.Description;
+
+        if (string.IsNullOrWhiteSpace(settingsDTO.Email))
+        {
+            settingsDTO.Email = utilisateurToUpdate.Email;
+        }
+        else if (settingsDTO.Email != utilisateurToUpdate.Email)
+        {
+            try
+            {
+                _ = new System.Net.Mail.MailAddress(settingsDTO.Email);
+                var utilisateurByEmail = await _utilisateurManager.GetUtilisateurByEmail(settingsDTO.Email);
+
+                if (utilisateurByEmail != null && utilisateurByEmail.UtilisateurId != userId)
+                {
+                    return BadRequest(
+                        APIResponse<object>.ErrorResponse("Cet email est déjà utilisé par un autre utilisateur")
+                    );
+                }
+            }
+            catch
+            {
+                return BadRequest(
+                    APIResponse<object>.ErrorResponse("Votre mail n'est pas valide.")
+                );
+            }
+        }
+
+        // Vérification des mots interdits
+        var isForbidden = await _motInterditService.ContientMotInterdit(settingsDTO.Login) ||
+                         await _motInterditService.ContientMotInterdit(settingsDTO.Description);
+        if (isForbidden)
+        {
+            return BadRequest(APIResponse<object>.ErrorResponse("Votre pseudo ou description contient un(des) mots interdits!"));
+        }
+
         _mapper.Map(settingsDTO, utilisateurToUpdate);
         await _utilisateurManager.UpdateAsync(utilisateurToUpdate);
-        return NoContent();
+
+        return Ok(APIResponse<object>.SuccessResponse(null));
     }
 
     [HttpGet("GetSettings")]
@@ -121,24 +178,6 @@ public class UtilisateurController :  ControllerBase
         await _utilisateurManager.UpdateAsync(user);
         return NoContent();
     }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUtilisateur(int id)
-    {
-        int userId = await _currentUserService.GetUserIdOrThrow();
-        if (await _utilisateurManager.GetByIdAsync(id) == null)
-        {
-            return NotFound();
-        }
-        if (userId != id)
-        {
-            return Forbid();
-        }
-
-        await _userDeletionService.DeleteUtilisateurAsync(id);
-        return NoContent();
-    }
-
     [HttpDelete("suppressionCompte")]
     public async Task<IActionResult> SuppressionCompte([FromBody] AccountDeletionDTO accountDeletionDTO)
     {

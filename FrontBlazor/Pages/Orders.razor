@@ -6,8 +6,6 @@
 
 <PageTitle>Mes Commandes - Clothes2U</PageTitle>
 
-<NavBar/>
-
 <div class="orders-page">
     <div class="orders-container">
         
@@ -327,7 +325,7 @@
                         
                         @if (selectedOrder.StatutCommandeId == 3)
                         {
-                            <button class="btn-primary">
+                            <button class="btn-primary" @onclick="() => VM.ShowAddReview()">
                                 <i class="bi bi-star-fill"></i>
                                 Laisser un avis
                             </button>
@@ -355,8 +353,80 @@
     </div>
 </div>
 
+@if (VM.ShowAddReviewModal)
+{
+    <div class="modal-overlay" @onclick="VM.CloseAddReview">
+        <div class="modal-content review-modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>Laisser un avis</h3>
+                <button class="modal-close" @onclick="VM.CloseAddReview">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(VM.ReviewErrorMessage))
+                {
+                    <div class="alert alert-error">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>@VM.ReviewErrorMessage</span>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label class="form-label">Note</label>
+                    <div class="star-rating-input">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            int rating = i;
+                            <button type="button" 
+                                    class="star-btn @(rating <= VM.SelectedRating ? "active" : "")" 
+                                    @onclick="() => VM.SetRating(rating)">
+                                <i class="bi bi-star-fill"></i>
+                            </button>
+                        }
+                    </div>
+                    @if (VM.SelectedRating > 0)
+                    {
+                        <span class="rating-text">@VM.SelectedRating / 5</span>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Commentaire</label>
+                    <textarea class="form-textarea"
+                              placeholder="Partagez votre expérience (minimum 10 caractères)..."
+                              @bind="VM.ReviewComment"
+                              @bind:event="oninput"
+                              rows="6"></textarea>
+                    <span class="form-hint">@(VM.ReviewComment?.Length ?? 0) caractères</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="VM.CloseAddReview">
+                    Annuler
+                </button>
+                <button class="btn-primary btn-primary-review" 
+                        @onclick="() => VM.SubmitReview(selectedOrder)" 
+                        disabled="@VM.IsSubmittingReview">
+                    @if (VM.IsSubmittingReview)
+                    {
+                        <span class="spinner-small-inline"></span>
+                        <span>Publication...</span>
+                    }
+                    else
+                    {
+                        <span>Publier l'avis</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
-    private OrderDTO? selectedOrder;
+    public OrderDTO? selectedOrder;
 
     protected override async Task OnInitializedAsync()
     {

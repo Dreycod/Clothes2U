@@ -7,21 +7,6 @@
 
 <PageTitle>@(VM_DetailAnnonce.AnnonceDetail?.Title ?? "Produit") - Clothes2U</PageTitle>
 
-<head>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
-                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
-            }
-        }
-    </script>
-</head>
-
-<body>   
-    <script type="module" src="js/tshirt-viewer.js"></script>
-</body>
-
 <div class="product-detail-page" @onclick="HandlePageClick">
     @if (VM_DetailAnnonce.IsLoading)
     {
@@ -105,7 +90,6 @@
                                 <i class="bi bi-badge-3d"></i>
                             </button>
                         }
-        
                         @if (VM_DetailAnnonce.AnnonceDetail.IsOwnerAnnonce)
                         {
                             <div class="product-actions-dropdown-container" @onclick:stopPropagation="true">
@@ -126,9 +110,13 @@
                                             <i class="bi bi-@(annonce.StatutAnnonceId == 5 ? "play-circle" : "pause-circle")"></i>
                                             <span>@(annonce.StatutAnnonceId == 5 ? "Reprendre l'annonce" : "Mettre en pause")</span>
                                         </button>
+                                        <button class="dropdown-item" @onclick="VM_DetailAnnonce.ToggleDeleteProductModal">
+                                            <i class="bi bi-trash"></i>
+                                            <span>Supprimer l'article</span>
+                                        </button>
                                     </div>
                                 }
-                            </div>
+                                </div>
                         }
                     </div>
                 </div>
@@ -186,8 +174,24 @@
                         <div class="detail-value">@(annonce.EtatArticle)</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Catégorie</div>
+                        <div class="detail-label">Sous Catégorie</div>
                         <div class="detail-value">@(annonce.SousCategorie)</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Couleur@(annonce.Couleurs?.Count > 1 ? "s" : "")</div>
+                        <div class="couleurs-container">
+                            @if (annonce.Couleurs != null && annonce.Couleurs.Any())
+                            {
+                                @foreach (var couleur in annonce.Couleurs)
+                                {
+                                    <CouleurBadge Couleur="@couleur" />
+                                }
+                            }
+                            else
+                            {
+                                <span class="detail-value">Non spécifié</span>
+                            }
+                        </div>
                     </div>
                 </div>
 
@@ -237,12 +241,6 @@
 
                     <button class="btn-primary" @onclick="VM_DetailAnnonce.BuyProduct">
                         Acheter l'article
-                    </button>
-                }
-                else
-                {
-                    <button class="btn-danger" @onclick="VM_DetailAnnonce.ToggleDeleteProductModal">
-                        Supprimer votre article
                     </button>
                 }
             </div>
@@ -319,7 +317,7 @@
                     }
                     else
                     {
-                        <span>Signaler l'annonce</span>
+                        <span>Signalement de l'annonce'</span>
                     }
                 </button>
             </div>
@@ -441,15 +439,19 @@
 @if (VM_DetailAnnonce.Show3DViewer)
 {
     <div class="modal-overlay" @onclick="VM_DetailAnnonce.Toggle3DViewer">
-        <div class="modal-content viewer-3d-modal" @onclick:stopPropagation>
-            <div class="modal-header">
+        <div class="modal-content viewer-3d-modal" 
+             style="width: 90vw; max-width: 1200px; height: 85vh; display: flex; flex-direction: column;"
+             @onclick:stopPropagation>
+            <div class="modal-header" style="flex-shrink: 0;">
                 <h3>Visualisation 3D</h3>
                 <button class="modal-close" @onclick="VM_DetailAnnonce.Toggle3DViewer">
                     <i class="bi bi-x"></i>
                 </button>
             </div>
-            <div class="viewer-3d-container">
-                <div id="tshirt-canvas-detail"></div>
+            <div class="viewer-3d-container" 
+                 style="flex: 1; background: #f0f0f0; position: relative; min-height: 500px;">
+                <div id="3d-canvas-detail" 
+                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
             </div>
         </div>
     </div>
@@ -470,21 +472,74 @@
     {
         if (VM_DetailAnnonce.Show3DViewer && !_3dViewerInitialized && VM_DetailAnnonce.AnnonceDetail != null)
         {
-            _3dViewerInitialized = true;
+            try
+            {
+                _3dViewerInitialized = true;
             
-            await Task.Delay(100);
+                bool isReady = await JS.InvokeAsync<bool>("waitForElement", "3d-canvas-detail");
             
-            var modelUrl = $"/assets/{VM_DetailAnnonce.AnnonceDetail.SousCategorie}.gltf";
-            var firstPhotoId = VM_DetailAnnonce.AnnonceDetail.Photos.FirstOrDefault();
-            var textureUrl = VM_DetailAnnonce.GetPhoto(firstPhotoId);
+                if (!isReady)
+                {
+                    Console.WriteLine("Container failed to initialize");
+                    _3dViewerInitialized = false;
+                    return;
+                }
             
-            await JS.InvokeVoidAsync("initAndApplyTexture", "tshirt-canvas-detail", modelUrl, textureUrl);
+                var modelUrl = $"/assets/{VM_DetailAnnonce.AnnonceDetail.SousCategorie}.gltf";
+                var firstPhotoId = VM_DetailAnnonce.AnnonceDetail.Photos.FirstOrDefault();
+                var textureUrl = VM_DetailAnnonce.GetPhoto(firstPhotoId);
+            
+                await JS.InvokeVoidAsync("initAndApplyTexture", "3d-canvas-detail", modelUrl, textureUrl);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                _3dViewerInitialized = false;
+            }
         }
-        
-        if (!VM_DetailAnnonce.Show3DViewer)
+        else if (!VM_DetailAnnonce.Show3DViewer && _3dViewerInitialized)
         {
-            _3dViewerInitialized = false;
+            try
+            {
+                await JS.InvokeVoidAsync("clearCanvas", "3d-canvas-detail");
+            }
+            catch { }
+            finally
+            {
+                _3dViewerInitialized = false;
+            }
         }
+    }
+
+    private async Task<bool> WaitForContainerReady(string containerId, int maxAttempts = 20)
+    {
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            try
+            {
+                var dimensions = await JS.InvokeAsync<int[]>("eval", 
+                    $@"(() => {{
+                        const el = document.getElementById('{containerId}');
+                        if (!el) return [0, 0];
+                        return [el.clientWidth, el.clientHeight];
+                    }})()");
+            
+                if (dimensions[0] > 0 && dimensions[1] > 0)
+                {
+                    Console.WriteLine($"Container ready after {i * 50}ms: {dimensions[0]}x{dimensions[1]}");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Attempt {i + 1} failed: {ex.Message}");
+            }
+        
+            await Task.Delay(50);
+        }
+    
+        Console.WriteLine($"Container not ready after {maxAttempts * 50}ms");
+        return false;
     }
 
     private void HandlePageClick()

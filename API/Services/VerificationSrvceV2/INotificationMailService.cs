@@ -5,8 +5,8 @@ namespace API.Services.VerificationSrvceV2
 {
     public interface INotificationMailService
     {
-        Task NotifyNewAnnonceAsync(Annonce annonce, string userMail);
-        Task NotifyAnnonceUpdatedAsync(Annonce annonce, string userMail);
+        Task NotifyNewAnnonceAsync(string annonceTitle, string UtilisateurLogin, int annonceId, string userMail);
+        Task NotifyAnnonceUpdatedAsync(string annonceTitle, int annonceId, string userMail);
         Task NotifyUserStatusChangedAsync(Utilisateur utilisateur, int oldStatutId);
         Task SendPasswordResetEmailAsync(Utilisateur utilisateur, string resetLink);
         Task SendSupportMailAsync(string userMail, string userName, int ticketId, MailDTO mail);
